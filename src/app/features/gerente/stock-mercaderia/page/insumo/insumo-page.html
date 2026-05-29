@@ -10,18 +10,18 @@
 
     <app-boton 
       trigger
-      [label]="categoria() ?  categoria() : 'Categorías'" 
+      [label]="categoria() || 'Categorías'"
       variante="teal" 
       tamanio="md">
     </app-boton>
     
     <div menu>
       <ul>
-        <li (click)="categoria.set(''); filtroDropdown.cerrar()">Todos</li>
-        <li (click)="categoria.set('Verduras'); filtroDropdown.cerrar()">Verduras</li>
-        <li (click)="categoria.set('Carnes'); filtroDropdown.cerrar()">Carnes</li>
-        <li (click)="categoria.set('Lácteos'); filtroDropdown.cerrar()">Lácteos</li>
-        <li (click)="categoria.set('Bebidas'); filtroDropdown.cerrar()">Bebidas</li>
+        <li (click)="categoria.set('Categorías'); filtroDropdown.cerrar()">Todos</li>
+        @for(cat of state.categoriasUnicas(); track cat){
+          <li (click)="categoria.set(cat); filtroDropdown.cerrar()">{{cat}}</li>
+        }
+        
       </ul>
     </div>
   </app-dropdown>
@@ -31,7 +31,7 @@
     label="NUEVO PRODUCTO" 
     variante="secondary" 
     tamanio="md"
-    (clicked)="agregarNuevoProducto()">
+    (clicked)="abrirModalCrear(modalFormulario)">
   </app-boton>
   
 </app-page-toolbar>
@@ -43,5 +43,12 @@
     <app-boton label="Lotes" variante="tab" [activo]="tabSeleccionada() === 'lotes'" (clicked)="tabSeleccionada.set('lotes')"></app-boton>
   </div>
 
-  <app-stock-list [productos]="productosFiltrados()"></app-stock-list>
+  <app-insumo-list 
+    [productos]="productosFiltrados()"
+    (editar)="abrirModalEditar(modalFormulario, $event)">
+  </app-insumo-list>
 </div>
+
+ <!-- ?ESTO ES NECESARIO PARA RENDERIZAR EL MODAL EN LA VISTA -->
+<app-modal #modalFormulario [titulo]="tituloModal()" (cerrado)="limpiarEstadoModal()">
+   </app-modal>
