@@ -1,33 +1,21 @@
-import { DatePipe, DecimalPipe } from '@angular/common';
-import { Component, OnInit, computed, inject, signal, ElementRef, viewChild, DestroyRef } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { Injectable, inject, signal, computed, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Buscador } from '../../../../shared/ui/buscador/buscador';
-import { Boton } from '../../../../shared/ui/botones/boton/boton';
-import { Dropdown } from '../../../../shared/ui/dropdown/dropdown';
-import { PageToolbar } from '../../../../shared/ui/page-toolbar/page-toolbar';
-import {  PedidoProveedor, PedidoProveedorItem, EstadoPedidoProveedor, Proveedor } from '../../../../core/models/proveedor';
-import { Router, RouterModule } from '@angular/router';
-import { ProveedorService } from '../../../../core/services/proveedor.service';
-import { ProveedorListComponent } from '../components/proveedor-list/proveedor-list';
-import { Insumo, UnidadMedida } from '../../../../core/models/insumos/insumo';
+import { VerProveedoresApiService } from './ver-proveedores.api';
+import { Proveedor, PedidoProveedor, PedidoProveedorItem, EstadoPedidoProveedor } from '../../../../core/models/proveedor';
+import { Insumo, UnidadMedida } from '../../../../core/models/producto-stock';
 
-@Component({
-  selector: 'app-ver-proveedores',
-  standalone: true,
-  imports: [DatePipe, DecimalPipe, FormsModule, FontAwesomeModule, Buscador, Boton, Dropdown, PageToolbar, ProveedorListComponent, RouterModule],
-  templateUrl: './ver-proveedores.html',
-  styleUrls: ['./ver-proveedores.css']
-})
-export class VerProveedoresComponent implements OnInit {
-  private readonly proveedorService = inject(ProveedorService);
-  private readonly router = inject(Router);
-  private readonly destroyRef = inject(DestroyRef);
+@Injectable({ providedIn: 'root' })
+export class VerProveedoresStateService {
+  private api = inject(VerProveedoresApiService);
+  private destroyRef = inject(DestroyRef);
 
-  private readonly pedidoModalCard = viewChild<ElementRef<HTMLElement>>('pedidoModalCard');
+  // Precios mock locales
+  private readonly preciosMock: Record<string, number> = {
+    '1': 1200, '2': 900, '3': 1500, '4': 600, '5': 1100,
+    '6': 7500, '7': 120, '8': 300, '9': 800, '10': 700, '11': 4500
+  };
 
+  // 1. Estado PRIVADO y writeables
   termino = signal('');
   proveedores = signal<Proveedor[]>([]);
   productos = signal<Insumo[]>([]);
@@ -35,32 +23,24 @@ export class VerProveedoresComponent implements OnInit {
   panelModo = signal<'pedido' | 'historial'>('historial');
   observacionPedido = signal('');
   mensajeAccion = signal<string | null>(null);
-  
   productoTexto = signal('');
   productoSeleccionadoId = signal<string |number|  null>(null);
   cantidadProducto = signal<number | null>(1);
   precioProductoManual = signal<number | null>(null);
-  
   pedidoItems = signal<PedidoProveedorItem[]>([]);
   pedidoHistorialSeleccionado = signal<PedidoProveedor | null>(null);
   
-  faCheck = faCheck;
-  faXmark = faXmark;
+  private _loading = signal(false);
+  loading = this._loading.asReadonly();
 
-  private readonly preciosMock: Record<string, number> = {
-    '1': 1200,
-    '2': 900,
-    '3': 1500,
-    '4': 600,
-    '5': 1100,
-    '6': 7500,
-    '7': 120,
-    '8': 300,
-    '9': 800,
-    '10': 700,
-    '11': 4500
-  };
+  // Historial del proveedor seleccionado (cargado bajo demanda desde el endpoint separado)
+  private _historialProveedor = signal<PedidoProveedor[]>([]);
+  historialProveedor = this._historialProveedor.asReadonly();
 
+  private _loadingHistorial = signal(false);
+  loadingHistorial = this._loadingHistorial.asReadonly();
+
+  // 2. Variables Derivadas (Computed)
   proveedoresFiltrados = computed(() => {
     const texto = this.termino().toLowerCase().trim();
     const lista = [...this.proveedores()].sort((a, b) => {
@@ -69,10 +49,7 @@ export class VerProveedoresComponent implements OnInit {
       return fechaB - fechaA;
     });
 
-    if (!texto) {
-      return lista;
-    }
-
+    if (!texto) return lista;
     return lista.filter(proveedor => proveedor.nombre.toLowerCase().includes(texto));
   });
 
@@ -80,30 +57,20 @@ export class VerProveedoresComponent implements OnInit {
     const texto = this.productoTexto().toLowerCase().trim();
     const lista = [...this.productos()];
 
-    if (!texto) {
-      return lista;
-    }
-
+    if (!texto) return lista;
     return lista.filter(producto => producto.nombre.toLowerCase().includes(texto));
   });
 
   productoBaseActual = computed(() => {
     const productoSeleccionado = this.productos().find(producto => producto.id === this.productoSeleccionadoId());
-    if (productoSeleccionado) {
-      return productoSeleccionado;
-    }
+    if (productoSeleccionado) return productoSeleccionado;
 
     const textoNormalizado = this.productoTexto().toLowerCase().trim();
-    if (!textoNormalizado) {
-      return null;
-    }
+    if (!textoNormalizado) return null;
 
     const coincidencias = this.productosFiltrados();
     const exacto = coincidencias.find(producto => producto.nombre.toLowerCase() === textoNormalizado);
-
-    if (exacto) {
-      return exacto;
-    }
+    if (exacto) return exacto;
 
     return coincidencias.length === 1 ? coincidencias[0] : null;
   });
@@ -113,83 +80,104 @@ export class VerProveedoresComponent implements OnInit {
     if (proveedorId === null) {
       return this.proveedoresFiltrados()[0] ?? null;
     }
-
     return this.proveedores().find(proveedor => proveedor.id === proveedorId) ?? null;
   });
 
-  ngOnInit(): void {
-    // NOTE: El endpoint del back para listar proveedores debe conectarse aquí
-    this.proveedorService.getProveedores()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(proveedores => {
-        this.proveedores.set(proveedores);
+  totalPedidosSeleccionado = computed(() => {
+    // Usa el historial cargado bajo demanda desde el endpoint separado
+    return this._historialProveedor().length;
+  });
 
-        if (proveedores.length > 0 && this.proveedorSeleccionadoId() === null) {
-          this.proveedorSeleccionadoId.set(proveedores[0].id);
-        }
+  montoEstimado = computed(() => {
+    return this.pedidoItems().reduce((total, item) => {
+      const base = item.precioUnitario ?? this.preciosMock[item.id] ?? 500;
+      return total + base * item.cantidad;
+    }, 0);
+  });
+
+  productoSeleccionadoActual = computed(() => {
+    return this.productos().find(producto => producto.id === this.productoSeleccionadoId()) ?? null;
+  });
+
+  cantidadPasoProducto = computed(() => {
+    return this.getCantidadConfiguracion(this.productoBaseActual()?.unidadMedida ?? 'KG').step;
+  });
+
+  cantidadMinimaProducto = computed(() => {
+    return this.getCantidadConfiguracion(this.productoBaseActual()?.unidadMedida ?? 'KG').min;
+  });
+
+  cantidadPlaceholderProducto = computed(() => {
+    return this.getCantidadConfiguracion(this.productoBaseActual()?.unidadMedida ?? 'KG').placeholder;
+  });
+
+  // 3. Métodos de Negocio
+  cargarDatos(): void {
+    this._loading.set(true);
+    this.api.getProveedores()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (provs) => {
+          this.proveedores.set(provs);
+          if (provs.length > 0 && this.proveedorSeleccionadoId() === null) {
+            this.proveedorSeleccionadoId.set(provs[0].id);
+          }
+          this._loading.set(false);
+        },
+        error: () => this._loading.set(false)
       });
 
-    // NOTE: El endpoint del back para listar productos disponibles debe conectarse aquí
-    this.proveedorService.getProductosDisponibles()
+    this.api.getProductosDisponibles()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(productos => {
-        this.productos.set(productos);
+      .subscribe(prods => {
+        this.productos.set(prods);
       });
-
-    const navState = history.state as { created?: boolean; message?: string } | undefined;
-    if (navState?.created) {
-      this.mensajeAccion.set(navState.message ?? 'Proveedor creado correctamente');
-      setTimeout(() => this.mensajeAccion.set(null), 3500);
-    }
   }
 
-  abrirNuevoProveedorRoute(): void {
-    this.router.navigate(['/staff', 'gerente', 'nuevo-proveedor']);
-  }
-
-  seleccionarProveedor(proveedor: Proveedor): void {
-    this.proveedorSeleccionadoId.set(proveedor.id);
+  seleccionarProveedor(proveedorId: number | string): void {
+    this.proveedorSeleccionadoId.set(proveedorId);
     this.mensajeAccion.set(null);
     this.pedidoHistorialSeleccionado.set(null);
+    // Limpiar historial anterior al cambiar de proveedor
+    this._historialProveedor.set([]);
   }
 
-  abrirPedido(proveedor: Proveedor): void {
-    this.seleccionarProveedor(proveedor);
+  /**
+   * Carga el historial de pedidos de un proveedor desde el endpoint real.
+   * GET /api/Proveedor/{id}/historial-pedidos
+   */
+  cargarHistorial(id: number | string): void {
+    this._loadingHistorial.set(true);
+    this.api.getHistorialPedidos(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (pedidos) => {
+          this._historialProveedor.set(pedidos);
+          this._loadingHistorial.set(false);
+        },
+        error: () => {
+          this._historialProveedor.set([]);
+          this._loadingHistorial.set(false);
+        }
+      });
+  }
+
+  abrirPedido(proveedorId: number | string): void {
+    this.seleccionarProveedor(proveedorId);
     this.panelModo.set('pedido');
     this.mensajeAccion.set(null);
   }
 
-  abrirHistorial(proveedor: Proveedor): void {
-    this.seleccionarProveedor(proveedor);
+  abrirHistorial(proveedorId: number | string): void {
+    this.seleccionarProveedor(proveedorId);
     this.panelModo.set('historial');
   }
 
   abrirDetallePedido(pedido: PedidoProveedor): void {
     this.pedidoHistorialSeleccionado.set(pedido);
-    setTimeout(() => this.focusModal(), 50);
   }
 
   cerrarDetallePedido(): void {
-    this.pedidoHistorialSeleccionado.set(null);
-  }
-
-  private focusModal(): void {
-    try {
-      const el = this.pedidoModalCard()?.nativeElement;
-      if (el) {
-        el.focus({ preventScroll: true });
-      }
-    } catch (e) {
-      // Ignorar errores de foco
-    }
-  }
-
-  cambiarProveedorDesdePedido(proveedor: Proveedor, dropdown?: Dropdown): void {
-    this.proveedorSeleccionadoId.set(proveedor.id);
-    this.panelModo.set('pedido');
-    this.limpiarPedido();
-    dropdown?.cerrar();
-    this.mensajeAccion.set(null);
     this.pedidoHistorialSeleccionado.set(null);
   }
 
@@ -230,11 +218,9 @@ export class VerProveedoresComponent implements OnInit {
 
     this.pedidoItems.update(items => {
       const index = items.findIndex(item => item.id === itemId);
-
       if (index > -1) {
         return items.map(item => item.id === itemId ? { ...item, cantidad: item.cantidad + cantidad } : item);
       }
-
       return [...items, { id: itemId, nombre, cantidad, unidadMedida, precioUnitario: precio }];
     });
 
@@ -245,10 +231,7 @@ export class VerProveedoresComponent implements OnInit {
   }
 
   actualizarCantidadItem(itemId: string | number, cantidad: number | null): void {
-    if (cantidad === null || cantidad <= 0) {
-      return;
-    }
-
+    if (cantidad === null || cantidad <= 0) return;
     this.pedidoItems.update(items =>
       items.map(item => item.id === itemId ? { ...item, cantidad } : item)
     );
@@ -270,33 +253,23 @@ export class VerProveedoresComponent implements OnInit {
 
   enviarPedido(): void {
     const proveedor = this.proveedorSeleccionado();
+    if (!proveedor || this.pedidoItems().length === 0) return;
 
-    if (!proveedor || this.pedidoItems().length === 0) {
-      return;
-    }
+    const observacion = this.observacionPedido().trim() || 'Pedido generado desde la vista de gerente';
+    const concepto = 'Pedido de insumos';
+    const items = [...this.pedidoItems()];
+    const monto = this.montoEstimado();
 
     const fechaPedido = new Date().toISOString();
     const nuevoPedido: PedidoProveedor = {
       id: Date.now(),
       fecha: fechaPedido,
-      concepto: 'Pedido de insumos',
-      monto: this.calcularMontoEstimado(),
+      concepto,
+      monto,
       estado: 'Pendiente',
-      observacion: this.observacionPedido().trim() || 'Pedido generado desde la vista de gerente',
-      items: this.pedidoItems()
+      observacion,
+      items
     };
-
-    this.proveedores.update(lista =>
-      lista.map(item =>
-        item.id === proveedor.id
-          ? {
-              ...item,
-              fechaUltimoPedido: fechaPedido,
-              historialPedidos: [nuevoPedido, ...item.historialPedidos]
-            }
-          : item
-      )
-    );
 
     const pedido = {
       proveedorId: proveedor.id,
@@ -306,50 +279,45 @@ export class VerProveedoresComponent implements OnInit {
       items: nuevoPedido.items
     };
 
-    // NOTE: El endpoint del back para registrar y enviar pedidos de proveedores debe conectarse aquí
-    this.proveedorService.crearPedidoProveedor(proveedor.id, pedido)
+    this.api.crearPedidoProveedor(proveedor.id, pedido)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (actualizado) => {
+          // NOTA: Cuando el backend esté listo para retornar la URL generada, la respuesta ('actualizado') 
+          // contendrá una propiedad como 'whatsappUrl' (ej. actualizado.whatsappUrl). En ese momento, 
+          // se deberá utilizar directamente: window.open(actualizado.whatsappUrl, '_blank');
+          
           this.proveedores.update(lista => lista.map(item => item.id === actualizado.id ? actualizado : item));
           this.proveedorSeleccionadoId.set(actualizado.id);
           this.panelModo.set('historial');
+          
+          // Generar y abrir WhatsApp temporalmente desde el frontend
+          this.abrirWhatsapp(proveedor, items, concepto, observacion);
+
           this.limpiarPedido();
-          this.cerrarDetallePedido();
+          this.pedidoHistorialSeleccionado.set(null);
           this.mensajeAccion.set('Pedido agregado correctamente');
-        },
-        error: () => {
-          // NOTE: El manejo de errores de comunicación debe integrarse aquí
         }
       });
   }
 
-  getEstadoClase(estado: EstadoPedidoProveedor): string {
-    switch (estado) {
-      case 'Recibido':
-        return 'estado-recibido';
-      case 'Confirmado':
-        return 'estado-confirmado';
-      case 'Cancelado':
-        return 'estado-cancelado';
-      default:
-        return 'estado-pendiente';
+  private abrirWhatsapp(proveedor: Proveedor, items: PedidoProveedorItem[], concepto: string, observacion: string): void {
+    const telefonoLimpio = proveedor.telefono.replace(/[^0-9]/g, '');
+    let mensaje = `Hola *${proveedor.nombre}*,\n\nTe realizo el siguiente pedido:\n`;
+    mensaje += `*Concepto:* ${concepto}\n`;
+    if (observacion && observacion !== 'Pedido generado desde la vista de gerente') {
+      mensaje += `*Observaciones:* ${observacion}\n`;
     }
+    mensaje += `\n*Detalle del pedido:*\n`;
+    items.forEach(item => {
+      mensaje += `- ${item.cantidad} ${item.unidadMedida} de *${item.nombre}*\n`;
+    });
+
+    const url = `https://wa.me/${telefonoLimpio}?text=${encodeURIComponent(mensaje)}`;
+    window.open(url, '_blank');
   }
 
-  get totalPedidosSeleccionado(): number {
-    return this.proveedorSeleccionado()?.historialPedidos.length ?? 0;
-  }
-
-  get proveedorSeleccionadoPedido(): Proveedor | null {
-    return this.proveedorSeleccionado();
-  }
-
-  get montoEstimado(): number {
-    return this.calcularMontoEstimado();
-  }
-
-  getCantidadConfiguracion(unidadMedida: string): { step: number; min: number; placeholder: string } {
+  private getCantidadConfiguracion(unidadMedida: UnidadMedida | string): { step: number; min: number; placeholder: string } {
     switch (unidadMedida) {
       case 'UN':
         return { step: 1, min: 1, placeholder: '1' };
@@ -362,30 +330,8 @@ export class VerProveedoresComponent implements OnInit {
     }
   }
 
-  get productoSeleccionadoActual(): Insumo | null {
-    return this.productos().find(producto => producto.id === this.productoSeleccionadoId()) ?? null;
-  }
-
-  get cantidadPasoProducto(): number {
-    return this.getCantidadConfiguracion(this.productoBaseActual()?.unidadMedida ?? 'KG').step;
-  }
-
-  get cantidadMinimaProducto(): number {
-    return this.getCantidadConfiguracion(this.productoBaseActual()?.unidadMedida ?? 'KG').min;
-  }
-
-  get cantidadPlaceholderProducto(): string {
-    return this.getCantidadConfiguracion(this.productoBaseActual()?.unidadMedida ?? 'KG').placeholder;
-  }
 
   private getCantidadInicial(unidadMedida: UnidadMedida | string): number {
     return this.getCantidadConfiguracion(unidadMedida).min;
-  }
-
-  private calcularMontoEstimado(): number {
-    return this.pedidoItems().reduce((total, item) => {
-      const base = item.precioUnitario ?? this.preciosMock[item.id] ?? 500;
-      return total + base * item.cantidad;
-    }, 0);
   }
 }

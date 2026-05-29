@@ -93,12 +93,20 @@
                 <p class="section-subtitle mb-0">Selecciona el proveedor, agrega productos y confirma la lista antes de enviar.</p>
               </div>
 
-              <app-boton
-                label="Ver historial"
-                variante="outline"
-                tamanio="sm"
-                (clicked)="abrirHistorial(proveedor)">
-              </app-boton>
+              <div class="d-flex gap-2 align-items-center">
+                <app-boton
+                  label="Pedido sugerido por IA ✨"
+                  variante="teal"
+                  tamanio="sm"
+                  (clicked)="irAPedidoSugeridoIA(proveedor)">
+                </app-boton>
+                <app-boton
+                  label="Ver historial"
+                  variante="outline"
+                  tamanio="sm"
+                  (clicked)="abrirHistorial(proveedor)">
+                </app-boton>
+              </div>
             </div>
 
             <div class="field-group field-group-wide">
@@ -143,11 +151,11 @@
                         <button type="button" class="predictive-item" (click)="seleccionarProducto(producto)">
                           <div class="predictive-item-main">
                             <strong>{{ producto.nombre }}</strong>
-                            <span>{{ producto.categoria }}</span>
+                            <span>{{ producto.categoriaIngrediente }}</span>
                           </div>
 
                           <div class="predictive-item-meta">
-                            <span>{{ producto.stockActual }} {{ producto.unidadMedida }}</span>
+                            <span>{{ producto.stock }} {{ producto.unidadMedida }}</span>
                           </div>
                         </button>
                       }
@@ -280,34 +288,6 @@
                   (clicked)="enviarPedido()">
                 </app-boton>
               </div>
-            </div>
-          </div>
-        } @else {
-          <div class="panel-section">
-            <div class="history-header">
-              <h3 class="section-title mb-0">Historial de pedidos</h3>
-              <span class="counter-pill small">{{ proveedor.historialPedidos.length }} movimientos</span>
-            </div>
-
-            <div class="history-list">
-              @for (pedido of proveedor.historialPedidos; track pedido.id) {
-                <article class="history-card" (click)="abrirDetallePedido(pedido)">
-                  <div class="history-card-header">
-                    <div>
-                      <strong>{{ pedido.concepto }}</strong>
-                      <div class="history-date">{{ pedido.fecha | date:'dd/MM/yyyy' }}</div>
-                    </div>
-
-                    <span class="estado-pill" [class]="getEstadoClase(pedido.estado)">{{ pedido.estado }}</span>
-                  </div>
-
-                  <div class="history-meta">
-                    <span>${{ pedido.monto | number:'1.0-0' }}</span>
-                    <span>{{ pedido.observacion }}</span>
-                    <span class="history-items">{{ pedido.items.length }} ítems</span>
-                  </div>
-                </article>
-              }
             </div>
           </div>
         }
