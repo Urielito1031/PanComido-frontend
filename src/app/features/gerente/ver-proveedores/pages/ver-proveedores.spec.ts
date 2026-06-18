@@ -51,6 +51,7 @@ describe('VerProveedoresComponent', () => {
       loading: signal(false),
       loadingHistorial: signal(false),
       loadingInsumos: signal(false),
+      totalPedidosSeleccionado: signal(0),
       error: signal(null),
       errorHistorial: signal(null),
       errorInsumos: signal(null),

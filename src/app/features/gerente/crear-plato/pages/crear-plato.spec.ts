@@ -24,6 +24,7 @@ describe('CrearPlatoPage', () => {
         restricciones: [],
         ingredientes: []
       })),
+      getPlatos: vi.fn().mockReturnValue(of([])),
       crearPlato: vi.fn().mockReturnValue(of({ id: 1 })),
     };
 

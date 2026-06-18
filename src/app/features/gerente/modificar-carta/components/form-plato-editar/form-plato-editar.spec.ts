@@ -42,8 +42,8 @@ describe('FormPlatoEditar', () => {
   });
 
   it('debería inicializar el formulario vacío con defaults si plato es null', () => {
-    expect(component.form.value.nombre).toBeNull();
-    expect(component.form.value.precioVenta).toBeNull();
+    expect(component.form.value.nombre).toBe('');
+    expect(component.form.value.precioVenta).toBe(0);
     expect(component.form.value.categoria).toBe('Principales');
     expect(component.form.valid).toBe(false); // nombre es requerido
   });

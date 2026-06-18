@@ -1,7 +1,7 @@
 import { Component, effect, inject, input, output , ChangeDetectionStrategy} from '@angular/core';
 import { Plato } from '../../../../../core/models/domain/plato';
 import { Boton } from "../../../../../shared/ui/botones/boton/boton";
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, NonNullableFormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -18,10 +18,10 @@ export class FormPlatoEditar {
   guardar = output<Partial<Plato>>();
   categorias = input<string[]>(['Principales', 'Entradas', 'Bebidas', 'Postres']);
 
-  private fb = inject(FormBuilder);
+  private fb = inject(NonNullableFormBuilder);
 
-  //estructura basica de formulario
-  form: FormGroup = this.fb.group({
+  //estructura basica de formulario con tipado estricto
+  form = this.fb.group({
     nombre: ['', Validators.required],
     precioVenta: [0, [Validators.required, Validators.min(0)]],
     costo: [0, [Validators.required, Validators.min(0)]],
