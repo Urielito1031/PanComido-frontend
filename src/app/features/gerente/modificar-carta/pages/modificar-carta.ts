@@ -7,6 +7,7 @@ import { PageToolbar } from '../../../../shared/ui/page-toolbar/page-toolbar';
 import { Dropdown } from '../../../../shared/ui/dropdown/dropdown';
 import { ModalEditarPlatoComponent } from '../containers/modal-editar-plato/modal-editar-plato';
 import { ModalEliminarPlatoComponent } from '../components/modal-eliminar-plato/modal-eliminar-plato';
+import { ModalRestaurarPlatoComponent } from '../components/modal-restaurar-plato/modal-restaurar-plato';
 import { ModificarCartaStateService } from '../services/modificar-carta.state';
 
 @Component({
@@ -18,7 +19,8 @@ import { ModificarCartaStateService } from '../services/modificar-carta.state';
     Dropdown, 
     PageToolbar,
     ModalEditarPlatoComponent,
-    ModalEliminarPlatoComponent
+    ModalEliminarPlatoComponent,
+    ModalRestaurarPlatoComponent
   ],
   templateUrl: './modificar-carta.html',
   styleUrls: ['./modificar-carta.css'],
@@ -26,7 +28,8 @@ import { ModificarCartaStateService } from '../services/modificar-carta.state';
 })
 export class ModificarCartaComponent implements OnInit {
   private router = inject(Router);
-  private state = inject(ModificarCartaStateService);
+  // Make state available to the template (since we use it in @if(state.mostrarModalRestaurar))
+  public state = inject(ModificarCartaStateService);
 
   layoutMode = signal<'grid' | 'list'>('grid');
 
@@ -111,5 +114,17 @@ export class ModificarCartaComponent implements OnInit {
 
   setLayoutMode(mode: 'grid' | 'list') {
     this.layoutMode.set(mode);
+  }
+
+  abrirRestaurarPlatos() {
+    this.state.abrirModalRestaurar();
+  }
+
+  onCloseRestaurar() {
+    this.state.cerrarModalRestaurar();
+  }
+
+  onRestaurarPlato(plato: Plato) {
+    this.state.restaurarPlato(plato);
   }
 }
