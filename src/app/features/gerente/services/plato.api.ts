@@ -174,7 +174,7 @@ export class PlatoApiService {
   }
 
   deletePlato(id: number): Observable<boolean> {
-    return this.api.delete<boolean>(`/platos/${id}`);
+    return this.api.delete<boolean>(`${this.endpoint}/${id}`);
   }
 
   private mapDetalleToDomain(dto: DetallePlatoResponseDto, formulario: DatosFormularioCrearPlatoResponseDto): Plato {
