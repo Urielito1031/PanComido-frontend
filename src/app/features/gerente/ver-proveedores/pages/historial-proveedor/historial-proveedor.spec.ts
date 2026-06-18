@@ -1,10 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
-import { of } from 'rxjs';
+import { signal } from '@angular/core';
 import { HistorialProveedorComponent } from './historial-proveedor';
 import { VerProveedoresState } from '../../services/ver-proveedores.state';
 import { Proveedor, PedidoProveedor } from '../../../../../core/models/domain/proveedor';
 import { vi } from 'vitest';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 describe('HistorialProveedorComponent', () => {
   let component: HistorialProveedorComponent;
@@ -20,7 +21,8 @@ describe('HistorialProveedorComponent', () => {
     direccion: 'Av. San Martín 1200, CABA',
     activo: true,
     fechaUltimoPedido: '2026-05-18T09:00:00.000Z',
-    categorias: ['Carne', 'Verdura']
+    categorias: ['Carne', 'Verdura'],
+    historialPedidos: []
   };
 
   const mockPedido: PedidoProveedor = {
@@ -31,23 +33,36 @@ describe('HistorialProveedorComponent', () => {
     estado: 'Recibido',
     observacion: 'Recepción completa en cámaras',
     items: [
-      { id: '6', nombre: 'Bife de Chorizo', cantidad: 10, unidadMedida: 'KG' }
+      { id: '6', nombre: 'Bife de Chorizo', cantidad: 10, unidadMedida: 'KG', precioUnitario: 18450 }
     ]
   };
 
   beforeEach(() => {
     stateMock = {
-      proveedorSeleccionado: vi.fn().mockReturnValue(mockProveedor),
-      historialProveedor: vi.fn().mockReturnValue([mockPedido]),
-      loadingHistorial: vi.fn().mockReturnValue(false),
-      pedidoHistorialSeleccionado: vi.fn().mockReturnValue(null),
-      proveedores: vi.fn().mockReturnValue([mockProveedor]),
+      proveedorSeleccionado: signal(mockProveedor),
+      historialProveedor: signal([mockPedido]),
+      loadingHistorial: signal(false),
+      errorHistorial: signal(null),
+      pedidoHistorialSeleccionado: signal(null),
+      proveedores: signal([mockProveedor]),
+      mensajeAccion: signal(null),
+      recepcionPedido: signal(null),
+      recepcionItems: signal([]),
+      bodegas: signal([]),
+      productos: signal([]),
+
       cargarDatos: vi.fn(),
       cargarProveedoresSolos: vi.fn(),
       seleccionarProveedor: vi.fn(),
       cargarHistorial: vi.fn(),
       abrirDetallePedido: vi.fn(),
-      cerrarDetallePedido: vi.fn()
+      cerrarDetallePedido: vi.fn(),
+      confirmarPedido: vi.fn(),
+      previsualizarRecepcion: vi.fn(),
+      cerrarRecepcion: vi.fn(),
+      actualizarRecepcionItem: vi.fn(),
+      recibirPedido: vi.fn(),
+      agregarIngredienteAPedido: vi.fn()
     };
 
     routerMock = {
@@ -64,6 +79,9 @@ describe('HistorialProveedorComponent', () => {
           useValue: { snapshot: { paramMap: { get: () => '1' } } }
         }
       ]
+    })
+    .overrideComponent(HistorialProveedorComponent, {
+      set: { schemas: [NO_ERRORS_SCHEMA] }
     });
 
     const fixture = TestBed.createComponent(HistorialProveedorComponent);
@@ -82,7 +100,7 @@ describe('HistorialProveedorComponent', () => {
     });
 
     it('debería cargar los proveedores si la lista está vacía', () => {
-      stateMock.proveedores = vi.fn().mockReturnValue([]);
+      stateMock.proveedores.set([]);
       component.ngOnInit();
       expect(stateMock.cargarProveedoresSolos).toHaveBeenCalled();
     });
@@ -129,9 +147,6 @@ describe('HistorialProveedorComponent', () => {
     it('debería devolver "estado-pendiente" para Pendiente', () => {
       expect(component.getEstadoClase('Pendiente')).toBe('estado-pendiente');
     });
-    it('debería devolver "estado-pendiente" para Pendiente', () => {
-      expect(component.getEstadoClase('Pendiente')).toBe('estado-pendiente');
-    });
   });
 
   describe('abrirDetallePedido y cerrarDetallePedido', () => {
@@ -143,6 +158,25 @@ describe('HistorialProveedorComponent', () => {
     it('debería llamar a state.cerrarDetallePedido', () => {
       component.cerrarDetallePedido();
       expect(stateMock.cerrarDetallePedido).toHaveBeenCalled();
+    });
+  });
+
+  describe('recepción de pedidos', () => {
+    it('debería llamar a state.recibirPedido', () => {
+      component.recibirPedido();
+      expect(stateMock.recibirPedido).toHaveBeenCalled();
+    });
+
+    it('debería llamar a state.cerrarRecepcion', () => {
+      component.cerrarRecepcion();
+      expect(stateMock.cerrarRecepcion).toHaveBeenCalled();
+    });
+
+    it('debería previsualizar recepcion deteniendo la propagacion del evento', () => {
+      const eventMock = { stopPropagation: vi.fn() } as unknown as MouseEvent;
+      component.previsualizarRecepcion(eventMock, mockPedido);
+      expect(eventMock.stopPropagation).toHaveBeenCalled();
+      expect(stateMock.previsualizarRecepcion).toHaveBeenCalledWith(mockPedido);
     });
   });
 });

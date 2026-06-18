@@ -1,64 +1,77 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { signal } from '@angular/core';
 import { ModificarCartaComponent } from './modificar-carta';
-import { PlatoApiService } from '../../services/plato.api';
+import { ModificarCartaStateService } from '../services/modificar-carta.state';
 import { Plato } from '../../../../core/models/domain/plato';
 import { vi } from 'vitest';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 describe('ModificarCartaComponent', () => {
   let component: ModificarCartaComponent;
   let fixture: ComponentFixture<ModificarCartaComponent>;
-  let apiServiceMock: any;
+  let stateServiceMock: any;
   let routerMock: any;
 
   const mockPlatos: Plato[] = [
-    { id: 1, nombre: 'Milanesa', precioVenta: 100, costo: 50, visible: true, receta: [], imagen: '' },
-    { id: 2, nombre: 'Papas', precioVenta: 80, costo: 40, visible: false, receta: [], imagen: '' },
-    { id: 3, nombre: 'Pizza', precioVenta: 120, costo: 60, visible: true, receta: [], imagen: '' }
+    { id: 1, nombre: 'Milanesa', precioVenta: 100, costo: 50, visible: true, receta: [], imagen: '' }
   ];
 
   beforeEach(async () => {
-    apiServiceMock = {
-      getPlatos: vi.fn().mockReturnValue(of([...mockPlatos])),
-      getPlatoById: vi.fn().mockImplementation((id) => {
-        const found = mockPlatos.find(p => p.id === id);
-        return of({ ...found, tipoPlatoId: 1, categoriaPlatoId: 1, tiempoPreparacion: 15, restriccionesIds: [] } as Plato);
-      }),
-      modificarPlato: vi.fn().mockImplementation((id, data) => {
-        const found = mockPlatos.find(p => p.id === id);
-        return of({
-          ...found,
-          nombre: data.nombre,
-          precioVenta: data.precioVentaFinal,
-          visible: data.esVisibleEnCarta,
-          imagen: data.urlImagen,
-          receta: data.ingredientes.map((ingrediente: any) => ({
-            id: ingrediente.insumoId,
-            nombre: '',
-            cantidad: ingrediente.cantidad,
-            unidadMedida: ''
-          }))
-        } as Plato);
-      }),
-      updatePlato: vi.fn().mockImplementation((id, data) => {
-        const found = mockPlatos.find(p => p.id === id);
-        return of({ ...found, ...data } as Plato);
-      }),
-      deletePlato: vi.fn().mockReturnValue(of(true))
+    // 1. Mockear Signals y Métodos del State Service
+    stateServiceMock = {
+      platos: signal(mockPlatos),
+      filteredPlatos: signal(mockPlatos),
+      platosRecomendados: signal([]),
+      platosComidas: signal([]),
+      platosBebidas: signal([]),
+      explodingPlatoId: signal<number | null>(null),
+      platoAEditar: signal<Plato | null>(null),
+      platoAEliminar: signal<Plato | null>(null),
+      selectedCategoria: signal<string | null>(null),
+      loading: signal<boolean>(false),
+      categoriasDisponibles: signal([]),
+      tiposBebidaDisponibles: signal([]),
+      selectedTipoBebida: signal<string | null>(null),
+      totalBebidasCount: signal(0),
+      tiposComidaDisponibles: signal([]),
+      selectedTipoComida: signal<string | null>(null),
+      totalComidasCount: signal(0),
+      sortOrder: signal<'default' | 'ventas-desc' | 'ventas-asc'>('default'),
+
+      cargarPlatos: vi.fn(),
+      setTipoBebida: vi.fn(),
+      setTipoComida: vi.fn(),
+      setSortOrder: vi.fn(),
+      toggleRecomendado: vi.fn(),
+      setSearchTerm: vi.fn(),
+      toggleVisibility: vi.fn(),
+      setPlatoAEditar: vi.fn(),
+      setPlatoAEliminar: vi.fn(),
+      savePlato: vi.fn(),
+      confirmDelete: vi.fn(),
+      closeModals: vi.fn(),
+      setCategoria: vi.fn()
     };
 
+    // 2. Mockear Router
     routerMock = {
       navigate: vi.fn()
     };
 
+    // 3. Configurar TestBed
     await TestBed.configureTestingModule({
       imports: [ModificarCartaComponent],
       providers: [
-        { provide: PlatoApiService, useValue: apiServiceMock },
+        { provide: ModificarCartaStateService, useValue: stateServiceMock },
         { provide: Router, useValue: routerMock }
       ]
-    }).compileComponents();
+    })
+    // Ignorar subcomponentes complejos en test unitario puro
+    .overrideComponent(ModificarCartaComponent, {
+      set: { schemas: [NO_ERRORS_SCHEMA] }
+    })
+    .compileComponents();
 
     fixture = TestBed.createComponent(ModificarCartaComponent);
     component = fixture.componentInstance;
@@ -69,135 +82,80 @@ describe('ModificarCartaComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('debería cargar los platos al inicializar', () => {
-    expect(apiServiceMock.getPlatos).toHaveBeenCalled();
-    expect(component.platos()).toEqual(mockPlatos);
+  it('debería llamar a cargarPlatos del state al inicializar', () => {
+    expect(stateServiceMock.cargarPlatos).toHaveBeenCalled();
   });
 
-  it('debería ordenar los platos visibles primero en filteredPlatos', () => {
-    const filtered = component.filteredPlatos();
-    expect(filtered[0].visible).toBe(true);
-    expect(filtered[1].visible).toBe(true);
-    expect(filtered[2].visible).toBe(false);
+  it('debería delegar onTipoBebidaSeleccionado al state', () => {
+    component.onTipoBebidaSeleccionado('Cerveza');
+    expect(stateServiceMock.setTipoBebida).toHaveBeenCalledWith('Cerveza');
   });
 
-  it('debería filtrar los platos por el término de búsqueda', () => {
-    component.onSearch('mIla');
-    const filtered = component.filteredPlatos();
-    expect(filtered.length).toBe(1);
-    expect(filtered[0].nombre).toBe('Milanesa');
+  it('debería delegar onTipoComidaSeleccionado al state', () => {
+    component.onTipoComidaSeleccionado('Principal');
+    expect(stateServiceMock.setTipoComida).toHaveBeenCalledWith('Principal');
   });
 
-  it('debería manejar toggleVisibility para un plato visible con éxito tras el tiempo de espera', () => {
-    vi.useFakeTimers();
-    const plato = mockPlatos[0];
-    component.toggleVisibility(plato);
-    expect(component.explodingPlatoId()).toBe(plato.id);
-    vi.advanceTimersByTime(450);
-    expect(apiServiceMock.updatePlato).toHaveBeenCalledWith(plato.id, { visible: false });
-    expect(component.platos().find(p => p.id === plato.id)?.visible).toBe(false);
-    expect(component.explodingPlatoId()).toBeNull();
-    vi.useRealTimers();
+  it('debería delegar onSortChanged al state extrayendo el value', () => {
+    const mockEvent = { target: { value: 'ventas-desc' } } as unknown as Event;
+    component.onSortChanged(mockEvent);
+    expect(stateServiceMock.setSortOrder).toHaveBeenCalledWith('ventas-desc');
   });
 
-  it('debería restaurar la visibilidad si falla la actualización de un plato visible tras el tiempo de espera', () => {
-    vi.useFakeTimers();
-    apiServiceMock.updatePlato.mockReturnValueOnce(throwError(() => new Error('Error')));
-    const plato = mockPlatos[0];
-    component.toggleVisibility(plato);
-    vi.advanceTimersByTime(450);
-    expect(component.platos().find(p => p.id === plato.id)?.visible).toBe(true);
-    vi.useRealTimers();
+  it('debería delegar toggleRecomendado al state', () => {
+    component.toggleRecomendado(mockPlatos[0]);
+    expect(stateServiceMock.toggleRecomendado).toHaveBeenCalledWith(mockPlatos[0]);
   });
 
-  it('debería manejar toggleVisibility para un plato invisible inmediatamente con éxito', () => {
-    const plato = mockPlatos[1];
-    component.toggleVisibility(plato);
-    expect(apiServiceMock.updatePlato).toHaveBeenCalledWith(plato.id, { visible: true });
-    expect(component.platos().find(p => p.id === plato.id)?.visible).toBe(true);
+  it('debería delegar onSearch al state', () => {
+    component.onSearch('Milanesa');
+    expect(stateServiceMock.setSearchTerm).toHaveBeenCalledWith('Milanesa');
   });
 
-  it('debería restaurar la visibilidad si falla la actualización de un plato invisible', () => {
-    apiServiceMock.updatePlato.mockReturnValueOnce(throwError(() => new Error('Error')));
-    const plato = mockPlatos[1];
-    component.toggleVisibility(plato);
-    expect(component.platos().find(p => p.id === plato.id)?.visible).toBe(false);
+  it('debería delegar toggleVisibility al state', () => {
+    component.toggleVisibility(mockPlatos[0]);
+    expect(stateServiceMock.toggleVisibility).toHaveBeenCalledWith(mockPlatos[0]);
   });
 
-  it('debería establecer el plato a editar al llamar a onEditPlato', () => {
-    const plato = mockPlatos[0];
-    component.onEditPlato(plato);
-    expect(component.platoAEditar()).toEqual(expect.objectContaining(plato));
-  });
-
-  it('debería establecer el plato a eliminar al llamar a onDeletePlato', () => {
-    const plato = mockPlatos[0];
-    component.onDeletePlato(plato);
-    expect(component.platoAEliminar()).toEqual(plato);
-  });
-
-  it('debería guardar el plato editado al llamar a onSavePlato', () => {
-    const plato = mockPlatos[0];
-    component.onEditPlato(plato);
-    component.onSavePlato({ nombre: 'Milanesa Editada' });
-    expect(apiServiceMock.modificarPlato).toHaveBeenCalledWith(plato.id, {
-      nombre: 'Milanesa Editada',
-      descripcion: '',
-      precioVentaFinal: 100,
-      tiempoPreparacionBase: 15,
-      tipoPlatoId: 1,
-      categoriaPlatoId: 1,
-      urlImagen: '',
-      esVisibleEnCarta: true,
-      restriccionesIds: [],
-      ingredientes: []
-    });
-    expect(component.platos().find(p => p.id === plato.id)?.nombre).toBe('Milanesa Editada');
-    expect(component.platoAEditar()).toBeNull();
-  });
-
-  it('debería no hacer nada en onSavePlato si no hay ningún plato editándose', () => {
-    component.onSavePlato({ nombre: 'Milanesa Editada' });
-    expect(apiServiceMock.modificarPlato).not.toHaveBeenCalled();
-  });
-
-  it('debería eliminar el plato al llamar a onConfirmDelete', () => {
-    const plato = mockPlatos[0];
-    component.onDeletePlato(plato);
-    component.onConfirmDelete();
-    expect(apiServiceMock.deletePlato).toHaveBeenCalledWith(plato.id);
-    expect(component.platos().find(p => p.id === plato.id)).toBeUndefined();
-    expect(component.platoAEliminar()).toBeNull();
-  });
-
-  it('debería no hacer nada en onConfirmDelete si no hay ningún plato seleccionado para eliminar', () => {
-    component.onConfirmDelete();
-    expect(apiServiceMock.deletePlato).not.toHaveBeenCalled();
-  });
-
-  it('debería cerrar los modales al llamar a onCloseModals', () => {
+  it('debería delegar onEditPlato al state', () => {
     component.onEditPlato(mockPlatos[0]);
+    expect(stateServiceMock.setPlatoAEditar).toHaveBeenCalledWith(mockPlatos[0]);
+  });
+
+  it('debería delegar onDeletePlato al state', () => {
     component.onDeletePlato(mockPlatos[0]);
+    expect(stateServiceMock.setPlatoAEliminar).toHaveBeenCalledWith(mockPlatos[0]);
+  });
+
+  it('debería delegar onSavePlato al state', () => {
+    const payload = { nombre: 'Mila' };
+    component.onSavePlato(payload);
+    expect(stateServiceMock.savePlato).toHaveBeenCalledWith(payload);
+  });
+
+  it('debería delegar onConfirmDelete al state', () => {
+    component.onConfirmDelete();
+    expect(stateServiceMock.confirmDelete).toHaveBeenCalled();
+  });
+
+  it('debería delegar onCloseModals al state', () => {
     component.onCloseModals();
-    expect(component.platoAEditar()).toBeNull();
-    expect(component.platoAEliminar()).toBeNull();
+    expect(stateServiceMock.closeModals).toHaveBeenCalled();
   });
 
-  it('debería setear la categoría en el state al llamar a onCategoriaSeleccionada', () => {
-    const spy = vi.spyOn(component['state'], 'setCategoria');
+  it('debería delegar onCategoriaSeleccionada al state', () => {
     component.onCategoriaSeleccionada('Bebidas');
-    expect(spy).toHaveBeenCalledWith('Bebidas');
+    expect(stateServiceMock.setCategoria).toHaveBeenCalledWith('Bebidas');
   });
 
-  it('debería navegar a la vista de creación al llamar a irACrearPlato', () => {
+  it('debería navegar a crear plato al invocar irACrearPlato', () => {
     component.irACrearPlato();
     expect(routerMock.navigate).toHaveBeenCalledWith(['/staff/gerente/crear-plato']);
   });
 
-  it('debería alternar recomendado al llamar a toggleRecomendado', () => {
-    const updateSpy = vi.spyOn(component['state'], 'toggleRecomendado');
-    const plato = mockPlatos[0];
-    component.toggleRecomendado(plato);
-    expect(updateSpy).toHaveBeenCalledWith(plato);
+  it('debería mutar la señal layoutMode al invocar setLayoutMode', () => {
+    expect(component.layoutMode()).toBe('grid');
+    component.setLayoutMode('list');
+    expect(component.layoutMode()).toBe('list');
   });
 });

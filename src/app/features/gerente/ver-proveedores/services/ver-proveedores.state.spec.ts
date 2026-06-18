@@ -49,6 +49,7 @@ describe('VerProveedoresState', () => {
       getBodegas: vi.fn().mockReturnValue(of([])),
       getHistorialPedidos: vi.fn().mockReturnValue(of([])),
       getInsumosProveedor: vi.fn().mockReturnValue(of([...mockProductos])),
+      getCategoriasInsumo: vi.fn().mockReturnValue(of([])),
       crearPedidoProveedor: vi.fn().mockImplementation((id, pedido) => {
         const prov = mockProveedores.find(p => p.id === id);
         if (!prov) throw new Error('Not Found');
