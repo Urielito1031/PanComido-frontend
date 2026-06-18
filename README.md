@@ -32,5 +32,16 @@ npm install   # Instalación de dependencias
 npm start     # Servidor de desarrollo en localhost:4200
 ```
 
+### 6. Conexión con Backend
+
+El frontend se conecta a la API de PanComido, que vive en un repositorio separado: [PanComido](https://github.com/NicoPaone/PanComido).
+
+| Entorno | URL del Backend |
+|---------|----------------|
+| Desarrollo local | `https://localhost:7204` |
+| Producción | `https://api-pan-comido.azurewebsites.net` |
+
+Para desarrollo, necesitás tener el backend corriendo localmente o activar `useMock: true` en `environment.development.ts`.
+
 ---
 *Documentación técnica de referencia para el equipo de PanComido.*

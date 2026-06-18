@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DetallePlatoResponse } from '../../../core/models/dtos/responses/detalle-plato-response'
-import { environment } from '../../../../environments/environment.development';
+import { environment } from '../../../../environments/environment';
 
 
 

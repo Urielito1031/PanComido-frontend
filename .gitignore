@@ -1,0 +1,38 @@
+# Node & Dependencias
+node_modules/
+npm-debug.log*
+yarn-error.log*
+yarn-debug.log*
+.npm/
+
+# Testing & Coverage
+coverage/
+.karma/
+
+# Compilación y Output
+dist/
+tmp/
+out-tsc/
+bazel-out/
+
+# Caché interna
+.angular/
+
+# Variables de entorno y Seguridad
+.env
+.env.*
+!.env.example
+
+# IDEs, SO, Linters
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.code-workspace
+.eslintcache
+
+# Build artifacts
+*.tsbuildinfo
+
+# Personal AI agent config
+AGENTS.md

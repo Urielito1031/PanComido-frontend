@@ -6,7 +6,6 @@ import { Insumo } from '../../../core/models/domain/insumo';
 import { InsumoResponseDto } from '../../../core/models/dtos/responses/insumo.response';
 import { CrearPlatoIngredienteDto, CrearPlatoRequestDto } from '../../../core/models/dtos/requests/crear-plato.request';
 import { mapInsumoDtoToDomain } from '../../../infra/http/mappers/insumo.mapper';
-import { environment } from '../../../../environments/environment.development';
 
 export interface ItemDesplegableDto {
   id: number;
