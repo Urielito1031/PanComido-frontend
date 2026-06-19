@@ -10,8 +10,9 @@
     (input)="nombre.set($any($event.target).value)"
   />
 
-  <button (click)="unirse()">
+  <app-boton-comensal [backgroundColor]="configuracion.paleta.botonSecundario"
+            [textColor]="configuracion.paleta.textoOscuro"   (click)="unirse()">
     Unirme a la mesa
-  </button>
+  </app-boton-comensal>
 
 </div>

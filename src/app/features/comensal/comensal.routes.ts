@@ -25,16 +25,7 @@ export const COMENSAL_ROUTES: Routes = [
     import('./cantidad-personas/page/cantidad-personas')
       .then(m => m.CantidadPersonas)
 },
-  // {
-  //   path: 'cantidad-personas',
-  //   loadComponent: () =>
-  //     import('./cantidad-personas/page/cantidad-personas').then(m => m.CantidadPersonas)
-  // },
-  // {
-  //   path: 'ver-carta',
-  //   loadComponent: () =>
-  //     import('./ver-carta/page/ver-carta').then(m => m.VerCarta)
-  // },
+  
   {
   path: 'ver-carta/:restauranteId/:mesaId/:cantidadPersonas',
   loadComponent: () =>
@@ -85,6 +76,11 @@ export const COMENSAL_ROUTES: Routes = [
   path: 'unirse/:comandaId',
   loadComponent: () =>
     import('./unirse-mesa/page/unirse-mesa').then(m => m.UnirseMesa)
+},
+{
+  path: 'encuesta/:restauranteId/:mesaId/:comandaId',
+  loadComponent: () =>
+    import('./encuesta/page/encuesta').then(m => m.Encuesta)
 }
 ];
 

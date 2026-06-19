@@ -2,11 +2,13 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ComandaState } from '../../services/comanda-state';
+import { configuracionRestauranteMock } from '../../../../infra/mocks/configuracion-restaurante.mock-data';
+import {BotonComensal} from '../../../../shared/ui/botones/boton-comensal/boton-comensal';
 
 @Component({
   selector: 'app-unirse-mesa',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, BotonComensal],
   templateUrl: './unirse-mesa.html',
   styleUrls: ['./unirse-mesa.css']
 })
@@ -19,6 +21,8 @@ export class UnirseMesa implements OnInit {
   comandaId!: number;
   datosMesa: any;
   nombre = signal('');
+
+   configuracion = configuracionRestauranteMock;
 
   ngOnInit(): void {
     this.comandaId = Number(this.route.snapshot.paramMap.get('comandaId'));
@@ -49,7 +53,13 @@ export class UnirseMesa implements OnInit {
       nombre: this.nombre()
     }));
 
-    this.router.navigate(['/comensal/ver-carta']);
+    console.log('datosMesa:', this.datosMesa)
+   this.router.navigate([
+  '/comensal/ver-carta',
+  this.datosMesa.restauranteId,
+  this.datosMesa.idMesa,
+  this.datosMesa.cantComensales
+]);
     
   }
 }

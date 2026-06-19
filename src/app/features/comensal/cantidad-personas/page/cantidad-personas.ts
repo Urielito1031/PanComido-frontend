@@ -62,7 +62,7 @@ aceptar() {
   const restauranteId = Number(this.route.snapshot.paramMap.get('restauranteId'));
   const mesaId = Number(this.route.snapshot.paramMap.get('mesaId'));
 
-  this.comandaState.ocuparMesa(restauranteId, mesaId, this.cantidadPersonas)
+  this.comandaState.ocuparMesa(restauranteId, mesaId, this.cantidadPersonas, this.nombreComensal)
   .pipe(takeUntilDestroyed(this.destroyRef))
  .subscribe({
  next: (res: any) => {
@@ -71,7 +71,10 @@ aceptar() {
     return;
   }
 
+    sessionStorage.setItem('nombreComensal', this.nombreComensal);
+
   sessionStorage.setItem('sesionComensal', JSON.stringify(res));
+
 
   this.router.navigate([
     '/comensal/ver-carta',
@@ -80,36 +83,43 @@ aceptar() {
     this.cantidadPersonas
   ]);
 },
-error: (err) => {
-  console.error('Error ocupar mesa:', err);
+  error: (err) => {
 
-  if (err.status === 409) {
-    console.warn('Mesa ocupada, intentando recuperar sesión...');
+    console.error('Status:', err.status);
+    console.error('Error body:', err.error);
+    console.error('Error completo:', err);
 
-    const sesion = sessionStorage.getItem('sesionComensal');
+    if (err.status === 409) {
+      console.warn('Mesa ocupada, intentando recuperar sesión...');
 
-    if (sesion && sesion !== 'undefined') {
-      const parsed = JSON.parse(sesion);
+      const sesion = sessionStorage.getItem('sesionComensal');
 
-      this.router.navigate([
-        '/comensal/ver-carta',
-        parsed.restauranteId,
-        parsed.mesaId,
-        this.cantidadPersonas
-      ]);
-      return;
+      if (sesion && sesion !== 'undefined') {
+        const parsed = JSON.parse(sesion);
+
+        this.router.navigate([
+          '/comensal/ver-carta',
+          parsed.restauranteId,
+          parsed.mesaId,
+          this.cantidadPersonas
+        ]);
+        return;
+      }
+
+      alert('Mesa ocupada pero no hay sesión válida');
     }
-
-    alert('Mesa ocupada pero no hay sesión válida');
   }
-}
 });
 
 }
+volverAtras() {
+  const restauranteId = Number(this.route.snapshot.paramMap.get('restauranteId'));
+  const mesaId = Number(this.route.snapshot.paramMap.get('mesaId'));
 
-  volverAtras() {
-    this.router.navigate(['/comensal/nro-de-mesa'], {
-      state: { mesaId: this.mesaId }
-    });
-  }
+  console.log('VOLVER -> restauranteId:', restauranteId);
+  console.log('VOLVER -> mesaId:', mesaId);
+
+  this.router.navigate(['comensal/mesa', restauranteId, mesaId]);
+}
+
 }

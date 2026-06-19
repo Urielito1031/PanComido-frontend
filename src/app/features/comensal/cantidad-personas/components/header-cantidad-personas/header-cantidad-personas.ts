@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output , ChangeDetectionStrategy} from '@angular/core';
 import { Router } from '@angular/router';
 
+
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-header-cantidad-personas',
@@ -10,10 +11,12 @@ import { Router } from '@angular/router';
 export class HeaderCantidadPersonas {
 
   @Input() logoUrl: string = 'assets/images/logo/logo_el_ferroviario.png';
+  @Output() back = new EventEmitter<void>();
 
   constructor(private router: Router) {}
 
-  volverAtras() {
-    this.router.navigate(['/comensal/nro-de-mesa']);
-  }
+volverAtras() {
+  this.back.emit();
+}
+
 }

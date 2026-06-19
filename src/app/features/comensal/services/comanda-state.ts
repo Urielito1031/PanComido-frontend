@@ -61,7 +61,8 @@ export class ComandaState {
  ocuparMesa(
   restauranteId: number,
   mesaId: number,
-  cantidadComensales: number
+  cantidadComensales: number,
+    nombreComensal: string
 ): Observable<any> {
   this.#restauranteId.set(restauranteId);
   this.#mesaId.set(mesaId);
@@ -71,7 +72,8 @@ export class ComandaState {
   return this.comandaService.ocuparMesa(
     restauranteId,
     mesaId,
-    cantidadComensales
+    cantidadComensales,
+    nombreComensal
   ).pipe(
     tap(response => {
       this.#mesaInfo.set(response.mesa);

@@ -43,13 +43,13 @@
 
     <!-- BOTONES -->
     <div class="d-flex flex-column gap-2">
-      <app-boton variante="warning"
-         (clicked)="irAPersonalizar(item, $index)">
+
+      <app-boton *ngIf="item.categoria !== 'Bebida'" variante="warning" (clicked)="irAPersonalizar(item, $index)">
         <span class="material-symbols-outlined">edit</span>
         <span style="margin-left: 8px;">Personalizar</span>
       </app-boton>
 
-     
+
     </div>
   </div>
   }
