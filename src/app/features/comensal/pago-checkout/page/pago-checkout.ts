@@ -1,6 +1,6 @@
 import { Component, DestroyRef, inject, signal, effect, OnDestroy, OnInit , ChangeDetectionStrategy} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { ComandaState } from '../../services/comanda-state';
 import { PagoService } from '../../services/pago.service';
@@ -18,6 +18,7 @@ import { take, takeUntil } from 'rxjs';
 })
 export class PagoCheckout implements OnInit, OnDestroy {
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private comandaState = inject(ComandaState);
   private pagoService = inject(PagoService);
   private comandaHub = inject(ComandaHubService);
@@ -57,6 +58,16 @@ export class PagoCheckout implements OnInit, OnDestroy {
       this.comandaHub.conectarComoComensal(mesaId).catch(err =>
         console.error('Error al conectar hub de comanda:', err)
       );
+    }
+
+    //para leer query params de MP
+    const errorMp = this.route.snapshot.queryParams['error'];
+    const pendingMp = this.route.snapshot.queryParams['pending'];
+
+    if(errorMp === 'mp'){
+      this.error.set('El pago con Mercado Pago fue rechazado. Elegi otro método');
+    }else if(pendingMp === 'mp'){
+      this.error.set('El pago está pendiente. Esperá unos segundos y recargá');
     }
   }
 
@@ -104,8 +115,8 @@ export class PagoCheckout implements OnInit, OnDestroy {
     .subscribe({
       next:(res) => {
         this.cargandoPago.set(false);
-        //ver
-        window.open(res.initPoint, '_blank');
+        
+        window.location.href = res.initPoint;
       },
       error: (err)=> { 
         this.cargandoPago.set(false);
