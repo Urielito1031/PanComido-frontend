@@ -143,10 +143,13 @@ if (!sesionRaw || sesionRaw === 'undefined') {
   const sesion = JSON.parse(sesionRaw);
     console.log('sesionComensal:', sesion);
   console.log('comandaId:', sesion.comandaId);
-  console.log('idComandaGenerada:', sesion.idComandaGenerada);
+  //console.log('idComandaGenerada:', sesion.idComandaGenerada);
+  console.log('comandaId:', sesion.comandaId);
 
- this.urlInvitacion =
-  `${window.location.origin}/comensal/unirse/${sesion.idComandaGenerada}`;
+//  this.urlInvitacion =
+//   `${window.location.origin}/comensal/unirse/${sesion.idComandaGenerada}`;
+this.urlInvitacion =
+  `${window.location.origin}/comensal/unirse/${sesion.comandaId}`;
 
   this.mostrarQr = !this.mostrarQr;
 }

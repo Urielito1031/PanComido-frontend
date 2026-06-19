@@ -1,4 +1,4 @@
-import { Component, inject, computed, ViewChild , ChangeDetectionStrategy} from '@angular/core';
+import { Component, inject, computed, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { configuracionRestauranteMock } from '../../../../infra/mocks/configuracion-restaurante.mock-data';
 import { LlamarAlMozo } from '../../components/llamar-al-mozo/llamar-al-mozo';
@@ -24,7 +24,7 @@ export class DetallePedido {
   @ViewChild(ModalConfirmacionPedido) modal!: ModalConfirmacionPedido;
 
   configuracion = configuracionRestauranteMock;
-  
+
   // Usar el signal del servicio directamente (reactivo)
   pedidos = this.pedidoService.pedidos;
 
@@ -44,10 +44,16 @@ export class DetallePedido {
 
   confirmarPedido(): void {
     // Validación: debe haber comanda activa
-    if (!this.comandaState.tieneComandaActiva()) {
-      alert('No hay mesa seleccionada. Por favor, escanea el QR de la mesa.');
-      return;
-    }
+    // if (!this.comandaState.tieneComandaActiva()) {
+    //   alert('No hay mesa seleccionada. Por favor, escanea el QR de la mesa.');
+    //   return;
+    // }
+    const comandaId = this.comandaState.comandaId?.();
+
+if (!comandaId) {
+  alert('No hay comanda activa. Ingresá o escaneá el QR de la mesa.');
+  return;
+}
 
     // Validación: debe haber items en el carrito
     if (this.pedidos().length === 0) {

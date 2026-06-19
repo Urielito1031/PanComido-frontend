@@ -46,13 +46,17 @@ export class UnirseMesa implements OnInit {
     if (!this.nombre()) return;
 
     // guardar sesión del invitado
-    sessionStorage.setItem('sesionComensal', JSON.stringify({
-      comandaId: this.comandaId,
-      mesaId: this.datosMesa.mesaId,
-      restauranteId: this.datosMesa.restauranteId,
-      nombre: this.nombre()
-    }));
-
+    // sessionStorage.setItem('sesionComensal', JSON.stringify({
+    //   comandaId: this.comandaId,
+    //   mesaId: this.datosMesa.mesaId,
+    //   restauranteId: this.datosMesa.restauranteId,
+    //   nombre: this.nombre()
+    // }));
+this.comandaState.setComandaDesdeSesion({
+  comandaId: this.comandaId,
+  restauranteId: this.datosMesa.restauranteId,
+  mesaId: this.datosMesa.mesaId
+});
     console.log('datosMesa:', this.datosMesa)
    this.router.navigate([
   '/comensal/ver-carta',

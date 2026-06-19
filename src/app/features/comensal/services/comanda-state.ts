@@ -95,6 +95,19 @@ export class ComandaState {
 }
 
 
+setComandaDesdeSesion(data: {
+  comandaId: number;
+  restauranteId: number;
+  mesaId: number;
+}) {
+  this.#comandaId.set(data.comandaId);
+  this.#restauranteId.set(data.restauranteId);
+  this.#mesaId.set(data.mesaId);
+
+  sessionStorage.setItem('comandaId', String(data.comandaId));
+  sessionStorage.setItem('restauranteId', String(data.restauranteId));
+  sessionStorage.setItem('mesaId', String(data.mesaId));
+}
 
   /**
    * Confirmar pedido (envía items al backend)
