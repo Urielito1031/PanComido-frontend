@@ -6,6 +6,8 @@ import { PedidoState } from '../../services/pedido.state';
 import { ComandaState } from '../../services/comanda-state';
 import { ModalConfirmacionPedido } from '../../components/modal-confirmacion-pedido/modal-confirmacion-pedido';
 import { ComensalState } from '../../services/comensal-state';
+import { ItemPedido } from '../../../../core/models/domain/item-pedido';
+
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -64,4 +66,12 @@ if (!comandaId) {
     // Mostrar modal con confirmación
     this.modal.mostrar();
   }
+
+editarItem(item: ItemPedido): void {
+  this.router.navigate(['/comensal/personalizar-plato'], {
+    state: {
+      plato: item
+    }
+  });
+}
 }

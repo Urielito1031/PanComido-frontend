@@ -58,63 +58,63 @@ export class ComandaState {
    * Ocupar mesa y crear comanda
    * Devuelve Observable para que el componente pueda reaccionar cuando termina
    */
- ocuparMesa(
-  restauranteId: number,
-  mesaId: number,
-  cantidadComensales: number,
+  ocuparMesa(
+    restauranteId: number,
+    mesaId: number,
+    cantidadComensales: number,
     nombreComensal: string
-): Observable<any> {
-  this.#restauranteId.set(restauranteId);
-  this.#mesaId.set(mesaId);
-  this.#cargando.set(true);
-  this.#error.set(null);
+  ): Observable<any> {
+    this.#restauranteId.set(restauranteId);
+    this.#mesaId.set(mesaId);
+    this.#cargando.set(true);
+    this.#error.set(null);
 
-  return this.comandaService.ocuparMesa(
-    restauranteId,
-    mesaId,
-    cantidadComensales,
-    nombreComensal
-  ).pipe(
-    tap(response => {
-      this.#mesaInfo.set(response.mesa);
-      this.#comandaId.set(response.idComandaGenerada);
+    return this.comandaService.ocuparMesa(
+      restauranteId,
+      mesaId,
+      cantidadComensales,
+      nombreComensal
+    ).pipe(
+      tap(response => {
+        this.#mesaInfo.set(response.mesa);
+        this.#comandaId.set(response.idComandaGenerada);
 
-      sessionStorage.setItem('restauranteId', String(restauranteId));
-      sessionStorage.setItem('comandaId', String(response.idComandaGenerada));
-      sessionStorage.setItem('mesaId', String(mesaId));
+        sessionStorage.setItem('restauranteId', String(restauranteId));
+        sessionStorage.setItem('comandaId', String(response.idComandaGenerada));
+        sessionStorage.setItem('mesaId', String(mesaId));
 
-      this.#cargando.set(false);
-    }),
-    catchError(err => {
-      console.error('Error al ocupar mesa:', err);
-      this.#error.set('No se pudo ocupar la mesa. Intenta nuevamente.');
-      this.#cargando.set(false);
-      return throwError(() => err);
-    })
-  );
-}
+        this.#cargando.set(false);
+      }),
+      catchError(err => {
+        console.error('Error al ocupar mesa:', err);
+        this.#error.set('No se pudo ocupar la mesa. Intenta nuevamente.');
+        this.#cargando.set(false);
+        return throwError(() => err);
+      })
+    );
+  }
 
 
-setComandaDesdeSesion(data: {
-  comandaId: number;
-  restauranteId: number;
-  mesaId: number;
-}) {
-  this.#comandaId.set(data.comandaId);
-  this.#restauranteId.set(data.restauranteId);
-  this.#mesaId.set(data.mesaId);
+  setComandaDesdeSesion(data: {
+    comandaId: number;
+    restauranteId: number;
+    mesaId: number;
+  }) {
+    this.#comandaId.set(data.comandaId);
+    this.#restauranteId.set(data.restauranteId);
+    this.#mesaId.set(data.mesaId);
 
-  sessionStorage.setItem('comandaId', String(data.comandaId));
-  sessionStorage.setItem('restauranteId', String(data.restauranteId));
-  sessionStorage.setItem('mesaId', String(data.mesaId));
-}
+    sessionStorage.setItem('comandaId', String(data.comandaId));
+    sessionStorage.setItem('restauranteId', String(data.restauranteId));
+    sessionStorage.setItem('mesaId', String(data.mesaId));
+  }
 
   /**
    * Confirmar pedido (envía items al backend)
    */
   confirmarPedido(): void {
 
-    
+
     const comandaId = this.#comandaId();
     const restauranteId = this.#restauranteId();
 
@@ -131,8 +131,8 @@ setComandaDesdeSesion(data: {
     }
 
     console.log('comandaId:', comandaId);
-console.log('restauranteId:', restauranteId);
-console.log('pedidos:', pedidos);
+    console.log('restauranteId:', restauranteId);
+    console.log('pedidos:', pedidos);
 
 
     this.#cargando.set(true);
@@ -147,10 +147,10 @@ console.log('pedidos:', pedidos);
       observacionesGenerales: p.observacionesGenerales ?? null
     }));
 
-    this.comandaService.confirmarPedido(comandaId, restauranteId,  {
-    items,
-    nombreComensal
-  } )
+    this.comandaService.confirmarPedido(comandaId, restauranteId, {
+      items,
+      nombreComensal
+    })
       .pipe(takeUntilDestroyed(this.#destroyRef))
       .subscribe({
         next: (response) => {
@@ -165,14 +165,22 @@ console.log('pedidos:', pedidos);
           this.pedidoService.limpiarPedidos();
         },
         error: (err) => {
-  console.error('Error completo:', err);
-  console.log('Error body:', err.error);
-  console.log('Errores de validación:', err.error?.errors);
+          console.error('Error completo:', err);
+          console.log('Error body:', err.error);
+          console.log('Errores de validación:', err.error?.errors);
 
-  this.#error.set('Error al confirmar el pedido. Intenta nuevamente.');
-  this.#cargando.set(false);
-}
+          this.#error.set('Error al confirmar el pedido. Intenta nuevamente.');
+          this.#cargando.set(false);
+        }
       });
+
+    console.log('PEDIDOS RAW:', pedidos);
+
+    pedidos.forEach(p => {
+      console.log('ITEM:', p.plato.nombre);
+      console.log('OBS ING:', p.observacionesIngredientes);
+      console.log('OBS GEN:', p.observacionesGenerales);
+    });
   }
 
   /**
@@ -229,9 +237,9 @@ console.log('pedidos:', pedidos);
   }
 
   obtenerBienvenidaInvitado(comandaId: number) {
-  return this.http.get<any>(
-    `https://localhost:7204/comanda/${comandaId}/comensal/bienvenida-invitado`
-  );
-}
+    return this.http.get<any>(
+      `https://localhost:7204/comanda/${comandaId}/comensal/bienvenida-invitado`
+    );
+  }
 
 }

@@ -76,11 +76,6 @@ export const COMENSAL_ROUTES: Routes = [
   path: 'unirse/:comandaId',
   loadComponent: () =>
     import('./unirse-mesa/page/unirse-mesa').then(m => m.UnirseMesa)
-},
-{
-  path: 'encuesta/:restauranteId/:mesaId/:comandaId',
-  loadComponent: () =>
-    import('./encuesta/page/encuesta').then(m => m.Encuesta)
 }
 ];
 
