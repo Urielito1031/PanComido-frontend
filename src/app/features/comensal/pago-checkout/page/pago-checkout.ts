@@ -6,7 +6,7 @@ import { ComandaState } from '../../services/comanda-state';
 import { PagoService } from '../../services/pago.service';
 import { ComandaHubService } from '../../../../core/services/hubs/comanda/comanda-hub-service';
 import { configuracionRestauranteMock } from '../../../../infra/mocks/configuracion-restaurante.mock-data';
-import { BotonComensal } from '../../../../shared/ui/botones/boton-comensal/boton-comensal';
+import { take, takeUntil } from 'rxjs';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,6 +39,13 @@ export class PagoCheckout implements OnInit, OnDestroy {
         }
       }
     });
+    effect(()=>{
+      const comanda = this.comandaHub.pagoRechazado();
+      if(comanda){
+        this.error.set("El pago fue rechazado. Intenta de nuevo.")
+        this.cargandoPago.set(false)
+      }
+    })
   }
 
   ngOnInit() {
@@ -74,6 +81,8 @@ export class PagoCheckout implements OnInit, OnDestroy {
       next: () => {
         this.cargandoPago.set(false);
         this.pagoSolicitado.set(true);
+        //ver si es necesario un estado de pendiente a que el mozo confirme el pago en su vista
+        this.router.navigate(['/comensal/pago-confirmado']);
       },
       error: (err) => {
         this.cargandoPago.set(false);
@@ -82,7 +91,28 @@ export class PagoCheckout implements OnInit, OnDestroy {
     });
   }
 
-  pagarElectronico(): void {
-    this.error.set('Pago electrónico no disponible por el momento. Por favor abone en efectivo.');
+  pagarMercadoPago(): void {
+    const comandaId = this.estado()?.comandaId;
+    if(!comandaId  || this.cargandoPago()) return;
+    
+    this.cargandoPago.set(true);
+    this.error.set(null);
+
+    const restauranteId = this.comandaState.restauranteId();
+    this.pagoService.solicitarPagoMP(comandaId,restauranteId??1)
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({
+      next:(res) => {
+        this.cargandoPago.set(false);
+        //ver
+        window.open(res.initPoint, '_blank');
+      },
+      error: (err)=> { 
+        this.cargandoPago.set(false);
+        this.error.set(err.error?.error || 'Error al generar pago');
+      }
+    })
+
+
   }
 }
