@@ -10,5 +10,9 @@ export class PagoService {
   solicitarPagoEfectivo(comandaId: number, restauranteId: number): Observable<Llamado> {
     return this.api.post<Llamado>(`pago/solicitar-efectivo/${comandaId}/comensal/${restauranteId}`, {});
   }
+
+  solicitarPagoMP(comandaId:number, restauranteId:number):Observable<{initPoint:string}>{
+    return this.api.post<{initPoint: string}>(`pago/solicitar-mp/${comandaId}/comensal/${restauranteId}`,{});
+  }
 }
   

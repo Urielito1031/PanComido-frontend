@@ -34,5 +34,6 @@ Thumbs.db
 # Build artifacts
 *.tsbuildinfo
 
-# Personal AI agent config
 AGENTS.md
+
+.github/workflows

@@ -32,7 +32,6 @@ export class ComandaState {
   cargando = this.#cargando.asReadonly();
   error = this.#error.asReadonly();
 
-  // Computed
   tieneComandaActiva = computed(() => this.#comandaId() !== null);
 
   constructor() {
@@ -57,15 +56,16 @@ export class ComandaState {
    * Devuelve Observable para que el componente pueda reaccionar cuando termina
    */
   ocuparMesa(mesaId: number, cantidadComensales: number, restauranteId: number): Observable<void> {
-    this.#restauranteId.set(restauranteId);
-    this.#mesaId.set(mesaId);
     this.#cargando.set(true);
     this.#error.set(null);
 
     return this.comandaService.ocuparMesa(restauranteId, mesaId, cantidadComensales).pipe(
       tap(response => {
+        this.#restauranteId.set(restauranteId);
+        this.#mesaId.set(mesaId);
         this.#mesaInfo.set(response.mesa);
         this.#comandaId.set(response.idComandaGenerada);
+        
         sessionStorage.setItem('restauranteId', String(restauranteId));
         sessionStorage.setItem('comandaId', String(response.idComandaGenerada));
         sessionStorage.setItem('mesaId', String(mesaId));
