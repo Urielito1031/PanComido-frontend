@@ -70,11 +70,14 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "allowedHosts": ["deserving-trading-pang.ngrok-free.dev"]
+          },
           "configurations": {
             "production": {
               "buildTarget": "frontend:build:production"
-            },
-            "development": {
+             },
+             "development": {
               "buildTarget": "frontend:build:development"
             }
           },
