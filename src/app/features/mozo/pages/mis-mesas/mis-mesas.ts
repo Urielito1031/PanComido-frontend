@@ -18,6 +18,18 @@ export class MisMesasPage {
   mesaSeleccionadaId = signal<number | null>(null);
   cantidadComensales = signal<number>(2);
 
+  // Filtro de mozo
+  mostrarTodasLasMesas = signal<boolean>(false);
+  mozoIdLogueado = signal<number>(1); // TODO: Obtener del state de auth
+
+  filtroMozoActivo() {
+    return this.mostrarTodasLasMesas() ? null : this.mozoIdLogueado();
+  }
+
+  toggleMostrarTodas() {
+    this.mostrarTodasLasMesas.update(v => !v);
+  }
+
   // Modal de comanda
   mostrarModalComanda = signal<boolean>(false);
   mesaComandaId = signal<number | null>(null);

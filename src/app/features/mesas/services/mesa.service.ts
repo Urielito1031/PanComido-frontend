@@ -29,4 +29,12 @@ export class MesaService {
   cambiarEstado(mesaId: number, estadoMesa: EstadoMesa): Observable<Mesa> {
     return this.api.patch<Mesa>(`${this.endpoint}/${mesaId}/estado`, { estadoMesa });
   }
+
+  getMozos(): Observable<{id: number, nombre: string}[]> {
+    return this.api.get<{id: number, nombre: string}[]>(`${this.endpoint}/mozos`);
+  }
+
+  asignarMozos(mesaId: number, mozosIds: number[]): Observable<void> {
+    return this.api.post<void>(`${this.endpoint}/${mesaId}/mozos`, mozosIds);
+  }
 }

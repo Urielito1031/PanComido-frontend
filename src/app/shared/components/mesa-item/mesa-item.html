@@ -17,6 +17,10 @@
         <button type="button" class="btn-accion" (click)="$event.stopPropagation(); accionMenu.emit('cerrar')">Cerrar mesa</button>
       }
 
+      @if (auth.tieneRoles(['Gerente'])) {
+        <button type="button" class="btn-accion text-primary" (click)="$event.stopPropagation(); accionMenu.emit('asignar-mozo')">Asignar Mozo</button>
+      }
+
       @if (mesa().estadoMesa === 'Deshabilitada') {
         <button type="button" class="btn-accion" (click)="$event.stopPropagation(); accionMenu.emit('cerrar')">Habilitar</button>
       }

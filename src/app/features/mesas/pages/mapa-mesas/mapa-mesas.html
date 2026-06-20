@@ -15,6 +15,13 @@
           </div>
         }
         <span class="info">Mesas Totales: {{ state.mesas().length }}</span>
+
+        @if (!state.isEditorMode() && auth.tieneRoles(['Gerente'])) {
+          <label class="toggle-asignacion ms-3 d-flex align-items-center bg-white p-2 rounded">
+            <input type="checkbox" class="me-2" [checked]="modoFiltroAsignacion()" (change)="toggleFiltroAsignacion()">
+            <span>Ver Asignación Mozos</span>
+          </label>
+        }
       </div>
 
       <!-- LEYENDA -->
@@ -57,6 +64,7 @@
           [isEditorMode]="state.isEditorMode()"
           [isSeleccionada]="state.mesaSeleccionada() === mesa.id"
           [enColision]="colisionesActivas()[mesa.id] || false"
+          [ngClass]="modoFiltroAsignacion() ? ((mesa.mozosAsignadosIds && mesa.mozosAsignadosIds.length > 0) ? 'mesa-asignada-azul' : 'mesa-no-asignada-gris') : ''"
           cdkDrag
           cdkDragBoundary=".plano-fondo"
           [cdkDragDisabled]="!state.isEditorMode()"
@@ -188,6 +196,35 @@
 
         <div class="modal-actions">
           <button class="btn-cancelar" (click)="cerrarModalComanda()">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal: Asignar Mozos -->
+  @if (mostrarModalAsignacion()) {
+    <div class="modal-overlay" (click)="cerrarModalAsignacion()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <h2>Asignar Mozos</h2>
+        <p>Mesa N° {{ mesaSeleccionadaId() }}</p>
+
+        <div class="campo mb-3" style="max-height: 200px; overflow-y: auto;">
+          @for (mozo of mozosDisponibles(); track mozo.id) {
+            <label class="d-flex align-items-center mb-2">
+              <input type="checkbox"
+                     class="me-2"
+                     [checked]="mozosSeleccionadosIds().includes(mozo.id)"
+                     (change)="$any($event.target).checked 
+                        ? mozosSeleccionadosIds.set([...mozosSeleccionadosIds(), mozo.id]) 
+                        : mozosSeleccionadosIds.set(mozosSeleccionadosIds().filter(id => id !== mozo.id))">
+              <span>{{ mozo.nombre }}</span>
+            </label>
+          }
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-cancelar" (click)="cerrarModalAsignacion()">Cancelar</button>
+          <button class="btn-confirmar" (click)="guardarAsignacionMozos()">Guardar</button>
         </div>
       </div>
     </div>

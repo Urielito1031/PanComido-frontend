@@ -29,6 +29,7 @@ export interface Mesa {
   posicionYFin: number;
   dimensionMesa: DimensionMesa;
   estadoMesa: string;
+  mozosAsignadosIds?: number[];
   tipoElemento?: number;
   color?: string;
   textoObjeto?: string;

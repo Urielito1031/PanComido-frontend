@@ -109,7 +109,8 @@
 .modal-content p { color: #666; margin-bottom: 1.5rem; }
 .campo { margin-bottom: 1rem; }
 .campo label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #333; }
-.campo input { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; }
+.campo input:not([type="checkbox"]) { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; }
+.campo input[type="checkbox"] { width: auto; margin-right: 10px; transform: scale(1.2); cursor: pointer; }
 .modal-actions { display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem; }
 .btn-cancelar { padding: 0.75rem 1.5rem; background: #7f8c8d; color: white; border: none; border-radius: 6px; cursor: pointer; }
 .btn-confirmar { padding: 0.75rem 1.5rem; background: #27ae60; color: white; border: none; border-radius: 6px; cursor: pointer; }
@@ -147,3 +148,26 @@
 .mobile-mesa-btn.ocupada { background-color: #c0392b; }
 .mobile-mesa-btn.reservada { background-color: #f1c40f; color: #333; }
 .mobile-mesa-btn.deshabilitada { background-color: #000000; color: white; }
+
+/* Asignacion de Mozos Filtro */
+::ng-deep .mesa-asignada-azul .mesa-container {
+  background-color: #007bff !important;
+  border-color: #0056b3 !important;
+}
+
+::ng-deep .mesa-no-asignada-gris .mesa-container {
+  background-color: #d6d8db !important;
+  border-color: #b3b7bb !important;
+  opacity: 0.7;
+}
+
+.toggle-asignacion {
+  font-weight: 500;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.toggle-asignacion:hover {
+  background-color: #f1f1f1 !important;
+}
