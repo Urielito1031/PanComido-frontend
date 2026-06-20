@@ -33,6 +33,7 @@ export class PagoConfirmado {
       this.pagoExitoso.set(true);
       this.esEfectivo.set(false);
     } else if (status === 'failure' || (status && status !== 'approved')) {
+      this.pagoExitoso.set(false);
       this.error.set(true);
     } else {
       // si no tiene query params viene de efectivo
