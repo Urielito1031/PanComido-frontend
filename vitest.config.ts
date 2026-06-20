@@ -17,17 +17,21 @@ export default defineConfig({
 
       // Qué EXCLUIR (lo que baja los números artificialmente)
       exclude: [
-        'src/app/**/*.spec.ts',           // Tests
-        'src/app/**/*.mock.ts',           // Mocks
-        'src/app/**/*.d.ts',
-        'src/app/core/models/**',         // Interfaces (son tipos, no código)
-        'src/app/**/index.ts',
-        'src/app/app.routes.ts',          // Configuración
-        'src/app/app.constants.ts',
-        'src/test.setup.ts',
-        'src/app/**/*/routes.ts',
-        'src/app/core/interceptors/handlers/**'
-      ],
+    'src/app/**/*.spec.ts',
+    'src/app/**/*.mock.ts',
+    'src/app/**/*.d.ts',
+    'src/app/core/models/**',
+    'src/app/**/index.ts',
+    'src/app/app.routes.ts',
+    'src/app/app.constants.ts',
+    'src/test.setup.ts',
+    'src/app/**/*/routes.ts',
+    'src/app/core/interceptors/handlers/**',
+    'src/app/core/models/**',         
+    'src/app/**/*.config.ts',          
+    'src/app/environments/**',         
+    'src/app/infra/mocks/**', 
+  ],
 
       // Formatos de reporte
       reporter: ['text', 'html'],
