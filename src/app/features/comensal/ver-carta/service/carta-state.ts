@@ -107,9 +107,9 @@ if (categorias.length > 0) {
     return resultado;
   });
 
-  cargarCarta(): void {
+  cargarCarta(restauranteId: number): void {
     this._cargando.set(true);
-    this.api.obtenerCarta().subscribe({
+    this.api.obtenerCarta(restauranteId).subscribe({
       next: (data) => {
         this._items.set(data);
         this._cargando.set(false);
