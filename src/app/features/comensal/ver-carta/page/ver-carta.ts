@@ -1,4 +1,4 @@
-import { Component, HostListener, inject, input, signal , ChangeDetectionStrategy} from '@angular/core';
+import { Component, HostListener, inject, input, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Buscador } from '../../../../../app/shared/ui/buscador/buscador';
 import { ListaPlatosComensalComponent } from '../components/lista-platos-comensal/lista-platos-comensal';
@@ -13,7 +13,7 @@ import { FiltrosCartaOverlay } from '../../components/filtros-carta-overlay/filt
 import { CommonModule } from '@angular/common';
 import { ComensalState } from '../../services/comensal-state';
 import { QRCodeComponent } from 'angularx-qrcode';
-import {BotonComensal} from '../../../../shared/ui/botones/boton-comensal/boton-comensal';
+import { BotonComensal } from '../../../../shared/ui/botones/boton-comensal/boton-comensal';
 
 
 @Component({
@@ -29,13 +29,13 @@ import {BotonComensal} from '../../../../shared/ui/botones/boton-comensal/boton-
     FiltrosCartaOverlay,
     QRCodeComponent,
     BotonComensal
-    
+
   ],
   templateUrl: './ver-carta.html',
   styleUrls: ['./ver-carta.css'],
 })
 export class VerCarta {
-  
+
 
   private router = inject(Router);
   private pedidoService = inject(PedidoState);
@@ -62,12 +62,12 @@ export class VerCarta {
   cantidadTotalPedido = this.pedidoService.cantidadTotal;
   totalPedido = this.pedidoService.totalPrecio;
 
-  
+
 
   @HostListener('document:click', ['$event'])
   onClickOutSide(event: Event) {
     const target = event.target as HTMLElement;
-    if(!target.closest('.dropdown-ordenar')){
+    if (!target.closest('.dropdown-ordenar')) {
       this.menuOrdenarAbierto.set(false);
     }
   }
@@ -84,31 +84,31 @@ export class VerCarta {
 
   ngOnInit(): void {
 
-    
-     const nombre = sessionStorage.getItem('nombreComensal');
 
-  if (nombre) {
-    this.nombreComensal.set(nombre);
-  }
+    const nombre = sessionStorage.getItem('nombreComensal');
+
+    if (nombre) {
+      this.nombreComensal.set(nombre);
+    }
     this.mesaId.set(Number(this.route.snapshot.paramMap.get('mesaId')));
-this.cantidadPersonas.set(
-  Number(this.route.snapshot.paramMap.get('cantidadPersonas'))
-);
-const restauranteId = Number(this.route.snapshot.paramMap.get('restauranteId'));
+    this.cantidadPersonas.set(
+      Number(this.route.snapshot.paramMap.get('cantidadPersonas'))
+    );
+    const restauranteId = Number(this.route.snapshot.paramMap.get('restauranteId'));
 
     this.state.cargarCarta();
-const sesionRaw = sessionStorage.getItem('sesionComensal');
+    const sesionRaw = sessionStorage.getItem('sesionComensal');
 
-if (!sesionRaw || sesionRaw === 'undefined') {
-  console.error('No hay sesión válida de comensal');
-  return;
-}
+    if (!sesionRaw || sesionRaw === 'undefined') {
+      console.error('No hay sesión válida de comensal');
+      return;
+    }
 
 
 
-const sesion = JSON.parse(sesionRaw);
-  this.urlInvitacion =
-    `${window.location.origin}/comensal/unirse/${sesion.comandaId}`;
+    const sesion = JSON.parse(sesionRaw);
+    this.urlInvitacion =
+      `${window.location.origin}/comensal/unirse/${sesion.comandaId}`;
   }
 
 
@@ -128,30 +128,28 @@ const sesion = JSON.parse(sesionRaw);
   }
 
   toggleQr(): void {
-  const sesionRaw = sessionStorage.getItem('sesionComensal');
+    const sesionRaw = sessionStorage.getItem('sesionComensal');
 
 
 
-if (!sesionRaw || sesionRaw === 'undefined') {
-  console.error('No hay sesión de comensal');
+    if (!sesionRaw || sesionRaw === 'undefined') {
+      console.error('No hay sesión de comensal');
 
-  // opcional: redirigir
-  this.router.navigate(['/comensal/seleccionar-mesa']);
-  return;
-}
+      // opcional: redirigir
+      this.router.navigate(['/comensal/seleccionar-mesa']);
+      return;
+    }
 
-  const sesion = JSON.parse(sesionRaw);
+    const sesion = JSON.parse(sesionRaw);
     console.log('sesionComensal:', sesion);
-  console.log('comandaId:', sesion.comandaId);
-  //console.log('idComandaGenerada:', sesion.idComandaGenerada);
-  console.log('comandaId:', sesion.comandaId);
+    console.log('comandaId:', sesion.comandaId);
+    console.log('idComandaGenerada:', sesion.idComandaGenerada);
+    console.log('comandaId:', sesion.comandaId);
 
-//  this.urlInvitacion =
-//   `${window.location.origin}/comensal/unirse/${sesion.idComandaGenerada}`;
-this.urlInvitacion =
-  `${window.location.origin}/comensal/unirse/${sesion.comandaId}`;
+    this.urlInvitacion =
+      `${window.location.origin}/comensal/unirse/${sesion.idComandaGenerada}`;
 
-  this.mostrarQr = !this.mostrarQr;
-}
+    this.mostrarQr = !this.mostrarQr;
+  }
 }
 

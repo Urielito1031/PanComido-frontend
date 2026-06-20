@@ -37,6 +37,8 @@ export class EstadoPedido implements OnInit, OnDestroy {
         console.error('Error al conectar hub de comanda:', err)
       );
     }
+    console.log('mesaId signal:', this.mesaId());
+console.log('sessionStorage:', sessionStorage.getItem('sesionComensal'));
   }
 
   ngOnDestroy() {
