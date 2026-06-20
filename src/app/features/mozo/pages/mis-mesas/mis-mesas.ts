@@ -1,6 +1,7 @@
 import { Component, inject, signal , ChangeDetectionStrategy} from '@angular/core';
 import { MapaMesasReadonly } from "../../../mesas/shared/mapa-mesas-readonly/mapa-mesas-readonly";
 import { MesaLecturaState } from '../../../mesas/shared/mesa-lectura-state';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -20,7 +21,7 @@ export class MisMesasPage {
 
   // Filtro de mozo
   mostrarTodasLasMesas = signal<boolean>(false);
-  mozoIdLogueado = signal<number>(1); // TODO: Obtener del state de auth
+  mozoIdLogueado = signal<number>(inject(AuthService).empleadoId);
 
   filtroMozoActivo() {
     return this.mostrarTodasLasMesas() ? null : this.mozoIdLogueado();

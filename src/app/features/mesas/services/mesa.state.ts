@@ -186,6 +186,7 @@ export class MesaState {
       next: () => {
         this.#isEditorMode.set(false);
         this.lectura.mostrarNotificacion('Mapa guardado con éxito', 'exito');
+        this.lectura.cargarMesas();
       },
       error: (err) => {
         const mensaje = err.error?.error || 'Error al guardar el mapa';

@@ -42,8 +42,20 @@ describe('Pedido', () => {
       decrementarCantidad: vi.fn()
     };
 
-    comensalStateMock = {};
-    comandaStateMock = {};
+    comensalStateMock = {
+      enviando: signal(false),
+      exito: signal(false),
+      error: signal(null),
+      solicitarMozo: vi.fn(),
+      limpiarEstado: vi.fn()
+    };
+    comandaStateMock = {
+      mesaId: signal(1),
+      cargando: signal(false),
+      error: signal(null),
+      estadoPedido: signal(null),
+      confirmarPedido: vi.fn()
+    };
 
     await TestBed.configureTestingModule({
       imports: [Pedido],
