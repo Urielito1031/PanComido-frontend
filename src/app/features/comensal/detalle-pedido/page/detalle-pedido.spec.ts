@@ -35,12 +35,23 @@ describe('DetallePedido', () => {
 
     comandaStateMock = {
       estadoPedido: signal({
-        totalAPagar: 300
+        totalAPagar: 300,
+        items: []
       }),
-      tieneComandaActiva: vi.fn().mockReturnValue(true)
+      tieneComandaActiva: vi.fn().mockReturnValue(true),
+      mesaId: signal(1),
+      cargando: signal(false),
+      error: signal(null),
+      confirmarPedido: vi.fn()
     };
 
-    comensalStateMock = {};
+    comensalStateMock = {
+      enviando: signal(false),
+      exito: signal(false),
+      error: signal(null),
+      solicitarMozo: vi.fn(),
+      limpiarEstado: vi.fn()
+    };
 
     await TestBed.configureTestingModule({
       imports: [DetallePedido],
@@ -55,11 +66,9 @@ describe('DetallePedido', () => {
     fixture = TestBed.createComponent(DetallePedido);
     component = fixture.componentInstance;
 
-    component.modal = {
-      mostrar: vi.fn()
-    } as any;
-
     fixture.detectChanges();
+
+    vi.spyOn(component.modal, 'mostrar').mockImplementation(() => {});
   });
 
   it('should create', () => {

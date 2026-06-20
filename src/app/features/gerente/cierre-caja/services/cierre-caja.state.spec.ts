@@ -47,14 +47,13 @@ describe('CierreCajaStateService', () => {
     expect(service.efectivoContado()).toBe(1000);
   });
 
-  it('debería usar mocks si la api falla al cargarDatos', () => {
+  it('no debería usar mocks si la api falla al cargarDatos', () => {
     apiMock.getTurno.mockReturnValue(throwError(() => new Error('API Error')));
     apiMock.getHistorial.mockReturnValue(throwError(() => new Error('API Error')));
     
     service.cargarDatos();
     
-    expect(service.datosTurno()?.nombreTurno).toContain('Turno'); // Default mock
-    expect(service.historial().length).toBeGreaterThan(0); // Default mock
+    expect(service.datosTurno()).toBeNull(); // No default mock
   });
 
   it('debería calcular diferencia', () => {
@@ -84,14 +83,13 @@ describe('CierreCajaStateService', () => {
     expect(service.mostrarConfirmacion()).toBe(false);
   });
 
-  it('debería manejar error al confirmar cierre usando fallback', () => {
+  it('no debería cambiar el estado si hay error al confirmar cierre', () => {
     service.cargarDatos();
     apiMock.postCierre.mockReturnValue(throwError(() => new Error('Error')));
     service.abrirConfirmacion();
     service.confirmarCierre();
     
-    expect(service.cierreConfirmado()).toBe(true);
-    expect(service.cierreSeleccionadoId()).toBe(99);
+    expect(service.cierreConfirmado()).toBe(false);
   });
 
   it('debería alternar modales de UI', () => {

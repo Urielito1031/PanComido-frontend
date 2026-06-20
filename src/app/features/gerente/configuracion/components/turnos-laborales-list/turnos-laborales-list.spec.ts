@@ -13,6 +13,7 @@ describe('TurnosLaboralesList', () => {
 
     fixture = TestBed.createComponent(TurnosLaboralesList);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('turnos', []);
     await fixture.whenStable();
   });
 

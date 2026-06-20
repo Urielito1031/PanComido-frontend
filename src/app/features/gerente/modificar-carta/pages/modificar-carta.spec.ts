@@ -38,6 +38,8 @@ describe('ModificarCartaComponent', () => {
       selectedTipoComida: signal<string | null>(null),
       totalComidasCount: signal(0),
       sortOrder: signal<'default' | 'ventas-desc' | 'ventas-asc'>('default'),
+      mostrarModalRestaurar: signal(false),
+      mostrarModalImportar: signal(false),
 
       cargarPlatos: vi.fn(),
       setTipoBebida: vi.fn(),

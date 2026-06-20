@@ -13,6 +13,7 @@ describe('MetodosPagoList', () => {
 
     fixture = TestBed.createComponent(MetodosPagoList);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('metodosPago', []);
     await fixture.whenStable();
   });
 

@@ -13,7 +13,7 @@
 
   <!-- VISTA DESKTOP (PLANO) -->
   <div class="plano-fondo d-none d-md-block" [style.height]="altura()" (click)="state.seleccionarMesa(null)">
-    @for (mesa of state.mesas(); track mesa.id) {
+    @for (mesa of mesasAMostrar(); track mesa.id) {
       @if (mesa.tipoElemento !== 2) {
         <app-mesa-item
           [mesa]="mesa"

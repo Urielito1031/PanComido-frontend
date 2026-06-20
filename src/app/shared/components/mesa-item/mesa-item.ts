@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { Mesa } from '../../../core/models/domain/mesa';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-mesa-item',
@@ -17,7 +18,8 @@ export class MesaItem {
   enColision = input<boolean>(false);
 
   clickMesa = output<number>();
-  accionMenu = output<'ocupar' | 'detalles' | 'deshabilitar' | 'cerrar' | 'abrir'>();
+  accionMenu = output<'ocupar' | 'detalles' | 'deshabilitar' | 'cerrar' | 'abrir' | 'asignar-mozo'>();
+  auth = inject(AuthService);
 
   ancho = computed(() => this.mesa().posicionXFin - this.mesa().posicionXInicio);
   alto = computed(() => this.mesa().posicionYFin - this.mesa().posicionYInicio);

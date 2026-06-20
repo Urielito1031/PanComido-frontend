@@ -15,6 +15,7 @@ export class MapaMesasReadonly {
   state = inject(MesaLecturaState);
 
   altura = input<string>('500px');
+  filtroMozoId = input<number | null>(null);
   mesaMobileSeleccionada: Mesa | null = null;
 
   onMesaSeleccionada = output<number>();
@@ -49,8 +50,14 @@ export class MapaMesasReadonly {
     }
   }
 
+  mesasAMostrar() {
+    const mozoId = this.filtroMozoId();
+    if (mozoId === null) return this.state.mesas();
+    return this.state.mesas().filter(m => m.mozosAsignadosIds?.includes(mozoId));
+  }
+
   mesasOrdenadas() {
-    return [...this.state.mesas()].sort((a, b) => a.numeroMesa - b.numeroMesa);
+    return [...this.mesasAMostrar()].sort((a, b) => a.numeroMesa - b.numeroMesa);
   }
 
   getMobileClass(estado: string): string {

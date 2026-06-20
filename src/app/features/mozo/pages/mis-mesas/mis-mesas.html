@@ -1,9 +1,15 @@
 <div class="mis-mesas-page">
-  <h1>Mis Mesas</h1>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Mis Mesas</h1>
+    <button class="btn btn-outline-primary" (click)="toggleMostrarTodas()">
+      {{ mostrarTodasLasMesas() ? 'Ver solo mis mesas' : 'Ver todas las mesas' }}
+    </button>
+  </div>
 
   <!-- Mapa de mesas reutilizado (sin drag & drop) -->
   <app-mapa-mesas-readonly
     altura="900px"
+    [filtroMozoId]="filtroMozoActivo()"
     (onOcuparMesa)="onOcuparMesa($event)"
     (onVerDetalles)="onVerDetalles($event)"
     (onMesaSeleccionada)="onMesaSeleccionada($event)"

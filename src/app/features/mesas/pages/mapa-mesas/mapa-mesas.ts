@@ -5,6 +5,7 @@ import { MesaState } from '../../services/mesa.state';
 import { EstadoMesa, FormaMesa, Mesa } from '../../../../core/models/domain/mesa';
 import { MesaItem } from '../../../../shared/components/mesa-item/mesa-item';
 import { AuthService } from '../../../../core/services/auth.service';
+import { MesaService } from '../../services/mesa.service';
 
 @Component({
   selector: 'app-mapa-mesas',
@@ -17,6 +18,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 export class MapaMesas implements OnInit {
   state = inject(MesaState);
   auth = inject(AuthService);
+  mesaService = inject(MesaService);
   FormaMesa = FormaMesa;
   mesaMobileSeleccionada = signal<Mesa | null>(null);
 
@@ -29,8 +31,21 @@ export class MapaMesas implements OnInit {
   mostrarModalComanda = signal<boolean>(false);
   mesaComandaId = signal<number | null>(null);
 
+  // Asignacion Mozos
+  modoFiltroAsignacion = signal<boolean>(false);
+  mostrarModalAsignacion = signal<boolean>(false);
+  mozosSeleccionadosIds = signal<number[]>([]);
+  mozosDisponibles = signal<{id: number, nombre: string}[]>([]);
+
+  toggleFiltroAsignacion() {
+    this.modoFiltroAsignacion.update(v => !v);
+  }
+
   ngOnInit() {
     this.state.cargarMesas(); // Dispara la carga inicial al mock
+    this.mesaService.getMozos().subscribe(mozos => {
+      this.mozosDisponibles.set(mozos);
+    });
   }
 
   seleccionarMesaMobile(mesa: Mesa) {
@@ -136,6 +151,13 @@ export class MapaMesas implements OnInit {
         this.state.mostrarNotificacion('Esperando pedido de los comensales...', 'info');
         this.state.seleccionarMesa(null);
         break;
+      case 'asignar-mozo':
+        this.mesaSeleccionadaId.set(id);
+        const mesa = this.state.mesas().find(m => m.id === id);
+        this.mozosSeleccionadosIds.set(mesa?.mozosAsignadosIds ? [...mesa.mozosAsignadosIds] : []);
+        this.mostrarModalAsignacion.set(true);
+        this.state.seleccionarMesa(null);
+        break;
     }
   }
 
@@ -164,6 +186,24 @@ export class MapaMesas implements OnInit {
   cerrarModalComanda() {
     this.mostrarModalComanda.set(false);
     this.mesaComandaId.set(null);
+  }
+
+  cerrarModalAsignacion() {
+    this.mostrarModalAsignacion.set(false);
+  }
+
+  guardarAsignacionMozos() {
+    const mesaId = this.mesaSeleccionadaId();
+    if (mesaId === null) return;
+    
+    this.mesaService.asignarMozos(mesaId, this.mozosSeleccionadosIds()).subscribe({
+      next: () => {
+        this.state.mostrarNotificacion('Mozos asignados correctamente', 'exito');
+        this.state.cargarMesas(); // recargar para ver cambios
+        this.cerrarModalAsignacion();
+      },
+      error: () => this.state.mostrarNotificacion('Error al asignar mozos', 'error')
+    });
   }
 
   mesasOrdenadas() {
