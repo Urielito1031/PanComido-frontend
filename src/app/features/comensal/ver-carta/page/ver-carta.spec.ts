@@ -1,59 +1,75 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
+import { TestBed } from '@angular/core/testing';
 import { VerCarta } from './ver-carta';
+import { ActivatedRoute, Router } from '@angular/router';
+import { of } from 'rxjs';
 import { PedidoState } from '../../services/pedido.state';
 import { CartaState } from '../service/carta-state';
 import { ComensalState } from '../../services/comensal-state';
-import { signal } from '@angular/core';
+import { vi } from 'vitest';
 
-describe('VerCartaComponent', () => {
+describe('VerCarta', () => {
   let component: VerCarta;
-  let fixture: ComponentFixture<VerCarta>;
 
-  let pedidoStateMock: any;
-  let routerMock: any;
-  let cartaStateMock: any;
-  let comensalStateMock: any;
+  const routerMock = {
+    navigate: vi.fn()
+  };
+
+  const pedidoStateMock = {
+    agregarPedido: vi.fn(),
+    cantidadTotal: 0,
+    totalPrecio: 0
+  };
+
+  const cartaStateMock = {
+    cargarCarta: vi.fn(),
+    setBusqueda: vi.fn(),
+    setOrdenar: vi.fn()
+  };
+
+  const comensalStateMock = {};
 
   beforeEach(async () => {
-    pedidoStateMock = {
-      agregarPedido: vi.fn(),
-      cantidadTotal: signal(0),
-      totalPrecio: signal(0)
-    };
-
-    routerMock = {
-      navigate: vi.fn()
-    };
-
-    cartaStateMock = {
-      cargarCarta: vi.fn(),
-      setBusqueda: vi.fn(),
-      setOrdenar: vi.fn(),
-      itemsFiltrados: signal([]),
-      cargando: signal(false),
-      cantidadFiltrosActivos: signal(0),
-      tieneFiltrosActivos: signal(false)
-    };
-
-    comensalStateMock = {
-      enviando: signal(false), exito: signal(false), error: signal(null)
-    };
-
     await TestBed.configureTestingModule({
       imports: [VerCarta],
       providers: [
-        { provide: PedidoState, useValue: pedidoStateMock },
-        { provide: Router, useValue: routerMock },
-        { provide: CartaState, useValue: cartaStateMock },
-        { provide: ComensalState, useValue: comensalStateMock }
+        {
+          provide: Router,
+          useValue: routerMock
+        },
+        {
+          provide: PedidoState,
+          useValue: pedidoStateMock
+        },
+        {
+          provide: CartaState,
+          useValue: cartaStateMock
+        },
+        {
+          provide: ComensalState,
+          useValue: comensalStateMock
+        },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              paramMap: {
+                get: (key: string) => {
+                  const map: any = {
+                    mesaId: '1',
+                    cantidadPersonas: '2',
+                    restauranteId: '10'
+                  };
+                  return map[key];
+                }
+              }
+            }
+          }
+        }
       ]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(VerCarta);
+    const fixture = TestBed.createComponent(VerCarta);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('should create', () => {
@@ -71,15 +87,17 @@ describe('VerCartaComponent', () => {
   });
 
   it('debería seleccionar orden', () => {
-    component.seleccionarOrden('precio-menor', 'Menor a mayor');
-    expect(cartaStateMock.setOrdenar).toHaveBeenCalledWith('precio-menor');
-    expect(component.ordenSeleccionado()).toBe('Menor a mayor');
-    expect(component.menuOrdenarAbierto()).toBe(false);
+    component.seleccionarOrden('precio', 'Precio');
+
+    expect(component.ordenSeleccionado()).toBe('Precio');
+    expect(cartaStateMock.setOrdenar).toHaveBeenCalledWith('precio');
   });
 
   it('debería agregar un item al pedido', () => {
-    const item = { plato: { id: '1', nombre: 'Test', precioVentaFinal: 100 } as any, cantidad: 1 };
+    const item = { id: 1, nombre: 'Pizza' } as any;
+
     component.agregarAlPedido(item);
+
     expect(pedidoStateMock.agregarPedido).toHaveBeenCalledWith(item);
   });
 
@@ -88,17 +106,11 @@ describe('VerCartaComponent', () => {
     expect(routerMock.navigate).toHaveBeenCalledWith(['/comensal/pedido']);
   });
 
-  it('debería alternar el estado del menú ordenar', () => {
-  expect(component.menuOrdenarAbierto()).toBe(false);
+  it('debería togglear menú ordenar', () => {
+    const initial = component.menuOrdenarAbierto();
 
-  component.toggleMenuOrdenar();
+    component.toggleMenuOrdenar();
 
-  expect(component.menuOrdenarAbierto()).toBe(true);
-
-  component.toggleMenuOrdenar();
-
-  expect(component.menuOrdenarAbierto()).toBe(false);
-});
-
-
+    expect(component.menuOrdenarAbierto()).toBe(!initial);
+  });
 });

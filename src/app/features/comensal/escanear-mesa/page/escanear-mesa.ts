@@ -61,19 +61,6 @@ async ngAfterViewInit() {
     console.error('Error al inicializar escáner:', e);
   }
 }
-// ngAfterViewInit() {
-//   console.log('SIMULANDO QR');
-
-//   const mesaId = 5; // simulás QR
-
-//   setTimeout(() => {
-//     this.router.navigate([
-//       '/comensal/cantidad-personas',
-//       1,
-//       mesaId
-//     ]);
-//   }, 1000);
-// }
 
   ngOnDestroy() {
     this.controls?.stop();
