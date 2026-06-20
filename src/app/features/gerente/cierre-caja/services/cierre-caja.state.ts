@@ -1,4 +1,5 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, computed, inject, signal, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CierreCajaApiService } from './cierre-caja.api';
 import { CierreCajaMapper } from '../../../../infra/http/mappers/cierre-caja.mapper';
 import { CierreHistorial, CierreTurnoInfo } from '../../../../core/models/domain/cierre-caja';
@@ -9,6 +10,7 @@ import { environment } from '../../../../../environments/environment';
 })
 export class CierreCajaStateService {
   private api = inject(CierreCajaApiService);
+  private destroyRef = inject(DestroyRef);
 
   // Signals
   private _datosTurno = signal<CierreTurnoInfo | null>(null);
@@ -95,133 +97,33 @@ export class CierreCajaStateService {
   cargarDatos(): void {
     this._loading.set(true);
     
-    // Cargar Turno Actual con Fallback de Mock
-    this.api.getTurno().subscribe({
-      next: (dto) => {
-        // En producción podemos filtrar o solicitar por el ID del turno seleccionado si la API lo soporta.
-        const domainData = CierreCajaMapper.toDomainTurnoInfo(dto);
-        this._datosTurno.set(domainData);
-        this._efectivoContado.set(domainData.resumenFinanciero.efectivoEsperado);
-        this._loading.set(false);
-      },
-      error: (err) => {
-        console.warn('Error cargando turno real, usando mock para desarrollo:', err);
-        // Cargar datos dummy estructurados según el turno seleccionado
-        const idTurno = this._turnoIdSeleccionado();
-        let mockDto;
-        if (idTurno === 1) {
-          mockDto = {
-            fecha: new Date().toISOString().split('T')[0],
-            turnoLaboralId: 1,
-            nombreTurno: 'Turno Mañana (Desayuno/Almuerzo)',
-            resumenFinanciero: {
-              efectivoEsperado: 120500,
-              totalRecaudado: 450200,
-              totalOperaciones: 112
-            },
-            desglosePagos: [
-              { metodoPagoId: 1, nombre: 'Efectivo', esperado: 120500, operaciones: 34 },
-              { metodoPagoId: 2, nombre: 'Tarjeta', esperado: 180200, operaciones: 45 },
-              { metodoPagoId: 3, nombre: 'Transferencia', esperado: 64500, operaciones: 12 },
-              { metodoPagoId: 4, nombre: 'Mercado Pago', esperado: 85000, operaciones: 21 }
-            ],
-            rendimientoTurno: {
-              platosMasVendidos: [
-                { nombre: 'Café con medialunas', cantidad: 62, total: 93000 },
-                { nombre: 'Tarta pascualina', cantidad: 25, total: 100000 },
-                { nombre: 'Licuado de banana', cantidad: 18, total: 54000 },
-                { nombre: 'Tostado de jamón y queso', cantidad: 15, total: 60000 },
-                { nombre: 'Exprimido de naranja', cantidad: 12, total: 36000 }
-              ],
-              insumosMasUsados: [
-                { nombre: 'Café en grano', cantidad: 5.2, unidad: 'kg' },
-                { nombre: 'Harina 000', cantidad: 8.5, unidad: 'kg' }
-              ]
-            }
-          };
-        } else if (idTurno === 3) {
-          mockDto = {
-            fecha: new Date().toISOString().split('T')[0],
-            turnoLaboralId: 3,
-            nombreTurno: 'Turno Tarde (Merienda/After)',
-            resumenFinanciero: {
-              efectivoEsperado: 175400,
-              totalRecaudado: 680300,
-              totalOperaciones: 174
-            },
-            desglosePagos: [
-              { metodoPagoId: 1, nombre: 'Efectivo', esperado: 175400, operaciones: 48 },
-              { metodoPagoId: 2, nombre: 'Tarjeta', esperado: 240500, operaciones: 62 },
-              { metodoPagoId: 3, nombre: 'Transferencia', esperado: 110400, operaciones: 24 },
-              { metodoPagoId: 4, nombre: 'Mercado Pago', esperado: 154000, operaciones: 40 }
-            ],
-            rendimientoTurno: {
-              platosMasVendidos: [
-                { nombre: 'Tarta de manzana y té', cantidad: 38, total: 57000 },
-                { nombre: 'Sándwich lomito completo', cantidad: 29, total: 145000 },
-                { nombre: 'Café latte macchiato', cantidad: 22, total: 66000 },
-                { nombre: 'Porción de torta Rogel', cantidad: 18, total: 72000 }
-              ],
-              insumosMasUsados: [
-                { nombre: 'Manzanas rojas', cantidad: 10.5, unidad: 'kg' },
-                { nombre: 'Lomo vacuno', cantidad: 9.8, unidad: 'kg' }
-              ]
-            }
-          };
-        } else {
-          mockDto = {
-            fecha: new Date().toISOString().split('T')[0],
-            turnoLaboralId: 2,
-            nombreTurno: 'Turno Noche (Cena)',
-            resumenFinanciero: {
-              efectivoEsperado: 286400,
-              totalRecaudado: 1131900,
-              totalOperaciones: 259
-            },
-            desglosePagos: [
-              { metodoPagoId: 1, nombre: 'Efectivo', esperado: 286400, operaciones: 74 },
-              { metodoPagoId: 2, nombre: 'Tarjeta', esperado: 412800, operaciones: 96 },
-              { metodoPagoId: 3, nombre: 'Transferencia', esperado: 194500, operaciones: 38 },
-              { metodoPagoId: 4, nombre: 'Mercado Pago', esperado: 238200, operaciones: 51 }
-            ],
-            rendimientoTurno: {
-              platosMasVendidos: [
-                { nombre: 'Milanesa napolitana', cantidad: 48, total: 336000 },
-                { nombre: 'Pizza muzzarella', cantidad: 41, total: 246000 },
-                { nombre: 'Tallarines bolognesa', cantidad: 32, total: 210000 },
-                { nombre: 'Flan con dulce de leche', cantidad: 22, total: 88000 },
-                { nombre: 'Cerveza artesanal IPA', cantidad: 19, total: 76000 }
-              ],
-              insumosMasUsados: [
-                { nombre: 'Mozzarella', cantidad: 18.5, unidad: 'kg' },
-                { nombre: 'Carne vacuna', cantidad: 16.2, unidad: 'kg' }
-              ]
-            }
-          };
+    // Cargar Turno Actual
+    this.api.getTurno()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (dto) => {
+          const domainData = CierreCajaMapper.toDomainTurnoInfo(dto);
+          this._datosTurno.set(domainData);
+          this._efectivoContado.set(domainData.resumenFinanciero.efectivoEsperado);
+          this._loading.set(false);
+        },
+        error: (err) => {
+          console.error('Error cargando turno:', err);
+          this._loading.set(false);
         }
-        
-        const domainData = CierreCajaMapper.toDomainTurnoInfo(mockDto);
-        this._datosTurno.set(domainData);
-        this._efectivoContado.set(domainData.resumenFinanciero.efectivoEsperado);
-        this._loading.set(false);
-      }
-    });
+      });
 
-    // Cargar Historial con Fallback de Mock
-    this.api.getHistorial().subscribe({
-      next: (dtos) => {
-        this._historial.set(CierreCajaMapper.toDomainHistorialList(dtos));
-      },
-      error: (err) => {
-        console.warn('Error cargando historial real, usando mock para desarrollo:', err);
-        const mockHistorialDtos = [
-          { id: 12, fecha: '2026-06-12', turno: 'Turno Noche', total: 1131900, diferencia: -150, estado: 'Faltante' },
-          { id: 11, fecha: '2026-06-11', turno: 'Turno Dia', total: 582600, diferencia: 0, estado: 'Cuadrada' },
-          { id: 10, fecha: '2026-06-10', turno: 'Turno Noche', total: 940000, diferencia: 500, estado: 'Sobrante' }
-        ];
-        this._historial.set(CierreCajaMapper.toDomainHistorialList(mockHistorialDtos));
-      }
-    });
+    // Cargar Historial
+    this.api.getHistorial()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (dtos) => {
+          this._historial.set(CierreCajaMapper.toDomainHistorialList(dtos));
+        },
+        error: (err) => {
+          console.error('Error cargando historial:', err);
+        }
+      });
   }
 
   setEfectivoContado(valor: number): void {
@@ -249,16 +151,16 @@ export class CierreCajaStateService {
       diferencia: dif,
       sobrante: sobrante,
       observacion: this.observacion()
-    }).subscribe({
+    })
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({
       next: (res) => {
         this._cierreConfirmado.set(true);
         this._cierreSeleccionadoId.set(res.cierreId);
         this.cargarDatos(); // Refresh historial
       },
       error: (err) => {
-        console.error('Error al confirmar cierre, simulando guardado exitoso en mock:', err);
-        this._cierreConfirmado.set(true);
-        this._cierreSeleccionadoId.set(99);
+        console.error('Error al confirmar cierre:', err);
         this._loading.set(false);
       },
       complete: () => {

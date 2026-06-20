@@ -34,7 +34,6 @@ export class ComandaState {
   cargando = this.#cargando.asReadonly();
   error = this.#error.asReadonly();
 
-  // Computed
   tieneComandaActiva = computed(() => this.#comandaId() !== null);
 
   constructor() {
@@ -76,6 +75,8 @@ export class ComandaState {
       nombreComensal
     ).pipe(
       tap(response => {
+        this.#restauranteId.set(restauranteId);
+        this.#mesaId.set(mesaId);
         this.#mesaInfo.set(response.mesa);
         this.#comandaId.set(response.idComandaGenerada);
 

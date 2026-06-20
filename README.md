@@ -1,36 +1,38 @@
-# PanComido - Frontend
+# PanComido — Frontend
 
-Sistema de gestión para restaurante desarrollado con Angular.
+Frontend Angular del sistema de gestión de restaurante PanComido.
 
----
+| Stack | Versión |
+|-------|---------|
+| Angular | 21 |
+| Bootstrap | 5 |
+| Testing | Vitest |
+| Tiempo real | SignalR |
 
-### 1. Gestión de Estado y Datos
-```typescript
-// Ejemplo de patrón StateService con Signals (Próxima implementación)
-protected readonly user = computed(() => this._user()); 
+## Arquitectura
+
+```
+src/app/
+├── core/          → servicios, guards, interceptores, modelos
+├── features/      → módulos por rol (cocina, mozo, gerente, comensal)
+├── shared/        → componentes reutilizables
+├── layouts/       → layouts por rol
+└── infra/         → acceso a datos, environment, mocks
 ```
 
-### 2. Estándares de Desarrollo
-- **Standalone Components**: Arquitectura sin NgModules para una gestión de dependencias granular.
-- **Signals**: Uso de reactividad fina para la gestión de estados locales y globales.
-- **Clean Code**: Priorización de legibilidad y tipado estricto en TypeScript.
+Componentes standalone, signals para estado reactivo, lazy loading por feature.
 
-### 3. Convenciones de Nomenclatura
-- **Archivos**: `kebab-case` (ej: `stock-list.ts`).
-- **Clases**: `PascalCase` (ej: `StockList`).
-- **Selectores**: Prefijo `app-` (ej: `app-stock-list`).
+## Inicio rápido
 
-### 4. Organización Modular
-- **core/**: Servicios singleton, interceptores y modelos compartidos globales (se cargan una vez en el root).
-- **features/**: Módulos organizados por dominio funcional (auth, cocina, comensal, gerente, mozo). Implementación de lazy loading.
-- **shared/**: Componentes de UI reutilizables (botones, modales, buscadores) y componentes transversales sin lógica de negocio pesada.
-- **layouts/**: Estructuras de contenedores principales para diferentes roles de usuario.
-
-### 5. Guía de Ejecución
 ```bash
-npm install   # Instalación de dependencias
-npm start     # Servidor de desarrollo en localhost:4200
+npm install
+npm start
 ```
 
----
-*Documentación técnica de referencia para el equipo de PanComido.*
+El frontend se levanta en `http://localhost:4200`.
+
+## Backend
+
+La API está en un repositorio separado: [PanComido](https://github.com/NicoPaone/PanComido). En desarrollo, necesita estar corriendo en `https://localhost:7204`. En producción, apunta a `https://api-pan-comido.azurewebsites.net`.
+
+Para desarrollo sin backend, activá `useMock: true` en `src/environments/environment.development.ts`.

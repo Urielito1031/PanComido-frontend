@@ -172,7 +172,9 @@
         }
       } @else {
         <div class="empty-state">
-          <p>No se encontraron datos del turno actual.</p>
+          <span class="material-symbols-outlined empty-state-icon">point_of_sale</span>
+          <h3 class="empty-state-title">Caja sin movimientos</h3>
+          <p class="empty-state-text">Aún no se han registrado comandas ni pagos para el turno seleccionado. Espera a que ingresen operaciones para realizar el arqueo.</p>
         </div>
       }
     </app-glass-card>
@@ -181,10 +183,9 @@
     <div class="resumen-kpis-layout">
       
       <!-- KPIs del Turno -->
-      @if (state.datosTurno(); as turno) {
-        <app-glass-card class="kpis-panel">
-          <h2 class="section-title mb-4">Rendimiento y Métricas del Turno</h2>
-
+      <app-glass-card class="kpis-panel">
+        <h2 class="section-title mb-4">Rendimiento y Métricas del Turno</h2>
+        @if (state.datosTurno(); as turno) {
           <div class="kpis-grid">
             <!-- Cantidad de Comensales -->
             <div class="kpi-card">
@@ -302,8 +303,14 @@
               }
             </div>
           }
-        </app-glass-card>
-      }
+        } @else {
+          <div class="empty-state">
+            <span class="material-symbols-outlined empty-state-icon">insights</span>
+            <h3 class="empty-state-title">Sin métricas de rendimiento</h3>
+            <p class="empty-state-text">Las estadísticas de ventas, encuestas e insumos aparecerán aquí una vez que el turno comience a operar.</p>
+          </div>
+        }
+      </app-glass-card>
 
       <!-- Historial de Cierres -->
       <app-glass-card class="historial-panel">

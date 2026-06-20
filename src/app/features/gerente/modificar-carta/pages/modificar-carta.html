@@ -51,13 +51,25 @@
      </div>
    </div>
    
-   <button 
-     acciones
-     class="btn-premium-primary d-flex align-items-center gap-2"
-     (click)="irACrearPlato()">
-     <span class="material-symbols-outlined fs-5">add</span>
-     <span class="fw-semibold">Nuevo plato</span>
-   </button>
+   <div acciones class="d-flex gap-2">
+     <button 
+       class="btn-premium-secondary d-flex align-items-center gap-2"
+       style="background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(15, 23, 42, 0.1); color: #475569; border-radius: 12px; padding: 0.5rem 1rem; transition: all 0.2s;"
+       onmouseover="this.style.background='rgba(255, 255, 255, 0.9)'; this.style.borderColor='rgba(15, 23, 42, 0.2)';"
+       onmouseout="this.style.background='rgba(255, 255, 255, 0.7)'; this.style.borderColor='rgba(15, 23, 42, 0.1)';"
+       (click)="abrirRestaurarPlatos()"
+       title="Restaurar platos eliminados">
+       <span class="material-symbols-outlined fs-5">settings_backup_restore</span>
+       <span class="fw-semibold">Restaurar</span>
+     </button>
+
+     <button 
+       class="btn-premium-primary d-flex align-items-center gap-2"
+       (click)="irACrearPlato()">
+       <span class="material-symbols-outlined fs-5">add</span>
+       <span class="fw-semibold">Nuevo plato</span>
+     </button>
+   </div>
 
 
   </app-page-toolbar>
@@ -257,6 +269,17 @@
         (confirm)="onConfirmDelete()"
         (close)="onCloseModals()">
       </app-modal-eliminar-plato>
+    }
+  }
+
+  @if (state.mostrarModalRestaurar()) {
+    @defer (on idle) {
+      <app-modal-restaurar-plato
+        [platos]="state.platosEliminados()"
+        [loading]="state.loadingRestaurar()"
+        (restaurar)="onRestaurarPlato($event)"
+        (close)="onCloseRestaurar()">
+      </app-modal-restaurar-plato>
     }
   }
 </div>

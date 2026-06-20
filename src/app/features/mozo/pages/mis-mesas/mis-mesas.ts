@@ -1,6 +1,7 @@
 import { Component, inject, signal , ChangeDetectionStrategy} from '@angular/core';
 import { MapaMesasReadonly } from "../../../mesas/shared/mapa-mesas-readonly/mapa-mesas-readonly";
 import { MesaLecturaState } from '../../../mesas/shared/mesa-lectura-state';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -17,6 +18,18 @@ export class MisMesasPage {
   mostrarModalOcupar = signal<boolean>(false);
   mesaSeleccionadaId = signal<number | null>(null);
   cantidadComensales = signal<number>(2);
+
+  // Filtro de mozo
+  mostrarTodasLasMesas = signal<boolean>(false);
+  mozoIdLogueado = signal<number>(inject(AuthService).empleadoId);
+
+  filtroMozoActivo() {
+    return this.mostrarTodasLasMesas() ? null : this.mozoIdLogueado();
+  }
+
+  toggleMostrarTodas() {
+    this.mostrarTodasLasMesas.update(v => !v);
+  }
 
   // Modal de comanda
   mostrarModalComanda = signal<boolean>(false);

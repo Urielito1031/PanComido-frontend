@@ -1,5 +1,6 @@
 import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { forkJoin } from 'rxjs';
 import { Aviso, AvisoTipo } from '../../../../core/models/domain/aviso';
 import { Plato } from '../../../../core/models/domain/plato';
 import { AvisosApiService } from './avisos.api';
@@ -68,11 +69,10 @@ export class AvisosStateService {
   });
 
   cargarAvisos(): void {
-    import('rxjs').then(({ forkJoin }) => {
-      forkJoin({
-        avisos: this.api.getAvisos(),
-        insumos: this.api.getInsumos()
-      })
+    forkJoin({
+      avisos: this.api.getAvisos(),
+      insumos: this.api.getInsumos()
+    })
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: ({ avisos, insumos }) => {
@@ -84,7 +84,6 @@ export class AvisosStateService {
           },
           error: (err) => console.error('Error al cargar avisos:', err)
         });
-    });
   }
 
   cargarSugerenciasCocina(): void {

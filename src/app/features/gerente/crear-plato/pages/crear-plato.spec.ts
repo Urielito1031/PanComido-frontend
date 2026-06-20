@@ -24,6 +24,7 @@ describe('CrearPlatoPage', () => {
         restricciones: [],
         ingredientes: []
       })),
+      getPlatos: vi.fn().mockReturnValue(of([])),
       crearPlato: vi.fn().mockReturnValue(of({ id: 1 })),
     };
 
@@ -87,17 +88,5 @@ describe('CrearPlatoPage', () => {
     expect(routerMock.navigate).toHaveBeenCalledWith(['/staff/gerente/modificar-carta']);
   });
 
-  it('debería seleccionar imagen y cerrar el selector', () => {
-    const url = 'https://example.com/image.jpg';
-    component.onSeleccionarImagen(url);
-    expect(component.imagenSelected()).toBe(url);
-    expect(component.mostrarSelectorImagen()).toBe(false);
-  });
-
-  it('debería abrir y cerrar el selector de imagen', () => {
-    component.onAbrirSelectorImagen();
-    expect(component.mostrarSelectorImagen()).toBe(true);
-    component.onCerrarSelectorImagen();
-    expect(component.mostrarSelectorImagen()).toBe(false);
-  });
+  // Tests de selector de imagen eliminados porque el componente usa un file input nativo ahora
 });

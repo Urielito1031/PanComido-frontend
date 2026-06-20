@@ -13,6 +13,7 @@ describe('DatosLocalForm', () => {
 
     fixture = TestBed.createComponent(DatosLocalForm);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('datosLocal', { imagen: '' });
     await fixture.whenStable();
   });
 

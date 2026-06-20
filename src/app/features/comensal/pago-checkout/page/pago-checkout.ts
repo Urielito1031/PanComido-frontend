@@ -1,12 +1,12 @@
 import { Component, DestroyRef, inject, signal, effect, OnDestroy, OnInit , ChangeDetectionStrategy} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { ComandaState } from '../../services/comanda-state';
 import { PagoService } from '../../services/pago.service';
 import { ComandaHubService } from '../../../../core/services/hubs/comanda/comanda-hub-service';
 import { configuracionRestauranteMock } from '../../../../infra/mocks/configuracion-restaurante.mock-data';
-import { BotonComensal } from '../../../../shared/ui/botones/boton-comensal/boton-comensal';
+import { take, takeUntil } from 'rxjs';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -18,6 +18,7 @@ import { BotonComensal } from '../../../../shared/ui/botones/boton-comensal/boto
 })
 export class PagoCheckout implements OnInit, OnDestroy {
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private comandaState = inject(ComandaState);
   private pagoService = inject(PagoService);
   private comandaHub = inject(ComandaHubService);
@@ -39,6 +40,13 @@ export class PagoCheckout implements OnInit, OnDestroy {
         }
       }
     });
+    effect(()=>{
+      const comanda = this.comandaHub.pagoRechazado();
+      if(comanda){
+        this.error.set("El pago fue rechazado. Intenta de nuevo.")
+        this.cargandoPago.set(false)
+      }
+    })
   }
 
   ngOnInit() {
@@ -50,6 +58,16 @@ export class PagoCheckout implements OnInit, OnDestroy {
       this.comandaHub.conectarComoComensal(mesaId).catch(err =>
         console.error('Error al conectar hub de comanda:', err)
       );
+    }
+
+    //para leer query params de MP
+    const errorMp = this.route.snapshot.queryParams['error'];
+    const pendingMp = this.route.snapshot.queryParams['pending'];
+
+    if(errorMp === 'mp'){
+      this.error.set('El pago con Mercado Pago fue rechazado. Elegi otro método');
+    }else if(pendingMp === 'mp'){
+      this.error.set('El pago está pendiente. Esperá unos segundos y recargá');
     }
   }
 
@@ -74,6 +92,8 @@ export class PagoCheckout implements OnInit, OnDestroy {
       next: () => {
         this.cargandoPago.set(false);
         this.pagoSolicitado.set(true);
+        //ver si es necesario un estado de pendiente a que el mozo confirme el pago en su vista
+        this.router.navigate(['/comensal/pago-confirmado']);
       },
       error: (err) => {
         this.cargandoPago.set(false);
@@ -82,7 +102,28 @@ export class PagoCheckout implements OnInit, OnDestroy {
     });
   }
 
-  pagarElectronico(): void {
-    this.error.set('Pago electrónico no disponible por el momento. Por favor abone en efectivo.');
+  pagarMercadoPago(): void {
+    const comandaId = this.estado()?.comandaId;
+    if(!comandaId  || this.cargandoPago()) return;
+    
+    this.cargandoPago.set(true);
+    this.error.set(null);
+
+    const restauranteId = this.comandaState.restauranteId();
+    this.pagoService.solicitarPagoMP(comandaId,restauranteId??1)
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({
+      next:(res) => {
+        this.cargandoPago.set(false);
+        
+        window.location.href = res.initPoint;
+      },
+      error: (err)=> { 
+        this.cargandoPago.set(false);
+        this.error.set(err.error?.error || 'Error al generar pago');
+      }
+    })
+
+
   }
 }

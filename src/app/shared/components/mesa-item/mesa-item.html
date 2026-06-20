@@ -1,5 +1,5 @@
 <div class="mesa-container"
-     [ngClass]="[claseEstado(), claseForma(), isSeleccionada() ? 'seleccionada' : '']"
+     [ngClass]="[claseEstado(), claseForma(), isSeleccionada() ? 'seleccionada' : '', enColision() ? 'colision-activa' : '']"
      [style.width.px]="ancho()"
      [style.height.px]="alto()"
      (click)="manejarClickMesa($event)">
@@ -15,6 +15,10 @@
       @if (mesa().estadoMesa === 'Ocupada') {
         <button type="button" class="btn-accion" (click)="$event.stopPropagation(); accionMenu.emit('detalles')">Ver detalles</button>
         <button type="button" class="btn-accion" (click)="$event.stopPropagation(); accionMenu.emit('cerrar')">Cerrar mesa</button>
+      }
+
+      @if (auth.tieneRoles(['Gerente'])) {
+        <button type="button" class="btn-accion text-primary" (click)="$event.stopPropagation(); accionMenu.emit('asignar-mozo')">Asignar Mozo</button>
       }
 
       @if (mesa().estadoMesa === 'Deshabilitada') {

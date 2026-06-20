@@ -17,16 +17,28 @@ export default defineConfig({
 
       // Qué EXCLUIR (lo que baja los números artificialmente)
       exclude: [
-        'src/app/**/*.spec.ts',           // Tests
-        'src/app/**/*.mock.ts',           // Mocks
+        'src/app/**/*.spec.ts',
+        'src/app/**/*.mock.ts',
         'src/app/**/*.d.ts',
-        'src/app/core/models/**',         // Interfaces (son tipos, no código)
+        'src/app/core/models/**',
         'src/app/**/index.ts',
-        'src/app/app.routes.ts',          // Configuración
+        'src/app/app.routes.ts',
         'src/app/app.constants.ts',
         'src/test.setup.ts',
         'src/app/**/*/routes.ts',
-        'src/app/core/interceptors/handlers/**'
+        'src/app/core/interceptors/handlers/**',
+        'src/app/core/models/**',
+        'src/app/**/*.config.ts',
+        'src/app/environments/**',
+        'src/app/infra/mocks/**',
+        'src/app/core/models/**',
+        'src/app/core/models/dtos/**',
+        'src/app/environments/**',
+        'src/app/infra/mocks/**',
+        'src/app/app.config.ts',
+        'src/app/**/comensal.routes.ts',
+        'src/app/**/*.routes.ts',
+        'src/app/assets/**',
       ],
 
       // Formatos de reporte
@@ -35,16 +47,15 @@ export default defineConfig({
       // HTML para revisar archivo por archivo
       reportsDirectory: 'coverage',
 
-
       //Son porcentajes minimos para que el CI pase
 
       //importante que lo mantengamos en un 70 aprox
       thresholds: {
-        statements: 40,   // Estás en 36.35%, 
-        branches: 14,     // Estás en 14.46%,
-        functions: 25,    // Estás en 25.69%,
-        lines: 37         // Estás en 37.09%, 
-      }
-    }
-  }
+        statements: 40, // Estás en 36.35%,
+        branches: 14, // Estás en 14.46%,
+        functions: 25, // Estás en 25.69%,
+        lines: 37, // Estás en 37.09%,
+      },
+    },
+  },
 });

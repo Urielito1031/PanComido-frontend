@@ -1,10 +1,11 @@
 import { Component, inject, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CdkDragEnd, DragDropModule } from '@angular/cdk/drag-drop';
+import { CdkDragEnd, CdkDragMove, DragDropModule } from '@angular/cdk/drag-drop';
 import { MesaState } from '../../services/mesa.state';
 import { EstadoMesa, FormaMesa, Mesa } from '../../../../core/models/domain/mesa';
 import { MesaItem } from '../../../../shared/components/mesa-item/mesa-item';
 import { AuthService } from '../../../../core/services/auth.service';
+import { MesaService } from '../../services/mesa.service';
 
 @Component({
   selector: 'app-mapa-mesas',
@@ -17,6 +18,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 export class MapaMesas implements OnInit {
   state = inject(MesaState);
   auth = inject(AuthService);
+  mesaService = inject(MesaService);
   FormaMesa = FormaMesa;
   mesaMobileSeleccionada = signal<Mesa | null>(null);
 
@@ -29,8 +31,21 @@ export class MapaMesas implements OnInit {
   mostrarModalComanda = signal<boolean>(false);
   mesaComandaId = signal<number | null>(null);
 
+  // Asignacion Mozos
+  modoFiltroAsignacion = signal<boolean>(false);
+  mostrarModalAsignacion = signal<boolean>(false);
+  mozosSeleccionadosIds = signal<number[]>([]);
+  mozosDisponibles = signal<{id: number, nombre: string}[]>([]);
+
+  toggleFiltroAsignacion() {
+    this.modoFiltroAsignacion.update(v => !v);
+  }
+
   ngOnInit() {
     this.state.cargarMesas(); // Dispara la carga inicial al mock
+    this.mesaService.getMozos().subscribe(mozos => {
+      this.mozosDisponibles.set(mozos);
+    });
   }
 
   seleccionarMesaMobile(mesa: Mesa) {
@@ -80,7 +95,37 @@ export class MapaMesas implements OnInit {
   // Función que fuerza a la mesa a moverse visualmente en saltos de 15px
 
 
+  // Mapa de colisiones activas
+  colisionesActivas = signal<Record<number, boolean>>({});
+
+  onDragMoved(id: number, event: CdkDragMove) {
+    const mesaActual = this.state.mesas().find(m => m.id === id);
+    if (!mesaActual) return;
+
+    const x = mesaActual.posicionXInicio + event.distance.x;
+    const y = mesaActual.posicionYInicio + event.distance.y;
+    const ancho = mesaActual.posicionXFin - mesaActual.posicionXInicio;
+    const alto = mesaActual.posicionYFin - mesaActual.posicionYInicio;
+
+    const colision = this.state.mesas().some(otra => {
+      if (otra.id === id) return false;
+      const superponenX = x < otra.posicionXFin && (x + ancho) > otra.posicionXInicio;
+      const superponenY = y < otra.posicionYFin && (y + alto) > otra.posicionYInicio;
+      return superponenX && superponenY;
+    });
+
+    this.colisionesActivas.update(cols => ({ ...cols, [id]: colision }));
+  }
+
   onDragEnded(id: number, event: CdkDragEnd) {
+    const hayColision = this.colisionesActivas()[id];
+    this.colisionesActivas.update(cols => ({ ...cols, [id]: false }));
+
+    if (hayColision) {
+      event.source._dragRef.reset();
+      return;
+    }
+
     // También ajustamos la matemática acá para que el Signal guarde el múltiplo exacto
     const deltaX = Math.round(event.distance.x / this.gridSize) * this.gridSize;
     const deltaY = Math.round(event.distance.y / this.gridSize) * this.gridSize;
@@ -104,6 +149,13 @@ export class MapaMesas implements OnInit {
         break;
       case 'detalles':
         this.state.mostrarNotificacion('Esperando pedido de los comensales...', 'info');
+        this.state.seleccionarMesa(null);
+        break;
+      case 'asignar-mozo':
+        this.mesaSeleccionadaId.set(id);
+        const mesa = this.state.mesas().find(m => m.id === id);
+        this.mozosSeleccionadosIds.set(mesa?.mozosAsignadosIds ? [...mesa.mozosAsignadosIds] : []);
+        this.mostrarModalAsignacion.set(true);
         this.state.seleccionarMesa(null);
         break;
     }
@@ -136,8 +188,28 @@ export class MapaMesas implements OnInit {
     this.mesaComandaId.set(null);
   }
 
+  cerrarModalAsignacion() {
+    this.mostrarModalAsignacion.set(false);
+  }
+
+  guardarAsignacionMozos() {
+    const mesaId = this.mesaSeleccionadaId();
+    if (mesaId === null) return;
+    
+    this.mesaService.asignarMozos(mesaId, this.mozosSeleccionadosIds()).subscribe({
+      next: () => {
+        this.state.mostrarNotificacion('Mozos asignados correctamente', 'exito');
+        this.state.cargarMesas(); // recargar para ver cambios
+        this.cerrarModalAsignacion();
+      },
+      error: () => this.state.mostrarNotificacion('Error al asignar mozos', 'error')
+    });
+  }
+
   mesasOrdenadas() {
-    return [...this.state.mesas()].sort((a, b) => a.numeroMesa - b.numeroMesa);
+    return [...this.state.mesas()]
+      .filter(m => m.tipoElemento !== 2)
+      .sort((a, b) => a.numeroMesa - b.numeroMesa);
   }
 
   getMobileClass(estado: string): string {

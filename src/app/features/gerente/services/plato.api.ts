@@ -1,12 +1,11 @@
 import { Injectable, inject } from '@angular/core';
-import { forkJoin, map, Observable } from 'rxjs';
+import { forkJoin, map, Observable, of, delay } from 'rxjs';
 import { ApiService } from '../../../core/services/api-service';
 import { Plato } from '../../../core/models/domain/plato';
 import { Insumo } from '../../../core/models/domain/insumo';
 import { InsumoResponseDto } from '../../../core/models/dtos/responses/insumo.response';
 import { CrearPlatoIngredienteDto, CrearPlatoRequestDto } from '../../../core/models/dtos/requests/crear-plato.request';
 import { mapInsumoDtoToDomain } from '../../../infra/http/mappers/insumo.mapper';
-import { environment } from '../../../../environments/environment.development';
 
 export interface ItemDesplegableDto {
   id: number;
@@ -97,8 +96,8 @@ export class PlatoApiService {
       if (plato.ingredientes && plato.ingredientes.length > 0) {
         plato.ingredientes.forEach((ingrediente, index) => {
           formData.append(`Ingredientes[${index}].InsumoId`, ingrediente.insumoId.toString());
-            formData.append(`Ingredientes[${index}].Cantidad`, ingrediente.cantidad.toString());
-            formData.append(`Ingredientes[${index}].Opcional`, ingrediente.opcional ? 'true' : 'false');
+          formData.append(`Ingredientes[${index}].Cantidad`, ingrediente.cantidad.toString());
+          formData.append(`Ingredientes[${index}].Opcional`, ingrediente.opcional ? 'true' : 'false');
           });
         }
         formData.append('imagen', archivo);
@@ -175,7 +174,52 @@ export class PlatoApiService {
   }
 
   deletePlato(id: number): Observable<boolean> {
-    return this.api.delete<boolean>(`/platos/${id}`);
+    return this.api.delete<boolean>(`${this.endpoint}/${id}`);
+  }
+
+  getPlatosEliminados(): Observable<Plato[]> {
+    // MOCK: Endpoint simulado "Api-First"
+    return of([
+      {
+        id: 9991,
+        nombre: 'Hamburguesa Triple Clásica',
+        descripcion: 'Plato eliminado temporalmente',
+        precioVenta: 8500,
+        costo: 3000,
+        tiempo: 15,
+        tiempoPreparacion: 15,
+        tipoPlatoId: 1,
+        categoriaPlatoId: 1,
+        tipo: 'Principal',
+        categoria: 'Hamburguesas',
+        restriccionesIds: [],
+        visible: false,
+        imagen: '',
+        receta: []
+      },
+      {
+        id: 9992,
+        nombre: 'Ensalada César Antigua',
+        descripcion: 'Eliminada por falta de insumos',
+        precioVenta: 4200,
+        costo: 1500,
+        tiempo: 10,
+        tiempoPreparacion: 10,
+        tipoPlatoId: 1,
+        categoriaPlatoId: 2,
+        tipo: 'Principal',
+        categoria: 'Ensaladas',
+        restriccionesIds: [],
+        visible: false,
+        imagen: '',
+        receta: []
+      }
+    ]).pipe(delay(600));
+  }
+
+  restaurarPlato(id: number): Observable<boolean> {
+    // MOCK: Simulamos el PATCH /plato/{id}/restaurar
+    return of(true).pipe(delay(400));
   }
 
   private mapDetalleToDomain(dto: DetallePlatoResponseDto, formulario: DatosFormularioCrearPlatoResponseDto): Plato {
@@ -205,7 +249,8 @@ export class PlatoApiService {
           nombre: insumo?.nombre ?? `Insumo ${ingrediente.insumoId}`,
           cantidad: ingrediente.cantidad,
           unidadMedida: insumo?.unidadMedida ?? '',
-          costoUnitario: insumo?.costoUnitario ?? 0
+          costoUnitario: insumo?.costoUnitario ?? 0,
+          opcional: ingrediente.opcional
         };
       })
     };
@@ -232,7 +277,8 @@ export class PlatoApiService {
         nombre: '',
         cantidad: ingrediente.cantidad,
         unidadMedida: '',
-        costoUnitario: 0
+        costoUnitario: 0,
+        opcional: ingrediente.opcional
       }))
     };
   }
