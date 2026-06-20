@@ -30,11 +30,14 @@ import { BotonComensal } from '../../../../shared/ui/botones/boton-comensal/boto
     QRCodeComponent,
     BotonComensal
 
+
+
   ],
   templateUrl: './ver-carta.html',
   styleUrls: ['./ver-carta.css'],
 })
 export class VerCarta {
+
 
 
   private router = inject(Router);
@@ -97,6 +100,7 @@ export class VerCarta {
     const restauranteId = Number(this.route.snapshot.paramMap.get('restauranteId'));
 
     this.state.cargarCarta(restauranteId);
+
     const sesionRaw = sessionStorage.getItem('sesionComensal');
 
     if (!sesionRaw || sesionRaw === 'undefined') {

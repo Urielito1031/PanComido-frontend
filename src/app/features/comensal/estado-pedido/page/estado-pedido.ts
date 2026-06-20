@@ -37,6 +37,8 @@ export class EstadoPedido implements OnInit, OnDestroy {
         console.error('Error al conectar hub de comanda:', err)
       );
     }
+    console.log('mesaId signal:', this.mesaId());
+console.log('sessionStorage:', sessionStorage.getItem('sesionComensal'));
   }
 
   ngOnDestroy() {
@@ -60,9 +62,18 @@ export class EstadoPedido implements OnInit, OnDestroy {
     return '#808080';
   }
 
+
   volver(): void {
-    this.router.navigate(['/comensal/ver-carta']);
-  }
+  const restauranteId = this.comandaState.restauranteId();
+  const mesaId = this.comandaState.mesaId();
+
+  this.router.navigate([
+    '/comensal/ver-carta',
+    restauranteId,
+    mesaId,
+    1
+  ]);
+}
 
   pagarCuenta(): void {
     this.router.navigate(['/comensal/pago-checkout']);

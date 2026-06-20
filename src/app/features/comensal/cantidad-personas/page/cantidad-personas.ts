@@ -6,6 +6,8 @@ import { HeaderCantidadPersonas } from '../components/header-cantidad-personas/h
 import { BotonComensal } from '../../../../shared/ui/botones/boton-comensal/boton-comensal';
 import { configuracionRestauranteMock } from '../../../../infra/mocks/configuracion-restaurante.mock-data';
 import { ComandaState } from '../../services/comanda-state';
+import { ActivatedRoute } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -14,7 +16,8 @@ import { ComandaState } from '../../services/comanda-state';
   imports: [
     Boton,
     HeaderCantidadPersonas,
-    BotonComensal
+    BotonComensal,
+    FormsModule
   ],
   templateUrl: './cantidad-personas.html',
   styleUrls: ['./cantidad-personas.css']
@@ -23,11 +26,13 @@ export class CantidadPersonas {
   private router = inject(Router);
   private comandaState = inject(ComandaState);
   private destroyRef = inject(DestroyRef);
+  private route = inject(ActivatedRoute);
 
   cantidadPersonas = 1;
   maxCantidad = 5;
   configuracion = configuracionRestauranteMock;
   cargando = this.comandaState.cargando;
+  nombreComensal = '';
 
   // Viene del paso anterior (nro-de-mesa)
   mesaId: number = history.state?.mesaId ?? 1;
@@ -42,20 +47,79 @@ export class CantidadPersonas {
     this.cantidadPersonas = numero;
   }
 
-  aceptar() {
-    const restauranteId = history.state?.restauranteId ?? 1;
-    this.comandaState.ocuparMesa(this.mesaId, this.cantidadPersonas, restauranteId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.router.navigate(['/comensal/ver-carta'], {
-          state: { mesaId: this.mesaId, cantidadPersonas: this.cantidadPersonas, restauranteId }
-        });
-      });
+
+aceptar() {
+
+  if (!this.nombreComensal.trim()) {
+    alert('Ingresá tu nombre');
+    return;
   }
 
-  volverAtras() {
-    this.router.navigate(['/comensal/nro-de-mesa'], {
-      state: { mesaId: this.mesaId }
-    });
+  console.log('route params:', this.route.snapshot.paramMap.keys);
+  console.log('restauranteId:', this.route.snapshot.paramMap.get('restauranteId'));
+  console.log('mesaId:', this.route.snapshot.paramMap.get('mesaId'));
+
+  const restauranteId = Number(this.route.snapshot.paramMap.get('restauranteId'));
+  const mesaId = Number(this.route.snapshot.paramMap.get('mesaId'));
+
+  this.comandaState.ocuparMesa(restauranteId, mesaId, this.cantidadPersonas, this.nombreComensal)
+  .pipe(takeUntilDestroyed(this.destroyRef))
+ .subscribe({
+ next: (res: any) => {
+  if (!res || !res.idComandaGenerada) {
+    console.error('Respuesta inválida del backend', res);
+    return;
   }
+
+    sessionStorage.setItem('nombreComensal', this.nombreComensal);
+
+  sessionStorage.setItem('sesionComensal', JSON.stringify(res));
+
+
+  this.router.navigate([
+    '/comensal/ver-carta',
+    restauranteId,
+    mesaId,
+    this.cantidadPersonas
+  ]);
+},
+  error: (err) => {
+
+    console.error('Status:', err.status);
+    console.error('Error body:', err.error);
+    console.error('Error completo:', err);
+
+    if (err.status === 409) {
+      console.warn('Mesa ocupada, intentando recuperar sesión...');
+
+      const sesion = sessionStorage.getItem('sesionComensal');
+
+      if (sesion && sesion !== 'undefined') {
+        const parsed = JSON.parse(sesion);
+
+        this.router.navigate([
+          '/comensal/ver-carta',
+          parsed.restauranteId,
+          parsed.mesaId,
+          this.cantidadPersonas
+        ]);
+        return;
+      }
+
+      alert('Mesa ocupada pero no hay sesión válida');
+    }
+  }
+});
+
+}
+volverAtras() {
+  const restauranteId = Number(this.route.snapshot.paramMap.get('restauranteId'));
+  const mesaId = Number(this.route.snapshot.paramMap.get('mesaId'));
+
+  console.log('VOLVER -> restauranteId:', restauranteId);
+  console.log('VOLVER -> mesaId:', mesaId);
+
+  this.router.navigate(['comensal/mesa', restauranteId, mesaId]);
+}
+
 }

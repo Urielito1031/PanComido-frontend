@@ -1,4 +1,4 @@
-import { Component, inject, OnInit , ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
@@ -87,45 +87,51 @@ export class PersonalizarPlato implements OnInit {
 
   toggleExtra(ing: string) {
 
-  if (this.removidosSeleccionados.includes(ing)) {
-    return;
-  }
+    if (this.removidosSeleccionados.includes(ing)) {
+      return;
+    }
 
-  if (this.extrasSeleccionados.includes(ing)) {
-    this.extrasSeleccionados =
-      this.extrasSeleccionados.filter(i => i !== ing);
-  } else {
-    this.extrasSeleccionados.push(ing);
+    if (this.extrasSeleccionados.includes(ing)) {
+      this.extrasSeleccionados =
+        this.extrasSeleccionados.filter(i => i !== ing);
+    } else {
+      this.extrasSeleccionados.push(ing);
+    }
   }
-}
 
   toggleRemover(ing: string) {
 
-  if (this.extrasSeleccionados.includes(ing)) {
-    return;
+    if (this.extrasSeleccionados.includes(ing)) {
+      return;
+    }
+
+    if (this.removidosSeleccionados.includes(ing)) {
+      this.removidosSeleccionados =
+        this.removidosSeleccionados.filter(i => i !== ing);
+    } else {
+      this.removidosSeleccionados.push(ing);
+    }
   }
 
-  if (this.removidosSeleccionados.includes(ing)) {
-    this.removidosSeleccionados =
-      this.removidosSeleccionados.filter(i => i !== ing);
-  } else {
-    this.removidosSeleccionados.push(ing);
-  }
-}
   guardarCambios() {
-    if (this.itemIndex === -1) return;
+    if (!this.plato) return;
 
-    const ingredientes = [
+    const observacionesIngredientes = [
       ...this.extrasSeleccionados.map(e => `+ ${e}`),
       ...this.removidosSeleccionados.map(r => `- ${r}`)
     ].join(', ');
 
-    this.pedidoService.actualizarObservaciones(
-      this.itemIndex,
-      ingredientes,
-      this.observaciones
-    );
+    const itemActualizado = {
+      ...this.plato,
+      observacionesIngredientes,
+      observacionesGenerales: this.observaciones
+    };
+
+    this.pedidoService.actualizarItem(itemActualizado);
 
     this.router.navigate(['/comensal/pedido']);
+
+    console.log('OBSERVACION:', this.observaciones);
+    console.log('ITEM ACTUALIZADO:', itemActualizado);
   }
 }

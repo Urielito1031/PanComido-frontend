@@ -8,12 +8,13 @@ import { configuracionRestauranteMock } from '../../../../infra/mocks/configurac
 import { LlamarAlMozo } from '../../components/llamar-al-mozo/llamar-al-mozo';
 import { ComensalState } from '../../services/comensal-state';
 import { ComandaState } from '../../services/comanda-state';
+import { CommonModule } from '@angular/common';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-pedido',
   standalone: true,
-  imports: [BotonComensal, Boton, LlamarAlMozo],
+  imports: [BotonComensal, Boton, LlamarAlMozo, CommonModule],
   templateUrl: './pedido.html'
 })
 export class Pedido {
@@ -38,9 +39,18 @@ export class Pedido {
     this.router.navigate(['/comensal/detalle-pedido']);
   }
 
+
   volver(): void {
-    this.router.navigate(['/comensal/ver-carta']);
-  }
+  const restauranteId = this.comandaState.restauranteId();
+  const mesaId = this.comandaState.mesaId();
+
+  this.router.navigate([
+    '/comensal/ver-carta',
+    restauranteId,
+    mesaId,
+    1
+  ]);
+}
 
   eliminarPedido(index: number): void {
     this.pedidoService.eliminarPedido(index);
