@@ -1,16 +1,15 @@
-import { Component, EventEmitter, input, Input, output, Output, signal , ChangeDetectionStrategy} from '@angular/core';
+import { Component, inject, input, output, signal , ChangeDetectionStrategy} from '@angular/core';
 
 import { ItemPedido } from '../../../../../core/models/domain/item-pedido';
-import { configuracionRestauranteMock } from '../../../../../infra/mocks/configuracion-restaurante.mock-data';
+import { ConfiguracionVisualState } from '../../../services/visual/configuracion-visual-state';
 import { CartaItem } from '../../../../../core/models/domain/carta-item';
-import { Boton } from '../../../../../shared/ui/botones/boton/boton';
 
 
  @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-card-plato-comensal',
   standalone: true,
-  imports: [Boton],
+  imports: [],
   templateUrl: './card-plato-comensal.html',
   styleUrls: ['./card-plato-comensal.css'],
 })
@@ -19,7 +18,7 @@ export class CardPlatoComensalComponent {
   plato = input.required<CartaItem>();
   agregarPedido = output<ItemPedido>();
 
-  configuracion = configuracionRestauranteMock;
+  configuracionVisualState = inject(ConfiguracionVisualState);
 
   cantidad = signal(1);
 

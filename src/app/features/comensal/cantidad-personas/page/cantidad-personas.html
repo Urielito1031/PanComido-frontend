@@ -1,5 +1,4 @@
-<app-header-cantidad-personas (back)="volverAtras()">
-</app-header-cantidad-personas>
+<app-header-comensal [showBack]="true" backRoute="/comensal/nro-de-mesa" />
 
 <div class="cantidad-card">
   <h1>¿Cuántas personas son en tu grupo?</h1>
@@ -19,8 +18,8 @@
     <app-boton variante="outline" label="Cancelar"></app-boton>
 
     <app-boton-comensal
-      [backgroundColor]="configuracion.paleta.botonPrimario"
-      [textColor]="configuracion.paleta.textoClaro"
+      [backgroundColor]="configuracionVisualState.colorPrimario()"
+      [textColor]="'#FFFFFF'"
       [disabled]="cargando()"
       (clicked)="aceptar()">
       @if (cargando()) {

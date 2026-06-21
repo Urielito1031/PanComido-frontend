@@ -6,6 +6,7 @@ import { PagoCheckout } from './pago-checkout';
 import { PagoService } from '../../services/pago.service';
 import { ComandaState } from '../../services/comanda-state';
 import { ComandaHubService } from '../../../../core/services/hubs/comanda/comanda-hub-service';
+import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
 import { EstadoPedido, Comanda } from '../../../../core/models/domain/comanda';
 
 describe('PagoCheckout', () => {
@@ -64,6 +65,16 @@ describe('PagoCheckout', () => {
       desconectarEscucha: vi.fn(),
     };
 
+    const configuracionVisualStateMock = {
+      colorPrimario: vi.fn().mockReturnValue('#000000'),
+      colorSecundario: vi.fn().mockReturnValue('#FFFFFF'),
+      nombreLocal: vi.fn().mockReturnValue(''),
+      logoUrl: vi.fn().mockReturnValue(null),
+      fontTitulo: vi.fn().mockReturnValue(''),
+      fontCuerpo: vi.fn().mockReturnValue(''),
+      cargar: vi.fn(),
+    };
+
     TestBed.configureTestingModule({
       imports: [PagoCheckout],
       providers: [
@@ -72,6 +83,7 @@ describe('PagoCheckout', () => {
         { provide: ComandaState, useValue: comandaStateMock },
         { provide: PagoService, useValue: pagoServiceMock },
         { provide: ComandaHubService, useValue: comandaHubMock },
+        { provide: ConfiguracionVisualState, useValue: configuracionVisualStateMock },
       ],
     });
 

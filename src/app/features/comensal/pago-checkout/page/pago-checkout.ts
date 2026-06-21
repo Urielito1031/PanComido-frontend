@@ -5,14 +5,15 @@ import { DecimalPipe } from '@angular/common';
 import { ComandaState } from '../../services/comanda-state';
 import { PagoService } from '../../services/pago.service';
 import { ComandaHubService } from '../../../../core/services/hubs/comanda/comanda-hub-service';
-import { configuracionRestauranteMock } from '../../../../infra/mocks/configuracion-restaurante.mock-data';
+import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
+import { HeaderComensal } from '../../../../shared/ui/header-comensal/header-comensal';
 import { take, takeUntil } from 'rxjs';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-pago-checkout',
   standalone: true,
-  imports: [DecimalPipe],
+  imports: [HeaderComensal, DecimalPipe],
   templateUrl: './pago-checkout.html',
   styleUrls: ['./pago-checkout.css']
 })
@@ -24,7 +25,7 @@ export class PagoCheckout implements OnInit, OnDestroy {
   private comandaHub = inject(ComandaHubService);
   private destroyRef = inject(DestroyRef);
 
-  configuracion = configuracionRestauranteMock;
+  configuracionVisualState = inject(ConfiguracionVisualState);
   estado = this.comandaState.estadoPedido;
   mesaId = this.comandaState.mesaId;
   cargandoPago = signal(false);
@@ -59,7 +60,6 @@ export class PagoCheckout implements OnInit, OnDestroy {
         console.error('Error al conectar hub de comanda:', err)
       );
     }
-
     //para leer query params de MP
     const errorMp = this.route.snapshot.queryParams['error'];
     const pendingMp = this.route.snapshot.queryParams['pending'];

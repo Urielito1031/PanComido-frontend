@@ -1,7 +1,6 @@
 import { Component, output, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CartaState } from '../../ver-carta/service/carta-state';
-import {Boton} from "../../../../shared/ui/botones/boton/boton";
-
+import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -9,10 +8,10 @@ import {Boton} from "../../../../shared/ui/botones/boton/boton";
   standalone: true,
   templateUrl: './filtros-carta-overlay.html',
   styleUrls: ['./filtros-carta-overlay.css'],
-  imports: [Boton]
 })
 export class FiltrosCartaOverlay {
   cartaState = inject(CartaState);
+  configuracionVisualState = inject(ConfiguracionVisualState);
   cerrar = output<void>();
   toggleTipo = output<string>();
   limpiar = output<void>();

@@ -2,17 +2,17 @@ import { Component, inject, OnInit, OnDestroy, ChangeDetectionStrategy} from '@a
 import { Router } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { ComandaState } from '../../services/comanda-state';
-import { configuracionRestauranteMock } from '../../../../infra/mocks/configuracion-restaurante.mock-data';
+import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
 import { BotonComensal } from '../../../../shared/ui/botones/boton-comensal/boton-comensal';
 import { LlamarAlMozo } from '../../components/llamar-al-mozo/llamar-al-mozo';
 import { ComensalState } from '../../services/comensal-state';
-import { Boton } from '../../../../shared/ui/botones/boton/boton';
+import { HeaderComensal } from '../../../../shared/ui/header-comensal/header-comensal';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-estado-pedido',
   standalone: true,
-  imports: [DecimalPipe, Boton, BotonComensal, LlamarAlMozo],
+  imports: [HeaderComensal, DecimalPipe, BotonComensal, LlamarAlMozo],
   templateUrl: './estado-pedido.html',
   styleUrls: ['./estado-pedido.css']
 })
@@ -21,7 +21,7 @@ export class EstadoPedido implements OnInit, OnDestroy {
   private comandaState = inject(ComandaState);
   comensalState = inject(ComensalState);
 
-  configuracion = configuracionRestauranteMock;
+  configuracionVisualState = inject(ConfiguracionVisualState);
   estado = this.comandaState.estadoPedido;
   mesaId = this.comandaState.mesaId;
   cargando = this.comandaState.cargando;

@@ -1,76 +1,84 @@
-<div class="container-fluid p-3 bg-light min-vh-100">
+<app-header-comensal [showBack]="true" backRoute="/comensal/ver-carta" [title]="'Mi pedido'" />
 
-  <!-- VOLVER -->
-  <div class="d-flex align-items-center gap-2 mb-4" (click)="volver()" style="cursor: pointer;">
-    <span class="material-symbols-outlined">arrow_back</span>
-    <span class="fw-semibold">Volver a la carta</span>
-  </div>
+<style>
+  .pedido-card { flex: 1 1 100%; max-width: 100%; }
+  @media (min-width: 700px) { .pedido-card { flex: 1 1 220px; max-width: 340px; } }
+</style>
 
-  <!-- TITULO -->
-  <h2 class="fw-bold mb-4">Mi pedido</h2>
+<div class="container-fluid p-3 bg-light min-vh-100" style="max-width: 600px; margin: 0 auto;">
 
-  <!-- CARD PLATOS -->
+  
+  <div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center;">
   @for (item of pedidos(); track $index) {
-  <div class="card border-0 shadow-sm rounded-4 p-3 mb-4">
+  <div class="card border-0 shadow-sm rounded-4 p-3 pedido-card" [style.border-left]="'4px solid ' + configuracionVisualState.colorSecundario()">
 
-    <!-- BOTON ELIMINAR -->
+    
     <div class="d-flex justify-content-end">
-      <span class="material-symbols-outlined text-dark" style="cursor: pointer;" (click)="eliminarPedido($index)">
+      <span class="material-symbols-outlined" [style.color]="configuracionVisualState.colorSecundario()" style="cursor: pointer;" (click)="eliminarPedido($index)">
         close
       </span>
     </div>
 
-    <!-- TITULO Y PRECIO -->
+    
     <div class="mb-3">
       <h4 class="fw-bold mb-2">{{ item.plato.nombre }}</h4>
       <div class="d-flex justify-content-between align-items-center">
-        <span class="badge bg-dark">x{{ item.cantidad }}</span>
+        <span class="badge" [style.background]="configuracionVisualState.colorPrimario()">x{{ item.cantidad }}</span>
         <span class="fw-bold fs-5">${{ item.plato.precioVentaFinal * item.cantidad }}</span>
       </div>
     </div>
 
-    <!-- IMAGEN -->
+    
     @if (item.plato.urlImagen) {
-    <img [src]="item.plato.urlImagen" class="img-fluid rounded-4 mb-3" style="height: 220px; object-fit: cover;">
+    <img [src]="item.plato.urlImagen" class="img-fluid rounded-4 mb-3" style="height: 200px; width: 100%; object-fit: cover;">
     } @else {
     <div class="rounded-4 mb-3 d-flex align-items-center justify-content-center bg-light" style="height: 220px;">
       <span class="material-symbols-outlined text-muted" style="font-size: 48px;">restaurant</span>
     </div>
     }
 
-    <!-- DESCRIPCION -->
+    
     <p class="text-muted mb-4">{{ item.plato.tipoArticulo }}</p>
 
-    <!-- BOTONES -->
+    
     <div class="d-flex flex-column gap-2">
       <app-boton variante="warning"
          (clicked)="irAPersonalizar(item, $index)">
-        <span class="material-symbols-outlined">edit</span>
-        <span style="margin-left: 8px;">Personalizar</span>
+        <div class="d-flex align-items-center justify-content-center gap-2">
+          <span class="material-symbols-outlined">edit</span>
+          <span>Personalizar</span>
+        </div>
       </app-boton>
 
       <app-boton variante="danger" (clicked)="eliminarUno($index)">
-        <span class="material-symbols-outlined">remove</span>
-        <span style="margin-left: 8px;">Eliminar pedido</span>
+        <div class="d-flex align-items-center justify-content-center gap-2">
+          <span class="material-symbols-outlined">remove</span>
+          <span>Eliminar pedido</span>
+        </div>
       </app-boton>
 
       <app-boton variante="success"  (clicked)="agregarAlPedido($index)">
-        <span class="material-symbols-outlined">add</span>
-        <span style="margin-left: 8px;">Agregar al pedido</span>
+        <div class="d-flex align-items-center justify-content-center gap-2">
+          <span class="material-symbols-outlined">add</span>
+          <span>Agregar al pedido</span>
+        </div>
       </app-boton>
     </div>
   </div>
   }
+  </div>
 
-  <app-boton-comensal class="w-100 btn-full" [backgroundColor]="configuracion.paleta.botonPrimario"
-    [textColor]="configuracion.paleta.textoClaro" (clicked)="irADetallePedido()">
-    <span class="material-symbols-outlined">receipt_long</span>
-    <span style="margin-left: 8px;">Continuar pedido</span>
+  <app-boton-comensal class="w-100 btn-full" [backgroundColor]="configuracionVisualState.colorPrimario()"
+    [textColor]="'#FFFFFF'" (clicked)="irADetallePedido()">
+    <div class="d-flex align-items-center justify-content-center gap-2">
+      <span class="material-symbols-outlined">receipt_long</span>
+      <span>Continuar pedido</span>
+    </div>
   </app-boton-comensal>
 
 
 </div>
 
-<app-llamar-al-mozo [configuracion]="configuracion" [mesaId]="comandaState.mesaId() ?? 0"
+<app-llamar-al-mozo [mesaId]="comandaState.mesaId() ?? 0"
   [enviando]="comensalState.enviando()" [enviado]="comensalState.exito()" [error]="comensalState.error()"
   (llamadoMozo)="comensalState.solicitarMozo($event)" (modalCerrado)="comensalState.limpiarEstado()" />

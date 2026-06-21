@@ -16,6 +16,12 @@
   --comensal-green: #2d7d4f;
   --comensal-green-dark: #1f5a37;
   --comensal-green-light: #e8f5e9;
+
+  /* Variables dinámicas (sobrescritas por la API + localStorage) */
+  --color-primario: #333333;
+  --color-secundario: #666666;
+  --font-titulo: 'Nunito', system-ui, sans-serif;
+  --font-cuerpo: 'Nunito', system-ui, sans-serif;
   --comensal-yellow: #fdd835;
   --comensal-yellow-dark: #f9a825;
   

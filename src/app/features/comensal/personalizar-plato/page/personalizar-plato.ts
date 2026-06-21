@@ -2,7 +2,7 @@ import { Component, inject, OnInit , ChangeDetectionStrategy, ChangeDetectorRef}
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
-import { configuracionRestauranteMock } from '../../../../infra/mocks/configuracion-restaurante.mock-data';
+import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
 import { PedidoState } from '../../services/pedido.state';
 import { ItemPedido } from '../../../../core/models/domain/item-pedido';
 import { LlamarAlMozo } from '../../components/llamar-al-mozo/llamar-al-mozo';
@@ -11,12 +11,13 @@ import { ComandaState } from '../../services/comanda-state';
 import { PlatoService } from '../../services/plato.service';
 import { BotonComensal } from '../../../../shared/ui/botones/boton-comensal/boton-comensal';
 import { Boton } from '../../../../shared/ui/botones/boton/boton';
+import { HeaderComensal } from '../../../../shared/ui/header-comensal/header-comensal';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-personalizar-plato',
   standalone: true,
-  imports: [FormsModule, DecimalPipe, LlamarAlMozo, BotonComensal, Boton],
+  imports: [HeaderComensal, FormsModule, DecimalPipe, LlamarAlMozo, BotonComensal, Boton],
   templateUrl: './personalizar-plato.html',
   styleUrls: ['./personalizar-plato.css']
 })
@@ -30,7 +31,7 @@ export class PersonalizarPlato implements OnInit {
 
   plato: ItemPedido | null = null;
   itemIndex: number = -1;
-  configuracion = configuracionRestauranteMock;
+  configuracionVisualState = inject(ConfiguracionVisualState);
   ingredientesExtra: string[] = [];
   ingredientesRemover: string[] = [];
   extrasSeleccionados: string[] = [];

@@ -86,8 +86,6 @@ export class ConfiguracionService {
       nombre: datos.nombre,
       colorPrincipal: datos.colorPrincipal,
       colorSecundario: datos.colorSecundario,
-      textoPrincipal: datos.textoPrincipal,
-      textoSecundario: datos.textoSecundario,
       familiaTipograficaId: datos.familiaTipograficaId
     };
   }

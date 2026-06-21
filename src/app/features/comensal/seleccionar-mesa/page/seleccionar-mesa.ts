@@ -2,7 +2,7 @@ import { Component, inject, signal , ChangeDetectionStrategy} from '@angular/cor
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { BotonComensal } from '../../../../shared/ui/botones/boton-comensal/boton-comensal';
-import { configuracionRestauranteMock } from '../../../../infra/mocks/configuracion-restaurante.mock-data';
+import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -15,7 +15,7 @@ import { configuracionRestauranteMock } from '../../../../infra/mocks/configurac
 export class SeleccionarMesa {
   private router = inject(Router);
 
-  configuracion = configuracionRestauranteMock;
+  configuracionVisualState = inject(ConfiguracionVisualState);
   mesaSeleccionada = signal<number | null>(null);
 
   // Lista de mesas disponibles (hardcodeado por ahora)

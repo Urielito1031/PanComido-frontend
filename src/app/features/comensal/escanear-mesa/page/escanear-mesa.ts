@@ -2,12 +2,12 @@ import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy , ChangeDete
 import { Router } from '@angular/router';
 import { BrowserMultiFormatReader } from '@zxing/browser';
 import { IScannerControls } from '@zxing/browser/esm/common/IScannerControls';
-import { HeaderEscanearMesa } from '../components/header-escanear-mesa/header-escanear-mesa';
+import { HeaderComensal } from '../../../../shared/ui/header-comensal/header-comensal';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-escanear-mesa',
-  imports: [HeaderEscanearMesa],
+  imports: [HeaderComensal],
   templateUrl: './escanear-mesa.html',
   styleUrls: ['./escanear-mesa.css']
 })

@@ -1,0 +1,18 @@
+<header class="header">
+  <div class="header-left">
+    @if (showBack()) {
+      <div class="back text-white" (click)="onBack()">←</div>
+    }
+    <div class="logo">
+      <img [src]="configuracionVisualState.logoUrl()" alt="Logo" />
+    </div>
+  </div>
+
+  @if (title()) {
+    <div class="title">{{ title() }}</div>
+  }
+
+  @if (showClose()) {
+    <div class="close" (click)="onClose()">✕</div>
+  }
+</header>

@@ -19,14 +19,14 @@
 }
 
 .mesa-card:hover {
-  border-color: #007bff;
+  border-color: var(--color-primario, #007bff);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+  box-shadow: 0 4px 12px var(--color-primario-sombra, rgba(0, 123, 255, 0.15));
 }
 
 .mesa-card.seleccionada {
-  background: #007bff;
-  border-color: #007bff;
+  background: var(--color-primario, #007bff);
+  border-color: var(--color-primario, #007bff);
   color: white;
 }
 

@@ -1,10 +1,11 @@
-import { Component, inject, computed , ChangeDetectionStrategy} from '@angular/core';
+import { Component, inject, computed, OnInit , ChangeDetectionStrategy} from '@angular/core';
 import { Router } from '@angular/router';
 import { PedidoState } from '../../services/pedido.state';
 import { ItemPedido } from '../../../../core/models/domain/item-pedido';
 import { BotonComensal } from '../../../../shared/ui/botones/boton-comensal/boton-comensal';
 import {Boton} from '../../../../shared/ui/botones/boton/boton';
-import { configuracionRestauranteMock } from '../../../../infra/mocks/configuracion-restaurante.mock-data';
+import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
+import { HeaderComensal } from '../../../../shared/ui/header-comensal/header-comensal';
 import { LlamarAlMozo } from '../../components/llamar-al-mozo/llamar-al-mozo';
 import { ComensalState } from '../../services/comensal-state';
 import { ComandaState } from '../../services/comanda-state';
@@ -13,10 +14,10 @@ import { ComandaState } from '../../services/comanda-state';
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-pedido',
   standalone: true,
-  imports: [BotonComensal, Boton, LlamarAlMozo],
+  imports: [HeaderComensal, BotonComensal, Boton, LlamarAlMozo],
   templateUrl: './pedido.html'
 })
-export class Pedido {
+export class Pedido implements OnInit {
   private router = inject(Router);
   private pedidoService = inject(PedidoState);
   comensalState = inject(ComensalState);
@@ -24,7 +25,10 @@ export class Pedido {
 
   // Usar el signal del servicio directamente (reactivo)
   pedidos = this.pedidoService.pedidos;
-  configuracion = configuracionRestauranteMock;
+  configuracionVisualState = inject(ConfiguracionVisualState);
+
+  ngOnInit(): void {
+  }
 
   // Computed para el total
   total = computed(() => {
