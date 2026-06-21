@@ -1,14 +1,15 @@
-export interface CartaItem {
-  articuloId: number;
-  nombre: string;
-  urlImagen: string | null;
-  precioVentaFinal: number;
-  costo: number;
-  visibleEnCarta: boolean;
-  tipoArticulo: 'Plato' | 'Bebida';
-  categoria: string;
-
-  tiempoPreparacionBase?: number;
-
-  restricciones: string[];
-}
+  export interface CartaItem {
+    id: number;
+    nombre: string;
+    descripcion: string;
+    precio: number;
+    urlImagen: string | null;
+    esPlato: boolean;
+    esDestacado: boolean;
+    tiempoPreparacionBase: number | null;
+    tiempoPreparacionEstimado: number | null;
+    tipoPlato: string | null;
+    categoriaBebida: string | null;
+    restricciones: string[];
+  }
+  

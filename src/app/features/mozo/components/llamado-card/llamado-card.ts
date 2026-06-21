@@ -51,8 +51,8 @@ export class LlamadoCard {
   );
 
   readonly titulo = computed(() => {
-    const mesa = this.llamado().mesaId ? `Mesa ${this.llamado().mesaId}` : '';
-    return mesa;
+  const mesa = this.llamado().numeroDeMesa ? `Mesa ${this.llamado().numeroDeMesa}` : '';
+      return mesa;
   });
 
   readonly clases = computed<Record<string, boolean>>(() => ({
