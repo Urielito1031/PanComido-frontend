@@ -1,21 +1,22 @@
-import { Component, inject, computed, ViewChild , ChangeDetectionStrategy} from '@angular/core';
+import { Component, inject, computed, ViewChild, OnInit , ChangeDetectionStrategy} from '@angular/core';
 import { Router } from '@angular/router';
-import { configuracionRestauranteMock } from '../../../../infra/mocks/configuracion-restaurante.mock-data';
+import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
 import { LlamarAlMozo } from '../../components/llamar-al-mozo/llamar-al-mozo';
 import { PedidoState } from '../../services/pedido.state';
 import { ComandaState } from '../../services/comanda-state';
 import { ModalConfirmacionPedido } from '../../components/modal-confirmacion-pedido/modal-confirmacion-pedido';
 import { ComensalState } from '../../services/comensal-state';
+import { HeaderComensal } from '../../../../shared/ui/header-comensal/header-comensal';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-detalle-pedido',
   standalone: true,
-  imports: [LlamarAlMozo, ModalConfirmacionPedido],
+  imports: [HeaderComensal, LlamarAlMozo, ModalConfirmacionPedido],
   templateUrl: './detalle-pedido.html',
   styleUrls: ['./detalle-pedido.css']
 })
-export class DetallePedido {
+export class DetallePedido implements OnInit {
   private router = inject(Router);
   private pedidoService = inject(PedidoState);
   comandaState = inject(ComandaState);
@@ -23,7 +24,10 @@ export class DetallePedido {
 
   @ViewChild(ModalConfirmacionPedido) modal!: ModalConfirmacionPedido;
 
-  configuracion = configuracionRestauranteMock;
+  configuracionVisualState = inject(ConfiguracionVisualState);
+
+  ngOnInit(): void {
+  }
   
   // Usar el signal del servicio directamente (reactivo)
   pedidos = this.pedidoService.pedidos;

@@ -5,6 +5,7 @@ import { VerCarta } from './ver-carta';
 import { PedidoState } from '../../services/pedido.state';
 import { CartaState } from '../service/carta-state';
 import { ComensalState } from '../../services/comensal-state';
+import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
 import { signal } from '@angular/core';
 
 describe('VerCartaComponent', () => {
@@ -41,13 +42,24 @@ describe('VerCartaComponent', () => {
       enviando: signal(false), exito: signal(false), error: signal(null)
     };
 
+    const configVisualMock = {
+      cargar: vi.fn(),
+      colorPrimario: signal('#000000'),
+      colorSecundario: signal('#ffffff'),
+      logoUrl: signal(null),
+      nombreLocal: signal('Test'),
+      fontTitulo: signal('system-ui, sans-serif'),
+      fontCuerpo: signal('system-ui, sans-serif'),
+    };
+
     await TestBed.configureTestingModule({
       imports: [VerCarta],
       providers: [
         { provide: PedidoState, useValue: pedidoStateMock },
         { provide: Router, useValue: routerMock },
         { provide: CartaState, useValue: cartaStateMock },
-        { provide: ComensalState, useValue: comensalStateMock }
+        { provide: ComensalState, useValue: comensalStateMock },
+        { provide: ConfiguracionVisualState, useValue: configVisualMock }
       ]
     }).compileComponents();
 

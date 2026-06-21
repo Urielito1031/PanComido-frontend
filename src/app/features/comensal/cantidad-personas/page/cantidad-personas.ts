@@ -2,9 +2,9 @@ import { DestroyRef, inject, Component, ChangeDetectionStrategy } from '@angular
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { Boton } from '../../../../shared/ui/botones/boton/boton';
-import { HeaderCantidadPersonas } from '../components/header-cantidad-personas/header-cantidad-personas';
+import { HeaderComensal } from '../../../../shared/ui/header-comensal/header-comensal';
 import { BotonComensal } from '../../../../shared/ui/botones/boton-comensal/boton-comensal';
-import { configuracionRestauranteMock } from '../../../../infra/mocks/configuracion-restaurante.mock-data';
+import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
 import { ComandaState } from '../../services/comanda-state';
 
 @Component({
@@ -13,7 +13,7 @@ import { ComandaState } from '../../services/comanda-state';
   standalone: true,
   imports: [
     Boton,
-    HeaderCantidadPersonas,
+    HeaderComensal,
     BotonComensal
   ],
   templateUrl: './cantidad-personas.html',
@@ -26,7 +26,7 @@ export class CantidadPersonas {
 
   cantidadPersonas = 1;
   maxCantidad = 5;
-  configuracion = configuracionRestauranteMock;
+  configuracionVisualState = inject(ConfiguracionVisualState);
   cargando = this.comandaState.cargando;
 
   // Viene del paso anterior (nro-de-mesa)
@@ -53,9 +53,5 @@ export class CantidadPersonas {
       });
   }
 
-  volverAtras() {
-    this.router.navigate(['/comensal/nro-de-mesa'], {
-      state: { mesaId: this.mesaId }
-    });
-  }
+
 }

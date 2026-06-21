@@ -7,6 +7,7 @@ import { Pedido } from './pedido';
 import { PedidoState } from '../../services/pedido.state';
 import { ComensalState } from '../../services/comensal-state';
 import { ComandaState } from '../../services/comanda-state';
+import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
 
 describe('Pedido', () => {
   let component: Pedido;
@@ -51,10 +52,21 @@ describe('Pedido', () => {
     };
     comandaStateMock = {
       mesaId: signal(1),
+      restauranteId: signal(1),
       cargando: signal(false),
       error: signal(null),
       estadoPedido: signal(null),
       confirmarPedido: vi.fn()
+    };
+
+    const configuracionVisualStateMock = {
+      colorPrimario: vi.fn().mockReturnValue('#000000'),
+      colorSecundario: vi.fn().mockReturnValue('#FFFFFF'),
+      nombreLocal: vi.fn().mockReturnValue(''),
+      logoUrl: vi.fn().mockReturnValue(null),
+      fontTitulo: vi.fn().mockReturnValue(''),
+      fontCuerpo: vi.fn().mockReturnValue(''),
+      cargar: vi.fn(),
     };
 
     await TestBed.configureTestingModule({
@@ -63,7 +75,8 @@ describe('Pedido', () => {
         { provide: Router, useValue: routerMock },
         { provide: PedidoState, useValue: pedidoStateMock },
         { provide: ComensalState, useValue: comensalStateMock },
-        { provide: ComandaState, useValue: comandaStateMock }
+        { provide: ComandaState, useValue: comandaStateMock },
+        { provide: ConfiguracionVisualState, useValue: configuracionVisualStateMock }
       ]
     }).compileComponents();
 

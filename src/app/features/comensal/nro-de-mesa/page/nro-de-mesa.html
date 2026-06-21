@@ -1,7 +1,5 @@
 
-<app-header-nro-de-mesa
-  (back)="volverAtras()">
-</app-header-nro-de-mesa>
+<app-header-comensal [showBack]="true" backRoute="/comensal/escanear-mesa" />
   <div class="mesa-card">
 
     <h1 class="mesa-title">
@@ -25,8 +23,8 @@
   </app-boton>
 
 <app-boton-comensal
-  [backgroundColor]="configuracion.paleta.botonPrimario"
-  [textColor]="configuracion.paleta.textoClaro"
+  [backgroundColor]="configuracionVisualState.colorPrimario()"
+  [textColor]="'#FFFFFF'"
   label="Aceptar"
 
   (clicked)="irACantidadPersonas()">

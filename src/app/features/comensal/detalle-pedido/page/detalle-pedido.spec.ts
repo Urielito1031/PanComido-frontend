@@ -7,6 +7,7 @@ import { DetallePedido } from './detalle-pedido';
 import { PedidoState } from '../../services/pedido.state';
 import { ComandaState } from '../../services/comanda-state';
 import { ComensalState } from '../../services/comensal-state';
+import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
 
 describe('DetallePedido', () => {
   let component: DetallePedido;
@@ -40,6 +41,7 @@ describe('DetallePedido', () => {
       }),
       tieneComandaActiva: vi.fn().mockReturnValue(true),
       mesaId: signal(1),
+      restauranteId: signal(1),
       cargando: signal(false),
       error: signal(null),
       confirmarPedido: vi.fn()
@@ -53,13 +55,24 @@ describe('DetallePedido', () => {
       limpiarEstado: vi.fn()
     };
 
+    const configuracionVisualStateMock = {
+      colorPrimario: vi.fn().mockReturnValue('#000000'),
+      colorSecundario: vi.fn().mockReturnValue('#FFFFFF'),
+      nombreLocal: vi.fn().mockReturnValue(''),
+      logoUrl: vi.fn().mockReturnValue(null),
+      fontTitulo: vi.fn().mockReturnValue(''),
+      fontCuerpo: vi.fn().mockReturnValue(''),
+      cargar: vi.fn(),
+    };
+
     await TestBed.configureTestingModule({
       imports: [DetallePedido],
       providers: [
         { provide: Router, useValue: routerMock },
         { provide: PedidoState, useValue: pedidoStateMock },
         { provide: ComandaState, useValue: comandaStateMock },
-        { provide: ComensalState, useValue: comensalStateMock }
+        { provide: ComensalState, useValue: comensalStateMock },
+        { provide: ConfiguracionVisualState, useValue: configuracionVisualStateMock }
       ]
     }).compileComponents();
 

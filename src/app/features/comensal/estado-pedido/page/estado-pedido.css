@@ -1,3 +1,22 @@
+.header-top {
+  width: 100%;
+  padding: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  background: var(--color-primario, #02596C);
+}
+.header-top-inner {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  justify-content: center;
+  font-family: var(--font-cuerpo, 'system-ui'), sans-serif;
+}
+.container-fluid.p-3.bg-white {
+  font-family: var(--font-cuerpo, 'system-ui'), sans-serif;
+}
+.btn-agregar-mas {
+  background: var(--color-primario, #02596C);
+}
 .estado-badge {
   display: inline-block;
   padding: 12px 24px;

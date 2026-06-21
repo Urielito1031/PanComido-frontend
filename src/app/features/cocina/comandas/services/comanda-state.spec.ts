@@ -112,9 +112,6 @@ describe('ComandaState (cocina)', () => {
 
       state.cargarComandasActivas();
 
-      // of() es síncrono, pero el state setea cargando=true antes de subscribir
-      // y cargando=false en el next handler. Como of() es síncrono,
-      // al terminar cargarComandasActivas, cargando ya es false.
       expect(state.cargando()).toBe(false);
     });
 

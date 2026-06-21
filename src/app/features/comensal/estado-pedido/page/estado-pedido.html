@@ -1,17 +1,11 @@
+<app-header-comensal [showBack]="true" backRoute="/comensal/ver-carta" [title]="'Estado del pedido'" />
+
 <div class="container-fluid p-3 bg-white min-vh-100">
-  
-  <!-- LOGO -->
-  <div class="mb-3">
-    <div class="rounded-circle d-flex align-items-center justify-content-center overflow-hidden" 
-         style="width: 50px; height: 50px; background-color: #216E39;">
-      <img alt="Logo" class="logo-img w-100 h-100" style="object-fit: cover;" src="assets/images/logo/logo_el_ferroviario.png">
-    </div>
-  </div>
 
   @if (estado()) {
-    <!-- HEADERS (Badge Estado y Nro Mesa) -->
+    
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <!-- Badge Estado -->
+      
       <div class="d-flex align-items-center px-3 py-1 rounded-3"
            [style.background-color]="estadoColor"
            [style.border]="estadoBorder ? '2px solid ' + estadoBorder : 'none'"
@@ -23,13 +17,13 @@
         <span class="fw-semibold fs-6">{{ estado()!.estadoUI }}</span>
       </div>
 
-      <!-- Nro Mesa -->
+      
       <div class="px-2 py-1 rounded-2 border border-secondary text-dark bg-white">
         Nro mesa: <span class="fw-bold">{{ mesaId() || 8 }}</span>
       </div>
     </div>
 
-    <!-- DETALLE DEL PEDIDO (Box) -->
+    
     <div class="border border-secondary rounded-3 p-3 mb-3 bg-white">
       <h6 class="fw-bold text-dark mb-2">Detalle del pedido</h6>
       @for (item of estado()!.items; track item.articuloId) {
@@ -40,10 +34,10 @@
       }
     </div>
 
-    <!-- SEPARADOR GRUESO -->
+    
     <hr class="opacity-100" style="border-top: 3px solid #000; margin-bottom: 1rem;">
 
-    <!-- TOTAL -->
+    
     <div class="d-flex justify-content-between align-items-center mb-4">
       <span class="fs-4 text-dark">Total:</span>
       <div class="px-3 py-1 rounded-2 border border-secondary text-dark fw-bold fs-5 bg-white">
@@ -52,7 +46,7 @@
     </div>
   }
 
-  <!-- CARGANDO -->
+  
   @if (cargando() && !estado) {
     <div class="text-center py-5">
       <div class="spinner-border text-primary" role="status"></div>
@@ -60,18 +54,16 @@
     </div>
   }
 
-  <!-- BOTONES -->
+  
   <div>
-    <!-- Botón siempre visible para agregar más platos -->
-    <app-boton
-      class="w-100 mb-3 d-block"
-      variante="success"
     
-      (clicked)="volver()">
-      <div class="fw-bold fs-5 py-1">+ Agregar más platos</div>
-    </app-boton>
+    <button
+      class="btn w-100 mb-3 d-block fw-bold fs-5 py-1 text-white border-0 btn-agregar-mas"
+      (click)="volver()">
+      + Agregar más platos
+    </button>
 
-    <!-- Botones extras -->
+    
     <div class="d-flex gap-2">
       <app-boton-comensal
         class="w-50"
@@ -101,7 +93,6 @@
 
   <app-llamar-al-mozo 
     #modalLlamarMozo 
-    [configuracion]="configuracion"
     [mesaId]="mesaId() ?? 0"
     [enviando]="comensalState.enviando()"
     [enviado]="comensalState.exito()"

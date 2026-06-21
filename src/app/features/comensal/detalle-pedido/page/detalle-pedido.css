@@ -1,70 +1,66 @@
+.header-top {
+  width: 100%;
+  padding: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  background: var(--color-primario, #02596C);
+}
+.header-top-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  font-family: var(--font-cuerpo, 'system-ui'), sans-serif;
+}
 .container-fluid {
   max-width: 900px;
   margin: 0 auto;
+  font-family: var(--font-cuerpo, 'system-ui'), sans-serif;
 }
-
-/* Header volver */
+.page-title-detalle {
+  font-family: var(--font-titulo, 'system-ui'), sans-serif;
+}
+.btn-confirmar {
+  background: var(--color-primario, #02596C);
+}
 .d-flex.align-items-center {
   font-size: 16px;
   color: #333;
 }
-
-/* Título */
 h2 {
   font-size: 28px;
   color: #111;
 }
-
-/* Subtexto items */
 .text-muted {
   font-size: 14px;
 }
-
-/* Sección detalle */
 h5 {
   font-size: 18px;
   margin-bottom: 10px;
   color: #222;
 }
-
-/* Item del pedido */
 .mb-3 {
   padding: 12px;
   background: #fff;
   border-radius: 12px;
   border: 1px solid #eee;
 }
-
-/* Nombre + cantidad */
 .fw-semibold {
   font-size: 16px;
 }
-
-/* Precio total por item */
 .mb-3 span:last-child {
   font-weight: 600;
   color: #000;
 }
-
-/* Precio unitario */
 .text-muted.small {
   font-size: 13px;
 }
-
-
-
-/* Separador */
 hr {
   margin: 10px 0;
   opacity: 0.2;
 }
-
-/* Total */
 .fs-5 {
   font-size: 20px;
 }
-
-/* Botón editar */
 .link-editar {
   padding: 0;
   background: transparent !important;

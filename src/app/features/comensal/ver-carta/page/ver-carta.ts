@@ -1,4 +1,4 @@
-import { Component, HostListener, inject, input, signal , ChangeDetectionStrategy} from '@angular/core';
+import { Component, HostListener, inject, signal , ChangeDetectionStrategy} from '@angular/core';
 import { Router } from '@angular/router';
 import { Buscador } from '../../../../../app/shared/ui/buscador/buscador';
 import { ListaPlatosComensalComponent } from '../components/lista-platos-comensal/lista-platos-comensal';
@@ -6,7 +6,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faFilter } from '@fortawesome/free-solid-svg-icons';
 import { PedidoState } from '../../services/pedido.state';
 import { ItemPedido } from '../../../../core/models/domain/item-pedido';
-import { configuracionRestauranteMock } from '../../../../infra/mocks/configuracion-restaurante.mock-data';
+import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
 import { CartaState } from '../service/carta-state';
 import { ComensalFooterCart } from '../../components/comensal-footer-cart/comensal-footer-cart';
 import { FiltrosCartaOverlay } from '../../components/filtros-carta-overlay/filtros-carta-overlay';
@@ -37,11 +37,9 @@ export class VerCarta {
   state = inject(CartaState);
   comensalState = inject(ComensalState);
 
-  logoUrl = input<string>('assets/images/logo/logo_el_ferroviario.png');
-
   mostrarFiltros = signal(false);
   faFilter = faFilter;
-  configuracion = configuracionRestauranteMock;
+  configuracionVisualState = inject(ConfiguracionVisualState);
   mesaId = signal(1);
   cantidadPersonas = signal(1);
 

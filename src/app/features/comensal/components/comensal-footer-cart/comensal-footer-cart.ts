@@ -1,6 +1,7 @@
-import { Component, input, output , ChangeDetectionStrategy} from '@angular/core';
+import { Component, inject, input, output , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LlamarAlMozo } from '../llamar-al-mozo/llamar-al-mozo';
+import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -13,15 +14,14 @@ import { LlamarAlMozo } from '../llamar-al-mozo/llamar-al-mozo';
 export class ComensalFooterCart {
   cantidadItems = input.required<number>();
   total = input.required<number>();
-  configuracion = input.required<any>();
   mesaId = input.required<number>();
   enviando = input<boolean>(false);
   enviado = input<boolean>(false);
   error = input<string | null>(null);
+
+  configuracionVisualState = inject(ConfiguracionVisualState);
   
   verPedido = output<void>();
   llamadoMozo = output<any>();
   modalCerrado = output<void>();
-
-
 }

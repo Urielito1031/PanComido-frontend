@@ -3,17 +3,17 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: #F8D038;
   padding: 14px 16px;
   padding-bottom: calc(14px + env(safe-area-inset-bottom));
   z-index: 1000;
+  background: var(--color-secundario, #333333);
 }
 .footer-content {
   display: flex;
   align-items: center;
-  justify-content: flex-start; /* Alineamos los elementos al inicio */
+  justify-content: flex-start;
   gap: 16px;
-  max-width: 500px; /* Reducimos el ancho total para que sea más compacto */
+  max-width: 500px;
   margin: 0 auto;
 }
 
@@ -22,7 +22,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #2F7D32;
   color: #ffffff;
   border: none;
   border-radius: 50px;
@@ -30,8 +29,8 @@
   height: 52px;
   cursor: pointer;
   transition: transform 0.1s ease;
-  
-  max-width: 265px; 
+  max-width: 265px;
+  background: var(--color-primario, #02596C);
 }
 .cart-pill-btn:disabled {
   opacity: 0.5;
@@ -72,7 +71,6 @@
   font-weight: 700;
 }
 
-/* Wrapper y Forzado del Botón Mozo */
 .mozo-wrapper {
   flex-shrink: 0;
   margin-left: auto; 
@@ -81,7 +79,6 @@
   width: 52px !important;
   height: 52px !important;
   border-radius: 50% !important;
-  background-color: #1B5E20 !important;
   color: white !important;
   border: none !important;
   display: flex !important;

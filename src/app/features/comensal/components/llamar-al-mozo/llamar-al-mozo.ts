@@ -11,6 +11,7 @@ import {
   IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
 import { LlamadoMozo } from '../../../../core/models/domain/llamado';
+import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
 
 
 interface CategoriaLlamado {
@@ -37,7 +38,7 @@ const CATEGORIAS: CategoriaLlamado[] = [
   styleUrls: ['./llamar-al-mozo.css'],
 })
 export class LlamarAlMozo {
-  configuracion = input.required<any>();
+  configuracionVisualState = inject(ConfiguracionVisualState);
   mesaId = input.required<number>();
   enviando = input<boolean>(false);
   enviado = input<boolean>(false);

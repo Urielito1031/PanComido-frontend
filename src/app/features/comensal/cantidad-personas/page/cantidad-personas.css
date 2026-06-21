@@ -56,11 +56,9 @@
 }
 
 .selected {
-
-  background: #FFE9B9;
-
-  color: rgb(0, 0, 0);
-
+  font-weight: 800;
+  background: var(--color-primario, #FFE9B9);
+  color: #FFFFFF;
 }
 
 .botones {

@@ -1,6 +1,5 @@
 <div class="dish-card">
   <div class="dish-layout">
-    
     <div class="dish-img-wrapper">
       @if (plato().urlImagen) {
         <img [src]="plato().urlImagen" class="dish-img" [alt]="plato().nombre">
@@ -17,16 +16,14 @@
       </div>
 
       <p class="mb-1 text-muted small">
-
         ⏱ {{ plato().tiempoPreparacionBase }} min
-        </p>
+      </p>
 
       <div class="dish-meta">
         <span class="dish-price">$ {{ plato().precioVentaFinal }}</span>
       </div>
 
       <div class="dish-controls">
-        
         <div class="counter-pill">
           <button class="btn-counter" (click)="decrementar()">-</button>
           <span class="counter-value">{{ cantidad() }}</span>
@@ -34,22 +31,12 @@
         </div>
 
         <div class="add-btn-wrapper">
-         
-          <app-boton class="w-100" variante="success" (clicked)="agregar()">
-
-          <span class="material-symbols-outlined">
-            add
-          </span>
-
-          <span>
-            Agregar
-          </span>
-
-        </app-boton>
+          <button class="btn-add-custom" (click)="agregar()">
+            <span class="material-symbols-outlined">add</span>
+            <span>Agregar</span>
+          </button>
         </div>
-        
       </div>
     </div>
-
   </div>
 </div>

@@ -1,15 +1,13 @@
-import { Component, inject , ChangeDetectionStrategy, signal} from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy, signal} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DecimalPipe } from '@angular/common';
 import { ComandaState } from '../../services/comanda-state';
-import { configuracionRestauranteMock } from '../../../../infra/mocks/configuracion-restaurante.mock-data';
-import { BotonComensal } from '../../../../shared/ui/botones/boton-comensal/boton-comensal';
+import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-pago-confirmado',
   standalone: true,
-  imports: [DecimalPipe, BotonComensal],
+  imports: [],
   templateUrl: './pago-confirmado.html',
   styleUrls: ['./pago-confirmado.css']
 })
@@ -22,7 +20,7 @@ export class PagoConfirmado {
   pagoExitoso = signal(true);
   error = signal(false);
 
-  configuracion = configuracionRestauranteMock;
+  configuracionVisualState = inject(ConfiguracionVisualState);
   estado = this.comandaState.estadoPedido;
   mesaId = this.comandaState.mesaId;
 

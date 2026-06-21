@@ -5,8 +5,6 @@ export interface DatosLocal {
   imagen: string | null;
   colorPrincipal: string | null;
   colorSecundario: string | null;
-  textoPrincipal: string | null;
-  textoSecundario: string | null;
   familiaTipograficaId: number | null;
 }
 
@@ -15,7 +13,5 @@ export type DatosLocalEditables = Pick<DatosLocal,
 'imagen' | 
 'colorPrincipal' | 
 'colorSecundario' | 
-'textoPrincipal' | 
-'textoSecundario' |
 'familiaTipograficaId'
 >;
