@@ -2,6 +2,7 @@ export interface Llamado {
   id: number;
   mozoId: number | null;
   mesaId: number | null;
+  numeroDeMesa: number;
   gerenteId: number | null;
   categoriaLlamadoId: number;
   categoriaDescripcion: string;

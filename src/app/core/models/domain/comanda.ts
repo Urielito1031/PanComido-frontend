@@ -31,6 +31,7 @@ export interface PlatoComanda {
 export interface Comanda {
   id: number;
   mesaId: number;
+  numeroDeMesa: number;
   cantComensales: number;
   estado: EstadoComanda;
   horaInicio: string;
