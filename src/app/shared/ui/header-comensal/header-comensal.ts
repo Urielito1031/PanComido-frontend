@@ -1,11 +1,13 @@
-import { Component, inject, input, output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
+import { QRCodeComponent } from 'angularx-qrcode';
 import { ConfiguracionVisualState } from '../../../features/comensal/services/visual/configuracion-visual-state';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-header-comensal',
   standalone: true,
+  imports: [QRCodeComponent],
   templateUrl: './header-comensal.html',
   styleUrls: ['./header-comensal.css'],
 })
@@ -13,19 +15,16 @@ export class HeaderComensal {
   private router = inject(Router);
   configuracionVisualState = inject(ConfiguracionVisualState);
 
-  /** Muestra la flecha de volver atrás */
   showBack = input(false);
-  /** Ruta de navegación al hacer clic en back. Si no se define, emite el evento back. */
   backRoute = input<string | null>(null);
-  /** Muestra el botón de cerrar (✕) */
   showClose = input(false);
-  /** Título opcional centrado */
   title = input<string>('');
 
-  /** Se emite cuando se hace clic en back y no hay backRoute */
   back = output<void>();
-  /** Se emite cuando se hace clic en cerrar */
   close = output<void>();
+
+  popupAbierto = signal(false);
+  urlInvitacion = signal('');
 
   onBack(): void {
     const route = this.backRoute();
@@ -38,5 +37,33 @@ export class HeaderComensal {
 
   onClose(): void {
     this.close.emit();
+  }
+
+  tieneSesion(): boolean {
+    const raw = sessionStorage.getItem('sesionComensal');
+    return !!raw && raw !== 'undefined' && raw !== 'null';
+  }
+
+  abrirCompartir(): void {
+    const raw = sessionStorage.getItem('sesionComensal');
+    if (!raw || raw === 'undefined' || raw === 'null') return;
+
+    try {
+      const sesion = JSON.parse(raw);
+      const comandaId = sesion.idComandaGenerada ?? sesion.comandaId;
+      this.urlInvitacion.set(`${window.location.origin}/comensal/unirse/${comandaId}`);
+      console.log("ACA LA URL DEL QR PAPUU: ",this.urlInvitacion,window.location.origin)
+      this.popupAbierto.set(true);
+    } catch {
+      console.error('Error al parsear sesionComensal');
+    }
+  }
+
+  cerrarCompartir(): void {
+    this.popupAbierto.set(false);
+  }
+
+  copiarEnlace(): void {
+    navigator.clipboard.writeText(this.urlInvitacion()).catch(() => {});
   }
 }

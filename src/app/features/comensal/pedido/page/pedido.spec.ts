@@ -1,24 +1,43 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
-import { signal } from '@angular/core';
-
+import { TestBed } from '@angular/core/testing';
 import { Pedido } from './pedido';
+import { Router } from '@angular/router';
 import { PedidoState } from '../../services/pedido.state';
 import { ComensalState } from '../../services/comensal-state';
 import { ComandaState } from '../../services/comanda-state';
+<<<<<<< HEAD
 import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
+=======
+import { of } from 'rxjs';
+import { vi } from 'vitest';
+>>>>>>> origin/vista-comensal-nueva
 
 describe('Pedido', () => {
   let component: Pedido;
-  let fixture: ComponentFixture<Pedido>;
 
-  let routerMock: any;
-  let pedidoStateMock: any;
-  let comensalStateMock: any;
-  let comandaStateMock: any;
+  const routerMock = {
+    navigate: vi.fn()
+  };
+
+  const pedidoStateMock = {
+    pedidos: () => [
+      {
+        cantidad: 2,
+        plato: { precioVentaFinal: 100 }
+      }
+    ],
+    eliminarPedido: vi.fn(),
+    incrementarCantidad: vi.fn(),
+    decrementarCantidad: vi.fn()
+  };
+
+  const comensalStateMock = {};
+  const comandaStateMock = {
+    restauranteId: () => 1,
+    mesaId: () => 10
+  };
 
   beforeEach(async () => {
+<<<<<<< HEAD
     routerMock = {
       navigate: vi.fn()
     };
@@ -69,6 +88,8 @@ describe('Pedido', () => {
       cargar: vi.fn(),
     };
 
+=======
+>>>>>>> origin/vista-comensal-nueva
     await TestBed.configureTestingModule({
       imports: [Pedido],
       providers: [
@@ -80,9 +101,8 @@ describe('Pedido', () => {
       ]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(Pedido);
+    const fixture = TestBed.createComponent(Pedido);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('should create', () => {
@@ -90,61 +110,58 @@ describe('Pedido', () => {
   });
 
   it('debería calcular el total correctamente', () => {
-    expect(component.total()).toBe(250);
+    expect(component.total()).toBe(200);
   });
 
-  it('debería navegar al detalle del pedido', () => {
+  it('debería navegar a detalle pedido', () => {
     component.irADetallePedido();
 
-    expect(routerMock.navigate)
-      .toHaveBeenCalledWith(['/comensal/detalle-pedido']);
+    expect(routerMock.navigate).toHaveBeenCalledWith([
+      '/comensal/detalle-pedido'
+    ]);
   });
 
-  it('debería volver a la carta', () => {
+  it('debería volver a ver carta', () => {
     component.volver();
 
-    expect(routerMock.navigate)
-      .toHaveBeenCalledWith(['/comensal/ver-carta']);
+    expect(routerMock.navigate).toHaveBeenCalledWith([
+      '/comensal/ver-carta',
+      1,
+      10,
+      1
+    ]);
   });
 
-  it('debería eliminar un pedido', () => {
-    component.eliminarPedido(1);
+  it('debería eliminar pedido', () => {
+    component.eliminarPedido(0);
 
-    expect(pedidoStateMock.eliminarPedido)
-      .toHaveBeenCalledWith(1);
+    expect(pedidoStateMock.eliminarPedido).toHaveBeenCalledWith(0);
   });
 
   it('debería incrementar cantidad', () => {
-    component.agregarAlPedido(1);
+    component.agregarAlPedido(0);
 
-    expect(pedidoStateMock.incrementarCantidad)
-      .toHaveBeenCalledWith(1);
+    expect(pedidoStateMock.incrementarCantidad).toHaveBeenCalledWith(0);
   });
 
   it('debería decrementar cantidad', () => {
-    component.eliminarUno(1);
+    component.eliminarUno(0);
 
-    expect(pedidoStateMock.decrementarCantidad)
-      .toHaveBeenCalledWith(1);
+    expect(pedidoStateMock.decrementarCantidad).toHaveBeenCalledWith(0);
   });
 
   it('debería navegar a personalizar plato', () => {
     const item = {
-      plato: {
-        nombre: 'Pizza'
-      },
-      cantidad: 1
+      cantidad: 1,
+      plato: { precioVentaFinal: 50 }
     } as any;
 
-    component.irAPersonalizar(item, 2);
+    component.irAPersonalizar(item, 0);
 
     expect(routerMock.navigate).toHaveBeenCalledWith(
       ['/comensal/personalizar-plato'],
       {
-        state: {
-          plato: item,
-          index: 2
-        }
+        state: { plato: item, index: 0 }
       }
     );
   });

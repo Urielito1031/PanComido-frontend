@@ -9,6 +9,7 @@ import { HeaderComensal } from '../../../../shared/ui/header-comensal/header-com
 import { LlamarAlMozo } from '../../components/llamar-al-mozo/llamar-al-mozo';
 import { ComensalState } from '../../services/comensal-state';
 import { ComandaState } from '../../services/comanda-state';
+import { CommonModule } from '@angular/common';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,9 +43,18 @@ export class Pedido implements OnInit {
     this.router.navigate(['/comensal/detalle-pedido']);
   }
 
+
   volver(): void {
-    this.router.navigate(['/comensal/ver-carta']);
-  }
+  const restauranteId = this.comandaState.restauranteId();
+  const mesaId = this.comandaState.mesaId();
+
+  this.router.navigate([
+    '/comensal/ver-carta',
+    restauranteId,
+    mesaId,
+    1
+  ]);
+}
 
   eliminarPedido(index: number): void {
     this.pedidoService.eliminarPedido(index);

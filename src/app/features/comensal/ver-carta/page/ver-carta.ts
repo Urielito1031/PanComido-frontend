@@ -1,5 +1,5 @@
-import { Component, HostListener, inject, signal , ChangeDetectionStrategy} from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, HostListener, inject, input, signal, ChangeDetectionStrategy } from '@angular/core';
+import {  Router } from '@angular/router';
 import { Buscador } from '../../../../../app/shared/ui/buscador/buscador';
 import { ListaPlatosComensalComponent } from '../components/lista-platos-comensal/lista-platos-comensal';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -12,6 +12,8 @@ import { ComensalFooterCart } from '../../components/comensal-footer-cart/comens
 import { FiltrosCartaOverlay } from '../../components/filtros-carta-overlay/filtros-carta-overlay';
 import { CommonModule } from '@angular/common';
 import { ComensalState } from '../../services/comensal-state';
+import { ComandaState } from '../../services/comanda-state';
+import { QRCodeComponent } from 'angularx-qrcode';
 
 
 @Component({
@@ -24,15 +26,17 @@ import { ComensalState } from '../../services/comensal-state';
     Buscador,
     FontAwesomeModule,
     ComensalFooterCart,
-    FiltrosCartaOverlay
-  ],
+    FiltrosCartaOverlay,
+    QRCodeComponent
+],
   templateUrl: './ver-carta.html',
   styleUrls: ['./ver-carta.css'],
 })
 export class VerCarta {
-  
+
 
   private router = inject(Router);
+  private comandaState = inject(ComandaState);
   private pedidoService = inject(PedidoState);
   state = inject(CartaState);
   comensalState = inject(ComensalState);
@@ -42,18 +46,24 @@ export class VerCarta {
   configuracionVisualState = inject(ConfiguracionVisualState);
   mesaId = signal(1);
   cantidadPersonas = signal(1);
+  readonly nombreComensal = signal('');
+
 
   menuOrdenarAbierto = signal(false);
   ordenSeleccionado = signal('');
+  popupAbierto = signal(false);
+  urlInvitacion = signal('');
 
   // Usar computed del servicio para reactividad
   cantidadTotalPedido = this.pedidoService.cantidadTotal;
   totalPedido = this.pedidoService.totalPrecio;
 
+
+
   @HostListener('document:click', ['$event'])
   onClickOutSide(event: Event) {
     const target = event.target as HTMLElement;
-    if(!target.closest('.dropdown-ordenar')){
+    if (!target.closest('.dropdown-ordenar')) {
       this.menuOrdenarAbierto.set(false);
     }
   }
@@ -69,9 +79,50 @@ export class VerCarta {
   }
 
   ngOnInit(): void {
-    this.mesaId.set(history.state?.mesaId ?? 1);
-    this.cantidadPersonas.set(history.state?.cantidadPersonas ?? 1);
-    this.state.cargarCarta();
+
+
+    const nombre = sessionStorage.getItem('nombreComensal');
+
+    if (nombre) {
+      this.nombreComensal.set(nombre);
+    }
+      this.mesaId.set(this.comandaState.mesaId() ?? 1);    
+      this.cantidadPersonas.set(history.state?.cantidadPersonas??1);
+      this.state.cargarCarta();
+      
+      const sesionRaw = sessionStorage.getItem('sesionComensal');
+
+    if (!sesionRaw || sesionRaw === 'undefined') {
+      console.error('No hay sesión válida de comensal');
+      return;
+    }
+    const sesion = JSON.parse(sesionRaw);
+  }
+
+
+
+
+
+  abrirCompartir(): void {
+    const raw = sessionStorage.getItem('sesionComensal');
+    if (!raw || raw === 'undefined' || raw === 'null') return;
+
+    try {
+      const sesion = JSON.parse(raw);
+      const comandaId = sesion.idComandaGenerada ?? sesion.comandaId;
+      this.urlInvitacion.set(`${window.location.origin}/comensal/unirse/${comandaId}`);
+      this.popupAbierto.set(true);
+    } catch {
+      console.error('Error al parsear sesionComensal');
+    }
+  }
+
+  cerrarCompartir(): void {
+    this.popupAbierto.set(false);
+  }
+
+  copiarEnlace(): void {
+    navigator.clipboard.writeText(this.urlInvitacion()).catch(() => {});
   }
 
   onSearch(valor: string): void {

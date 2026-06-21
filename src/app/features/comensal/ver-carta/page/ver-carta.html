@@ -4,14 +4,35 @@
       <img [src]="configuracionVisualState.logoUrl()" alt="Logo" class="logo-img" />
     </div>
     <div class="mesa-info-container">
+      
       <div class="badge-info">
         <span class="material-symbols-outlined">person</span>
         <span>{{ cantidadPersonas() }}</span>
       </div>
       <div class="badge-info">Mesa {{ mesaId() }}</div>
+      <div class="invite-btn" (click)="abrirCompartir()" title="Invitar a la mesa">
+        <span class="material-symbols-outlined">group_add</span>
+      </div>
     </div>
   </div>
 </div>
+
+@if (popupAbierto()) {
+  <div class="overlay" (click)="cerrarCompartir()">
+    <div class="popup" (click)="$event.stopPropagation()">
+      <div class="popup-header">
+        <h3 class="popup-title">Compartir mesa</h3>
+        <div class="popup-close" (click)="cerrarCompartir()">✕</div>
+      </div>
+      <div class="popup-body">
+        <qrcode [qrdata]="urlInvitacion()" [width]="200"></qrcode>
+        <p class="popup-desc">Compartí este enlace para que otros se unan a tu mesa:</p>
+        <div class="popup-link">{{ urlInvitacion() }}</div>
+        <button class="popup-copy" (click)="copiarEnlace()">Copiar enlace</button>
+      </div>
+    </div>
+  </div>
+}
 
 <div class="carta-container">
 
@@ -27,8 +48,7 @@
       }
     </button>
   </div>
-
-  
+  <!-- Dropdown Ordenar -->
   <div class="ordenar-section">
     <div class="dropdown-ordenar">
       <button class="dropdown-trigger" [class.abierto]="menuOrdenarAbierto()" (click)="toggleMenuOrdenar()">
@@ -73,6 +93,7 @@
 <app-filtros-carta-overlay (cerrar)="mostrarFiltros.set(false)" (toggleTipo)="state.toggleTipoPlato($event)"
   (limpiar)="state.limpiarFiltros()" />
 }
+
 
 <app-comensal-footer-cart [cantidadItems]="cantidadTotalPedido()" [total]="totalPedido()"
   (verPedido)="irAPedido()" [mesaId]="mesaId()" [enviando]="comensalState.enviando()"

@@ -9,15 +9,16 @@ export class PedidoState {
   // Signal reactivo para los pedidos
   private pedidosSignal = signal<ItemPedido[]>([]);
 
-  // Exponer como readonly
+ 
   pedidos = this.pedidosSignal.asReadonly();
+ 
 
   // Computed para cantidad total
   cantidadTotal = computed(() => {
     return this.pedidosSignal().reduce((acc, item) => acc + item.cantidad, 0);
   });
 
-  // Computed para precio total
+  
   totalPrecio = computed(() => {
     return this.pedidosSignal().reduce(
       (acc, item) => acc + (item.plato.precioVentaFinal * item.cantidad),
@@ -26,7 +27,6 @@ export class PedidoState {
   });
 
   agregarPedido(item: ItemPedido) {
-    // Agregar al signal (Angular detectará el cambio automáticamente)
     this.pedidosSignal.update(pedidos => [...pedidos, item]);
   }
 
@@ -87,4 +87,25 @@ decrementarCantidad(index: number): void {
     return nuevosPedidos;
   });
 }
+
+actualizarItem(itemActualizado: ItemPedido) {
+  const items = this.pedidosSignal();
+
+  const index = items.findIndex(
+    i => i.plato.articuloId === itemActualizado.plato.articuloId
+  );
+
+  if (index === -1) return;
+
+  const nuevosItems = [...items];
+
+  nuevosItems[index] = {
+    ...nuevosItems[index],
+    ...itemActualizado
+  };
+
+  this.pedidosSignal.set(nuevosItems);
+}
+
+
 }
