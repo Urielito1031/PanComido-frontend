@@ -1,24 +1,42 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
-import { signal } from '@angular/core';
-
+import { TestBed } from '@angular/core/testing';
 import { DetallePedido } from './detalle-pedido';
+import { Router } from '@angular/router';
 import { PedidoState } from '../../services/pedido.state';
 import { ComandaState } from '../../services/comanda-state';
 import { ComensalState } from '../../services/comensal-state';
+<<<<<<< HEAD
 import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
+=======
+import { vi } from 'vitest';
+>>>>>>> origin/vista-comensal-nueva
 
 describe('DetallePedido', () => {
   let component: DetallePedido;
-  let fixture: ComponentFixture<DetallePedido>;
 
-  let routerMock: any;
-  let pedidoStateMock: any;
-  let comandaStateMock: any;
-  let comensalStateMock: any;
+  const routerMock = {
+    navigate: vi.fn()
+  };
+
+  const pedidoStateMock = {
+    pedidos: () => [
+      {
+        cantidad: 2,
+        plato: { precioVentaFinal: 100 }
+      }
+    ]
+  };
+
+  const comandaStateMock = {
+    comandaId: vi.fn(() => 1),
+    estadoPedido: vi.fn(() => ({
+      totalAPagar: 50
+    }))
+  };
+
+  const comensalStateMock = {};
 
   beforeEach(async () => {
+<<<<<<< HEAD
     routerMock = {
       navigate: vi.fn()
     };
@@ -65,6 +83,8 @@ describe('DetallePedido', () => {
       cargar: vi.fn(),
     };
 
+=======
+>>>>>>> origin/vista-comensal-nueva
     await TestBed.configureTestingModule({
       imports: [DetallePedido],
       providers: [
@@ -76,12 +96,13 @@ describe('DetallePedido', () => {
       ]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(DetallePedido);
+    const fixture = TestBed.createComponent(DetallePedido);
     component = fixture.componentInstance;
 
-    fixture.detectChanges();
-
-    vi.spyOn(component.modal, 'mostrar').mockImplementation(() => {});
+    // mock modal ViewChild
+    component.modal = {
+      mostrar: vi.fn()
+    } as any;
   });
 
   it('should create', () => {
@@ -89,58 +110,37 @@ describe('DetallePedido', () => {
   });
 
   it('debería calcular el total correctamente', () => {
-    expect(component.total()).toBe(500);
+    expect(component.total()).toBe(250);
   });
 
   it('debería volver al pedido', () => {
     component.volver();
 
-    expect(routerMock.navigate)
-      .toHaveBeenCalledWith(['/comensal/pedido']);
+    expect(routerMock.navigate).toHaveBeenCalledWith([
+      '/comensal/pedido'
+    ]);
   });
 
-  it('debería mostrar alerta si no hay comanda activa', () => {
-    comandaStateMock.tieneComandaActiva.mockReturnValue(false);
-
-    const alertSpy = vi
-      .spyOn(window, 'alert')
-      .mockImplementation(() => {});
-
+  it('debería abrir modal al confirmar pedido', () => {
     component.confirmarPedido();
 
-    expect(alertSpy)
-      .toHaveBeenCalledWith(
-        'No hay mesa seleccionada. Por favor, escanea el QR de la mesa.'
-      );
-
-    expect(component.modal.mostrar)
-      .not.toHaveBeenCalled();
-
-    alertSpy.mockRestore();
+    expect(component.modal.mostrar).toHaveBeenCalled();
   });
 
-  it('debería mostrar alerta si el carrito está vacío', () => {
-    pedidoStateMock.pedidos.set([]);
 
-    const alertSpy = vi
-      .spyOn(window, 'alert')
-      .mockImplementation(() => {});
+  it('debería navegar a editar item', () => {
+    const item = {
+      cantidad: 1,
+      plato: { precioVentaFinal: 50 }
+    } as any;
 
-    component.confirmarPedido();
+    component.editarItem(item);
 
-    expect(alertSpy)
-      .toHaveBeenCalledWith('El carrito está vacío');
-
-    expect(component.modal.mostrar)
-      .not.toHaveBeenCalled();
-
-    alertSpy.mockRestore();
-  });
-
-  it('debería mostrar el modal cuando todo es válido', () => {
-    component.confirmarPedido();
-
-    expect(component.modal.mostrar)
-      .toHaveBeenCalled();
+    expect(routerMock.navigate).toHaveBeenCalledWith(
+      ['/comensal/personalizar-plato'],
+      {
+        state: { plato: item }
+      }
+    );
   });
 });

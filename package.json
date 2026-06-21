@@ -26,6 +26,7 @@
     "@fortawesome/free-solid-svg-icons": "^7.2.0",
     "@microsoft/signalr": "^10.0.0",
     "@zxing/browser": "^0.2.0",
+    "angularx-qrcode": "^21.0.5",
     "bootstrap": "^5.3.8",
     "flatpickr": "^4.6.13",
     "jwt-decode": "^4.0.0",
@@ -34,7 +35,7 @@
   },
   "devDependencies": {
     "@analogjs/vite-plugin-angular": "^2.5.2",
-    "@analogjs/vitest-angular": "^2.5.2",
+    "@analogjs/vitest-angular": "^2.6.1",
     "@angular/build": "^21.2.8",
     "@angular/cli": "^21.2.8",
     "@angular/compiler-cli": "^21.2.0",
@@ -44,7 +45,7 @@
     "prettier": "^3.8.1",
     "typescript": "~5.9.2",
     "vite": "^7.3.2",
-    "vitest": "^4.1.7",
+    "vitest": "^4.1.9",
     "zone.js": "^0.16.2"
   }
 }

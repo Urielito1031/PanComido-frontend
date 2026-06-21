@@ -12,7 +12,37 @@
     <div class="title">{{ title() }}</div>
   }
 
-  @if (showClose()) {
-    <div class="close" (click)="onClose()">✕</div>
-  }
+  <div class="header-right">
+    @if (tieneSesion()) {
+      <div class="icon-btn" (click)="abrirCompartir()" title="Compartir mesa">
+        <span class="material-symbols-outlined">group_add</span>
+      </div>
+    }
+    @if (showClose()) {
+      <div class="close" (click)="onClose()">✕</div>
+    }
+  </div>
 </header>
+
+@if (popupAbierto()) {
+  <div class="overlay" (click)="cerrarCompartir()">
+    <div class="popup" (click)="$event.stopPropagation()">
+      <div class="popup-header">
+        <h3 class="popup-title">Compartir mesa</h3>
+        <div class="popup-close" (click)="cerrarCompartir()">✕</div>
+      </div>
+
+      <div class="popup-body">
+        <qrcode [qrdata]="urlInvitacion()" [width]="200"></qrcode>
+
+        <p class="popup-desc">
+          Compartí este enlace para que otros se unan a tu mesa:
+        </p>
+
+        <div class="popup-link">{{ urlInvitacion() }}</div>
+
+        <button class="popup-copy" (click)="copiarEnlace()">Copiar enlace</button>
+      </div>
+    </div>
+  </div>
+}
