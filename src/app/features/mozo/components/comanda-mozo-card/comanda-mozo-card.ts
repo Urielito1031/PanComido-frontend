@@ -1,4 +1,4 @@
-import { Component, computed, input, output , ChangeDetectionStrategy} from '@angular/core';
+import { Component, computed, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { Comanda } from '../../../../core/models/domain/comanda';
 import { KdsContadorTiempo } from "../../../../shared/ui/kds-contador-tiempo/kds-contador-tiempo";
 
@@ -23,10 +23,13 @@ export class ComandaMozoCard {
     return map[this.comanda().estado] ?? '';
   });
 
-  readonly itemsVisibles = computed(() => {
-    return this.comanda().items.slice(0,3);
-  })
   readonly cantidadItems = computed(() => this.comanda().items.length);
+
+  readonly itemsVisibles = computed(() => {
+    return [...this.comanda().items]
+      .sort((a, b) => Number(a.entregado) - Number(b.entregado))
+      .slice(0, 3);
+  });
 
   onVer(): void {
     this.ver.emit(this.comanda().id);

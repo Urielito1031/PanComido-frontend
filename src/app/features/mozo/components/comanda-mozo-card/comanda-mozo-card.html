@@ -1,23 +1,23 @@
 <div class="mozo-card">
   <div class="mozo-header" [class]="headerClass()">
-    <div class="mesa-info">MESA N° {{ comanda().mesaId }}</div>
+    <div class="mesa-info">MESA N° {{ comanda().numeroDeMesa }}</div>
     @if (comanda().horaUltimoCambioEstado) {
-      <div class="tiempo-transcurrido">
-        <app-kds-contador-tiempo [fechaInicio]="comanda().horaUltimoCambioEstado!" />
-      </div>
+    <div class="tiempo-transcurrido">
+      <app-kds-contador-tiempo [fechaInicio]="comanda().horaUltimoCambioEstado!" />
+    </div>
     }
   </div>
 
   <div class="mozo-body">
     <ul class="items-list">
       @for (item of itemsVisibles(); track item.id) {
-        <li class="item-row">
-          <span class="item-cantidad">{{ item.cantidad }}x</span>
-          <span class="item-nombre">{{ item.articulo.nombre }}</span>
-        </li>
+      <li class="item-row" [class.entregado]="item.entregado">
+        <span class="item-cantidad">{{ item.cantidad }}x</span>
+        <span class="item-nombre">{{ item.articulo.nombre }}</span>
+      </li>
       }
       @if (cantidadItems() > 3) {
-        <li class="item-more">+{{ cantidadItems() - 3 }} más</li>
+      <li class="item-more">+{{ cantidadItems() - 3 }} más</li>
       }
     </ul>
   </div>

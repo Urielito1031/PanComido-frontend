@@ -2,41 +2,43 @@
   <div class="kds-header" [class]="headerClass()">
 
     @if (comanda().horaUltimoCambioEstado) {
-      <div class="timer">
+    <div class="timer">
 
-        <app-kds-contador-tiempo [fechaInicio]="comanda().horaUltimoCambioEstado!">
-        </app-kds-contador-tiempo>
-      </div>
+      <app-kds-contador-tiempo [fechaInicio]="comanda().horaUltimoCambioEstado!">
+      </app-kds-contador-tiempo>
+    </div>
     } @else {
-       00:00:00
-       }
-    
-    <div class="mesa-info">MESA N° {{ comanda().mesaId }}</div>
+    00:00:00
+    }
+
+    <div class="mesa-info">MESA N° {{ comanda().numeroDeMesa }}</div>
   </div>
 
   <div class="kds-body">
     <ul class="platos-list">
-      @for (item of comanda().items; track item.id) {
-        <li class="plato-item" [class.entregado]="item.entregado">
-          <div class="plato-main">
-            <span class="cantidad">{{ item.cantidad }} x</span>
-            <span class="nombre">{{ item.articulo.nombre }}</span>
-          </div>
-          @if (item.observacionesGenerales) {
-            <div class="observacion">"{{ item.observacionesGenerales }}"</div>
-          }
-          @if (item.observacionesIngredientes) {
-            <div class="observacion ingredientes">{{ item.observacionesIngredientes }}</div>
-          }
-        </li>
+      @for (item of itemsOrdenados(); track item.id) {
+      <li class="plato-item" [class.entregado]="item.entregado">
+        <div class="plato-main">
+          <span class="cantidad">{{ item.cantidad }} x</span>
+          <span class="nombre">{{ item.articulo.nombre }}</span>
+        </div>
+        @if (item.observacionesGenerales) {
+        <div class="observacion">"{{ item.observacionesGenerales }}"</div>
+        }
+        @if (item.observacionesIngredientes) {
+        <div class="observacion ingredientes">{{ item.observacionesIngredientes }}</div>
+        }
+      </li>
       }
     </ul>
   </div>
 
   <div class="kds-footer">
-    <button class="btn-accion" (click)="onAccion()">
+    @if (mostrarBoton()) {
+    <button class="btn-accion" (click)="comanda().estado === 'EnPreparacion' ? onLlamarMozo() : onAccion()">
       {{ textoBoton() }}
     </button>
+    }
     <div class="tiempo-est">Tiempo estimado: {{ comanda().tiempoEstimadoTotal }}'</div>
   </div>
 </div>

@@ -5,7 +5,7 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
 .mozo-header {
@@ -17,9 +17,20 @@
   border-bottom: 1px solid #d1c9b8;
 }
 
-.bg-nueva { background-color: #dc2626; color: white; }
-.bg-preparacion { background-color: #6abf3f; color: #1e293b; }
-.bg-espera { background-color: #facc15; color: #1e293b; }
+.bg-nueva {
+  background-color: #dc2626;
+  color: white;
+}
+
+.bg-preparacion {
+  background-color: #6abf3f;
+  color: #1e293b;
+}
+
+.bg-espera {
+  background-color: #facc15;
+  color: #1e293b;
+}
 
 .mesa-info {
   font-size: 1.1rem;
@@ -92,4 +103,13 @@
 
 .btn-ver:hover {
   background-color: #334155;
+}
+
+.item-row.entregado {
+  opacity: 0.4;
+}
+
+.item-row.entregado .item-nombre,
+.item-row.entregado .item-cantidad {
+  text-decoration: line-through;
 }

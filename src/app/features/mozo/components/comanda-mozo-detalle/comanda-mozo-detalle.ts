@@ -27,6 +27,10 @@ export class ComandaMozoDetalle {
     return items.length > 0 && items.length === this.seleccionados().size;
   });
 
+    readonly itemsOrdenados = computed(() =>
+    [...this.comanda().items].sort((a, b) => Number(a.entregado) - Number(b.entregado))
+  );
+
   isSelected(id: number): boolean {
     return this.seleccionados().has(id);
   }
@@ -70,5 +74,3 @@ export class ComandaMozoDetalle {
     this.cerrar.emit();
   }
 }
-
-
