@@ -1,4 +1,4 @@
-import { Component, EventEmitter, input, Input, output, Output, signal , ChangeDetectionStrategy} from '@angular/core';
+import { Component, input, output, signal , ChangeDetectionStrategy} from '@angular/core';
 
 import { ItemPedido } from '../../../../../core/models/domain/item-pedido';
 import { configuracionRestauranteMock } from '../../../../../infra/mocks/configuracion-restaurante.mock-data';

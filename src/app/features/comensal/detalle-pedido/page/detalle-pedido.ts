@@ -1,4 +1,5 @@
-import { Component, inject, computed, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, computed, ViewChild, ChangeDetectionStrategy, OnInit } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { configuracionRestauranteMock } from '../../../../infra/mocks/configuracion-restaurante.mock-data';
 import { LlamarAlMozo } from '../../components/llamar-al-mozo/llamar-al-mozo';
@@ -13,11 +14,11 @@ import { ItemPedido } from '../../../../core/models/domain/item-pedido';
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-detalle-pedido',
   standalone: true,
-  imports: [LlamarAlMozo, ModalConfirmacionPedido],
+  imports: [LlamarAlMozo, ModalConfirmacionPedido, DecimalPipe],
   templateUrl: './detalle-pedido.html',
   styleUrls: ['./detalle-pedido.css']
 })
-export class DetallePedido {
+export class DetallePedido implements OnInit {
   private router = inject(Router);
   private pedidoService = inject(PedidoState);
   comandaState = inject(ComandaState);
@@ -29,11 +30,31 @@ export class DetallePedido {
 
   // Usar el signal del servicio directamente (reactivo)
   pedidos = this.pedidoService.pedidos;
+  mesaId = this.comandaState.mesaId;
+
+  ngOnInit(): void {
+    this.comandaState.consultarEstado();
+  }
+
+  estadoColor = computed(() => {
+    const st = this.comandaState.estadoPedido()?.estadoUI?.toLowerCase() || '';
+    if (st.includes('preparaci')) return '#ebd038';
+    if (st.includes('listo') || st.includes('hecho') || st.includes('espera')) return '#6bb446';
+    return '#a3a3a3';
+  });
+
+  estadoTextColor = computed(() => {
+    const st = this.comandaState.estadoPedido()?.estadoUI?.toLowerCase() || '';
+    if (st.includes('preparaci')) return '#000000';
+    return '#ffffff';
+  });
+
+  estadoBorder = '#808080';
 
   // Computed para el total
   total = computed(() => {
     const totalCarrito = this.pedidos().reduce(
-      (acc, item) => acc + item.plato.precioVentaFinal * item.cantidad,
+      (acc, item) => acc + item.plato.precio * item.cantidad,
       0
     );
     const totalConfirmado = this.comandaState.estadoPedido()?.totalAPagar || 0;

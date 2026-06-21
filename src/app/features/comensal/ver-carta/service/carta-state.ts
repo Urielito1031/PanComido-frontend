@@ -36,12 +36,12 @@ toggleCategoria(categoria: string): void {
 
   // Computed: platos
   platos = computed(() =>
-    this._items().filter(i => i.tipoArticulo === 'Plato')
+    this._items().filter(i => i.esPlato === true)
   );
 
   // Computed: bebidas
   bebidas = computed(() =>
-    this._items().filter(i => i.tipoArticulo === 'Bebida')
+    this._items().filter(i => i.esPlato === false)
   );
 
   // Items filtrados (para la vista)
@@ -66,11 +66,12 @@ if (restricciones.length > 0) {
   );
 }
 
-if (categorias.length > 0) {
-  resultado = resultado.filter(item =>
-    categorias.includes(item.categoria)
-  );
-}
+  if (categorias.length > 0) {
+    resultado = resultado.filter(item => {
+      const categoria = item.tipoPlato ?? item.categoriaBebida;
+      return categoria !== null && categorias.includes(categoria);
+    });
+  }
 
     // Filtro por búsqueda (solo nombre, descripcion no existe)
     const busqueda = this.busqueda().toLowerCase();
@@ -84,7 +85,7 @@ if (categorias.length > 0) {
     const tipos = this.tiposSeleccionados();
     if (tipos.length > 0) {
       resultado = resultado.filter(i =>
-        tipos.includes(i.tipoArticulo)
+      tipos.includes(i.esPlato ? 'Plato' : 'Bebida')
       );
     }
 
@@ -92,10 +93,10 @@ if (categorias.length > 0) {
     const orden = this.ordenarPor();
     switch (orden) {
       case 'precio-menor':
-        resultado = [...resultado].sort((a, b) => a.precioVentaFinal - b.precioVentaFinal);
+        resultado = [...resultado].sort((a, b) => a.precio - b.precio);
         break;
       case 'precio-mayor':
-        resultado = [...resultado].sort((a, b) => b.precioVentaFinal - a.precioVentaFinal);
+        resultado = [...resultado].sort((a, b) => b.precio - a.precio);
         break;
       case 'nombre':
         resultado = [...resultado].sort((a, b) =>

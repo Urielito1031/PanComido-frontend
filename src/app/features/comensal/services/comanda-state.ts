@@ -142,7 +142,7 @@ export class ComandaState {
     const nombreComensal = sessionStorage.getItem('nombreComensal') ?? '';
 
     const items = pedidos.map(p => ({
-      articuloId: p.plato.articuloId,
+      articuloId: p.plato.id,
       cantidad: p.cantidad,
       observacionesIngredientes: p.observacionesIngredientes ?? null,
       observacionesGenerales: p.observacionesGenerales ?? null

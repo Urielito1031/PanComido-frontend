@@ -68,6 +68,7 @@ export class UnirseMesa implements OnInit {
       restauranteId: this.datosMesa.restauranteId,
       mesaId: this.datosMesa.idMesa
     });
+    sessionStorage.setItem('nombreComensal', this.nombre());
     console.log('datosMesa:', this.datosMesa)
     this.router.navigate([
       '/comensal/ver-carta',

@@ -29,33 +29,41 @@
 
   <!-- CAJA BLANCA: ITEMS CONFIRMADOS (Comanda) -->
   @if (comandaState.estadoPedido()?.items?.length) {
-  <div class="bg-white rounded-4 p-3 mb-4 shadow-sm" style="border: 1px solid #eaeaea;">
-    <h6 class="fw-bold mb-0 text-dark">
-      <span class="material-symbols-outlined align-middle fs-5 me-1 text-success">check_circle</span>
-      En preparación
-    </h6>
+  <div class="border border-secondary rounded-3 p-3 mb-3 bg-white">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <div class="d-flex align-items-center px-3 py-1 rounded-3"   [style.background-color]="estadoColor()"
+  [style.border]="'2px solid ' + estadoBorder"
+  [style.color]="estadoTextColor()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2">
+          <path
+            d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z" />
+          <line x1="6" y1="17" x2="18" y2="17" />
+        </svg>
+        <span class="fw-semibold fs-6">{{ comandaState.estadoPedido()!.estadoUI }}</span>
+      </div>
+      <div class="px-2 py-1 rounded-2 border border-secondary text-dark bg-white">
+        Nro mesa: <span class="fw-bold">{{ mesaId() }}</span>
+      </div>
+    </div>
     <hr class="text-secondary my-2">
 
     @for (item of comandaState.estadoPedido()!.items; track $index) {
     <div class="mb-2 mt-2">
-      <div class="d-flex justify-content-between">
+      <div class="d-flex justify-content-between align-items-center mb-1">
         <span class="fw-semibold text-dark">{{ item.nombre }} x{{ item.cantidad }}</span>
-        <span class="text-dark">${{ item.subtotal }}</span>
+        <span class="text-dark">$ {{ item.precioUnitario * item.cantidad | number:'1.0-0' }}</span>
       </div>
-      <div class="d-flex justify-content-between text-muted small mt-1">
+      <div class="d-flex justify-content-between text-muted small">
         <span>Precio unitario</span>
-        <span>${{ item.precioUnitario }}</span>
+        <span>$ {{ item.precioUnitario | number:'1.0-0' }}</span>
       </div>
-
       @if (item.observacionesGenerales) {
       <div class="text-muted small mt-1">
         <span>Obs: {{ item.observacionesGenerales }}</span>
       </div>
       }
     </div>
-    @if (!$last) {
-    <hr class="text-secondary my-2">
-    }
     }
   </div>
   }
@@ -73,11 +81,11 @@
     <div class="mb-2 mt-2">
       <div class="d-flex justify-content-between">
         <span class="fw-semibold text-dark">{{ item.plato.nombre }} x{{ item.cantidad }}</span>
-        <span class="text-dark">${{ item.plato.precioVentaFinal * item.cantidad }}</span>
+        <span class="text-dark">${{ item.plato.precio * item.cantidad }}</span>
       </div>
       <div class="d-flex justify-content-between text-muted small mt-1">
         <span>Precio unitario</span>
-        <span>${{ item.plato.precioVentaFinal }}</span>
+        <span>${{ item.plato.precio }}</span>
       </div>
       <div class="d-flex justify-content-between text-muted small mt-1">
         <span class="link-editar" (click)="editarItem(item)">
@@ -91,6 +99,9 @@
       </div>
       }
     </div>
+    @if (!$last) {
+    <hr class="text-secondary my-2">
+    }
     }
   </div>
   }
