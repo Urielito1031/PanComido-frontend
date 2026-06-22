@@ -30,14 +30,11 @@
         }
       </div>
 
-      @if (plato().esPlato) {
+      @if (plato().esPlato && plato().tiempoPreparacionEstimado) {
         <div class="dish-meta-row">
           <span class="dish-time">
             <span class="material-symbols-outlined">schedule</span>
-            {{ plato().tiempoPreparacionBase }} min
-            @if (plato().tiempoPreparacionEstimado && plato().tiempoPreparacionEstimado !== plato().tiempoPreparacionBase) {
-              <span class="dish-time-estimated">(~{{ plato().tiempoPreparacionEstimado }} min)</span>
-            }
+            {{ plato().tiempoPreparacionEstimado }} min
           </span>
         </div>
       }
