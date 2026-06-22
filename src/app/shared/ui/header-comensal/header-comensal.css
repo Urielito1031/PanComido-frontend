@@ -15,12 +15,12 @@
   gap: 8px;
 }
 
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-left: auto;
-}
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-left: auto;
+  }
 
 .back {
   font-size: 22px;
@@ -33,7 +33,7 @@
   height: 35px;
   width: 35px;
   border-radius: 50%;
-   object-fit: cover;
+  object-fit: cover;
 }
 
 .title {
@@ -91,8 +91,15 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .popup-header {
@@ -169,3 +176,16 @@
 .popup-copy:active {
   opacity: 0.7;
 }
+
+  .badge-info {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #ffffff;
+  }
+
+  .badge-info .material-symbols-outlined {
+    font-size: 1.2rem;
+  }

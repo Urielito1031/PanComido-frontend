@@ -120,8 +120,8 @@ export class VerCarta {
     this.state.setBusqueda(valor);
   }
 
-  irAPedido(): void {
-    this.router.navigate(['/comensal/pedido']);
+    irAPedido(): void {
+    this.router.navigate(['/comensal/detalle-pedido']);
   }
 
   agregarAlPedido(item: ItemPedido): void {

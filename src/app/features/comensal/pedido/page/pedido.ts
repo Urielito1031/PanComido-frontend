@@ -1,76 +1,69 @@
-import { Component, inject, computed, OnInit , ChangeDetectionStrategy} from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { PedidoState } from '../../services/pedido.state';
-import { ItemPedido } from '../../../../core/models/domain/item-pedido';
-import { BotonComensal } from '../../../../shared/ui/botones/boton-comensal/boton-comensal';
-import {Boton} from '../../../../shared/ui/botones/boton/boton';
+import { DecimalPipe } from '@angular/common';
 import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
-import { HeaderComensal } from '../../../../shared/ui/header-comensal/header-comensal';
-import { LlamarAlMozo } from '../../components/llamar-al-mozo/llamar-al-mozo';
-import { ComensalState } from '../../services/comensal-state';
+import { PedidoState } from '../../services/pedido.state';
+import { CartaItem } from '../../../../core/models/domain/carta-item';
 import { ComandaState } from '../../services/comanda-state';
-import { CommonModule } from '@angular/common';
+import { ComensalState } from '../../services/comensal-state';
+import { PlatoService } from '../../services/plato.service';
+import { HeaderComensal } from '../../../../shared/ui/header-comensal/header-comensal';
+import { BotonComensal } from '../../../../shared/ui/botones/boton-comensal/boton-comensal';
+import { LlamarAlMozo } from '../../components/llamar-al-mozo/llamar-al-mozo';
+import { ArticuloComensalResponse } from '../../../../core/models/dtos/responses/articulo-comensal.response';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-pedido',
   standalone: true,
-  imports: [HeaderComensal, BotonComensal, Boton, LlamarAlMozo],
+  imports: [HeaderComensal, BotonComensal, DecimalPipe, LlamarAlMozo],
   templateUrl: './pedido.html'
 })
 export class Pedido implements OnInit {
   private router = inject(Router);
   private pedidoService = inject(PedidoState);
-  comensalState = inject(ComensalState);
+  private platoService = inject(PlatoService);
+  private cdr = inject(ChangeDetectorRef);
   comandaState = inject(ComandaState);
-
-  // Usar el signal del servicio directamente (reactivo)
-  pedidos = this.pedidoService.pedidos;
+  comensalState = inject(ComensalState);
   configuracionVisualState = inject(ConfiguracionVisualState);
 
+  plato: CartaItem | null = null;
+  detalle: ArticuloComensalResponse | null = null;
+  cantidad = signal(1);
+
   ngOnInit(): void {
-  }
+    this.plato = history.state?.plato ?? null;
 
-  // Computed para el total
-  total = computed(() => {
-    return this.pedidos().reduce(
-      (acc, item) => acc + item.plato.precio * item.cantidad,
-      0
-    );
-  });
+    const id = this.plato?.id;
+    const restauranteId = this.comandaState.restauranteId();
 
-  irADetallePedido(): void {
-    this.router.navigate(['/comensal/detalle-pedido']);
-  }
+    if (!id || !restauranteId) return;
 
-
-  volver(): void {
-  const restauranteId = this.comandaState.restauranteId();
-  const mesaId = this.comandaState.mesaId();
-
-  this.router.navigate([
-    '/comensal/ver-carta',
-    restauranteId,
-    mesaId,
-    1
-  ]);
-}
-
-  eliminarPedido(index: number): void {
-    this.pedidoService.eliminarPedido(index);
-  }
-
-  irAPersonalizar(item: ItemPedido, index: number): void {
-    this.router.navigate(['/comensal/personalizar-plato'], {
-      state: { plato: item, index }
+    this.platoService.getArticuloComensal(restauranteId, id).subscribe(data => {
+      this.detalle = data;
+      this.cdr.markForCheck();
     });
   }
 
-  agregarAlPedido(index: number): void {
-  this.pedidoService.incrementarCantidad(index);
-}
+  agregarAlPedido(): void {
+    if (!this.plato) return;
+    this.pedidoService.agregarPedido({ plato: this.plato, cantidad: this.cantidad() });
+    this.router.navigate(['/comensal/detalle-pedido']);
+  }
 
-eliminarUno(index: number): void {
-  this.pedidoService.decrementarCantidad(index);
-}
+  irAPersonalizar(): void {
+    if (!this.plato) return;
+    this.router.navigate(['/comensal/personalizar-plato'], {
+      state: { plato: { plato: this.plato, cantidad: this.cantidad() } }
+    });
+  }
+
+  incrementar(): void {
+    this.cantidad.update(c => c + 1);
+  }
+
+  decrementar(): void {
+    if (this.cantidad() > 1) this.cantidad.update(c => c - 1);
+  }
 }
