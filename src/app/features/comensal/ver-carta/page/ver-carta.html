@@ -83,7 +83,7 @@
     @if (state.cargando()) {
     <p class="text-center text-muted py-5">Cargando carta...</p>
     } @else {
-    <app-lista-platos-comensal [platos]="state.itemsFiltrados()" (agregarPedido)="agregarAlPedido($event)" />
+    <app-lista-platos-comensal [items]="state.itemsFiltrados()" (agregarPedido)="agregarAlPedido($event)" />
     }
   </div>
 
