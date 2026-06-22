@@ -1,0 +1,17 @@
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--gray-700);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0.5rem 0.25rem;
+  margin: 0.5rem 0 0.25rem;
+  border-bottom: 2px solid var(--gray-100);
+}
+.section-header .material-symbols-outlined {
+  font-size: 1.2rem;
+  color: var(--color-primario, #0d6efd);
+}
