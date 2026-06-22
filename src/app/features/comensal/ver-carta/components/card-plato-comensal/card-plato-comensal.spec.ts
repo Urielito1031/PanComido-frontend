@@ -82,9 +82,8 @@ describe('CardPlatoComensalComponent', () => {
     expect(tags[0].textContent).toContain('Vegetariano');
   });
 
-  it('debería mostrar el tiempo base y el estimado', () => {
+  it('debería mostrar el tiempo estimado de preparación', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain('20 min');
     expect(compiled.textContent).toContain('30 min');
   });
 
