@@ -1,11 +1,10 @@
 import { Component, input, output, signal , ChangeDetectionStrategy, inject} from '@angular/core';
 import { Router } from '@angular/router';
 import { ItemPedido } from '../../../../../core/models/domain/item-pedido';
-import { ConfiguracionVisualState } from '../../../services/visual/configuracion-visual-state';
 import { CartaItem } from '../../../../../core/models/domain/carta-item';
+import { ConfiguracionVisualState } from '../../../services/visual/configuracion-visual-state';
 
-
- @Component({
+@Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-card-plato-comensal',
   standalone: true,

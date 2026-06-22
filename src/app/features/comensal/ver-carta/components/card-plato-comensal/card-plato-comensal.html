@@ -12,12 +12,40 @@
 
     <div class="dish-info-wrapper">
       <div class="dish-header-info">
-        <h5 class="dish-title">{{ plato().nombre }}</h5>
+        <div class="dish-title-row">
+          <h5 class="dish-title">{{ plato().nombre }}</h5>
+          @if (plato().esPlato && plato().esDestacado) {
+            <span class="dish-badge">Destacado</span>
+          }
+        </div>
+
+        @if (plato().esPlato && plato().tipoPlato) {
+          <span class="dish-type-badge">{{ plato().tipoPlato }}</span>
+        } @else if (!plato().esPlato && plato().categoriaBebida) {
+          <span class="dish-type-badge drink">{{ plato().categoriaBebida }}</span>
+        }
+
+        @if (plato().descripcion) {
+          <p class="dish-description">{{ plato().descripcion }}</p>
+        }
       </div>
 
-      <p class="mb-1 text-muted small">
-        ⏱ {{ plato().tiempoPreparacionBase }} min
-      </p>
+      @if (plato().esPlato && plato().tiempoPreparacionEstimado) {
+        <div class="dish-meta-row">
+          <span class="dish-time">
+            <span class="material-symbols-outlined">schedule</span>
+            {{ plato().tiempoPreparacionEstimado }} min
+          </span>
+        </div>
+      }
+
+      @if (plato().restricciones.length) {
+        <div class="dish-restricciones">
+          @for (r of plato().restricciones; track r) {
+            <span class="restriccion-tag">{{ r }}</span>
+          }
+        </div>
+      }
 
       <div class="dish-meta">
         <span class="dish-price">$ {{ plato().precio }}</span>
