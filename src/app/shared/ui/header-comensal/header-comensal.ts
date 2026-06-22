@@ -40,10 +40,10 @@ export class HeaderComensal {
   }
 
   tieneSesion(): boolean {
-    const raw = sessionStorage.getItem('sesionComensal');
-    return !!raw && raw !== 'undefined' && raw !== 'null';
-  }
-
+  const raw = sessionStorage.getItem('sesionComensal');
+  const cantidadPersonas = sessionStorage.getItem('cantidadPersonas');
+  return !!raw && raw !== 'undefined' && raw !== 'null' && !!cantidadPersonas;
+}
   abrirCompartir(): void {
     const raw = sessionStorage.getItem('sesionComensal');
     if (!raw || raw === 'undefined' || raw === 'null') return;

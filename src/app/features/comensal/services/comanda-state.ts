@@ -12,7 +12,7 @@ import { HttpClient } from '@angular/common/http';
 export class ComandaState {
   private comandaService = inject(ComandaService);
   private pedidoService = inject(PedidoState);
-  private http = inject(HttpClient);
+  
   private comandaHub = inject(ComandaHubService);
   readonly #destroyRef = inject(DestroyRef);
 
@@ -143,7 +143,7 @@ export class ComandaState {
     const nombreComensal = sessionStorage.getItem('nombreComensal') ?? '';
 
     const items = pedidos.map(p => ({
-      articuloId: p.plato.articuloId,
+      articuloId: p.plato.id,
       cantidad: p.cantidad,
       observacionesIngredientes: p.observacionesIngredientes ?? null,
       observacionesGenerales: p.observacionesGenerales ?? null
@@ -238,10 +238,6 @@ export class ComandaState {
     return Number.isFinite(num) ? num : null;
   }
 
-  obtenerBienvenidaInvitado(comandaId: number) {
-    return this.http.get<any>(
-      `https://localhost:7204/comanda/${comandaId}/comensal/bienvenida-invitado`
-    );
-  }
+ 
 
 }

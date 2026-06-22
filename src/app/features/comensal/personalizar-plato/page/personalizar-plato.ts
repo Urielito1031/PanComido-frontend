@@ -44,7 +44,7 @@ export class PersonalizarPlato implements OnInit {
     this.plato = state?.plato ?? null;
     this.itemIndex = state?.index ?? -1;
 
-    const platoId = state?.plato?.plato?.articuloId;
+    const platoId = state?.plato?.plato?.id;
     if (!platoId) return;
 
     this.platoService.getPlatoDetalle(platoId).subscribe(data => {

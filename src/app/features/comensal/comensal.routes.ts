@@ -3,11 +3,6 @@ import { Routes } from '@angular/router';
 export const COMENSAL_ROUTES: Routes = [
   {
     path: '',
-    redirectTo: 'ver-carta',
-    pathMatch: 'full',
-  },
-  {
-    path: '',
     loadComponent: () => import('./comensal-layout').then((m) => m.ComensalLayout),
     children: [
       {
@@ -69,6 +64,15 @@ export const COMENSAL_ROUTES: Routes = [
         path: 'unirse/:comandaId',
         loadComponent: () => import('./unirse-mesa/page/unirse-mesa').then((m) => m.UnirseMesa),
       },
+      {
+        path: '',
+        redirectTo: 'escanear-mesa',
+        pathMatch: 'full',
+      },
+       {
+        path: '**',
+        redirectTo: 'escanear-mesa',
+      }
     ],
   },
 ];

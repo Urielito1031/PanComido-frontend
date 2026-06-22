@@ -1,5 +1,4 @@
-import { Component, HostListener, inject, input, signal, ChangeDetectionStrategy } from '@angular/core';
-import {  Router } from '@angular/router';
+import { Component, HostListener, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Buscador } from '../../../../../app/shared/ui/buscador/buscador';
 import { ListaPlatosComensalComponent } from '../components/lista-platos-comensal/lista-platos-comensal';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -14,7 +13,7 @@ import { CommonModule } from '@angular/common';
 import { ComensalState } from '../../services/comensal-state';
 import { ComandaState } from '../../services/comanda-state';
 import { QRCodeComponent } from 'angularx-qrcode';
-
+import { Router } from '@angular/router';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -27,27 +26,23 @@ import { QRCodeComponent } from 'angularx-qrcode';
     FontAwesomeModule,
     ComensalFooterCart,
     FiltrosCartaOverlay,
-    QRCodeComponent
-],
+    QRCodeComponent,
+  ],
   templateUrl: './ver-carta.html',
   styleUrls: ['./ver-carta.css'],
 })
 export class VerCarta {
-
-
   private router = inject(Router);
-  private comandaState = inject(ComandaState);
   private pedidoService = inject(PedidoState);
   state = inject(CartaState);
   comensalState = inject(ComensalState);
+  configuracionVisualState = inject(ConfiguracionVisualState);
 
   mostrarFiltros = signal(false);
   faFilter = faFilter;
-  configuracionVisualState = inject(ConfiguracionVisualState);
   mesaId = signal(1);
   cantidadPersonas = signal(1);
   readonly nombreComensal = signal('');
-
 
   menuOrdenarAbierto = signal(false);
   ordenSeleccionado = signal('');
@@ -58,8 +53,6 @@ export class VerCarta {
   cantidadTotalPedido = this.pedidoService.cantidadTotal;
   totalPedido = this.pedidoService.totalPrecio;
 
-
-
   @HostListener('document:click', ['$event'])
   onClickOutSide(event: Event) {
     const target = event.target as HTMLElement;
@@ -69,7 +62,7 @@ export class VerCarta {
   }
 
   toggleMenuOrdenar(): void {
-    this.menuOrdenarAbierto.update(v => !v);
+    this.menuOrdenarAbierto.update((v) => !v);
   }
 
   seleccionarOrden(criterio: string, label: string): void {
@@ -79,29 +72,27 @@ export class VerCarta {
   }
 
   ngOnInit(): void {
-
-
     const nombre = sessionStorage.getItem('nombreComensal');
 
     if (nombre) {
       this.nombreComensal.set(nombre);
     }
-      this.mesaId.set(this.comandaState.mesaId() ?? 1);    
-      this.cantidadPersonas.set(history.state?.cantidadPersonas??1);
-      this.state.cargarCarta();
-      
-      const sesionRaw = sessionStorage.getItem('sesionComensal');
+
+    this.mesaId.set(Number(sessionStorage.getItem("mesaId")));
+    this.cantidadPersonas.set(Number(sessionStorage.getItem("cantidadPersonas")));
+
+    const restauranteId = Number(sessionStorage.getItem('restauranteId'));
+    console.log('El restauranteId por sesion:', restauranteId);
+
+    this.state.cargarCarta(restauranteId);
+
+    const sesionRaw = sessionStorage.getItem('sesionComensal');
 
     if (!sesionRaw || sesionRaw === 'undefined') {
       console.error('No hay sesión válida de comensal');
       return;
     }
-    const sesion = JSON.parse(sesionRaw);
   }
-
-
-
-
 
   abrirCompartir(): void {
     const raw = sessionStorage.getItem('sesionComensal');
@@ -137,4 +128,3 @@ export class VerCarta {
     this.pedidoService.agregarPedido(item);
   }
 }
-

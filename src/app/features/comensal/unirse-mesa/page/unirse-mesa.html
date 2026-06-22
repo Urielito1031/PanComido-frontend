@@ -1,20 +1,36 @@
-<div class="container">
+@if (mesaComensalState.cargando()) {
+  <div class="unirse-card">
+    <p class="unirse-text">Cargando información de la mesa...</p>
+  </div>
+} @else if (mesaComensalState.tieneError()) {
+  <div class="unirse-card">
+    <h1 class="unirse-title">Error</h1>
+    <p class="unirse-text">{{ mesaComensalState.error() }}</p>
+  </div>
+} @else {
+  <div class="unirse-card">
 
-  <h2>Te estás uniendo a la Mesa {{ datosMesa?.numeroMesa }}</h2>
+    <h1 class="unirse-title">
+      Te estás uniendo a la Mesa
+    </h1>
 
-  <p>Restaurante: {{ datosMesa?.nombreRestaurante }}</p>
+    <div class="unirse-number">
+      {{ mesaComensalState.numeroMesaInvitado() }}
+    </div>
 
+    <input
+      class="unirse-input"
+      type="text"
+      placeholder="Tu nombre"
+      (input)="nombre.set($any($event.target).value)"
+    />
 
+    <app-boton-comensal
+      [backgroundColor]="configuracionVisualState.colorPrimario()"
+      [textColor]="'#FFFFFF'"
+      (click)="unirse()">
+      Unirme a la mesa
+    </app-boton-comensal>
 
-  <input
-    type="text"
-    placeholder="Tu nombre"
-    (input)="nombre.set($any($event.target).value)"
-  />
-
-  <app-boton-comensal [backgroundColor]="configuracion.paleta.botonSecundario"
-            [textColor]="configuracion.paleta.textoOscuro"   (click)="unirse()">
-    Unirme a la mesa
-  </app-boton-comensal>
-
-</div>
+  </div>
+}

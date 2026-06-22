@@ -7,7 +7,7 @@ import { ItemPedido } from '../../../core/models/domain/item-pedido';
 export class PedidoState {
 
   // Signal reactivo para los pedidos
-  private pedidosSignal = signal<ItemPedido[]>([]);
+  private pedidosSignal = signal<ItemPedido[]>(this.leerDelStorage());
 
  
   pedidos = this.pedidosSignal.asReadonly();
@@ -21,13 +21,17 @@ export class PedidoState {
   
   totalPrecio = computed(() => {
     return this.pedidosSignal().reduce(
-      (acc, item) => acc + (item.plato.precioVentaFinal * item.cantidad),
+      (acc, item) => acc + (item.plato.precio * item.cantidad),
       0
     );
   });
 
-  agregarPedido(item: ItemPedido) {
-    this.pedidosSignal.update(pedidos => [...pedidos, item]);
+   agregarPedido(item: ItemPedido) {
+    this.pedidosSignal.update(pedidos => {
+      const nuevos = [...pedidos, item];
+      this.guardarEnStorage(nuevos);
+      return nuevos;
+    });
   }
 
   obtenerPedidos(): ItemPedido[] {
@@ -56,6 +60,7 @@ export class PedidoState {
 
   limpiarPedidos() {
     this.pedidosSignal.set([]);
+    sessionStorage.removeItem('carritoPedido');
   }
 
   incrementarCantidad(index: number): void {
@@ -92,7 +97,7 @@ actualizarItem(itemActualizado: ItemPedido) {
   const items = this.pedidosSignal();
 
   const index = items.findIndex(
-    i => i.plato.articuloId === itemActualizado.plato.articuloId
+    i => i.plato.id === itemActualizado.plato.id
   );
 
   if (index === -1) return;
@@ -107,5 +112,18 @@ actualizarItem(itemActualizado: ItemPedido) {
   this.pedidosSignal.set(nuevosItems);
 }
 
+  private leerDelStorage(): ItemPedido[] {
+    try {
+      const raw = sessionStorage.getItem('carritoPedido');
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  }
 
+    private guardarEnStorage(items: ItemPedido[]): void {
+    sessionStorage.setItem('carritoPedido', JSON.stringify(items));
+  }
+
+  
 }

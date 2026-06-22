@@ -4,7 +4,7 @@ import { BotonComensal } from '../../../../shared/ui/botones/boton-comensal/boto
 import { Router, ActivatedRoute } from '@angular/router';
 import { HeaderComensal } from '../../../../shared/ui/header-comensal/header-comensal';
 import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
-import { MesaComensalService } from '../../services/mesa-comensal.service';
+import { MesaComensalState } from '../../services/mesa-comensal-state';
 
 @Component({
   selector: 'app-nro-de-mesa',
@@ -12,27 +12,28 @@ import { MesaComensalService } from '../../services/mesa-comensal.service';
   imports: [Boton, HeaderComensal, BotonComensal],
   templateUrl: './nro-de-mesa.html',
   styleUrls: ['./nro-de-mesa.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NroDeMesa implements OnInit {
+  mesaState = inject(MesaComensalState);
   private router = inject(Router);
-  private mesaService = inject(MesaComensalService);
   private route = inject(ActivatedRoute);
 
   configuracionVisualState = inject(ConfiguracionVisualState);
 
-  mesaId!: number;
-  restauranteId!: number;
 
   ngOnInit() {
-    this.restauranteId = Number(this.route.snapshot.paramMap.get('restauranteId'));
-    this.mesaId = Number(this.route.snapshot.paramMap.get('mesaId'));
+    const restauranteId = Number(this.route.snapshot.paramMap.get('restauranteId'));
+    const mesaId = Number(this.route.snapshot.paramMap.get('mesaId'));
+
+    sessionStorage.setItem('restauranteId', restauranteId.toString());
+    sessionStorage.setItem('mesaId', mesaId.toString());
+    
+    this.mesaState.cargarBienvenida(mesaId, restauranteId);
   }
 
   irACantidadPersonas() {
-    this.router.navigate([ '/comensal/cantidad-personas', ],{
-      state: { restauranteId:this.restauranteId, mesaId: this.mesaId}
-    });
+    this.router.navigate(['/comensal/cantidad-personas']);
   }
 
   volverAtras() {
