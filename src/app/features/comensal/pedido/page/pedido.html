@@ -23,8 +23,8 @@
     <div class="mb-3">
       <h4 class="fw-bold mb-2">{{ item.plato.nombre }}</h4>
       <div class="d-flex justify-content-between align-items-center">
-        <span class="badge" [style.background]="configuracionVisualState.colorPrimario()">x{{ item.cantidad }}</span>
-        <span class="fw-bold fs-5">${{ item.plato.precioVentaFinal * item.cantidad }}</span>
+        <span class="badge bg-dark">x{{ item.cantidad }}</span>
+        <span class="fw-bold fs-5">${{ item.plato.precio * item.cantidad }}</span>
       </div>
     </div>
 
@@ -37,8 +37,8 @@
     </div>
     }
 
-    
-    <p class="text-muted mb-4">{{ item.plato.tipoArticulo }}</p>
+    <!-- DESCRIPCION -->
+    <p class="text-muted mb-4">{{ item.plato.esPlato ? 'Plato' : 'Bebida' }}</p>
 
     
     <div class="d-flex flex-column gap-2">
@@ -56,6 +56,16 @@
           <span>Eliminar pedido</span>
         </div>
       </app-boton>
+      @if (item.plato.esPlato) {
+  <app-boton
+    variante="warning"
+    (clicked)="irAPersonalizar(item, $index)"
+  >
+    <span class="material-symbols-outlined">edit</span>
+    <span style="margin-left: 8px;">Personalizar</span>
+  </app-boton>
+}
+
 
       <app-boton variante="success"  (clicked)="agregarAlPedido($index)">
         <div class="d-flex align-items-center justify-content-center gap-2">

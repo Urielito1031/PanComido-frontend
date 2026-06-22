@@ -1,9 +1,8 @@
 import { Component, effect, inject, untracked, ChangeDetectionStrategy } from '@angular/core';
 import { ComandaState } from '../../services/comanda-state';
 import { ComandaCard } from "../../components/comanda-card/comanda-card";
-import { ComandoVoz, ComandoVozService } from '../../services/comando-voz/comando-voz.service';
+import {  ComandoVozService } from '../../services/comando-voz/comando-voz.service';
 import { BotonVoz } from '../../../../../shared/ui/botones/boton-voz/boton-voz';
-import { of } from 'rxjs';
 import { ComandaHubService } from '../../../../../core/services/hubs/comanda/comanda-hub-service';
 import { AuthService } from '../../../../../core/services/auth.service';
 import { LlamadoService } from '../../../../comensal/services/llamado.service';

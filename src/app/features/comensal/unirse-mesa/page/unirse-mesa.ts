@@ -2,79 +2,63 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ComandaState } from '../../services/comanda-state';
-import { configuracionRestauranteMock } from '../../../../infra/mocks/configuracion-restaurante.mock-data';
 import { BotonComensal } from '../../../../shared/ui/botones/boton-comensal/boton-comensal';
-import { ChangeDetectorRef } from '@angular/core';
-
+import { MesaComensalState } from '../../services/mesa-comensal-state';
+import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
 
 @Component({
   selector: 'app-unirse-mesa',
   standalone: true,
   imports: [CommonModule, BotonComensal],
   templateUrl: './unirse-mesa.html',
-  styleUrls: ['./unirse-mesa.css']
+  styleUrls: ['./unirse-mesa.css'],
 })
 export class UnirseMesa implements OnInit {
-
-  private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  
   private comandaState = inject(ComandaState);
-  private cdr = inject(ChangeDetectorRef);
+  mesaComensalState = inject(MesaComensalState);
+  configuracionVisualState = inject(ConfiguracionVisualState);
 
   comandaId!: number;
   datosMesa: any;
   nombre = signal('');
 
-  configuracion = configuracionRestauranteMock;
 
   ngOnInit(): void {
-    console.log('UNIRSE MESA COMPONENT CARGADO');
 
-    this.comandaId = Number(
-      this.route.snapshot.paramMap.get('comandaId')
-    );
-
-    this.cargarBienvenida();
-  }
-
-  cargarBienvenida() {
-
-    this.comandaState.obtenerBienvenidaInvitado(this.comandaId)
-      .subscribe({
-        next: (res) => {
-          this.datosMesa = res;
-          this.cdr.detectChanges();
-        }
-      });
-
+    this.comandaId = Number(this.route.snapshot.paramMap.get('comandaId'));
+    this.mesaComensalState.cargarBienvenidaInvitado(this.comandaId);
   }
 
   unirse() {
     if (!this.nombre()) return;
 
-    // guardar sesión del invitado
+    const data = this.mesaComensalState.bienvenidaInvitado();
+    if (!data) return;
 
-    sessionStorage.setItem('sesionComensal', JSON.stringify({
-      mesa: {
-        id: this.datosMesa.idMesa,
-        numeroMesa: this.datosMesa.numeroMesa
-      },
-      idComandaGenerada: this.datosMesa.comandaId,
-      restauranteId: this.datosMesa.restauranteId
-    }));
-
+    sessionStorage.setItem(
+      'sesionComensal', JSON.stringify({
+        mesa: {
+          id: data.idMesa,
+          numeroMesa: data.numeroMesa,
+        },
+        comandaId: data.comandaId,
+        restauranteId: data.restauranteId,
+      }),
+    );
     this.comandaState.setComandaDesdeSesion({
-      comandaId: this.comandaId,
-      restauranteId: this.datosMesa.restauranteId,
-      mesaId: this.datosMesa.idMesa
+      comandaId: data.comandaId,
+      restauranteId: data.restauranteId,
+      mesaId: data.idMesa,
     });
-    console.log('datosMesa:', this.datosMesa)
-    this.router.navigate([
-      '/comensal/ver-carta',
-      this.datosMesa.restauranteId,
-      this.datosMesa.idMesa,
-      this.datosMesa.cantComensales
-    ]);
 
+    sessionStorage.setItem('nombreComensal', this.nombre());
+    sessionStorage.setItem('restauranteId', String(data.restauranteId));
+    sessionStorage.setItem('mesaId', String(data.idMesa));
+    sessionStorage.setItem('cantidadPersonas', String(data.cantComensales));
+
+    this.router.navigate(['/comensal/ver-carta']);
   }
 }

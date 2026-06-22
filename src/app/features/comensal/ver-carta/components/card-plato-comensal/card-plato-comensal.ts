@@ -1,4 +1,4 @@
-import { Component, inject, input, output, signal , ChangeDetectionStrategy} from '@angular/core';
+import { Component, input, output, signal , ChangeDetectionStrategy, inject} from '@angular/core';
 
 import { ItemPedido } from '../../../../../core/models/domain/item-pedido';
 import { ConfiguracionVisualState } from '../../../services/visual/configuracion-visual-state';

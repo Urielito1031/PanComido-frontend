@@ -71,7 +71,7 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "options": {
-            "allowedHosts": ["deserving-trading-pang.ngrok-free.dev"]
+            "allowedHosts": ["pentomic-karla-unavoidably.ngrok-free.dev"]
           },
           "configurations": {
             "production": {
