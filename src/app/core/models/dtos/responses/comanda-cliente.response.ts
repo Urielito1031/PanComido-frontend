@@ -8,10 +8,11 @@ export interface ComandaClienteResponse {
 export interface ItemComandaCliente {
   articuloId: number;
   nombre: string;
+  nombreComensal: string
   cantidad: number;
   entregado: boolean;
   precioUnitario: number;
   subtotal: number;
-  observacionesIngredientes: string | null;
+  observacionesIngredientes: string[] | null;
   observacionesGenerales: string | null;
 }

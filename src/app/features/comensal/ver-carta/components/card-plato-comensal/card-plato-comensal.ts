@@ -1,7 +1,8 @@
-import { Component, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
-
+import { Component, input, output, signal , ChangeDetectionStrategy, inject} from '@angular/core';
+import { Router } from '@angular/router';
 import { ItemPedido } from '../../../../../core/models/domain/item-pedido';
 import { CartaItem } from '../../../../../core/models/domain/carta-item';
+import { ConfiguracionVisualState } from '../../../services/visual/configuracion-visual-state';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -15,6 +16,9 @@ export class CardPlatoComensalComponent {
 
   plato = input.required<CartaItem>();
   agregarPedido = output<ItemPedido>();
+
+  configuracionVisualState = inject(ConfiguracionVisualState);
+  private router = inject(Router);
   cantidad = signal(1);
 
   incrementar(): void {
@@ -28,10 +32,13 @@ export class CardPlatoComensalComponent {
   }
 
   agregar(): void {
-    this.agregarPedido.emit({
-      plato: this.plato(),
-      cantidad: this.cantidad(),
-    });
+    this.agregarPedido.emit({ plato: this.plato(), cantidad: this.cantidad() });
+    this.cantidad.set(1);
   }
 
+  verDetalle(): void {
+    this.router.navigate(['/comensal/pedido'], {
+      state: { plato: this.plato() }
+    });
+  }
 }

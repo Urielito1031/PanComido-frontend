@@ -14,6 +14,8 @@ import { ConfiguracionVisualState } from '../../../features/comensal/services/vi
 export class HeaderComensal {
   private router = inject(Router);
   configuracionVisualState = inject(ConfiguracionVisualState);
+  readonly mesaId = Number(sessionStorage.getItem('mesaId')) || null;
+  readonly cantidadPersonas = Number(sessionStorage.getItem('cantidadPersonas')) || null;
 
   showBack = input(false);
   backRoute = input<string | null>(null);
@@ -40,10 +42,10 @@ export class HeaderComensal {
   }
 
   tieneSesion(): boolean {
-  const raw = sessionStorage.getItem('sesionComensal');
-  const cantidadPersonas = sessionStorage.getItem('cantidadPersonas');
-  return !!raw && raw !== 'undefined' && raw !== 'null' && !!cantidadPersonas;
-}
+    const raw = sessionStorage.getItem('sesionComensal');
+    const cantidadPersonas = sessionStorage.getItem('cantidadPersonas');
+    return !!raw && raw !== 'undefined' && raw !== 'null' && !!cantidadPersonas;
+  }
   abrirCompartir(): void {
     const raw = sessionStorage.getItem('sesionComensal');
     if (!raw || raw === 'undefined' || raw === 'null') return;
@@ -52,7 +54,7 @@ export class HeaderComensal {
       const sesion = JSON.parse(raw);
       const comandaId = sesion.idComandaGenerada ?? sesion.comandaId;
       this.urlInvitacion.set(`${window.location.origin}/comensal/unirse/${comandaId}`);
-      console.log("ACA LA URL DEL QR PAPUU: ",this.urlInvitacion,window.location.origin)
+      console.log("ACA LA URL DEL QR PAPUU: ", this.urlInvitacion, window.location.origin)
       this.popupAbierto.set(true);
     } catch {
       console.error('Error al parsear sesionComensal');
@@ -64,6 +66,6 @@ export class HeaderComensal {
   }
 
   copiarEnlace(): void {
-    navigator.clipboard.writeText(this.urlInvitacion()).catch(() => {});
+    navigator.clipboard.writeText(this.urlInvitacion()).catch(() => { });
   }
 }

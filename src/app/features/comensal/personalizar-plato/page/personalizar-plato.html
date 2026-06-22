@@ -1,16 +1,7 @@
 <div class="personalizar-container">
 
-<app-header-comensal [showBack]="true" backRoute="/comensal/pedido" [title]="'Personalizar'" />
-
-  
-  <div class="content-card">
-    
-    <div class="plato-header">
-      <h2 class="plato-nombre">{{ plato?.plato?.nombre }}</h2>
-      <span class="plato-precio">$ {{ plato?.plato?.precio | number:'1.0-0' }}</span>
-    </div>
-
-    
+  <app-header-comensal [showBack]="true" [title]="''" (back)="volver()" />
+    <div class="content-card">
     <div class="plato-image-wrapper">
       @if (plato?.plato?.urlImagen) {
         <img [src]="plato?.plato?.urlImagen" class="plato-image" [alt]="plato?.plato?.nombre">
@@ -20,76 +11,45 @@
         </div>
       }
     </div>
+    <div class="plato-header">
+      <h2 class="plato-nombre">{{ plato?.plato?.nombre }}</h2>
+      <span class="plato-precio">$ {{ plato?.plato?.precio | number:'1.0-0' }}</span>
+    </div>
   </div>
 
-  
   <div class="personalizar-section">
     <h3>Personalizar plato</h3>
 
-    
+    @if (ingredientesOpcionales.length > 0) {
     <div class="seccion-group">
-      <h4>Agregar ingredientes</h4>
-      <div class="chips-container">
-        @for (ing of ingredientesExtra; track ing) {
-         <app-boton-comensal
-  [backgroundColor]="extrasSeleccionados.includes(ing) ? '#28a745' : configuracionVisualState.colorSecundario()"
-  [textColor]="'#000000'"
-  class="chip"
-  [class.seleccionado]="extrasSeleccionados.includes(ing)"
-  (click)="toggleExtra(ing)"
-  [disabled]="removidosSeleccionados.includes(ing)">
-  
-  + {{ ing }}
-</app-boton-comensal>
-        }
-      </div>
+      <h4>Ingredientes</h4>
+      @for (ing of ingredientesOpcionales; track ing.ingredienteId) {
+    <label class="d-flex align-items-center justify-content-between py-2" style="cursor: pointer;">
+      <span>{{ ing.nombre }}</span>
+      <input type="checkbox" [checked]="seleccionados.includes(ing.nombre)" (change)="toggleIngrediente(ing.nombre)"
+        style="width: 18px; height: 18px;">
+    </label>
+  }
     </div>
+    }
 
-    
-    <div class="seccion-group">
-      <h4>Quitar ingredientes</h4>
-      <div class="chips-container">
-        @for (ing of ingredientesRemover; track ing) {
-          <app-boton-comensal 
-          [backgroundColor]="removidosSeleccionados.includes(ing) ? '#dc3545' : configuracionVisualState.colorSecundario()"
-            [textColor]="'#000000'" 
-            class="chip chip-remover"
-            [class.seleccionado]="removidosSeleccionados.includes(ing)"
-            (click)="toggleRemover(ing)"
-             [disabled]="extrasSeleccionados.includes(ing)">
-            - {{ ing }}
-          </app-boton-comensal >
-        }
-      </div>
-    </div>
-
-    
     <div class="seccion-group">
       <h4>Otras indicaciones</h4>
-      <textarea 
-        class="observaciones-input"
-        placeholder="Ej: sin cebolla, poco cocido, etc."
-        rows="3"
+      <textarea class="observaciones-input" placeholder="Ej: sin cebolla, poco cocido, etc." rows="3"
         [(ngModel)]="observaciones">
-      </textarea>
+        </textarea>
     </div>
   </div>
 
-  
   <div class="action-buttons">
-    <app-boton-comensal [backgroundColor]="configuracionVisualState.colorPrimario()"
-      [textColor]="'#FFFFFF'" (clicked)="guardarCambios()">
+    <app-boton-comensal [backgroundColor]="configuracionVisualState.colorPrimario()" [textColor]="'#FFFFFF'"
+      (clicked)="guardarCambios()">
       Guardar cambios
     </app-boton-comensal>
   </div>
 
 </div>
 
-<app-llamar-al-mozo 
-  [mesaId]="comandaState.mesaId() ?? 0"
-  [enviando]="comensalState.enviando()"
-  [enviado]="comensalState.exito()"
-  [error]="comensalState.error()"
-  (llamadoMozo)="comensalState.solicitarMozo($event)"
-  (modalCerrado)="comensalState.limpiarEstado()"
-  #llamarMozoRef />
+<app-llamar-al-mozo [mesaId]="comandaState.mesaId() ?? 0" [enviando]="comensalState.enviando()"
+  [enviado]="comensalState.exito()" [error]="comensalState.error()" (llamadoMozo)="comensalState.solicitarMozo($event)"
+  (modalCerrado)="comensalState.limpiarEstado()" #llamarMozoRef />

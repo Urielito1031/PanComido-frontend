@@ -1,4 +1,4 @@
-import { Component, inject, computed, ViewChild, ChangeDetectionStrategy, OnInit } from '@angular/core';
+import { Component, inject, computed, ViewChild, ChangeDetectionStrategy, OnInit, OnDestroy } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
@@ -15,11 +15,11 @@ import { HeaderComensal } from '../../../../shared/ui/header-comensal/header-com
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-detalle-pedido',
   standalone: true,
-  imports: [LlamarAlMozo, ModalConfirmacionPedido, DecimalPipe,HeaderComensal],
+  imports: [LlamarAlMozo, ModalConfirmacionPedido, DecimalPipe, HeaderComensal],
   templateUrl: './detalle-pedido.html',
   styleUrls: ['./detalle-pedido.css']
 })
-export class DetallePedido implements OnInit {
+export class DetallePedido implements OnInit, OnDestroy {
   private router = inject(Router);
   private pedidoService = inject(PedidoState);
   comandaState = inject(ComandaState);
@@ -29,14 +29,24 @@ export class DetallePedido implements OnInit {
 
   configuracionVisualState = inject(ConfiguracionVisualState);
 
-  
-  
+
+
   // Usar el signal del servicio directamente (reactivo)
   pedidos = this.pedidoService.pedidos;
   mesaId = this.comandaState.mesaId;
 
   ngOnInit(): void {
     this.comandaState.consultarEstado();
+    const mesaId = this.comandaState.mesaId();
+    if (mesaId) {
+      this.comandaState.iniciarEscucha(mesaId).catch(err =>
+        console.error('Error al conectar hub:', err)
+      );
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.comandaState.detenerEscucha();
   }
 
   estadoColor = computed(() => {
@@ -64,9 +74,23 @@ export class DetallePedido implements OnInit {
     return totalCarrito + totalConfirmado;
   });
 
+
+
   volver(): void {
     this.router.navigate(['/comensal/pedido']);
   }
+  readonly nombreComensalActual = sessionStorage.getItem('nombreComensal') ?? '';
+
+  itemsAgrupados = computed(() => {
+    const items = this.comandaState.estadoPedido()?.items ?? [];
+    const grupos = new Map<string, typeof items>();
+    for (const item of items) {
+      const nombre = item.nombreComensal || 'Sin nombre';
+      if (!grupos.has(nombre)) grupos.set(nombre, []);
+      grupos.get(nombre)!.push(item);
+    }
+    return Array.from(grupos.entries()).map(([nombre, items]) => ({ nombre, items }));
+  });
 
   confirmarPedido(): void {
     // Validación: debe haber comanda activa
@@ -76,10 +100,10 @@ export class DetallePedido implements OnInit {
     // }
     const comandaId = this.comandaState.comandaId?.();
 
-if (!comandaId) {
-  alert('No hay comanda activa. Ingresá o escaneá el QR de la mesa.');
-  return;
-}
+    if (!comandaId) {
+      alert('No hay comanda activa. Ingresá o escaneá el QR de la mesa.');
+      return;
+    }
 
     // Validación: debe haber items en el carrito
     if (this.pedidos().length === 0) {
@@ -91,11 +115,25 @@ if (!comandaId) {
     this.modal.mostrar();
   }
 
-editarItem(item: ItemPedido): void {
-  this.router.navigate(['/comensal/personalizar-plato'], {
-    state: {
-      plato: item
-    }
-  });
-}
+  editarItem(item: ItemPedido, index: number): void {
+    this.router.navigate(['/comensal/personalizar-plato'], {
+      state: { plato: item, index }
+    });
+  }
+
+    eliminarItem(index: number): void {
+    this.pedidoService.eliminarPedido(index);
+  }
+
+  incrementarCantidad(index: number): void {
+    this.pedidoService.incrementarCantidad(index);
+  }
+
+  decrementarCantidad(index: number): void {
+    this.pedidoService.decrementarCantidad(index);
+  }
+
+  formatarSinIngredientes(obs: string): string {
+    return obs.split(', ').map(s => s.replace(/^- /, '')).join(', ');
+  }
 }

@@ -9,16 +9,16 @@ export class PedidoState {
   // Signal reactivo para los pedidos
   private pedidosSignal = signal<ItemPedido[]>(this.leerDelStorage());
 
- 
+
   pedidos = this.pedidosSignal.asReadonly();
- 
+
 
   // Computed para cantidad total
   cantidadTotal = computed(() => {
     return this.pedidosSignal().reduce((acc, item) => acc + item.cantidad, 0);
   });
 
-  
+
   totalPrecio = computed(() => {
     return this.pedidosSignal().reduce(
       (acc, item) => acc + (item.plato.precio * item.cantidad),
@@ -26,7 +26,7 @@ export class PedidoState {
     );
   });
 
-   agregarPedido(item: ItemPedido) {
+  agregarPedido(item: ItemPedido) {
     this.pedidosSignal.update(pedidos => {
       const nuevos = [...pedidos, item];
       this.guardarEnStorage(nuevos);
@@ -64,53 +64,53 @@ export class PedidoState {
   }
 
   incrementarCantidad(index: number): void {
-  this.pedidosSignal.update(pedidos => {
-    const nuevosPedidos = [...pedidos];
+    this.pedidosSignal.update(pedidos => {
+      const nuevosPedidos = [...pedidos];
 
-    nuevosPedidos[index] = {
-      ...nuevosPedidos[index],
-      cantidad: nuevosPedidos[index].cantidad + 1
-    };
-
-    return nuevosPedidos;
-  });
-}
-
-decrementarCantidad(index: number): void {
-  this.pedidosSignal.update(pedidos => {
-    const nuevosPedidos = [...pedidos];
-
-    if (nuevosPedidos[index].cantidad > 1) {
       nuevosPedidos[index] = {
         ...nuevosPedidos[index],
-        cantidad: nuevosPedidos[index].cantidad - 1
+        cantidad: nuevosPedidos[index].cantidad + 1
       };
-    } else {
-      nuevosPedidos.splice(index, 1);
-    }
 
-    return nuevosPedidos;
-  });
-}
+      return nuevosPedidos;
+    });
+  }
 
-actualizarItem(itemActualizado: ItemPedido) {
-  const items = this.pedidosSignal();
+  decrementarCantidad(index: number): void {
+    this.pedidosSignal.update(pedidos => {
+      const nuevosPedidos = [...pedidos];
 
-  const index = items.findIndex(
-    i => i.plato.id === itemActualizado.plato.id
-  );
+      if (nuevosPedidos[index].cantidad > 1) {
+        nuevosPedidos[index] = {
+          ...nuevosPedidos[index],
+          cantidad: nuevosPedidos[index].cantidad - 1
+        };
+      } else {
+        nuevosPedidos.splice(index, 1);
+      }
 
-  if (index === -1) return;
+      return nuevosPedidos;
+    });
+  }
 
-  const nuevosItems = [...items];
+  actualizarItem(itemActualizado: ItemPedido) {
+    const items = this.pedidosSignal();
 
-  nuevosItems[index] = {
-    ...nuevosItems[index],
-    ...itemActualizado
-  };
+    const index = items.findIndex(
+      i => i.plato.id === itemActualizado.plato.id
+    );
 
-  this.pedidosSignal.set(nuevosItems);
-}
+    if (index === -1) return;
+
+    const nuevosItems = [...items];
+
+    nuevosItems[index] = {
+      ...nuevosItems[index],
+      ...itemActualizado
+    };
+    this.guardarEnStorage(nuevosItems);
+    this.pedidosSignal.set(nuevosItems);
+  }
 
   private leerDelStorage(): ItemPedido[] {
     try {
@@ -121,9 +121,17 @@ actualizarItem(itemActualizado: ItemPedido) {
     }
   }
 
-    private guardarEnStorage(items: ItemPedido[]): void {
+  private guardarEnStorage(items: ItemPedido[]): void {
     sessionStorage.setItem('carritoPedido', JSON.stringify(items));
   }
 
-  
+  actualizarItemEnIndice(index: number, itemActualizado: ItemPedido): void {
+    this.pedidosSignal.update(items => {
+      const nuevos = [...items];
+      nuevos[index] = itemActualizado;
+      this.guardarEnStorage(nuevos);
+      return nuevos;
+    });
+  }
+
 }

@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, Location } from '@angular/common';
 import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
 import { PedidoState } from '../../services/pedido.state';
 import { ItemPedido } from '../../../../core/models/domain/item-pedido';
@@ -10,8 +10,8 @@ import { ComensalState } from '../../services/comensal-state';
 import { ComandaState } from '../../services/comanda-state';
 import { PlatoService } from '../../services/plato.service';
 import { BotonComensal } from '../../../../shared/ui/botones/boton-comensal/boton-comensal';
-import { Boton } from '../../../../shared/ui/botones/boton/boton';
 import { HeaderComensal } from '../../../../shared/ui/header-comensal/header-comensal';
+import { IngredienteOpcional } from '../../../../core/models/dtos/responses/articulo-comensal.response';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -23,116 +23,80 @@ import { HeaderComensal } from '../../../../shared/ui/header-comensal/header-com
 })
 export class PersonalizarPlato implements OnInit {
   private router = inject(Router);
+  private location = inject(Location);
   private pedidoService = inject(PedidoState);
   private platoService = inject(PlatoService);
   private cdr = inject(ChangeDetectorRef);
   comensalState = inject(ComensalState);
   comandaState = inject(ComandaState);
+  configuracionVisualState = inject(ConfiguracionVisualState);
 
   plato: ItemPedido | null = null;
   itemIndex: number = -1;
-  configuracionVisualState = inject(ConfiguracionVisualState);
-  ingredientesExtra: string[] = [];
-  ingredientesRemover: string[] = [];
-  extrasSeleccionados: string[] = [];
-  removidosSeleccionados: string[] = [];
+  ingredientesOpcionales: IngredienteOpcional[] = [];
+  seleccionados: string[] = [];
   observaciones = '';
 
   ngOnInit() {
     const state = history.state;
-
     this.plato = state?.plato ?? null;
     this.itemIndex = state?.index ?? -1;
 
     const platoId = state?.plato?.plato?.id;
-    if (!platoId) return;
+    const restauranteId = this.comandaState.restauranteId();
 
-    this.platoService.getPlatoDetalle(platoId).subscribe(data => {
-      console.log('Respuesta del plato:', data);
-      console.log('Ingredientes:', data.ingredientes);
+    if (!platoId || !restauranteId) return;
 
-      // Usar sólo ingredientes opcionales: el comensal sólo puede agregarlos o sacarlos
-      const opcionales = data.ingredientes
-        .filter(i => i.opcional)
-        .map(i => i.nombre);
+    this.platoService.getArticuloComensal(restauranteId, platoId).subscribe(data => {
+      this.ingredientesOpcionales = data.ingredientesOpcionales;
+      this.seleccionados = data.ingredientesOpcionales.map(i => i.nombre);
 
-      console.log('Ingredientes opcionales filtrados:', opcionales);
-
-      this.ingredientesExtra = [...opcionales];
-      this.ingredientesRemover = [...opcionales];
-
-      if (opcionales.length === 0) {
-        console.warn('No hay ingredientes opcionales para este plato');
+      if (this.plato?.observacionesIngredientes) {
+        const removidos = this.plato.observacionesIngredientes
+          .split(', ')
+          .filter(p => p.startsWith('- '))
+          .map(p => p.slice(2));
+        this.seleccionados = this.seleccionados.filter(n => !removidos.includes(n));
       }
 
-      // Notificar al change detector en OnPush mode
+      this.observaciones = this.plato?.observacionesGenerales ?? '';
       this.cdr.markForCheck();
-
-      // Precargar observaciones existentes si el ItemPedido ya venía en el estado
-      if (this.plato) {
-        this.observaciones = this.plato.observacionesGenerales ?? '';
-        if (this.plato.observacionesIngredientes) {
-          const parts = this.plato.observacionesIngredientes.split(', ').filter(Boolean);
-          this.extrasSeleccionados = parts.filter(p => p.startsWith('+ ')).map(p => p.slice(2));
-          this.removidosSeleccionados = parts.filter(p => p.startsWith('- ')).map(p => p.slice(2));
-        }
-      }
     });
   }
 
-  volver() {
-    this.router.navigate(['/comensal/pedido']);
-  }
-
-
-
-  toggleExtra(ing: string) {
-
-    if (this.removidosSeleccionados.includes(ing)) {
-      return;
-    }
-
-    if (this.extrasSeleccionados.includes(ing)) {
-      this.extrasSeleccionados =
-        this.extrasSeleccionados.filter(i => i !== ing);
+  toggleIngrediente(nombre: string): void {
+    if (this.seleccionados.includes(nombre)) {
+      this.seleccionados = this.seleccionados.filter(n => n !== nombre);
     } else {
-      this.extrasSeleccionados.push(ing);
+      this.seleccionados.push(nombre);
     }
   }
 
-  toggleRemover(ing: string) {
-
-    if (this.extrasSeleccionados.includes(ing)) {
-      return;
-    }
-
-    if (this.removidosSeleccionados.includes(ing)) {
-      this.removidosSeleccionados =
-        this.removidosSeleccionados.filter(i => i !== ing);
-    } else {
-      this.removidosSeleccionados.push(ing);
-    }
-  }
-
-  guardarCambios() {
+  guardarCambios(): void {
     if (!this.plato) return;
 
-    const observacionesIngredientes = [
-      ...this.extrasSeleccionados.map(e => `+ ${e}`),
-      ...this.removidosSeleccionados.map(r => `- ${r}`)
-    ].join(', ');
+    const removidos = this.ingredientesOpcionales
+      .map(i => i.nombre)
+      .filter(n => !this.seleccionados.includes(n));
 
-    const itemActualizado = {
+    const observacionesIngredientes = removidos.map(r => `- ${r}`).join(', ');
+
+    const itemActualizado: ItemPedido = {
       ...this.plato,
       observacionesIngredientes,
       observacionesGenerales: this.observaciones
     };
 
-    this.pedidoService.actualizarItem(itemActualizado);
+    if (this.itemIndex >= 0) {
+      this.pedidoService.actualizarItemEnIndice(this.itemIndex, itemActualizado);
+    } else {
+      this.pedidoService.agregarPedido(itemActualizado);
+    }
 
-    this.router.navigate(['/comensal/pedido']);
+    this.router.navigate(['/comensal/detalle-pedido']);
+  }
 
-    console.log('OBSERVACION:', this.observaciones);
-    console.log('ITEM ACTUALIZADO:', itemActualizado);
+  volver(): void {
+    this.location.back();
   }
 }

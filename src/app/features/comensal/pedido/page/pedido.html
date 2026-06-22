@@ -1,94 +1,51 @@
-<app-header-comensal [showBack]="true" backRoute="/comensal/ver-carta" [title]="'Mi pedido'" />
-
-<style>
-  .pedido-card { flex: 1 1 100%; max-width: 100%; }
-  @media (min-width: 700px) { .pedido-card { flex: 1 1 220px; max-width: 340px; } }
-</style>
-
+  <app-header-comensal [showBack]="true" backRoute="/comensal/ver-carta" [title]="''" />
 <div class="container-fluid p-3 bg-light min-vh-100" style="max-width: 600px; margin: 0 auto;">
 
-  
-  <div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center;">
-  @for (item of pedidos(); track $index) {
-  <div class="card border-0 shadow-sm rounded-4 p-3 pedido-card" [style.border-left]="'4px solid ' + configuracionVisualState.colorSecundario()">
-
-    
-    <div class="d-flex justify-content-end">
-      <span class="material-symbols-outlined" [style.color]="configuracionVisualState.colorSecundario()" style="cursor: pointer;" (click)="eliminarPedido($index)">
-        close
-      </span>
-    </div>
-
-    
-    <div class="mb-3">
-      <h4 class="fw-bold mb-2">{{ item.plato.nombre }}</h4>
-      <div class="d-flex justify-content-between align-items-center">
-        <span class="badge bg-dark">x{{ item.cantidad }}</span>
-        <span class="fw-bold fs-5">${{ item.plato.precio * item.cantidad }}</span>
-      </div>
-    </div>
-
-    
-    @if (item.plato.urlImagen) {
-    <img [src]="item.plato.urlImagen" class="img-fluid rounded-4 mb-3" style="height: 200px; width: 100%; object-fit: cover;">
-    } @else {
-    <div class="rounded-4 mb-3 d-flex align-items-center justify-content-center bg-light" style="height: 220px;">
-      <span class="material-symbols-outlined text-muted" style="font-size: 48px;">restaurant</span>
-    </div>
-    }
-
-    <!-- DESCRIPCION -->
-    <p class="text-muted mb-4">{{ item.plato.esPlato ? 'Plato' : 'Bebida' }}</p>
-
-    
-    <div class="d-flex flex-column gap-2">
-      <app-boton variante="warning"
-         (clicked)="irAPersonalizar(item, $index)">
-        <div class="d-flex align-items-center justify-content-center gap-2">
-          <span class="material-symbols-outlined">edit</span>
-          <span>Personalizar</span>
-        </div>
-      </app-boton>
-
-      <app-boton variante="danger" (clicked)="eliminarUno($index)">
-        <div class="d-flex align-items-center justify-content-center gap-2">
-          <span class="material-symbols-outlined">remove</span>
-          <span>Eliminar pedido</span>
-        </div>
-      </app-boton>
-      @if (item.plato.esPlato) {
-  <app-boton
-    variante="warning"
-    (clicked)="irAPersonalizar(item, $index)"
-  >
-    <span class="material-symbols-outlined">edit</span>
-    <span style="margin-left: 8px;">Personalizar</span>
-  </app-boton>
-}
-
-
-      <app-boton variante="success"  (clicked)="agregarAlPedido($index)">
-        <div class="d-flex align-items-center justify-content-center gap-2">
-          <span class="material-symbols-outlined">add</span>
-          <span>Agregar al pedido</span>
-        </div>
-      </app-boton>
-    </div>
+  @if (detalle) {
+  @if (detalle.urlImagen) {
+  <img [src]="detalle.urlImagen" class="img-fluid rounded-4 mb-3 w-100" style="height: 250px; object-fit: cover;">
+  } @else {
+  <div class="rounded-4 mb-3 d-flex align-items-center justify-content-center bg-white" style="height: 250px;">
+    <span class="material-symbols-outlined text-muted" style="font-size: 64px;">restaurant</span>
   </div>
   }
+
+  <div class="d-flex justify-content-between align-items-center mb-1">
+    <h2 class="fw-bold mb-0">{{ detalle.nombre }}</h2>
+    <span class="fw-bold fs-4">$ {{ detalle.precio | number:'1.0-0' }}</span>
+  </div>
+  <p class="text-muted mb-3">{{ detalle.descripcion }}</p>
+
+  <div class="d-flex justify-content-end align-items-center gap-3 mb-4">
+    <button class="btn btn-outline-secondary" style="width:36px;height:36px;padding:0;border-radius:6px;" (click)="decrementar()">−</button>
+    <span class="fw-bold fs-5">{{ cantidad() }}</span>
+    <button class="btn btn-outline-secondary" style="width:36px;height:36px;padding:0;border-radius:6px;" (click)="incrementar()">+</button>
+  </div>
+  <div class="d-flex flex-column gap-3">
+    <app-boton-comensal [backgroundColor]="configuracionVisualState.colorPrimario()" [textColor]="'#ffffff'"
+      (clicked)="agregarAlPedido()">
+      <div class="d-flex align-items-center justify-content-center gap-2">
+        <span class="material-symbols-outlined">add_shopping_cart</span>
+        <span>Agregar al pedido</span>
+      </div>
+    </app-boton-comensal>
+
+    <app-boton-comensal backgroundColor="#ffffff" textColor="#000000" [tieneBorde]="true" (clicked)="irAPersonalizar()">
+      <div class="d-flex align-items-center justify-content-center gap-2">
+        <span class="material-symbols-outlined">tune</span>
+        <span>Personalizar</span>
+      </div>
+    </app-boton-comensal>
   </div>
 
-  <app-boton-comensal class="w-100 btn-full" [backgroundColor]="configuracionVisualState.colorPrimario()"
-    [textColor]="'#FFFFFF'" (clicked)="irADetallePedido()">
-    <div class="d-flex align-items-center justify-content-center gap-2">
-      <span class="material-symbols-outlined">receipt_long</span>
-      <span>Continuar pedido</span>
-    </div>
-  </app-boton-comensal>
-
+  } @else {
+  <div class="text-center py-5">
+    <div class="spinner-border" role="status"></div>
+  </div>
+  }
 
 </div>
 
-<app-llamar-al-mozo [mesaId]="comandaState.mesaId() ?? 0"
-  [enviando]="comensalState.enviando()" [enviado]="comensalState.exito()" [error]="comensalState.error()"
-  (llamadoMozo)="comensalState.solicitarMozo($event)" (modalCerrado)="comensalState.limpiarEstado()" />
+<app-llamar-al-mozo [mesaId]="comandaState.mesaId() ?? 0" [enviando]="comensalState.enviando()"
+  [enviado]="comensalState.exito()" [error]="comensalState.error()" (llamadoMozo)="comensalState.solicitarMozo($event)"
+  (modalCerrado)="comensalState.limpiarEstado()" />

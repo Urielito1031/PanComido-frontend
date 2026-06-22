@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, ChangeDetectionStrategy} from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ChangeDetectionStrategy, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { ComandaState } from '../../services/comanda-state';
@@ -38,12 +38,24 @@ export class EstadoPedido implements OnInit, OnDestroy {
       );
     }
     console.log('mesaId signal:', this.mesaId());
-console.log('sessionStorage:', sessionStorage.getItem('sesionComensal'));
+    console.log('sessionStorage:', sessionStorage.getItem('sesionComensal'));
+      console.log('items:', JSON.stringify(this.estado()?.items));
   }
 
   ngOnDestroy() {
     this.comandaState.detenerEscucha();
   }
+
+  itemsAgrupados = computed(() => {
+    const items = this.estado()?.items ?? [];
+    const grupos = new Map<string, typeof items>();
+    for (const item of items) {
+      const nombre = item.nombreComensal || 'Sin nombre';
+      if (!grupos.has(nombre)) grupos.set(nombre, []);
+      grupos.get(nombre)!.push(item);
+    }
+    return Array.from(grupos.entries()).map(([nombre, items]) => ({ nombre, items }));
+  });
 
   get estadoColor(): string {
     const st = this.estado()?.estadoUI?.toLowerCase() || '';
@@ -54,7 +66,7 @@ console.log('sessionStorage:', sessionStorage.getItem('sesionComensal'));
 
   get estadoTextColor(): string {
     const st = this.estado()?.estadoUI?.toLowerCase() || '';
-    if (st.includes('preparaci')) return '#000000'; 
+    if (st.includes('preparaci')) return '#000000';
     return '#ffffff';
   }
 
@@ -64,16 +76,8 @@ console.log('sessionStorage:', sessionStorage.getItem('sesionComensal'));
 
 
   volver(): void {
-  const restauranteId = this.comandaState.restauranteId();
-  const mesaId = this.comandaState.mesaId();
-
-  this.router.navigate([
-    '/comensal/ver-carta',
-    restauranteId,
-    mesaId,
-    1
-  ]);
-}
+    this.router.navigate(['/comensal/ver-carta']);
+  }
 
   pagarCuenta(): void {
     this.router.navigate(['/comensal/pago-checkout']);

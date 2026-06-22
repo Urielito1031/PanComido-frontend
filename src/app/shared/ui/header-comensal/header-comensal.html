@@ -1,7 +1,7 @@
 <header class="header">
   <div class="header-left">
     @if (showBack()) {
-      <div class="back text-white" (click)="onBack()">←</div>
+    <div class="back text-white" (click)="onBack()">←</div>
     }
     <div class="logo">
       <img [src]="configuracionVisualState.logoUrl()" alt="Logo" />
@@ -9,22 +9,26 @@
   </div>
 
   @if (title()) {
-    <div class="title">{{ title() }}</div>
+  <div class="title">{{ title() }}</div>
   }
 
   <div class="header-right">
     @if (tieneSesion()) {
-      <div class="icon-btn" (click)="abrirCompartir()" title="Compartir mesa">
-        <span class="material-symbols-outlined">group_add</span>
-      </div>
+    <div class="badge-info">
+  <span class="material-symbols-outlined">person</span>
+        <span>{{ cantidadPersonas }}</span>
+    </div>
+    <div class="badge-info">Mesa {{ mesaId }}</div>
+    <div class="icon-btn" (click)="abrirCompartir()" title="Compartir mesa">
+      <span class="material-symbols-outlined">group_add</span>
+    </div>
     }
     @if (showClose()) {
-      <div class="close" (click)="onClose()">✕</div>
+    <div class="close" (click)="onClose()">✕</div>
     }
   </div>
-</header>
 
-@if (popupAbierto()) {
+  @if (popupAbierto()) {
   <div class="overlay" (click)="cerrarCompartir()">
     <div class="popup" (click)="$event.stopPropagation()">
       <div class="popup-header">
@@ -45,4 +49,4 @@
       </div>
     </div>
   </div>
-}
+  }

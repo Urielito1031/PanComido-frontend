@@ -48,8 +48,9 @@ export interface ItemEstadoPedido {
   entregado: boolean;
   precioUnitario: number;
   subtotal: number;
-  observacionesIngredientes: string | null;
+  observacionesIngredientes: string[] | null;
   observacionesGenerales: string | null;
+  nombreComensal: string;
 }
 
 export interface EstadoPedido {
