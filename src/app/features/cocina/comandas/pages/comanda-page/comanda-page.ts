@@ -1,4 +1,4 @@
-import { Component, effect, inject, untracked, ChangeDetectionStrategy } from '@angular/core';
+import { Component, effect, inject, untracked, ChangeDetectionStrategy, signal } from '@angular/core';
 import { ComandaState } from '../../services/comanda-state';
 import { ComandaCard } from "../../components/comanda-card/comanda-card";
 import {  ComandoVozService } from '../../services/comando-voz/comando-voz.service';
@@ -27,6 +27,7 @@ export class ComandaPage {
   llamadoService = inject(LlamadoService);
 
   restauranteId = this.auth.restauranteId;
+  notificacionLlamado = signal<number | null>(null);
 
   constructor() {
     effect(() => {
@@ -72,11 +73,17 @@ export class ComandaPage {
   }
 
   onLlamarMozo(mesaId: number): void {
+    const numeroDeMesa = this.state.comandas().find(c => c.mesaId === mesaId)?.numeroDeMesa ?? mesaId;
     this.llamadoService.crearLlamado({
       mesaId,
       categoriaLlamadoId: CATEGORIA_LLAMADO_COCINA,
       descripcion: 'Comanda lista para retirar',
       restauranteId: this.restauranteId,
-    }).subscribe();
+    }).subscribe({
+      next: () => {
+        this.notificacionLlamado.set(numeroDeMesa);
+        setTimeout(() => this.notificacionLlamado.set(null), 7000);
+      }
+    });
   }
 }

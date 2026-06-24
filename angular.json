@@ -71,7 +71,7 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "options": {
-            "allowedHosts": ["pentomic-karla-unavoidably.ngrok-free.dev"]
+            "allowedHosts": ["3326-2802-8010-821f-2600-80b1-cf95-b681-4ec6.ngrok-free.app"]
           },
           "configurations": {
             "production": {
