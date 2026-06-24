@@ -2,6 +2,8 @@ import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EstadoMesa, Mesa, MesaOcupar } from '../../../core/models/domain/mesa';
 import { MesaService } from '../services/mesa.service';
+import { SignalRConexionService } from '../../../core/services/hubs/base-hub-service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Injectable({
   providedIn: 'root',
@@ -9,6 +11,39 @@ import { MesaService } from '../services/mesa.service';
 export class MesaLecturaState {
     private api = inject(MesaService);
     private destroyRef = inject(DestroyRef);
+    private signalR = inject(SignalRConexionService);
+    private auth = inject(AuthService);
+
+    constructor() {
+       this.conectarHub();
+    }
+
+    private async conectarHub() {
+       try {
+         await this.signalR.iniciar();
+         
+         const rol = this.auth.rol();
+         const restauranteId = this.auth.restauranteId;
+         if (rol === 'Gerente') {
+            await this.signalR.hub.invoke('UnirseGerente', restauranteId);
+         } else if (rol === 'Mozo' || rol === 'Mozo,Cocina') {
+            await this.signalR.hub.invoke('UnirseMozos', restauranteId);
+         }
+         this.signalR.hub.on('MesaActualizada', (mesa: Mesa) => {
+            this.updateMesas(mesas => {
+               const idx = mesas.findIndex(m => m.id === mesa.id);
+               if (idx > -1) {
+                  const newMesas = [...mesas];
+                  newMesas[idx] = mesa;
+                  return newMesas;
+               }
+               return [...mesas, mesa];
+            });
+         });
+       } catch (err) {
+         console.error('Error conectando SignalR en mesas:', err);
+       }
+    }
 
   readonly #mesas = signal<Mesa[]>([]);
   readonly #loading = signal<boolean>(false);

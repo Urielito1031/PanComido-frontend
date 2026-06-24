@@ -14,12 +14,22 @@
             <button type="button" class="btn-cancelar" (click)="state.cancelarEdicion()">Cancelar</button>
           </div>
         }
-        <span class="info">Mesas Totales: {{ state.mesas().length }}</span>
+        <div class="d-flex gap-4 ms-4 align-items-center fw-bold" style="color: #555;">
+          <span>{{ modoFiltroAsignacion() ? 'Mis Mesas' : 'Mesas Totales' }}: <span style="color: #222;">{{ mesasTotales() }}</span></span>
+          <div class="d-flex align-items-center gap-2">
+             <span class="circulo-estado disponible"></span>
+             <span>Disponibles: <span style="color: #222;">{{ mesasDisponibles() }}</span></span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+             <span class="circulo-estado ocupada"></span>
+             <span>Ocupadas: <span style="color: #222;">{{ mesasOcupadas() }}</span></span>
+          </div>
+        </div>
 
-        @if (!state.isEditorMode() && auth.tieneRoles(['Gerente'])) {
+        @if (!state.isEditorMode()) {
           <label class="toggle-asignacion ms-3 d-flex align-items-center bg-white p-2 rounded">
             <input type="checkbox" class="me-2" [checked]="modoFiltroAsignacion()" (change)="toggleFiltroAsignacion()">
-            <span>Ver Asignación Mozos</span>
+            <span>{{ auth.rol() === 'Mozo' ? 'Ver Mis Mesas' : 'Ver Asignación Mozos' }}</span>
           </label>
         }
       </div>
@@ -51,7 +61,9 @@
           <button type="button" class="btn-mesa cuadrada" (click)="state.agregarMesa(FormaMesa.Cuadrada)">+</button>
           <button type="button" class="btn-mesa horizontal" (click)="state.agregarMesa(FormaMesa.HorizontalLarga)">+</button>
           <button type="button" class="btn-mesa vertical" (click)="state.agregarMesa(FormaMesa.HorizontalAlta)">+</button>
-          <button type="button" class="btn-agregar btn-dark ms-3" (click)="state.agregarObjetoFijo()">+ Objeto Fijo</button>
+          <button type="button" class="btn-objeto-fijo ms-3" (click)="state.agregarObjetoFijo()">
+            <span class="material-symbols-outlined" style="font-size: 1.2rem;">add_box</span> Objeto Fijo
+          </button>
         </div>
       }
 
@@ -91,8 +103,7 @@
            [style.left.px]="mesa.posicionXInicio"
            [style.top.px]="mesa.posicionYInicio"
            [style.z-index]="state.mesaSeleccionada() === mesa.id ? 1000 : 1"
-           [style.resize]="state.isEditorMode() ? 'both' : 'none'"
-           [style.overflow]="state.isEditorMode() ? 'hidden' : 'visible'"
+           [class.resize-enabled]="state.isEditorMode()"
            (mouseup)="state.isEditorMode() ? state.actualizarTamanoObjeto(mesa.id, $event) : null"
            (cdkDragMoved)="onDragMoved(mesa.id, $event)"
            (cdkDragEnded)="onDragEnded(mesa.id, $event)">
@@ -208,16 +219,16 @@
         <h2>Asignar Mozos</h2>
         <p>Mesa N° {{ mesaSeleccionadaId() }}</p>
 
-        <div class="campo mb-3" style="max-height: 200px; overflow-y: auto;">
+        <div class="mozos-listado">
           @for (mozo of mozosDisponibles(); track mozo.id) {
-            <label class="d-flex align-items-center mb-2">
+            <label class="mozo-item">
               <input type="checkbox"
-                     class="me-2"
+                     class="mozo-checkbox"
                      [checked]="mozosSeleccionadosIds().includes(mozo.id)"
                      (change)="$any($event.target).checked 
                         ? mozosSeleccionadosIds.set([...mozosSeleccionadosIds(), mozo.id]) 
                         : mozosSeleccionadosIds.set(mozosSeleccionadosIds().filter(id => id !== mozo.id))">
-              <span>{{ mozo.nombre }}</span>
+              <span class="mozo-nombre">{{ mozo.nombre }}</span>
             </label>
           }
         </div>
@@ -231,3 +242,39 @@
   }
 
 </div>
+
+<!-- Modal / Offcanvas Container para Comanda -->
+@if (mostrarComandaDetalle() && comandaCargada()) {
+  @if (auth.rol() === 'Gerente') {
+    <!-- Offcanvas for Gerente -->
+    <div class="offcanvas offcanvas-end show shadow" tabindex="-1" style="visibility: visible; z-index: 1045;">
+      <app-comanda-detalle-ui
+        [comensales]="comandaCargada()!.cantComensales"
+        [mesa]="comandaCargada()!.numeroDeMesa"
+        [items]="comandaCargada()!.items"
+        [total]="calcularTotalComanda(comandaCargada()!.items)"
+        (cerrar)="cerrarComandaDetalle()"
+        (cobrar)="cobrarComanda()"
+        (cerrarMesa)="cerrarMesaComanda()"
+      ></app-comanda-detalle-ui>
+    </div>
+    <div class="offcanvas-backdrop fade show" style="z-index: 1040;" (click)="cerrarComandaDetalle()"></div>
+  } @else {
+    <!-- Modal for Mozo -->
+    <div class="modal d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5); z-index: 1050;">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content overflow-hidden border-0 shadow" style="border-radius: 12px; height: auto; max-height: 80vh;">
+          <app-comanda-detalle-ui
+            [comensales]="comandaCargada()!.cantComensales"
+            [mesa]="comandaCargada()!.numeroDeMesa"
+            [items]="comandaCargada()!.items"
+            [total]="calcularTotalComanda(comandaCargada()!.items)"
+            (cerrar)="cerrarComandaDetalle()"
+            (cobrar)="cobrarComanda()"
+            (cerrarMesa)="cerrarMesaComanda()"
+          ></app-comanda-detalle-ui>
+        </div>
+      </div>
+    </div>
+  }
+}

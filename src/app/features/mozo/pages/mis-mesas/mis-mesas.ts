@@ -2,11 +2,14 @@ import { Component, inject, signal , ChangeDetectionStrategy} from '@angular/cor
 import { MapaMesasReadonly } from "../../../mesas/shared/mapa-mesas-readonly/mapa-mesas-readonly";
 import { MesaLecturaState } from '../../../mesas/shared/mesa-lectura-state';
 import { AuthService } from '../../../../core/services/auth.service';
+import { MesaService } from '../../../mesas/services/mesa.service';
+import { ComandaDetalleUiComponent } from '../../../../shared/components/comanda-detalle-ui/comanda-detalle-ui';
+import { EstadoMesa } from '../../../../core/models/domain/mesa';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-mis-mesas',
-  imports: [MapaMesasReadonly],
+  imports: [MapaMesasReadonly, ComandaDetalleUiComponent],
   templateUrl: './mis-mesas.html',
   styleUrl: './mis-mesas.css',
 })
@@ -44,8 +47,32 @@ export class MisMesasPage {
     this.mostrarModalOcupar.set(true);
   }
 
+  private mesaService = inject(MesaService);
+
+  comandaCargada = signal<any>(null);
+
   onVerDetalles(mesaId: number) {
-    this.mesaState.mostrarNotificacion('Esperando pedido de los comensales...', 'info');
+    this.mesaComandaId.set(mesaId);
+    this.mesaService.getComandaActivaPorMesa(mesaId).subscribe({
+      next: (comanda) => {
+        this.comandaCargada.set(comanda);
+        this.mostrarModalComanda.set(true);
+      },
+      error: () => this.mesaState.mostrarNotificacion('Error al cargar la comanda o no hay activa', 'error')
+    });
+  }
+
+  calcularTotalComanda(items: any[]): number {
+    if (!items || items.length === 0) return 0;
+    return items.reduce((acc, curr) => acc + ((curr.articulo?.precioVentaFinal || 0) * curr.cantidad), 0);
+  }
+
+  cerrarMesaComanda() {
+    const id = this.mesaComandaId();
+    if (id) {
+      this.mesaState.cambiarEstadoMesa(id, EstadoMesa.Disponible);
+    }
+    this.cerrarModalComanda();
   }
 
   confirmarOcupar() {

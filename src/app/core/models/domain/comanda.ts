@@ -25,6 +25,7 @@ export interface PlatoComanda {
     id: number;
     nombre: string;
     urlImagen: string | null;
+    precioVentaFinal?: number;
   };
 }
 
