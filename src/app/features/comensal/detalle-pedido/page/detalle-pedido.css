@@ -1,72 +1,528 @@
-.header-top {
-  width: 100%;
-  padding: 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-  background: var(--color-primario, #02596C);
+/* ═══════════════════════════════════════════════════
+   detalle-pedido — Diseño con identidad recibo + bolsa
+   ═══════════════════════════════════════════════════ */
+
+.detalle-wrapper {
+  max-width: 600px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--gray-50);
+  padding: 1rem 1rem 2rem;
+  font-family: var(--font-cuerpo, 'system-ui'), sans-serif;
 }
-.header-top-inner {
+
+/* ────────────────────────────────────────────────
+   STATUS BAR
+   ──────────────────────────────────────────────── */
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding: 0 0.15rem;
+}
+.status-left {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+.status-count {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--gray-900);
+  line-height: 1;
+}
+.status-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--gray-500);
+}
+
+
+/* ────────────────────────────────────────────────
+   ALERTA SIN MESA
+   ──────────────────────────────────────────────── */
+.alerta-mesa {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: var(--border-radius-md);
+  background: #fff8e1;
+  border: 1.5px solid #ffe082;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #8d6e00;
+}
+.alerta-mesa .material-symbols-outlined {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+/* ════════════════════════════════════════════════
+   RECIBO — Pedido confirmado
+   ════════════════════════════════════════════════ */
+.recibo-card {
+  background: #ffffff;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1.5px solid var(--gray-200);
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+/* ── Recibo top ── */
+.recibo-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem 0.5rem;
+}
+
+/* Estado badge (restaurado) */
+.estado-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: var(--shadow-sm);
+}
+
+
+
+/* ── Recibo items ── */
+.recibo-items {
+  padding: 0.15rem 1.25rem 0.75rem;
+}
+
+/* Grupo */
+.recibo-grupo {
+  margin-top: 0.65rem;
+}
+.recibo-comensal {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--gray-500);
+  margin-bottom: 0.35rem;
+}
+.recibo-comensal .material-symbols-outlined {
+  font-size: 1rem;
+}
+
+/* Item */
+.recibo-item {
+  padding: 0.4rem 0;
+}
+.recibo-item-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 1rem;
-  font-family: var(--font-cuerpo, 'system-ui'), sans-serif;
+  gap: 0.5rem;
 }
-.container-fluid {
-  max-width: 900px;
-  margin: 0 auto;
-  font-family: var(--font-cuerpo, 'system-ui'), sans-serif;
+.recibo-item-nombre {
+  font-size: 0.87rem;
+  font-weight: 700;
+  color: var(--gray-800);
 }
-.page-title-detalle {
-  font-family: var(--font-titulo, 'system-ui'), sans-serif;
-}
-.btn-confirmar {
-  background: var(--color-primario, #02596C);
-}
-.d-flex.align-items-center {
-  font-size: 16px;
-  color: #333;
-}
-h2 {
-  font-size: 28px;
-  color: #111;
-}
-.text-muted {
-  font-size: 14px;
-}
-h5 {
-  font-size: 18px;
-  margin-bottom: 10px;
-  color: #222;
-}
-.mb-3 {
-  padding: 12px;
-  background: #fff;
-  border-radius: 12px;
-  border: 1px solid #eee;
-}
-.fw-semibold {
-  font-size: 16px;
-}
-.mb-3 span:last-child {
+.recibo-item-cant {
   font-weight: 600;
+  color: var(--gray-500);
+  font-size: 0.8rem;
+  margin-left: 0.15rem;
 }
-.text-muted.small {
-  font-size: 13px;
+.recibo-item-precio {
+  font-size: 0.87rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  white-space: nowrap;
 }
-hr {
-  margin: 10px 0;
-  opacity: 0.2;
+
+/* Details personalizada (restaurado) */
+.details-custom {
+  margin-top: 0.15rem;
 }
-.fs-5 {
-  font-size: 20px;
+.details-custom summary {
+  font-size: 0.78rem;
+  color: var(--gray-500);
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 600;
+  transition: color var(--transition-fast);
 }
-.link-editar {
-  padding: 0;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  font-size: 14px;
-  text-decoration: none;
-  width: auto;
+.details-custom summary:hover {
+  color: var(--gray-700);
+}
+.details-custom summary::-webkit-details-marker {
+  display: none;
+}
+.obs-text {
+  font-size: 0.78rem;
+  color: var(--gray-500);
+  margin-top: 0.2rem;
+  line-height: 1.4;
+}
+
+/* Separador entre items confirmados */
+.recibo-sep {
+  height: 1px;
+  background: var(--gray-100);
+  margin: 0;
+}
+
+/* ════════════════════════════════════════════════
+   CARRITO — Nuevos items
+   ════════════════════════════════════════════════ */
+.carrito-card {
+  background: #ffffff;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1.5px solid var(--gray-200);
+  overflow: hidden;
+}
+
+/* ── Carrito header ── */
+.carrito-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1.5px solid var(--gray-100);
+}
+.carrito-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+.carrito-icono {
+  font-size: 1.5rem;
+  color: var(--color-primario, #333);
+}
+.carrito-titulo {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--gray-900);
+  white-space: nowrap;
+}
+.carrito-comensal {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--gray-500);
+  margin-top: 0.05rem;
+}
+.carrito-badge {
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 999px;
+  background: var(--color-primario, #333);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0 0.4rem;
+}
+
+/* ── Carrito items ── */
+.carrito-items {
+  padding: 0;
+}
+.carrito-item {
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid var(--gray-100);
+}
+.carrito-item:last-of-type {
+  border-bottom: none;
+}
+
+/* Info row */
+.carrito-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.carrito-item-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 0.5rem;
+}
+.carrito-item-nombre {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  word-break: break-word;
+}
+.carrito-item-precio {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--gray-900);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Obs */
+.carrito-item-obs {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.74rem;
+  font-weight: 500;
+  color: var(--gray-500);
+  margin-top: 0.25rem;
+  line-height: 1.3;
+}
+.carrito-item-obs .material-symbols-outlined {
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  color: var(--gray-400);
+}
+
+/* ── Actions row ── */
+.carrito-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.55rem;
+}
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  height: 2rem;
+  padding: 0 0.7rem;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: 1.5px solid var(--gray-200);
+  background: #ffffff;
+  line-height: 1;
+}
+.action-btn .material-symbols-outlined {
+  font-size: 0.9rem;
+}
+.action-btn--edit {
+  color: var(--gray-600);
+}
+.action-btn--edit:hover {
+  border-color: var(--color-primario, #333);
+  color: var(--color-primario, #333);
+  background: color-mix(in srgb, var(--color-primario, #333) 6%, white);
+}
+.action-btn--delete {
+  color: #dc3545;
+  border-color: transparent;
+  min-width: 2rem;
+  padding: 0;
+}
+.action-btn--delete:hover {
+  background: rgba(220, 53, 69, 0.08);
+  border-color: rgba(220, 53, 69, 0.2);
+}
+
+/* Cantidad pill */
+.cantidad-pill {
+  display: inline-flex;
+  align-items: center;
+  background: var(--gray-50);
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+  height: 2rem;
+}
+.cantidad-btn {
+  background: none;
+  border: none;
+  width: 2rem;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--gray-700);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  padding: 0;
+  line-height: 1;
+}
+.cantidad-btn:hover {
+  background: var(--gray-200);
+}
+.cantidad-btn:active {
+  transform: scale(0.92);
+}
+.cantidad-valor {
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--gray-900);
+  min-width: 1.8rem;
+  text-align: center;
+  user-select: none;
+}
+
+/* ────────────────────────────────────────────────
+   EMPTY STATE — Carrito vacío
+   ──────────────────────────────────────────────── */
+.carrito-vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 2.5rem 1rem;
+  text-align: center;
+  background: #ffffff;
+  border-radius: var(--border-radius-lg);
+  border: 1.5px dashed var(--gray-200);
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--gray-400);
+}
+.carrito-vacio .material-symbols-outlined {
+  font-size: 2.5rem;
+  color: var(--gray-300);
+}
+
+/* ════════════════════════════════════════════════
+   FOOTER — Total + Confirmar
+   ════════════════════════════════════════════════ */
+.footer-section {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.total-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: #ffffff;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1.5px solid var(--gray-200);
+}
+.total-label {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--gray-500);
+}
+.total-monto {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--gray-900);
+  letter-spacing: -0.02em;
+}
+
+.btn-confirmar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.95rem 1.5rem;
+  border: none;
+  border-radius: var(--border-radius-lg);
+  background: var(--color-primario, #02596C);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-md);
+  line-height: 1;
+}
+.btn-confirmar:hover:not(:disabled) {
+  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
+}
+.btn-confirmar:active:not(:disabled) {
+  transform: scale(0.98);
+}
+.btn-confirmar:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.btn-confirmar-items {
+  font-size: 0.78rem;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+/* ════════════════════════════════════════════════
+   RESPONSIVE
+   ════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+  .detalle-wrapper {
+    padding: 0.75rem 0.75rem 1.5rem;
+  }
+  .carrito-item {
+    padding: 0.75rem 1rem;
+  }
+  .recibo-top {
+    padding: 0.85rem 1rem 0.35rem;
+  }
+  .recibo-items {
+    padding: 0.15rem 1rem 0.65rem;
+  }
+  .carrito-header {
+    padding: 0.85rem 1rem;
+  }
+  .total-card {
+    padding: 0.85rem 1rem;
+  }
+  .total-monto {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .carrito-item-actions {
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+  .action-btn {
+    font-size: 0.68rem;
+    height: 1.8rem;
+    padding: 0 0.5rem;
+  }
+  .action-btn .material-symbols-outlined {
+    font-size: 0.8rem;
+  }
+  .cantidad-btn {
+    width: 1.6rem;
+    font-size: 1rem;
+  }
+  .cantidad-valor {
+    min-width: 1.4rem;
+    font-size: 0.8rem;
+  }
+  .carrito-item-nombre {
+    font-size: 0.82rem;
+  }
+  .carrito-item-precio {
+    font-size: 0.82rem;
+  }
 }

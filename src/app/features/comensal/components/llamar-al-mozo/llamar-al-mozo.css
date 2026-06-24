@@ -169,6 +169,26 @@
 .btn-aceptar:hover {
   filter: brightness(0.85);
 }
+
+@media (max-width: 420px) {
+  .categorias {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .categoria-btn {
+    padding: 10px 4px;
+  }
+  .categoria-btn span {
+    font-size: 0.55rem;
+  }
+  .modal-dialogo {
+    max-width: 94vw;
+  }
+  .modal-body {
+    padding: 18px;
+  }
+}
+
 .alert-error {
   background-color: #fef2f2;
   color: #991b1b;

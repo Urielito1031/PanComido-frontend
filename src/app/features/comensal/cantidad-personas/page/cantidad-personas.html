@@ -25,7 +25,6 @@
   </div>
 
   <div class="botones">
-    <app-boton variante="outline" label="Cancelar"></app-boton>
 
     <app-boton-comensal
       [backgroundColor]="configuracionVisualState.colorPrimario()"
@@ -35,7 +34,7 @@
       @if (cargando()) {
         Ocupando mesa...
       } @else {
-        Aceptar
+        Continuar
       }
     </app-boton-comensal>
   </div>

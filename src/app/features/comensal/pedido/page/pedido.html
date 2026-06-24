@@ -1,47 +1,52 @@
-  <app-header-comensal [showBack]="true" backRoute="/comensal/ver-carta" [title]="''" />
-<div class="container-fluid p-3 bg-light min-vh-100" style="max-width: 600px; margin: 0 auto;">
+<app-header-comensal [showBack]="true" backRoute="/comensal/ver-carta" [title]="''" />
+
+<div class="container-fluid p-3 bg-light min-vh-100 pedido-detalle-container">
 
   @if (detalle) {
-  @if (detalle.urlImagen) {
-  <img [src]="detalle.urlImagen" class="img-fluid rounded-4 mb-3 w-100" style="height: 250px; object-fit: cover;">
-  } @else {
-  <div class="rounded-4 mb-3 d-flex align-items-center justify-content-center bg-white" style="height: 250px;">
-    <span class="material-symbols-outlined text-muted" style="font-size: 64px;">restaurant</span>
-  </div>
-  }
-
-  <div class="d-flex justify-content-between align-items-center mb-1">
-    <h2 class="fw-bold mb-0">{{ detalle.nombre }}</h2>
-    <span class="fw-bold fs-4">$ {{ detalle.precio | number:'1.0-0' }}</span>
-  </div>
-  <p class="text-muted mb-3">{{ detalle.descripcion }}</p>
-
-  <div class="d-flex justify-content-end align-items-center gap-3 mb-4">
-    <button class="btn btn-outline-secondary" style="width:36px;height:36px;padding:0;border-radius:6px;" (click)="decrementar()">−</button>
-    <span class="fw-bold fs-5">{{ cantidad() }}</span>
-    <button class="btn btn-outline-secondary" style="width:36px;height:36px;padding:0;border-radius:6px;" (click)="incrementar()">+</button>
-  </div>
-  <div class="d-flex flex-column gap-3">
-    <app-boton-comensal [backgroundColor]="configuracionVisualState.colorPrimario()" [textColor]="'#ffffff'"
-      (clicked)="agregarAlPedido()">
-      <div class="d-flex align-items-center justify-content-center gap-2">
-        <span class="material-symbols-outlined">add_shopping_cart</span>
-        <span>Agregar al pedido</span>
+    @if (detalle.urlImagen) {
+      <div class="plato-detalle-img-wrapper">
+        <img [src]="detalle.urlImagen" class="plato-detalle-img">
       </div>
-    </app-boton-comensal>
-
-    <app-boton-comensal backgroundColor="#ffffff" textColor="#000000" [tieneBorde]="true" (clicked)="irAPersonalizar()">
-      <div class="d-flex align-items-center justify-content-center gap-2">
-        <span class="material-symbols-outlined">tune</span>
-        <span>Personalizar</span>
+    } @else {
+      <div class="plato-detalle-placeholder mb-3">
+        <span class="material-symbols-outlined">restaurant</span>
       </div>
-    </app-boton-comensal>
-  </div>
+    }
 
+    <div class="d-flex justify-content-between align-items-start mb-1">
+      <h2 class="plato-detalle-nombre">{{ detalle.nombre }}</h2>
+      <span class="plato-detalle-precio">$ {{ detalle.precio | number:'1.0-0' }}</span>
+    </div>
+    <p class="plato-detalle-descripcion">{{ detalle.descripcion }}</p>
+
+    <div class="d-flex justify-content-end align-items-center gap-3 mb-4">
+      <div class="cantidad-pill">
+        <button class="btn-cant-pill" (click)="decrementar()">−</button>
+        <span class="cant-pill-valor">{{ cantidad() }}</span>
+        <button class="btn-cant-pill" (click)="incrementar()">+</button>
+      </div>
+    </div>
+
+    <div class="pedido-actions">
+      <app-boton-comensal [backgroundColor]="configuracionVisualState.colorPrimario()" [textColor]="'#ffffff'"
+        (clicked)="agregarAlPedido()">
+        <div class="d-flex align-items-center justify-content-center gap-2">
+          <span class="material-symbols-outlined">add</span>
+          <span>Agregar al pedido</span>
+        </div>
+      </app-boton-comensal>
+
+      <app-boton-comensal backgroundColor="#ffffff" textColor="#000000" [tieneBorde]="true" (clicked)="irAPersonalizar()">
+        <div class="d-flex align-items-center justify-content-center gap-2">
+          <span class="material-symbols-outlined">tune</span>
+          <span>Personalizar</span>
+        </div>
+      </app-boton-comensal>
+    </div>
   } @else {
-  <div class="text-center py-5">
-    <div class="spinner-border" role="status"></div>
-  </div>
+    <div class="text-center py-5">
+      <div class="spinner-border" role="status" style="color:var(--color-primario);"></div>
+    </div>
   }
 
 </div>

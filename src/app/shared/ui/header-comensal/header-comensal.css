@@ -189,3 +189,29 @@
   .badge-info .material-symbols-outlined {
     font-size: 1.2rem;
   }
+
+@media (max-width: 380px) {
+  .header {
+    padding: 0 8px;
+  }
+  .header-right {
+    gap: 0.35rem;
+  }
+  .badge-info {
+    font-size: 0.78rem;
+  }
+  .badge-info .material-symbols-outlined {
+    font-size: 1rem;
+  }
+  .icon-btn .material-symbols-outlined {
+    font-size: 18px;
+  }
+  .logo img {
+    height: 28px;
+    width: 28px;
+  }
+  .back {
+    font-size: 18px;
+    padding: 4px 6px;
+  }
+}

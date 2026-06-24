@@ -1,8 +1,8 @@
 <div class="dish-card">
   <div class="dish-layout" (click)="verDetalle()" style="cursor: pointer;">
     <div class="dish-img-wrapper">
-      @if (plato().urlImagen) {
-      <img [src]="plato().urlImagen" class="dish-img" [alt]="plato().nombre">
+      @if (plato().urlImagen && !imgError()) {
+      <img [src]="plato().urlImagen" class="dish-img" [alt]="plato().nombre" (error)="onImgError()">
       } @else {
       <div class="dish-img-placeholder">
         <span class="material-symbols-outlined">restaurant</span>
@@ -13,20 +13,19 @@
     <div class="dish-info-wrapper">
       <div class="dish-header-info">
         <div class="dish-title-row">
-          <h5 class="dish-title">{{ plato().nombre }}</h5>
-          @if (plato().esPlato && plato().esDestacado) {
-            <span class="dish-badge">Destacado</span>
-          }
+          <div class="dish-title-group">
+            <h5 class="dish-title">{{ plato().nombre }}</h5>
+            @if (plato().esPlato && plato().esDestacado) {
+              <span class="dish-badge">Destacado</span>
+            }
+          </div>
+          <span class="dish-price">$ {{ plato().precio }}</span>
         </div>
 
         @if (plato().esPlato && plato().tipoPlato) {
           <span class="dish-type-badge">{{ plato().tipoPlato }}</span>
         } @else if (!plato().esPlato && plato().categoriaBebida) {
           <span class="dish-type-badge drink">{{ plato().categoriaBebida }}</span>
-        }
-
-        @if (plato().descripcion) {
-          <p class="dish-description">{{ plato().descripcion }}</p>
         }
       </div>
 
@@ -47,9 +46,7 @@
         </div>
       }
 
-      <div class="dish-meta">
-        <span class="dish-price">$ {{ plato().precio }}</span>
-      </div>
+
 
       <div class="dish-controls" (click)="$event.stopPropagation()">
         <div class="counter-pill">

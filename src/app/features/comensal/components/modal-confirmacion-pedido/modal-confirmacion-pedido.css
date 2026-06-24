@@ -76,7 +76,8 @@
   font-weight: 600;
   font-size: 1.1rem;
   border: 3px solid #828282; 
-  width: 160px; 
+  width: 160px;
+  flex-shrink: 0;
   justify-content: flex-start;
 }
 .estado-badge .material-symbols-outlined {
@@ -94,6 +95,30 @@
   background-color: #7CB342; 
   color: #FFFFFF;
 }
+@media (max-width: 400px) {
+  .modal-content {
+    padding: 24px 16px;
+  }
+  .estado-row {
+    gap: 10px;
+  }
+  .estado-badge {
+    width: 120px;
+    font-size: 0.9rem;
+    padding: 6px 10px;
+    gap: 6px;
+  }
+  .estado-badge .material-symbols-outlined {
+    font-size: 20px;
+  }
+  .estado-desc {
+    font-size: 0.82rem;
+  }
+  .success-title {
+    font-size: 1.25rem;
+  }
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }

@@ -1,5 +1,4 @@
 import { Component, inject, ChangeDetectionStrategy, OnInit } from '@angular/core';
-import { Boton } from '../../../../shared/ui/botones/boton/boton';
 import { BotonComensal } from '../../../../shared/ui/botones/boton-comensal/boton-comensal';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HeaderComensal } from '../../../../shared/ui/header-comensal/header-comensal';
@@ -9,7 +8,7 @@ import { MesaComensalState } from '../../services/mesa-comensal-state';
 @Component({
   selector: 'app-nro-de-mesa',
   standalone: true,
-  imports: [Boton, HeaderComensal, BotonComensal],
+  imports: [HeaderComensal, BotonComensal],
   templateUrl: './nro-de-mesa.html',
   styleUrls: ['./nro-de-mesa.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
