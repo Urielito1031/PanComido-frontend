@@ -2,108 +2,118 @@
   <div class="notch"></div>
 
   <div class="mobile-content">
-    <!-- Encabezado superior -->
-    <div class="header d-flex justify-content-between align-items-center" [style.background-color]="colorPrimario()">
+    <!-- Header (replica .header-top de ver-carta) -->
+    <div class="header" [style.background-color]="colorPrimario()">
       <div class="logo-container">
-        @if (datosLocal().imagen) {
-        <img [src]="logo()" alt="Logo local" class="header-logo" />
+        @if (logo()) {
+          <img [src]="logo()" alt="Logo local" class="header-logo" />
         } @else {
-        <!-- Logo por defecto si no subieron uno -->
-        <div class="mock-logo">
-          <i class="bi bi-shop text-white"></i>
-        </div>
+          <div class="mock-logo">
+            <i class="bi bi-shop"></i>
+          </div>
         }
       </div>
-      <div class="user-info d-flex align-items-center bg-white px-2 py-1 rounded-pill">
-        <span class="material-symbols-outlined me-1" style="color: #333; font-size: 1.1rem;">person</span>
-        <span class="fw-bold me-2" style="font-size: 0.8rem; color: #333;">2</span>
-        <span style="font-size: 0.8rem; color: #666;">Mesa <span class="fw-bold text-dark">8</span></span>
+      <div class="mesa-info-preview">
+        <div class="badge-info-preview">
+          <span class="material-symbols-outlined" style="font-size: 1rem;">person</span>
+          <span>2</span>
+        </div>
+        <div class="badge-info-preview">Mesa 8</div>
+        <div class="invite-btn-preview">
+          <span class="material-symbols-outlined" style="font-size: 1.1rem;">group_add</span>
+        </div>
       </div>
     </div>
 
-    <div class="p-3 bg-light content-scroll">
-      <!-- Barra de búsqueda -->
-      <div class="d-flex mb-3 gap-2 align-items-center">
-        <div class="search-bar flex-grow-1 bg-white border rounded d-flex align-items-center px-2 py-2"
-          [style.border-color]="colorPrimario() + ' !important'">
-          <span class="material-symbols-outlined text-muted me-2" style="font-size: 1.1rem;">search</span>
-          <span class="text-muted" style="font-size: 0.85rem;">Buscar en {{ nombreLocal() }}</span>
+    <div class="content-scroll">
+      <!-- Barra de búsqueda + filtro (replica .search-row de ver-carta) -->
+      <div class="search-row-preview">
+        <div class="search-bar-preview" [style.border-color]="colorPrimario()">
+          <span class="material-symbols-outlined" style="font-size: 0.9rem; color: #9ca3af;">search</span>
+          <span style="font-size: 0.72rem; color: #9ca3af;">Buscar en {{ nombreLocal() }}</span>
         </div>
-        <span class="material-symbols-outlined text-dark fs-4">filter_alt</span>
+        <span class="material-symbols-outlined" style="font-size: 1.4rem; color: #374151;">filter_alt</span>
       </div>
 
-      <!-- Botones principales -->
-      <div class="row g-2 mb-3">
-        <div class="col-6">
-          <button class="btn w-100 rounded d-flex justify-content-center align-items-center gap-2 py-2 text-white"
-            [style.background-color]="colorPrimario()">
-            <span class="material-symbols-outlined">receipt_long</span>
-            <span class="fw-bold" style="font-size: 0.9rem;">Pedido</span>
-          </button>
-        </div>
-        <div class="col-6">
-          <button class="btn w-100 rounded d-flex justify-content-center align-items-center gap-2 py-2 text-white"
-            [style.background-color]="colorPrimario()">
-            <span class="material-symbols-outlined">sort</span>
-            <span class="fw-bold" style="font-size: 0.9rem;">Ordenar</span>
-          </button>
-        </div>
+      <!-- Botón Ordenar full-width (replica .dropdown-trigger de ver-carta) -->
+      <div class="ordenar-section-preview">
+        <button class="ordenar-btn-preview" [style.background-color]="colorPrimario()">
+          <span class="material-symbols-outlined" style="font-size: 1rem;">sort</span>
+          <span>Ordenar</span>
+        </button>
       </div>
 
-      <!-- Lista de platos de prueba -->
-      <div class="d-flex flex-column gap-3">
-        @for (plato of platosMock; track plato.nombre) {
-        <div class="card border-0 shadow-sm rounded-3 overflow-hidden bg-white">
-          <div class="d-flex">
-            <div class="img-wrapper" style="width: 110px; flex-shrink: 0;">
-              <img [src]="plato.img" alt="{{plato.nombre}}" class="w-100 h-100 object-fit-cover">
-            </div>
-            <div class="p-2 d-flex flex-column justify-content-between w-100">
-              <div>
-                <h6 class="mb-1 fw-bold text-dark" [style.font-family]="fontTitulo()" style="font-size: 0.9rem;">{{
-                  plato.nombre }}</h6>
-                @if (plato.esPlatoDelDia) {
-                <div class="badge mb-1 text-white" [style.background-color]="colorPrimario()">Plato del día</div>
+      <!-- Lista de platos reales o mock -->
+      <div class="platos-lista-preview">
+        @if (cargando()) {
+          <div class="loading-preview">
+            <div class="spinner-preview" [style.border-top-color]="colorPrimario()"></div>
+          </div>
+        } @else {
+          @for (plato of displayItems(); track plato.nombre) {
+            <div class="dish-card-preview">
+              <div class="dish-img-preview-wrapper">
+                @if (plato.img) {
+                  <img [src]="plato.img" [alt]="plato.nombre" class="dish-img-preview">
+                } @else {
+                  <div class="dish-img-placeholder-preview">
+                    <span class="material-symbols-outlined">restaurant</span>
+                  </div>
                 }
               </div>
-
-              <div class="d-flex justify-content-between align-items-end mt-2">
-                <div class="d-flex align-items-center text-dark">
-                  <span style="font-size: 0.85rem;">⏱ {{ plato.tiempo }}</span>
+              <div class="dish-info-preview">
+                <div class="dish-title-row-preview">
+                  <div class="dish-title-group-preview">
+                    <span class="dish-title-preview" [style.font-family]="fontTitulo()">{{ plato.nombre }}</span>
+                    @if (plato.esDestacado) {
+                      <span class="dish-badge-preview">Destacado</span>
+                    }
+                  </div>
+                  <span class="dish-price-preview" [style.color]="colorSecundario()">{{ plato.precio }}</span>
                 </div>
-                <span class="fw-bold fs-6" [style.color]="colorSecundario()">{{ plato.precio }}</span>
+                @if (plato.tipo) {
+                  <span class="dish-type-badge-preview"
+                    [style.color]="colorPrimario()"
+                    [style.background-color]="colorPrimario() + '1a'">{{ plato.tipo }}</span>
+                }
+                @if (plato.tiempo) {
+                  <div class="dish-time-preview">
+                    <span class="material-symbols-outlined" style="font-size: 0.75rem;">schedule</span>
+                    <span>{{ plato.tiempo }} min</span>
+                  </div>
+                }
+                <div class="dish-controls-preview">
+                  <div class="counter-pill-preview">
+                    <button class="btn-counter-preview">-</button>
+                    <span class="counter-value-preview">1</span>
+                    <button class="btn-counter-preview">+</button>
+                  </div>
+                  <button class="btn-add-preview" [style.background-color]="colorSecundario()">
+                    <span class="material-symbols-outlined" style="font-size: 0.8rem;">add</span>
+                    <span>Agregar</span>
+                  </button>
+                </div>
               </div>
-
-              <button class="btn w-100 mt-2 fw-bold d-flex justify-content-center align-items-center gap-1 text-white" 
-                [style.background-color]="colorSecundario()"
-                style="font-size: 0.85rem; padding: 4px 0;">
-                <span class="material-symbols-outlined" style="font-size: 1.1rem;">add</span>
-                Agregar
-              </button>
             </div>
-          </div>
-        </div>
+          }
         }
       </div>
     </div>
 
-    <!-- Footer simulado con el carrito y mozo -->
+    <!-- Footer (replica .comensal-footer y .cart-pill-btn) -->
     <div class="comensal-footer-preview" [style.background-color]="colorSecundario()">
       <div class="footer-content-preview">
-        
-        <button class="cart-pill-btn-preview text-white" [style.background-color]="colorPrimario()">
+        <button class="cart-pill-btn-preview" [style.background-color]="colorPrimario()">
           <div class="cart-pill-left-preview">
             <div class="cart-count-badge-preview">0</div>
             <span class="cart-label-preview">Ver pedido</span>
           </div>
-          <span class="cart-total-preview fw-bold">$ 0</span>
+          <span class="cart-total-preview">$ 0</span>
         </button>
-
-        <div class="mozo-wrapper-preview text-white" [style.background-color]="colorPrimario()">
-          <span class="material-symbols-outlined" style="font-size: 1.5rem; margin-bottom: -2px;">room_service</span>
-          <span class="fw-bold" style="font-size: 0.65rem;">Mozo</span>
+        <div class="mozo-wrapper-preview" [style.background-color]="colorPrimario()">
+          <span class="material-symbols-outlined" style="font-size: 1.3rem; margin-bottom: -2px;">room_service</span>
+          <span style="font-size: 0.55rem; font-weight: 700;">Mozo</span>
         </div>
-
       </div>
     </div>
   </div>

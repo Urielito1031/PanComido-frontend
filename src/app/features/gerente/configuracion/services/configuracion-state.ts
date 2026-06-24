@@ -145,7 +145,7 @@ export class ConfiguracionState {
           this.#datosLocal.set(resultado.datosLocal);
         }
         this.#guardando.set(false);
-        this.#exito.set('Configuracion guardada correctamente');
+        this.#exito.set('Configuración guardada correctamente');
       },
       error: () =>{ 
         this.#guardando.set(false);
