@@ -1,5 +1,4 @@
-<div class="card shadow-sm border-0 rounded-3 h-100">
-  <div class="card-body p-4">
+<div>
     @if (metodosPago().length === 0) {
       <p class="text-muted text-center py-3 mb-0">
         No hay métodos de pago configurados.
@@ -7,7 +6,7 @@
     }
 
     @for (metodo of metodosPago(); track metodo.id) {
-      <div class="d-flex justify-content-between align-items-center mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h6 class="mb-1 fw-bold fs-5 text-dark">{{ metodo.descripcion }}</h6>
           <span class="text-muted small">
@@ -36,5 +35,4 @@
         </div>
       </div>
     }
-  </div>
 </div>

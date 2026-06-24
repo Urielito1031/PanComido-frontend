@@ -246,4 +246,8 @@
   margin: 14px 0 14px;
 }
 
-:host .card-body { padding: 1.25rem !important; }
+:host {
+  display: block;
+  flex: 1;
+}
+
