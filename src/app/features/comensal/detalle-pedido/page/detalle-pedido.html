@@ -46,7 +46,7 @@
       <details class="mt-1">
         <summary class="text-muted small" style="cursor:pointer; list-style:none;">▸ Personalizada</summary>
         @if (item.observacionesIngredientes?.length) {
-        <div class="text-muted small mt-1">Sin: {{ item.observacionesIngredientes!.join(', ') }}</div>
+        <div class="text-muted small mt-1">Sin: {{ item.observacionesIngredientes }}</div>
         }
         @if (item.observacionesGenerales) {
         <div class="text-muted small mt-1">Obs: {{ item.observacionesGenerales }}</div>
@@ -79,9 +79,9 @@
         <span>Precio unitario</span>
         <span>${{ item.plato.precio }}</span>
       </div>
-      @if (item.observacionesIngredientes) {
+      <!-- @if (item.observacionesIngredientes) {
       <div class="text-muted small mt-1">Sin: {{ formatarSinIngredientes(item.observacionesIngredientes) }}</div>
-      }
+      } -->
       @if (item.observacionesGenerales) {
       <div class="text-muted small mt-1">Obs: {{ item.observacionesGenerales }}</div>
       }

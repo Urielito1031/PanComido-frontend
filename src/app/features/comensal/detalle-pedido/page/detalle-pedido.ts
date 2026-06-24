@@ -133,7 +133,5 @@ export class DetallePedido implements OnInit, OnDestroy {
     this.pedidoService.decrementarCantidad(index);
   }
 
-  formatarSinIngredientes(obs: string): string {
-    return obs.split(', ').map(s => s.replace(/^- /, '')).join(', ');
-  }
+ 
 }

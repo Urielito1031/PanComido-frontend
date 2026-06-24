@@ -50,15 +50,13 @@ export class PersonalizarPlato implements OnInit {
     this.platoService.getArticuloComensal(restauranteId, platoId).subscribe(data => {
       this.ingredientesOpcionales = data.ingredientesOpcionales;
       this.seleccionados = data.ingredientesOpcionales.map(i => i.nombre);
-
-      if (this.plato?.observacionesIngredientes) {
-        const removidos = this.plato.observacionesIngredientes
-          .split(', ')
-          .filter(p => p.startsWith('- '))
-          .map(p => p.slice(2));
-        this.seleccionados = this.seleccionados.filter(n => !removidos.includes(n));
-      }
-
+       
+      if (this.plato?.observacionesIngredientes?.length) {
+        const removidosIds = this.plato.observacionesIngredientes;
+        this.seleccionados = this.ingredientesOpcionales
+        .filter(i => !removidosIds.includes(i.ingredienteId))
+        .map(i => i.nombre);
+}
       this.observaciones = this.plato?.observacionesGenerales ?? '';
       this.cdr.markForCheck();
     });
@@ -75,15 +73,13 @@ export class PersonalizarPlato implements OnInit {
   guardarCambios(): void {
     if (!this.plato) return;
 
-    const removidos = this.ingredientesOpcionales
-      .map(i => i.nombre)
-      .filter(n => !this.seleccionados.includes(n));
-
-    const observacionesIngredientes = removidos.map(r => `- ${r}`).join(', ');
+    const removidosIds = this.ingredientesOpcionales
+    .filter(i => !this.seleccionados.includes(i.nombre))
+    .map(i=> i.ingredienteId);
 
     const itemActualizado: ItemPedido = {
       ...this.plato,
-      observacionesIngredientes,
+      observacionesIngredientes: removidosIds,
       observacionesGenerales: this.observaciones
     };
 
