@@ -1,12 +1,12 @@
 <div class="container-fluid py-4" style="max-width: 1200px">
-  <app-page-toolbar>
-    <div buscador>
+  <div class="row g-4 align-items-center mb-2">
+    <div class="col-lg-7">
       <h2 class="h4 mb-1 fw-bold" style="color: #1f2937">Datos del local</h2>
       <p class="text-muted mb-0" style="font-size: 0.88rem">
         Personalizá la identidad visual de tu menú digital
       </p>
     </div>
-    <div acciones>
+    <div class="col-lg-5 d-flex justify-content-end">
       <app-boton
         [label]="guardando() ? 'Guardando...' : 'Aplicar cambios'"
         variante="success"
@@ -24,7 +24,7 @@
         }
       </app-boton>
     </div>
-  </app-page-toolbar>
+  </div>
 
   @if (error(); as msg) {
     <div
@@ -62,20 +62,23 @@
   }
 
   @if (!loading() && datosLocal(); as datos) {
-    <div class="row g-4 align-items-start mb-5">
-      <div class="col-lg-7">
+    <div class="row g-4 align-items-start mb-3">
+      <div class="col-lg-7 d-flex flex-column gap-2">
         <app-datos-local-form
           [datosLocal]="datos"
           [familiasTipograficas]="familiasTipograficas()"
           (datosLocalChange)="onDatosLocalChange($event)"
           (archivoCambiar)="state.setArchivoLogo($event)"
         />
+        <div class="pt-2">
+          <h2 class="config-section-title">Configuración de turnos</h2>
+          <app-turnos-laborales-list [turnos]="turnos()" (turnoChange)="onTurnoChange($event)" />
+        </div>
       </div>
 
-      <div class="col-lg-5 d-flex justify-content-center">
+      <div class="col-lg-5 d-flex justify-content-end">
         <div
-          class="position-sticky top-0 pt-2 w-100 d-flex justify-content-center"
-          style="z-index: 10"
+          class="pt-2 d-flex justify-content-end"
         >
           <app-comensal-preview
             [datosLocal]="datos"
@@ -85,7 +88,7 @@
       </div>
     </div>
 
-    <div class="row g-4">
+    <div class="row g-4 mt-2">
       <div class="col-md-5">
         <h2 class="config-section-title">Métodos de pago habilitados</h2>
         <app-metodos-pago-list
@@ -93,101 +96,67 @@
           (toggleMetodo)="onToggleMetodoPago($event)"
         />
       </div>
-
-      <div class="col-md-7">
-        <h2 class="config-section-title">Configuración de turnos</h2>
-        <app-turnos-laborales-list [turnos]="turnos()" (turnoChange)="onTurnoChange($event)" />
-      </div>
-    </div>
-
-    <div class="row mt-5">
-      <div class="col-12">
+      <div class="col-md-7 ps-5">
         <h2 class="config-section-title">Porcentaje de ganancia</h2>
-        <div class="card shadow-sm border-0 rounded-3 mb-4">
-          <div class="card-body p-4">
-            @if (porcentajes(); as p) {
-              <div class="row">
-                <div class="col-md-6">
-                  <h6 class="fs-5 mb-4 fw-bold text-dark">Platos</h6>
-                  <div class="row g-3">
-                    @for (item of p.platos; track item.id) {
-                      <div class="col-6 d-flex align-items-center justify-content-between">
-                        <span>{{ item.descripcion }}</span>
-                        <input
-                          type="numeber"
-                          class="form-control custom-number-input"
-                          [value]="item.porcentaje"
-                          (input)="
-                            onPorcentajeItemChange({
-                              tipo: 'platos',
-                              id: item.id,
-                              porcentaje: +$any($event.target).value,
-                            })
-                          "
-                          min="0"
-                          max="200"
-                        />
-                      </div>
-                    }
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <h6 class="fs-5 mb-4 fw-bold text-dark">Bebidas</h6>
-                  <div class="row g-3">
-                    @for (item of p.bebidas; track item.id) {
-                      <div class="col-6 d-flex align-items-center justify-content-between">
-                        <span>{{ item.descripcion }}</span>
-                        <input
-                          type="number"
-                          class="form-control custom-number-input"
-                          [value]="item.porcentaje"
-                          (input)="
-                            onPorcentajeItemChange({
-                              tipo: 'bebidas',
-                              id: item.id,
-                              porcentaje: +$any($event.target).value,
-                            })
-                          "
-                          min="0"
-                          max="200"
-                        />
-                      </div>
-                    }
-                  </div>
-                </div>
+        @if (porcentajes(); as p) {
+          <h6 class="fs-5 mb-3 fw-bold text-dark">Platos</h6>
+          <div class="row g-3 mb-4">
+            @for (item of p.platos; track item.id) {
+              <div class="col-6 d-flex align-items-center justify-content-between">
+                <span>{{ item.descripcion }}</span>
+                <input
+                  type="number"
+                  class="form-control custom-number-input"
+                  [value]="item.porcentaje"
+                  (input)="onPorcentajeItemChange({ tipo: 'platos', id: item.id, porcentaje: +$any($event.target).value })"
+                  min="0"
+                  max="200"
+                />
               </div>
             }
           </div>
-        </div>
+          <h6 class="fs-5 mb-3 fw-bold text-dark">Bebidas</h6>
+          <div class="row g-3">
+            @for (item of p.bebidas; track item.id) {
+              <div class="col-6 d-flex align-items-center justify-content-between">
+                <span>{{ item.descripcion }}</span>
+                <input
+                  type="number"
+                  class="form-control custom-number-input"
+                  [value]="item.porcentaje"
+                  (input)="onPorcentajeItemChange({ tipo: 'bebidas', id: item.id, porcentaje: +$any($event.target).value })"
+                  min="0"
+                  max="200"
+                />
+              </div>
+            }
+          </div>
+        }
       </div>
     </div>
 
-   <div class="row">
-  <div class="col-12">
-    <h2 class="config-section-title">Fila virtual</h2>
     @if (filaVirtual(); as fv) {
-    <div class="card shadow-sm border-0 rounded-3 mb-4">
-      <div class="card-body p-4 d-flex justify-content-between align-items-center">
-        <div>
-          <h6 class="mb-1 fw-bold fs-5 text-dark">Habilitar fila virtual</h6>
-          <span class="text-muted"
-            >Los clientes pueden anotarse desde la puerta cuando no hay mesas disponibles.</span
-          >
-        </div>
-        <div class="form-check form-switch custom-switch mb-0">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            role="switch"
-            [checked]="fv.habilitada"
-            (change)="onToggleFilaVirtual()"
-          />
+      <div class="row mt-4">
+        <div class="col-12">
+          <h2 class="config-section-title">Fila virtual</h2>
+          <div class="d-flex justify-content-between align-items-center py-2">
+            <div>
+              <h6 class="mb-1 fw-bold fs-5 text-dark">Habilitar fila virtual</h6>
+              <span class="text-muted">Los clientes pueden anotarse desde la puerta cuando no hay mesas disponibles.</span>
+            </div>
+            <div class="form-check form-switch custom-switch mb-0">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                role="switch"
+                [checked]="fv.habilitada"
+                (change)="onToggleFilaVirtual()"
+              />
+            </div>
+          </div>
         </div>
       </div>
-    </div>
     }
-  </div>
-</div>
 
   }
 </div>

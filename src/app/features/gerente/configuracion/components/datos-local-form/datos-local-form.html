@@ -1,7 +1,6 @@
-<div class="card shadow-sm border-0 rounded-3 mb-4">
-  <div class="card-body p-4">
 
-    <div class="d-flex gap-3 align-items-end flex-nowrap">
+
+    <div class="d-flex gap-3 align-items-start flex-nowrap">
       <div class="logo-uploader" (click)="fileInput.click()">
         @if (previewUrl(); as url) {
           <img [src]="url" alt="Logo preview" class="img-fluid w-100 h-100" style="object-fit: contain;" />
@@ -18,7 +17,7 @@
       </div>
       <input #fileInput type="file" accept="image/png, image/jpeg, image/webp" class="d-none" (change)="onFileSelected($event)" />
 
-      <div style="width: 120px;">
+      <div style="flex: 1;">
         <label class="form-label-custom">Color principal</label>
         <div class="color-swatch-wrap">
           <input type="color" class="custom-color-input"
@@ -26,7 +25,7 @@
             (input)="emitir('colorPrincipal', $any($event.target).value)" />
         </div>
       </div>
-      <div style="width: 120px;">
+      <div style="flex: 1;">
         <label class="form-label-custom">Color secundario</label>
         <div class="color-swatch-wrap">
           <input type="color" class="custom-color-input"
@@ -111,5 +110,3 @@
       </div>
     </div>
 
-  </div>
-</div>
