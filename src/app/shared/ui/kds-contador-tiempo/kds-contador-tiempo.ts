@@ -16,13 +16,10 @@ export class KdsContadorTiempo {
   private destroyRef = inject(DestroyRef);
 
   constructor(){
-    this.ngZone.runOutsideAngular(() => {
-      const intervaloId = setInterval(() => {
-        this.tick.update(t => t + 1);
-      }, 1000);
-
-      this.destroyRef.onDestroy(() => clearInterval(intervaloId));
-    });
+  const intervaloId = setInterval(() => {
+    this.tick.update(t => t + 1);
+  }, 1000);
+  this.destroyRef.onDestroy(() => clearInterval(intervaloId));
   }
   
   tiempoFormateado = computed(() => {

@@ -1,5 +1,11 @@
 <div class="comandas-container">
 
+  @if (notificacionLlamado()) {
+  <div class="notificacion-llamado">
+    ¡Mozo llamado — Mesa {{ notificacionLlamado() }}!
+  </div>
+  }
+
   <details class="kds-section" open>
     <summary class="section-header bg-orange">
       EN PREPARACIÓN ({{ state.comandasEnPreparacion().length }})
