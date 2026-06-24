@@ -241,6 +241,25 @@
     </div>
   }
 
+  <!-- Modal: Generar QR -->
+  @if (mostrarModalQr()) {
+    <div class="modal-overlay" (click)="cerrarModalQr()">
+      <div class="modal-content text-center" (click)="$event.stopPropagation()">
+        <h2>QR Mesa {{ mesaQrId() }}</h2>
+        <p class="text-muted mb-4 d-print-none">Escaneá este código para abrir la comanda.</p>
+        
+        <div class="qr-print-area d-flex justify-content-center p-3 mb-3 bg-white rounded">
+          <qrcode [qrdata]="urlQr()" [width]="256" [errorCorrectionLevel]="'M'"></qrcode>
+        </div>
+
+        <div class="modal-actions d-print-none">
+          <button class="btn-cancelar" (click)="cerrarModalQr()">Cerrar</button>
+          <button class="btn-confirmar" (click)="imprimirQr()">Imprimir PDF</button>
+        </div>
+      </div>
+    </div>
+  }
+
 </div>
 
 <!-- Modal / Offcanvas Container para Comanda -->

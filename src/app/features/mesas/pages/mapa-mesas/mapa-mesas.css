@@ -1,3 +1,23 @@
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .qr-print-area, .qr-print-area * {
+    visibility: visible;
+  }
+  .qr-print-area {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
 .mapa-wrapper { display: flex; flex-direction: column; gap: 1rem; padding: 1rem; }
 .header-controles { display: flex; justify-content: space-between; align-items: center; }
 .btn-editor { padding: 0.5rem 1rem; background: #c0392b; color: white; border: none; border-radius: 4px; cursor: pointer; }

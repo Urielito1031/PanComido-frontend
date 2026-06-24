@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, ChangeDetectionStrategy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CdkDragEnd, CdkDragMove, DragDropModule } from '@angular/cdk/drag-drop';
+import { QRCodeComponent } from 'angularx-qrcode';
 import { MesaState } from '../../services/mesa.state';
 import { EstadoMesa, FormaMesa, Mesa } from '../../../../core/models/domain/mesa';
 import { MesaItem } from '../../../../shared/components/mesa-item/mesa-item';
@@ -11,7 +12,7 @@ import { MesaService } from '../../services/mesa.service';
 @Component({
   selector: 'app-mapa-mesas',
   standalone: true,
-  imports: [CommonModule, DragDropModule, MesaItem, ComandaDetalleUiComponent],
+  imports: [CommonModule, DragDropModule, MesaItem, ComandaDetalleUiComponent, QRCodeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './mapa-mesas.html',
   styleUrl: './mapa-mesas.css'
@@ -41,6 +42,15 @@ export class MapaMesas implements OnInit {
   mostrarModalAsignacion = signal<boolean>(false);
   mozosSeleccionadosIds = signal<number[]>([]);
   mozosDisponibles = signal<{ id: number, nombre: string }[]>([]);
+
+  // Modal QR
+  mostrarModalQr = signal<boolean>(false);
+  mesaQrId = signal<number | null>(null);
+  urlQr = computed(() => {
+    const mId = this.mesaQrId();
+    if (!mId) return '';
+    return `${window.location.origin}/comensal/mesa/${this.auth.restauranteId}/${mId}`;
+  });
 
   toggleFiltroAsignacion() {
     this.modoFiltroAsignacion.update(v => !v);
@@ -187,7 +197,21 @@ export class MapaMesas implements OnInit {
         this.mostrarModalAsignacion.set(true);
         this.state.seleccionarMesa(null);
         break;
+      case 'generar-qr':
+        this.mesaQrId.set(id);
+        this.mostrarModalQr.set(true);
+        this.state.seleccionarMesa(null);
+        break;
     }
+  }
+
+  cerrarModalQr() {
+    this.mostrarModalQr.set(false);
+    this.mesaQrId.set(null);
+  }
+
+  imprimirQr() {
+    window.print();
   }
 
   onMesaClick(id: number) {
