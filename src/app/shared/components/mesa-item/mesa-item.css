@@ -46,7 +46,7 @@ span.numero {
 .estado-disponible { background-color: #6abf3f; } /* Verde */
 .estado-ocupada { background-color: #bf0f22; }    /* Rojo */
 .estado-reservada { background-color: #f7d627; color: black; }
-.estado-deshabilitada { background-color: #000000; }
+.estado-deshabilitada { background-color: #95a5a6; } /* Gris plomo en lugar de negro */
 
 /* ESTILOS DE FORMA (Bordes) */
 .forma-redonda { border-radius: 50%; }

@@ -109,6 +109,11 @@ export class MesaState {
       return;
     }
 
+    if (mesa && mesa.mozosAsignadosIds && mesa.mozosAsignadosIds.length > 0) {
+      this.lectura.mostrarNotificacion('No podés eliminar esta mesa porque tiene mozos asignados. Desasignalos primero.', 'error');
+      return;
+    }
+
     this.lectura.updateMesas(mesas => mesas.filter(m => m.id !== id));
   }
 

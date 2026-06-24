@@ -19,6 +19,7 @@
 
       @if (auth.tieneRoles(['Gerente'])) {
         <button type="button" class="btn-accion text-primary" (click)="$event.stopPropagation(); accionMenu.emit('asignar-mozo')">Asignar Mozo</button>
+        <button type="button" class="btn-accion text-secondary" (click)="$event.stopPropagation(); accionMenu.emit('generar-qr')">Generar QR</button>
       }
 
       @if (mesa().estadoMesa === 'Deshabilitada') {

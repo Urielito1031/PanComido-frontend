@@ -108,8 +108,7 @@ export class MapaMesasReadonly {
 
   verComandaMobile() {
     if (this.mesaMobileSeleccionada) {
-      // this.ejecutarAccion(this.mesaMobileSeleccionada.id, 'detalles');
-      this.state.mostrarNotificacion('Esperando pedido de los comensales...', 'info');
+      this.ejecutarAccion(this.mesaMobileSeleccionada.id, 'detalles');
     }
   }
 

@@ -1,16 +1,18 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CdkDragEnd, CdkDragMove, DragDropModule } from '@angular/cdk/drag-drop';
+import { QRCodeComponent } from 'angularx-qrcode';
 import { MesaState } from '../../services/mesa.state';
 import { EstadoMesa, FormaMesa, Mesa } from '../../../../core/models/domain/mesa';
 import { MesaItem } from '../../../../shared/components/mesa-item/mesa-item';
+import { ComandaDetalleUiComponent } from '../../../../shared/components/comanda-detalle-ui/comanda-detalle-ui';
 import { AuthService } from '../../../../core/services/auth.service';
 import { MesaService } from '../../services/mesa.service';
 
 @Component({
   selector: 'app-mapa-mesas',
   standalone: true,
-  imports: [CommonModule, DragDropModule, MesaItem],
+  imports: [CommonModule, DragDropModule, MesaItem, ComandaDetalleUiComponent, QRCodeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './mapa-mesas.html',
   styleUrl: './mapa-mesas.css'
@@ -31,15 +33,45 @@ export class MapaMesas implements OnInit {
   mostrarModalComanda = signal<boolean>(false);
   mesaComandaId = signal<number | null>(null);
 
+  // Modal / Offcanvas detalle de comanda ocupada
+  mostrarComandaDetalle = signal<boolean>(false);
+  comandaCargada = signal<any>(null);
+
   // Asignacion Mozos
   modoFiltroAsignacion = signal<boolean>(false);
   mostrarModalAsignacion = signal<boolean>(false);
   mozosSeleccionadosIds = signal<number[]>([]);
-  mozosDisponibles = signal<{id: number, nombre: string}[]>([]);
+  mozosDisponibles = signal<{ id: number, nombre: string }[]>([]);
+
+  // Modal QR
+  mostrarModalQr = signal<boolean>(false);
+  mesaQrId = signal<number | null>(null);
+  urlQr = computed(() => {
+    const mId = this.mesaQrId();
+    if (!mId) return '';
+    return `${window.location.origin}/comensal/mesa/${this.auth.restauranteId}/${mId}`;
+  });
 
   toggleFiltroAsignacion() {
     this.modoFiltroAsignacion.update(v => !v);
   }
+
+  mesasFiltradas = computed(() => {
+    const todas = this.state.mesas().filter(m => m.tipoElemento !== 2);
+    if (this.modoFiltroAsignacion()) {
+      if (this.auth.rol() === 'Mozo') {
+        const myId = this.auth.empleadoId;
+        return todas.filter(m => m.mozosAsignadosIds?.includes(myId));
+      } else {
+        return todas.filter(m => m.mozosAsignadosIds && m.mozosAsignadosIds.length > 0);
+      }
+    }
+    return todas;
+  });
+
+  mesasTotales = computed(() => this.mesasFiltradas().length);
+  mesasDisponibles = computed(() => this.mesasFiltradas().filter(m => m.estadoMesa === EstadoMesa.Disponible).length);
+  mesasOcupadas = computed(() => this.mesasFiltradas().filter(m => m.estadoMesa === EstadoMesa.Ocupada).length);
 
   ngOnInit() {
     this.state.cargarMesas(); // Dispara la carga inicial al mock
@@ -86,7 +118,7 @@ export class MapaMesas implements OnInit {
 
   verComandaMobile() {
     if (this.mesaMobileSeleccionada()) {
-      this.state.mostrarNotificacion('Esperando comanda de los comensales...', 'info');
+      this.ejecutarAccion(this.mesaMobileSeleccionada()!.id, 'detalles');
     }
   }
 
@@ -148,7 +180,14 @@ export class MapaMesas implements OnInit {
         this.state.cambiarEstadoMesa(id, EstadoMesa.Deshabilitada);
         break;
       case 'detalles':
-        this.state.mostrarNotificacion('Esperando pedido de los comensales...', 'info');
+        this.mesaSeleccionadaId.set(id);
+        this.mesaService.getComandaActivaPorMesa(id).subscribe({
+          next: (comanda) => {
+            this.comandaCargada.set(comanda);
+            this.mostrarComandaDetalle.set(true);
+          },
+          error: () => this.state.mostrarNotificacion('Error al cargar la comanda', 'error')
+        });
         this.state.seleccionarMesa(null);
         break;
       case 'asignar-mozo':
@@ -158,7 +197,21 @@ export class MapaMesas implements OnInit {
         this.mostrarModalAsignacion.set(true);
         this.state.seleccionarMesa(null);
         break;
+      case 'generar-qr':
+        this.mesaQrId.set(id);
+        this.mostrarModalQr.set(true);
+        this.state.seleccionarMesa(null);
+        break;
     }
+  }
+
+  cerrarModalQr() {
+    this.mostrarModalQr.set(false);
+    this.mesaQrId.set(null);
+  }
+
+  imprimirQr() {
+    window.print();
   }
 
   onMesaClick(id: number) {
@@ -192,10 +245,33 @@ export class MapaMesas implements OnInit {
     this.mostrarModalAsignacion.set(false);
   }
 
+  cerrarComandaDetalle() {
+    this.mostrarComandaDetalle.set(false);
+    this.comandaCargada.set(null);
+    this.mesaSeleccionadaId.set(null);
+  }
+
+  calcularTotalComanda(items: any[]): number {
+    return items.reduce((acc, item) => acc + ((item.articulo.precioVentaFinal || 0) * item.cantidad), 0);
+  }
+
+  cobrarComanda() {
+    console.log('Cobrar pedido clickeado para comanda', this.comandaCargada()?.id);
+    this.state.mostrarNotificacion('Cobrar pedido: Pendiente de implementación', 'info');
+  }
+
+  cerrarMesaComanda() {
+    console.log('Cerrar mesa clickeado para comanda', this.comandaCargada()?.id);
+    if (this.mesaSeleccionadaId()) {
+      this.ejecutarAccion(this.mesaSeleccionadaId()!, 'cerrar');
+    }
+    this.cerrarComandaDetalle();
+  }
+
   guardarAsignacionMozos() {
     const mesaId = this.mesaSeleccionadaId();
     if (mesaId === null) return;
-    
+
     this.mesaService.asignarMozos(mesaId, this.mozosSeleccionadosIds()).subscribe({
       next: () => {
         this.state.mostrarNotificacion('Mozos asignados correctamente', 'exito');
@@ -212,6 +288,16 @@ export class MapaMesas implements OnInit {
       .sort((a, b) => a.numeroMesa - b.numeroMesa);
   }
 
+  getMesaColor(mesa: Mesa): string {
+    if (mesa.tipoElemento === 2) return mesa.color || '#34495e';
+    switch (mesa.estadoMesa) {
+      case EstadoMesa.Disponible: return '#5cb85c';
+      case EstadoMesa.Ocupada: return '#c0392b';
+      case EstadoMesa.Reservada: return '#f1c40f';
+      default: return '#95a5a6';
+    }
+  }
+
   getMobileClass(estado: string): string {
     switch (estado.toLowerCase()) {
       case 'disponible': return 'disponible';
@@ -221,6 +307,5 @@ export class MapaMesas implements OnInit {
       default: return 'disponible';
     }
   }
-
 
 }

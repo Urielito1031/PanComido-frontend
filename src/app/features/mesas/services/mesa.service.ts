@@ -37,4 +37,8 @@ export class MesaService {
   asignarMozos(mesaId: number, mozosIds: number[]): Observable<void> {
     return this.api.post<void>(`${this.endpoint}/${mesaId}/mozos`, mozosIds);
   }
+
+  getComandaActivaPorMesa(mesaId: number): Observable<any> {
+    return this.api.get<any>(`comanda/mesa/${mesaId}/activa`);
+  }
 }

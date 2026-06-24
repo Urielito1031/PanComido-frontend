@@ -41,14 +41,18 @@
   <!-- Modal: Comanda / Detalles -->
   @if (mostrarModalComanda()) {
     <div class="modal-overlay" (click)="cerrarModalComanda()">
-      <div class="modal-content modal-comanda" (click)="$event.stopPropagation()">
-        <h2>Comanda - Mesa {{ mesaComandaId() }}</h2>
-        <p>Aquí se muestra la comanda activa de la mesa...</p>
-        <!-- TODO: Integrar con ComandaState y mostrar platos -->
-
-        <div class="modal-actions">
-          <button class="btn-cancelar" (click)="cerrarModalComanda()">Cerrar</button>
-        </div>
+      <div class="modal-content modal-comanda p-0" (click)="$event.stopPropagation()">
+        @if (comandaCargada()) {
+          <app-comanda-detalle-ui
+            [comensales]="comandaCargada().cantComensales"
+            [mesa]="comandaCargada().numeroDeMesa"
+            [items]="comandaCargada().items"
+            [total]="calcularTotalComanda(comandaCargada().items)"
+            (cerrar)="cerrarModalComanda()"
+            (cobrar)="cerrarModalComanda()"
+            (cerrarMesa)="cerrarMesaComanda()"
+          ></app-comanda-detalle-ui>
+        }
       </div>
     </div>
   }

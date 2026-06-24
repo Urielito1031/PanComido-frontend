@@ -18,7 +18,7 @@ export class MesaItem {
   enColision = input<boolean>(false);
 
   clickMesa = output<number>();
-  accionMenu = output<'ocupar' | 'detalles' | 'deshabilitar' | 'cerrar' | 'abrir' | 'asignar-mozo'>();
+  accionMenu = output<'ocupar' | 'detalles' | 'deshabilitar' | 'cerrar' | 'abrir' | 'asignar-mozo' | 'generar-qr'>();
   auth = inject(AuthService);
 
   ancho = computed(() => this.mesa().posicionXFin - this.mesa().posicionXInicio);
