@@ -6,6 +6,6 @@ export interface ConfirmarPedidoRequest {
 export interface ItemPedidoRequest {
   articuloId: number;
   cantidad: number;
-  observacionesIngredientes: string | null;
+  idIngredientesPersonalizadosSacados: number[] | null;
   observacionesGenerales: string | null;
 }

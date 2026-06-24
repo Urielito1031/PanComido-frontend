@@ -1,19 +1,23 @@
 <div class="personalizar-container">
 
   <app-header-comensal [showBack]="true" [title]="''" (back)="volver()" />
-    <div class="content-card">
-    <div class="plato-image-wrapper">
+
+  <div class="plato-summary">
+    <div class="plato-summary-img">
       @if (plato?.plato?.urlImagen) {
-        <img [src]="plato?.plato?.urlImagen" class="plato-image" [alt]="plato?.plato?.nombre">
+        <img [src]="plato?.plato?.urlImagen" [alt]="plato?.plato?.nombre">
       } @else {
-        <div class="plato-image-placeholder">
+        <div class="plato-summary-placeholder">
           <span class="material-symbols-outlined">restaurant</span>
         </div>
       }
     </div>
-    <div class="plato-header">
-      <h2 class="plato-nombre">{{ plato?.plato?.nombre }}</h2>
-      <span class="plato-precio">$ {{ plato?.plato?.precio | number:'1.0-0' }}</span>
+    <div class="plato-summary-info">
+      <h2 class="plato-summary-nombre">{{ plato?.plato?.nombre }}</h2>
+      @if (plato?.plato?.descripcion) {
+        <p class="plato-summary-desc">{{ plato?.plato?.descripcion }}</p>
+      }
+      <span class="plato-summary-precio">$ {{ plato?.plato?.precio | number:'1.0-0' }}</span>
     </div>
   </div>
 
@@ -23,21 +27,24 @@
     @if (ingredientesOpcionales.length > 0) {
     <div class="seccion-group">
       <h4>Ingredientes</h4>
+      <div class="ingredientes-grid">
       @for (ing of ingredientesOpcionales; track ing.ingredienteId) {
-    <label class="d-flex align-items-center justify-content-between py-2" style="cursor: pointer;">
-      <span>{{ ing.nombre }}</span>
-      <input type="checkbox" [checked]="seleccionados.includes(ing.nombre)" (change)="toggleIngrediente(ing.nombre)"
-        style="width: 18px; height: 18px;">
-    </label>
-  }
+        <label class="ingrediente-check">
+          <input type="checkbox"
+            [checked]="seleccionados.includes(ing.nombre)"
+            (change)="toggleIngrediente(ing.nombre)"
+            class="ingrediente-check-input">
+          <span class="ingrediente-check-visual">{{ ing.nombre }}</span>
+        </label>
+      }
+      </div>
     </div>
     }
 
     <div class="seccion-group">
       <h4>Otras indicaciones</h4>
       <textarea class="observaciones-input" placeholder="Ej: sin cebolla, poco cocido, etc." rows="3"
-        [(ngModel)]="observaciones">
-        </textarea>
+        [(ngModel)]="observaciones"></textarea>
     </div>
   </div>
 

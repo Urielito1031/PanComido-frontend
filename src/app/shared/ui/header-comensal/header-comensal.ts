@@ -54,7 +54,6 @@ export class HeaderComensal {
       const sesion = JSON.parse(raw);
       const comandaId = sesion.idComandaGenerada ?? sesion.comandaId;
       this.urlInvitacion.set(`${window.location.origin}/comensal/unirse/${comandaId}`);
-      console.log("ACA LA URL DEL QR PAPUU: ", this.urlInvitacion, window.location.origin)
       this.popupAbierto.set(true);
     } catch {
       console.error('Error al parsear sesionComensal');

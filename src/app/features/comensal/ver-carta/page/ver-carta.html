@@ -82,6 +82,67 @@
       (limpiar)="state.limpiarFiltros()" />
   }
 
+  @if (mostrarOnboarding()) {
+    <div class="onboarding-overlay" (click)="cerrarOnboarding()">
+      <div class="onboarding-card" (click)="$event.stopPropagation()">
+        <div class="onboarding-greeting">
+          @if (configuracionVisualState.logoUrl()) {
+            <img [src]="configuracionVisualState.logoUrl()" alt="Logo" class="onboarding-logo">
+          }
+          <h2 class="onboarding-titulo">Bienvenido a {{ configuracionVisualState.nombreLocal() }}</h2>
+        </div>
+
+        <div class="onboarding-hints">
+          <div class="onboarding-hint">
+            <span class="hint-icono" [style.background]="configuracionVisualState.colorPrimario()">
+              <span class="material-symbols-outlined">room_service</span>
+            </span>
+            <div class="hint-texto">
+              <strong>Llamar al mozo</strong>
+              <span>Cuando necesites algo, toca el botón de abajo en la pantalla</span>
+            </div>
+          </div>
+
+          <div class="onboarding-hint">
+            <span class="hint-icono" [style.background]="configuracionVisualState.colorPrimario()">
+              <span class="material-symbols-outlined">group_add</span>
+            </span>
+            <div class="hint-texto">
+              <strong>Compartir mesa</strong>
+              <span>Invitá a otros comensales con el botón de arriba a la derecha</span>
+            </div>
+          </div>
+
+          <div class="onboarding-hint">
+            <span class="hint-icono" [style.background]="configuracionVisualState.colorPrimario()">
+              <span class="material-symbols-outlined">tune</span>
+            </span>
+            <div class="hint-texto">
+              <strong>Personalizar plato</strong>
+              <span>Tocá cualquier plato para sumar o sacar ingredientes</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="onboarding-btn" (click)="cerrarOnboarding()"
+          [style.background]="configuracionVisualState.colorPrimario()">
+          Entendido
+        </button>
+      </div>
+    </div>
+  }
+
+  @if (flyAnim(); as f) {
+    <div class="fly-item" [class.fly-volando]="f.volando"
+      [style.left.px]="f.x" [style.top.px]="f.y">
+      <div class="fly-item-disco"
+        [style.border-color]="configuracionVisualState.colorPrimario()"
+        [style.color]="configuracionVisualState.colorPrimario()">
+        <span class="material-symbols-outlined">restaurant</span>
+      </div>
+    </div>
+  }
+
   <app-comensal-footer-cart
     [cantidadItems]="cantidadTotalPedido()"
     [total]="totalPedido()"

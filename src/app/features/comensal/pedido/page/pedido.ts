@@ -17,7 +17,8 @@ import { ArticuloComensalResponse } from '../../../../core/models/dtos/responses
   selector: 'app-pedido',
   standalone: true,
   imports: [HeaderComensal, BotonComensal, DecimalPipe, LlamarAlMozo],
-  templateUrl: './pedido.html'
+  templateUrl: './pedido.html',
+  styleUrl: './pedido.css'
 })
 export class Pedido implements OnInit {
   private router = inject(Router);

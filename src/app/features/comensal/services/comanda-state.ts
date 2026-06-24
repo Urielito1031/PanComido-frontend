@@ -7,6 +7,7 @@ import { EstadoPedido } from '../../../core/models/domain/comanda';
 import { Mesa } from '../../../core/models/domain/mesa';
 import { ComandaHubService } from '../../../core/services/hubs/comanda/comanda-hub-service';
 import { HttpClient } from '@angular/common/http';
+import { ItemPedido } from '../../../core/models/domain/item-pedido';
 
 @Injectable({ providedIn: 'root' })
 export class ComandaState {
@@ -125,34 +126,19 @@ export class ComandaState {
       return;
     }
 
-    const pedidos = this.pedidoService.obtenerPedidos();
+    const pedidos: ItemPedido[] = this.pedidoService.obtenerPedidos();
 
     if (pedidos.length === 0) {
       this.#error.set('El carrito está vacío');
       return;
     }
 
-    console.log('comandaId:', comandaId);
-    console.log('restauranteId:', restauranteId);
-    console.log('pedidos:', pedidos);
-
-
     this.#cargando.set(true);
     this.#error.set(null);
 
     const nombreComensal = sessionStorage.getItem('nombreComensal') ?? '';
 
-    const items = pedidos.map(p => ({
-      articuloId: p.plato.id,
-      cantidad: p.cantidad,
-      observacionesIngredientes: p.observacionesIngredientes ?? null,
-      observacionesGenerales: p.observacionesGenerales ?? null
-    }));
-
-    this.comandaService.confirmarPedido(comandaId, restauranteId, {
-      items,
-      nombreComensal
-    })
+    this.comandaService.confirmarPedido(comandaId, restauranteId,pedidos,nombreComensal)
       .pipe(takeUntilDestroyed(this.#destroyRef))
       .subscribe({
         next: (response) => {

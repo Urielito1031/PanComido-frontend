@@ -1,7 +1,6 @@
 import { DestroyRef, inject, Component, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { Boton } from '../../../../shared/ui/botones/boton/boton';
 import { HeaderComensal } from '../../../../shared/ui/header-comensal/header-comensal';
 import { BotonComensal } from '../../../../shared/ui/botones/boton-comensal/boton-comensal';
 import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
@@ -12,7 +11,7 @@ import { FormsModule } from '@angular/forms';
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-cantidad-personas',
   standalone: true,
-  imports: [FormsModule, Boton, HeaderComensal, BotonComensal],
+  imports: [FormsModule, HeaderComensal, BotonComensal],
   templateUrl: './cantidad-personas.html',
   styleUrls: ['./cantidad-personas.css'],
 })

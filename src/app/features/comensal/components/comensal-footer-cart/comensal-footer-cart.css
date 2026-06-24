@@ -98,3 +98,23 @@
   font-size: 11px !important;
   font-weight: 700 !important;
 }
+
+@keyframes flyPulse {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+.cart-count-badge.fly-pulse {
+  animation: flyPulse 0.35s ease;
+}
+
+@keyframes flyReceive {
+  0% { transform: scale(1) translateY(0); }
+  20% { transform: scale(1.06) translateY(-3px); }
+  45% { transform: scale(0.96) translateY(1px); }
+  65% { transform: scale(1.02) translateY(-1px); }
+  100% { transform: scale(1) translateY(0); }
+}
+.cart-pill-btn.fly-receive {
+  animation: flyReceive 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}

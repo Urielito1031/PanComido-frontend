@@ -36,6 +36,12 @@ export class CardPlatoComensalComponent {
     this.cantidad.set(1);
   }
 
+  imgError = signal(false);
+
+  onImgError(): void {
+    this.imgError.set(true);
+  }
+
   verDetalle(): void {
     this.router.navigate(['/comensal/pedido'], {
       state: { plato: this.plato() }

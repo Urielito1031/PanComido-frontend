@@ -93,10 +93,34 @@
 }
 
 .nombre-container input:focus {
-  border-color: #ff9800;
-  box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.2);
+  border-color: var(--color-primario, #ff9800);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primario, #ff9800) 20%, transparent);
 }
 
 .nombre-container input::placeholder {
   color: #999;
+}
+
+@media (max-width: 480px) {
+  .cantidad-card {
+    padding: 24px 20px;
+    gap: 18px;
+  }
+  .cantidad-item {
+    height: 64px;
+    font-size: 24px;
+  }
+  .cantidad-grid {
+    gap: 12px;
+  }
+  .botones {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .nombre-container {
+    margin: 16px;
+  }
+  .nombre-container label {
+    font-size: 1.2rem;
+  }
 }
