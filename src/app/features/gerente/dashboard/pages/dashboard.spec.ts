@@ -26,6 +26,17 @@ describe('DashboardPage', () => {
       periodo: signal('7d'),
       fechaDesde: signal(''),
       fechaHasta: signal(''),
+      viewMode: signal('reportes'),
+      favoritesConfig: signal([]),
+      isEditing: signal(false),
+      esFavorito: vi.fn().mockReturnValue(false),
+      toggleFavorito: vi.fn(),
+      addFavorite: vi.fn(),
+      insertFavoriteAt: vi.fn(),
+      removeFavorite: vi.fn(),
+      updateFavoriteWidth: vi.fn(),
+      reorderFavorites: vi.fn(),
+      toggleEditing: vi.fn(),
       atencion: signal([]),
       resumenOperativo: signal(null),
       esModoCalendario: signal(false),
@@ -49,13 +60,23 @@ describe('DashboardPage', () => {
       variacionVentasEsNegativa: signal(false),
       variacionPedidosEsNegativa: signal(false),
       variacionTicketEsNegativa: signal(false),
+      ultimoRefresco: signal(new Date()),
+      cargando: signal(false),
       insumosPorVencer: signal([]),
       lecturaCanales: signal([]),
-      
+      platoSeleccionado: signal(null),
+      mozos: signal([]),
+      insightMozos: signal(''),
+      toastMensaje: signal(null),
       cargarDatos: vi.fn(),
       setPeriodo: vi.fn(),
       setFechaDesde: vi.fn(),
       setFechaHasta: vi.fn(),
+      setViewMode: vi.fn(),
+      abrirDetallePlato: vi.fn(),
+      cerrarDetallePlato: vi.fn(),
+      aplicarDescuentoDirecto: vi.fn(),
+      agendarRecordatorioDirecto: vi.fn()
     };
 
     await TestBed.configureTestingModule({
@@ -95,8 +116,8 @@ describe('DashboardPage', () => {
     });
     fixture.detectChanges();
 
-    const kpiGrid = fixture.debugElement.query(By.css('.kpi-grid'));
-    expect(kpiGrid).toBeTruthy();
+    const gridContainer = fixture.debugElement.query(By.css('.dashboard-grid-container'));
+    expect(gridContainer).toBeTruthy();
     
     const values = fixture.debugElement.queryAll(By.css('.kpi-value'));
     expect(values.length).toBeGreaterThan(0);

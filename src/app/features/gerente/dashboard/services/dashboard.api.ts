@@ -3,7 +3,7 @@ import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ApiService } from '../../../../core/services/api-service';
-import { DashboardInsumoVencimiento, DashboardRankingItem } from '../../../../core/models/domain/dashboard';
+import { DashboardInsumoVencimiento, DashboardRankingItem, PlatoAnalisis } from '../../../../core/models/domain/dashboard';
 import { DashboardVencimientoDto } from '../../../../core/models/dtos/responses/dashboard-vencimiento.response';
 import { DashboardRendimientoResponseDto } from '../../../../core/models/dtos/responses/dashboard-rendimiento.response';
 import { mapVencimientoDtoToDomain, mapPlatoRendimientoDtoToDomain } from '../../../../infra/http/mappers/dashboard.mapper';
@@ -42,6 +42,25 @@ export class DashboardApiService {
       .set('hasta', hasta);
 
     return this.api.get<DashboardResumenOperativoResponse>('gerente/dashboard/resumen', params);
+  }
+
+  getAnalisisPlato(nombre: string): Observable<PlatoAnalisis> {
+    const params = new HttpParams().set('nombre', nombre);
+    return this.api.get<PlatoAnalisis>('gerente/dashboard/analisis-plato', params);
+  }
+
+  aplicarDescuentoPlato(platoId: number, porcentajeDescuento: number): Observable<any> {
+    return this.api.post<any>('gerente/dashboard/analisis-plato/aplicar-descuento', {
+      platoId,
+      porcentajeDescuento
+    });
+  }
+
+  agendarRecordatorioPlato(platoId: number, accionSugerida: string): Observable<any> {
+    return this.api.post<any>('gerente/dashboard/analisis-plato/agendar-recordatorio', {
+      platoId,
+      accionSugerida
+    });
   }
 }
 

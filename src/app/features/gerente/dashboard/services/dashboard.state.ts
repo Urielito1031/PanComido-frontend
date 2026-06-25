@@ -1,27 +1,149 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal, OnDestroy } from '@angular/core';
 import { 
   DashboardPeriodo, DashboardRankingItem, DashboardInsumoVencimiento, 
   DashboardLecturaComercial, DashboardAtencionItem, DashboardAccionItem, 
-  DashboardDestino, DashboardVentaMensual, DashboardVentaDia 
+  DashboardDestino, DashboardVentaMensual, DashboardVentaDia,
+  DashboardViewMode, PlatoAnalisis, PlatoSugerencia, MozoStat, WidgetLayout, FavoriteWidgetConfig
 } from '../../../../core/models/domain/dashboard';
 import { DashboardApiService, DashboardResumenOperativoResponse } from './dashboard.api';
+import { SignalRConexionService } from '../../../../core/services/hubs/base-hub-service';
+import { AuthService } from '../../../../core/services/auth.service';
+
+export const DEFAULT_LAYOUT: WidgetLayout[] = [
+  { id: 'kpi-ventas', colSpan: 3 },
+  { id: 'kpi-pedidos', colSpan: 3 },
+  { id: 'kpi-ticket', colSpan: 3 },
+  { id: 'kpi-promedio', colSpan: 3 },
+  { id: 'ventas-calendario', colSpan: 12 },
+  { id: 'lectura-comercial', colSpan: 12 },
+  { id: 'platos-mas-vendidos', colSpan: 6 },
+  { id: 'platos-menos-vendidos', colSpan: 6 },
+  { id: 'insumos-vencer', colSpan: 8 },
+  { id: 'proximas-acciones', colSpan: 4 },
+  { id: 'mozos', colSpan: 12 }
+];
+
+export const DEFAULT_FAVORITES: FavoriteWidgetConfig[] = [
+  { id: 'kpi-ventas', width: '25' },
+  { id: 'kpi-pedidos', width: '25' },
+  { id: 'kpi-ticket', width: '25' },
+  { id: 'kpi-promedio', width: '25' },
+  { id: 'ventas-calendario', width: '100' }
+];
+
+export const PRESET_FINANCIERO: FavoriteWidgetConfig[] = [
+  { id: 'kpi-ventas', width: '25' },
+  { id: 'kpi-ticket', width: '25' },
+  { id: 'kpi-promedio', width: '25' },
+  { id: 'kpi-pedidos', width: '25' },
+  { id: 'ventas-calendario', width: '100' }
+];
+
+export const PRESET_OPERATIVO: FavoriteWidgetConfig[] = [
+  { id: 'insumos-vencer', width: '100' },
+  { id: 'proximas-acciones', width: '50' },
+  { id: 'kpi-pedidos', width: '25' },
+  { id: 'kpi-promedio', width: '25' }
+];
+
+export const PRESET_PERSONAL: FavoriteWidgetConfig[] = [
+  { id: 'mozos', width: '100' },
+  { id: 'kpi-pedidos', width: '50' },
+  { id: 'proximas-acciones', width: '50' }
+];
 
 @Injectable({ providedIn: 'root' })
-export class DashboardStateService {
+export class DashboardStateService implements OnDestroy {
   private api = inject(DashboardApiService);
+  private signalR = inject(SignalRConexionService);
+  private auth = inject(AuthService);
 
   private _periodo = signal<DashboardPeriodo>('7d');
   private _fechaDesde = signal<string>('');
   private _fechaHasta = signal<string>('');
 
+  private _viewMode = signal<DashboardViewMode>('reportes');
+  private _favoritesConfig = signal<FavoriteWidgetConfig[]>(this.cargarFavoritesConfig());
+  isEditing = signal<boolean>(false);
+  private _platoSeleccionado = signal<PlatoAnalisis | null>(null);
   private _vencimientos = signal<DashboardInsumoVencimiento[]>([]);
   private _platosMasVendidos = signal<DashboardRankingItem[]>([]);
   private _platosMenosVendidos = signal<DashboardRankingItem[]>([]);
   private _resumen = signal<DashboardResumenOperativoResponse | null>(null);
 
+  private _ultimoRefresco = signal<Date>(new Date());
+  ultimoRefresco = this._ultimoRefresco.asReadonly();
+  cargando = signal<boolean>(false);
+  
+  private _recordatoriosAdicionales = signal<DashboardAccionItem[]>([]);
+  recordatoriosAdicionales = this._recordatoriosAdicionales.asReadonly();
+
+  readonly toastMensaje = signal<{ texto: string; tipo: 'exito' | 'info' } | null>(null);
+
+  mostrarToast(texto: string, tipo: 'exito' | 'info' = 'exito'): void {
+    this.toastMensaje.set({ texto, tipo });
+    setTimeout(() => {
+      this.toastMensaje.set(null);
+    }, 4000);
+  }
+
+  private pollingIntervalId: any = null;
+  private refreshTimeoutId: any = null;
+
+  constructor() {
+    this.conectarHubYPolling();
+  }
+
+  private conectarHubYPolling(): void {
+    // 1. Conectar SignalR
+    this.signalR.iniciar().then(async () => {
+      const rol = this.auth.rol();
+      const restauranteId = this.auth.restauranteId;
+      if (rol === 'Gerente' && restauranteId) {
+        try {
+          await this.signalR.hub.invoke('UnirseGerente', restauranteId);
+        } catch (e) {
+          console.warn('Error al unirse al grupo de Gerente en SignalR', e);
+        }
+      }
+      this.signalR.hub.on('MesaActualizada', () => {
+        this.refrescarConDebounce();
+      });
+    }).catch(err => {
+      console.warn('SignalR falló en DashboardStateService, usando fallback de polling', err);
+    });
+
+    // 2. Fallback de Polling cada 120 segundos
+    this.pollingIntervalId = setInterval(() => {
+      this.cargarDatos();
+    }, 120000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.pollingIntervalId) {
+      clearInterval(this.pollingIntervalId);
+    }
+    if (this.refreshTimeoutId) {
+      clearTimeout(this.refreshTimeoutId);
+    }
+  }
+
+  private refrescarConDebounce(): void {
+    if (this.refreshTimeoutId) {
+      clearTimeout(this.refreshTimeoutId);
+    }
+    this.refreshTimeoutId = setTimeout(() => {
+      this.cargarDatos();
+    }, 2000);
+  }
+
   periodo = this._periodo.asReadonly();
   fechaDesde = this._fechaDesde.asReadonly();
   fechaHasta = this._fechaHasta.asReadonly();
+  viewMode = this._viewMode.asReadonly();
+  favoritesConfig = this._favoritesConfig.asReadonly();
+  platoSeleccionado = this._platoSeleccionado.asReadonly();
+
 
   insumosPorVencer = this._vencimientos.asReadonly();
   platosMasVendidos = this._platosMasVendidos.asReadonly();
@@ -76,16 +198,16 @@ export class DashboardStateService {
     }
     if (criticos > 0) {
       items.push({
-        titulo: `${criticos} insumos criticos`,
+        titulo: `<span class="attention-qty-badge">${criticos}</span> insumos críticos`,
         detalle: 'Vencen pronto',
         accion: 'Ver stock',
-        destino: 'stock',
+        destino: 'vencimientos',
         tono: 'danger'
       });
     }
     if (platosEnBaja > 0) {
       items.push({
-        titulo: `${platosEnBaja} platos en baja`,
+        titulo: `<span class="attention-qty-badge">${platosEnBaja}</span> platos en baja`,
         detalle: 'Demanda ha caido',
         accion: 'Revisar carta',
         destino: 'carta',
@@ -109,7 +231,7 @@ export class DashboardStateService {
       items.push({ titulo: 'Revisar carta', detalle: 'Ajustar baja demanda', destino: 'carta', tono: 'info', impacto: 'Recupera ventas', prioridad: 3 });
     }
 
-    return items;
+    return [...items, ...this._recordatoriosAdicionales()];
   });
 
   esModoCalendario = computed(() => {
@@ -294,12 +416,26 @@ export class DashboardStateService {
   }
 
   cargarDatos(): void {
+    this.cargando.set(true);
+    let completedCount = 0;
+    const checkComplete = () => {
+      completedCount++;
+      if (completedCount === 3) {
+        this.cargando.set(false);
+        this._ultimoRefresco.set(new Date());
+      }
+    };
+
     // 1. Cargar Vencimientos
     this.api.getVencimientos().subscribe({
       next: (vencimientos) => {
         this._vencimientos.set(vencimientos);
+        checkComplete();
       },
-      error: (err) => console.error('Error cargando vencimientos', err)
+      error: (err) => {
+        console.error('Error cargando vencimientos', err);
+        checkComplete();
+      }
     });
 
     const { desde, hasta } = this.obtenerRangoFechas();
@@ -311,16 +447,24 @@ export class DashboardStateService {
       next: (res) => {
         this._platosMasVendidos.set(res.masVendidos);
         this._platosMenosVendidos.set(res.menosVendidos);
+        checkComplete();
       },
-      error: (err) => console.error('Error cargando rendimiento', err)
+      error: (err) => {
+        console.error('Error cargando rendimiento', err);
+        checkComplete();
+      }
     });
 
     // 3. Cargar Resumen Operativo (nuevo endpoint)
     this.api.getResumenOperativo(desdeIso, hastaIso).subscribe({
       next: (resumen) => {
         this._resumen.set(resumen);
+        checkComplete();
       },
-      error: (err) => console.error('Error cargando resumen operativo', err)
+      error: (err) => {
+        console.error('Error cargando resumen operativo', err);
+        checkComplete();
+      }
     });
   }
 
@@ -391,5 +535,243 @@ export class DashboardStateService {
     const diff = Math.abs(hasta.getTime() - desde.getTime());
     return Math.max(1, Math.round(diff / 86400000) + 1);
   }
+
+  // --- REPORTES Y FAVORITOS ---
+  cargarFavoritesConfig(): FavoriteWidgetConfig[] {
+    try {
+      const saved = localStorage.getItem('dashboard_favorites_config');
+      if (saved) {
+        return JSON.parse(saved) as FavoriteWidgetConfig[];
+      }
+    } catch (e) {}
+    return [];
+  }
+
+  saveFavoritesConfig(config: FavoriteWidgetConfig[]): void {
+    try {
+      localStorage.setItem('dashboard_favorites_config', JSON.stringify(config));
+    } catch (e) {}
+  }
+
+  addFavorite(id: string, width?: '25' | '50' | '100'): void {
+    if (this.esFavorito(id)) return;
+    let defaultWidth: '25' | '50' | '100' = width ?? '50';
+    if (!width) {
+      if (id.startsWith('kpi-')) {
+        defaultWidth = '25';
+      } else if (id === 'ventas-calendario' || id === 'mozos' || id === 'insumos-vencer' || id === 'lectura-comercial') {
+        defaultWidth = '100';
+      }
+    }
+    const current = [...this._favoritesConfig(), { id, width: defaultWidth }];
+    this._favoritesConfig.set(current);
+    this.saveFavoritesConfig(current);
+  }
+
+  insertFavoriteAt(id: string, index: number, width?: '25' | '50' | '100'): void {
+    if (this.esFavorito(id)) return;
+    let defaultWidth: '25' | '50' | '100' = width ?? '50';
+    if (!width) {
+      if (id.startsWith('kpi-')) {
+        defaultWidth = '25';
+      } else if (id === 'ventas-calendario' || id === 'mozos' || id === 'insumos-vencer' || id === 'lectura-comercial') {
+        defaultWidth = '100';
+      }
+    }
+    const current = [...this._favoritesConfig()];
+    current.splice(index, 0, { id, width: defaultWidth });
+    this._favoritesConfig.set(current);
+    this.saveFavoritesConfig(current);
+  }
+
+  removeFavorite(id: string): void {
+    const current = this._favoritesConfig().filter(w => w.id !== id);
+    this._favoritesConfig.set(current);
+    this.saveFavoritesConfig(current);
+  }
+
+  updateFavoriteWidth(id: string, width: '25' | '50' | '100'): void {
+    const current = this._favoritesConfig().map(w => {
+      if (w.id === id) {
+        return { ...w, width };
+      }
+      return w;
+    });
+    this._favoritesConfig.set(current);
+    this.saveFavoritesConfig(current);
+  }
+
+  reorderFavorites(fromIndex: number, toIndex: number): void {
+    const current = [...this._favoritesConfig()];
+    if (fromIndex >= 0 && fromIndex < current.length && toIndex >= 0 && toIndex < current.length) {
+      const [moved] = current.splice(fromIndex, 1);
+      current.splice(toIndex, 0, moved);
+      this._favoritesConfig.set(current);
+      this.saveFavoritesConfig(current);
+    }
+  }
+
+  moverFavorito(fromIndex: number, toIndex: number): void {
+    this.reorderFavorites(fromIndex, toIndex);
+  }
+
+  aplicarPreset(tipo: 'financiero' | 'operativo' | 'personal'): void {
+    let preset: FavoriteWidgetConfig[] = [];
+    if (tipo === 'financiero') {
+      preset = PRESET_FINANCIERO;
+    } else if (tipo === 'operativo') {
+      preset = PRESET_OPERATIVO;
+    } else if (tipo === 'personal') {
+      preset = PRESET_PERSONAL;
+    }
+    this._favoritesConfig.set(preset);
+    this.saveFavoritesConfig(preset);
+  }
+
+  restablecerFavoritos(): void {
+    this._favoritesConfig.set(DEFAULT_FAVORITES);
+    this.saveFavoritesConfig(DEFAULT_FAVORITES);
+  }
+
+  toggleEditing(val?: boolean): void {
+    this.isEditing.set(val ?? !this.isEditing());
+  }
+
+  toggleFavorito(panelId: string): void {
+    const current = [...this._favoritesConfig()];
+    const idx = current.findIndex(w => w.id === panelId);
+    if (idx !== -1) {
+      current.splice(idx, 1);
+    } else {
+      let defaultWidth: '25' | '50' | '100' = '50';
+      if (panelId.startsWith('kpi-')) {
+        defaultWidth = '25';
+      } else if (panelId === 'ventas-calendario' || panelId === 'mozos' || panelId === 'insumos-vencer' || panelId === 'lectura-comercial') {
+        defaultWidth = '100';
+      }
+      current.push({ id: panelId, width: defaultWidth });
+    }
+    this._favoritesConfig.set(current);
+    this.saveFavoritesConfig(current);
+  }
+
+  setViewMode(mode: DashboardViewMode): void {
+    this._viewMode.set(mode);
+    if (mode !== 'favoritos') {
+      this.isEditing.set(false);
+    }
+  }
+
+  esFavorito(panelId: string): boolean {
+    return this._favoritesConfig().some(w => w.id === panelId);
+  }
+
+  // --- DETALLE PLATO MENOS VENDIDO ---
+  // --- DETALLE PLATO MENOS VENDIDO ---
+  abrirDetallePlato(plato: DashboardRankingItem, index: number): void {
+    this.api.getAnalisisPlato(plato.nombre).subscribe({
+      next: (detalle) => {
+        this._platoSeleccionado.set(detalle);
+      },
+      error: (err) => {
+        console.error('Error al obtener el análisis del plato', err);
+        this.mostrarToast('Error al cargar el diagnóstico de plato', 'info');
+      }
+    });
+  }
+
+  aplicarDescuentoDirecto(platoNombre: string): void {
+    const actual = this._platoSeleccionado();
+    if (!actual) return;
+
+    const platoId = actual.platoId || 0;
+
+    this.api.aplicarDescuentoPlato(platoId, 10).subscribe({
+      next: (res) => {
+        const precioNuevoStr = this.formatCurrency(res.precioNuevo);
+        const metricasNuevas = {
+          ...actual.metricas,
+          precio: precioNuevoStr,
+          margenPct: res.margenPctNuevo
+        };
+
+        const sugerenciasNuevas = actual.sugerenciasDetalladas.map(s => {
+          if (s.tipo === 'descuento') {
+            return { ...s, aplicada: true };
+          }
+          return s;
+        });
+
+        this._platoSeleccionado.set({
+          ...actual,
+          metricas: metricasNuevas,
+          sugerenciasDetalladas: sugerenciasNuevas
+        });
+
+        this._platosMenosVendidos.update(list => list.map(item => {
+          if (item.nombre === platoNombre) {
+            return { ...item, detalle: precioNuevoStr };
+          }
+          return item;
+        }));
+
+        this.mostrarToast(res.mensaje || `¡Descuento del 10% aplicado exitosamente a ${platoNombre}!`);
+      },
+      error: (err) => {
+        console.error('Error al aplicar el descuento', err);
+        this.mostrarToast('No se pudo aplicar el descuento en el servidor', 'info');
+      }
+    });
+  }
+
+  agendarRecordatorioDirecto(platoNombre: string, accionTitulo: string): void {
+    const actual = this._platoSeleccionado();
+    if (!actual) return;
+
+    const platoId = actual.platoId || 0;
+
+    this.api.agendarRecordatorioPlato(platoId, accionTitulo).subscribe({
+      next: (res) => {
+        const sugerenciasNuevas = actual.sugerenciasDetalladas.map(s => {
+          if (s.accion === accionTitulo) {
+            return { ...s, aplicada: true };
+          }
+          return s;
+        });
+
+        this._platoSeleccionado.set({
+          ...actual,
+          sugerenciasDetalladas: sugerenciasNuevas
+        });
+
+        this._recordatoriosAdicionales.update(list => [...list, res.accionItem]);
+
+        this.mostrarToast(res.mensaje || `¡Recordatorio agendado para la revisión de ${platoNombre}!`);
+      },
+      error: (err) => {
+        console.error('Error al agendar el recordatorio', err);
+        this.mostrarToast('No se pudo agendar el recordatorio en el servidor', 'info');
+      }
+    });
+  }
+
+  cerrarDetallePlato(): void {
+    this._platoSeleccionado.set(null);
+  }
+
+  // --- ESTADISTICAS MOZOS (MOCK) ---
+  mozos = signal<MozoStat[]>([
+    { nombre: 'Juan Pérez', mesasAtendidas: 24, facturacionTotal: 85000, tiempoPromedioAtencion: '45m', estado: 'Sobrecargado' },
+    { nombre: 'María Gómez', mesasAtendidas: 15, facturacionTotal: 54000, tiempoPromedioAtencion: '38m', estado: 'Optimo' },
+    { nombre: 'Carlos Ruiz', mesasAtendidas: 8, facturacionTotal: 29000, tiempoPromedioAtencion: '30m', estado: 'Baja carga' }
+  ]).asReadonly();
+
+  insightMozos = computed(() => {
+    const sobrecargados = this.mozos().filter(m => m.estado === 'Sobrecargado').length;
+    if (sobrecargados > 0) {
+      return `${sobrecargados} mozo(s) sobrecargado(s). Considera añadir refuerzos para los fines de semana.`;
+    }
+    return 'Distribución de mesas equilibrada.';
+  });
 
 }

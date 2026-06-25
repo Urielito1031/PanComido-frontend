@@ -223,21 +223,51 @@ h1 {
 
 .attention-copy {
   display: grid;
-  gap: 0.32rem;
+  gap: 0.4rem;
 }
 
 .attention-copy strong {
   color: #0f172a;
-  font-size: 0.92rem;
-  font-weight: 750;
-  line-height: 1.25;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.3;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .attention-copy span {
-  color: #475569;
-  font-size: 0.78rem;
+  color: #334155;
+  font-size: 0.88rem;
   font-weight: 550;
-  line-height: 1.35;
+  line-height: 1.4;
+}
+
+.attention-qty-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 0.88rem;
+  padding: 0 0.4rem;
+}
+
+.attention-card.danger .attention-qty-badge {
+  background: rgba(239, 68, 68, 0.14);
+  color: #ef4444;
+}
+
+.attention-card.warning .attention-qty-badge {
+  background: rgba(245, 158, 11, 0.18);
+  color: #d97706;
+}
+
+.attention-card.info .attention-qty-badge {
+  background: rgba(22, 145, 172, 0.15);
+  color: #1691ac;
 }
 
 .attention-action,
@@ -496,12 +526,12 @@ h1 {
 .ranking-recommendation {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: 0.65rem;
+  gap: 0.75rem;
   align-items: start;
   min-height: 92px;
   border: 1px solid rgba(245, 158, 11, 0.22);
   border-radius: 11px;
-  padding: 0.78rem;
+  padding: 0.85rem 1rem;
   background:
     linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(22, 145, 172, 0.05)),
     #ffffff;
@@ -510,29 +540,30 @@ h1 {
 .ranking-recommendation .material-symbols-outlined {
   display: grid;
   place-items: center;
-  width: 2rem;
-  height: 2rem;
+  width: 2.2rem;
+  height: 2.2rem;
   border-radius: 11px;
   background: rgba(245, 158, 11, 0.14);
   color: #b45309;
-  font-size: 1.05rem;
+  font-size: 1.15rem;
 }
 
 .ranking-recommendation div {
   display: grid;
-  gap: 0.18rem;
+  gap: 0.25rem;
 }
 
 .ranking-recommendation strong {
   color: #0f172a;
-  font-size: 0.88rem;
+  font-size: 1.05rem;
+  font-weight: 800;
 }
 
 .ranking-recommendation small {
-  color: #475569;
-  font-size: 0.78rem;
+  color: #1e293b;
+  font-size: 0.92rem;
   font-weight: 600;
-  line-height: 1.35;
+  line-height: 1.45;
 }
 
 .rank {
@@ -689,16 +720,20 @@ h1 {
   min-height: 104px;
 }
 
+.expiry-recommendation-wrapper {
+  padding: 1rem 1rem 0;
+}
+
 .expiry-recommendation {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: 0.55rem;
+  gap: 0.75rem;
   align-items: center;
-  width: min(520px, 56%);
+  width: 100%;
   min-height: 0;
   border: 1px solid rgba(22, 145, 172, 0.18);
   border-radius: 11px;
-  padding: 0.58rem 0.7rem;
+  padding: 0.85rem 1rem;
   background:
     linear-gradient(135deg, rgba(22, 145, 172, 0.06), rgba(245, 158, 11, 0.08)),
     #ffffff;
@@ -707,12 +742,12 @@ h1 {
 .expiry-recommendation .material-symbols-outlined {
   display: grid;
   place-items: center;
-  width: 1.8rem;
-  height: 1.8rem;
-  border-radius: 10px;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 11px;
   background: rgba(245, 158, 11, 0.14);
   color: #b45309;
-  font-size: 1rem;
+  font-size: 1.15rem;
 }
 
 .expiry-recommendation div {
@@ -722,14 +757,15 @@ h1 {
 
 .expiry-recommendation strong {
   color: #0f172a;
-  font-size: 0.82rem;
+  font-size: 1.05rem;
+  font-weight: 800;
 }
 
 .expiry-recommendation small {
-  color: #475569;
-  font-size: 0.74rem;
+  color: #1e293b;
+  font-size: 0.92rem;
   font-weight: 600;
-  line-height: 1.35;
+  line-height: 1.45;
 }
 
 .compact-row div,
@@ -1585,14 +1621,6 @@ h1 {
     width: min(240px, 70%);
   }
 
-  .expiry-panel .panel-heading {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .expiry-recommendation {
-    width: 100%;
-  }
 }
 
 @media (max-width: 960px) {
@@ -1753,5 +1781,2189 @@ h1 {
   .heatmap-day {
     border-radius: 7px;
     font-size: 0.68rem;
+  }
+}
+
+/* --- VIEW TABS --- */
+.view-tabs {
+  display: flex;
+  gap: 0.5rem;
+  background: rgba(15, 23, 42, 0.04);
+  padding: 0.35rem;
+  border-radius: 12px;
+}
+.view-tabs button {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-weight: 700;
+  padding: 0.4rem 0.8rem;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.view-tabs button.active {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.view-tabs button .material-symbols-outlined {
+  font-size: 1.1rem;
+}
+
+/* --- FAVORITES --- */
+.panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.favorite-btn {
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0.3rem;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+.favorite-btn:hover {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+}
+.favorite-btn.active {
+  color: #f59e0b;
+}
+
+/* --- SIDE PANEL (PLATO ANALISIS) --- */
+.side-panel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-end;
+}
+.side-panel {
+  width: 100%;
+  max-width: 420px;
+  background: #ffffff;
+  height: 100%;
+  box-shadow: -8px 0 32px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.3s ease-out;
+}
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+.side-panel-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(15,23,42,0.06);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.panel-header-title-row {
+  display: flex;
+  gap: 0.85rem;
+  align-items: center;
+}
+.plate-avatar-container {
+  display: grid;
+  place-items: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  border-radius: 50%;
+  background: rgba(22, 145, 172, 0.08);
+  color: #1691ac;
+}
+.plate-avatar-container .material-symbols-outlined {
+  font-size: 1.4rem;
+}
+.panel-header-pre {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.72rem;
+  color: #64748b;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 0.15rem;
+}
+.criticidad-badge {
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.criticidad-badge.critica {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid rgba(185, 28, 28, 0.12);
+}
+.criticidad-badge.moderada {
+  background: #ffedd5;
+  color: #c2410c;
+  border: 1px solid rgba(194, 65, 12, 0.12);
+}
+.side-panel-header h2 {
+  font-size: 1.25rem;
+  margin: 0;
+  color: #0f172a;
+  font-weight: 850;
+  line-height: 1.25;
+}
+.close-btn {
+  background: rgba(15,23,42,0.05);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: #475569;
+  transition: background 0.16s ease, color 0.16s ease;
+}
+.close-btn:hover {
+  background: rgba(15,23,42,0.1);
+  color: #0f172a;
+}
+.side-panel-body {
+  padding: 1.5rem;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.diagnostico-box {
+  background: rgba(22, 145, 172, 0.035);
+  border: 1px solid rgba(22, 145, 172, 0.12);
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+.diagnostico-box .material-symbols-outlined {
+  color: #1691ac;
+  font-size: 1.35rem;
+  margin-top: 0.1rem;
+}
+.diagnostico-box strong {
+  display: block;
+  margin-bottom: 0.15rem;
+  color: #0f172a;
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+.diagnostico-box p {
+  margin: 0;
+  color: #475569;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+/* Grilla de KPIs */
+.analisis-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+.metric-pill-card {
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 12px;
+  padding: 0.75rem 0.85rem;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+.metric-pill-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(15, 23, 42, 0.12);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+}
+.metric-label {
+  font-size: 0.68rem;
+  color: #64748b;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.metric-value {
+  font-size: 1.2rem;
+  font-weight: 850;
+  color: #0f172a;
+  margin: 0.15rem 0;
+}
+.metric-change {
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.metric-change.negative {
+  color: #ef4444;
+}
+.metric-subtext {
+  font-size: 0.7rem;
+  color: #64748b;
+}
+.margen-destaque {
+  color: #10b981;
+  font-weight: 800;
+}
+
+/* Sparkline Trend Section */
+.analisis-chart-section {
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.76rem;
+  color: #64748b;
+  font-weight: 700;
+}
+.chart-summary-trend {
+  color: #ef4444;
+  font-weight: 800;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+.sparkline-wrapper {
+  height: 60px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+.sparkline-svg {
+  width: 100%;
+  height: 60px;
+  overflow: visible;
+}
+.chart-footer-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  color: #64748b;
+  font-weight: 700;
+}
+
+/* Comparativa Box */
+.analisis-comparativa-box {
+  background: #fffbeb;
+  border: 1px solid rgba(245, 158, 11, 0.15);
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.comparativa-header {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #b45309;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.comparativa-header .material-symbols-outlined {
+  font-size: 1.15rem;
+}
+.comparativa-grid {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.comparativa-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  flex: 1;
+}
+.comparativa-divider {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #d97706;
+  padding: 0 0.5rem;
+}
+.comp-label {
+  font-size: 0.65rem;
+  color: #78350f;
+  font-weight: 750;
+  text-transform: uppercase;
+}
+.comp-val-name {
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+.comp-val-metric {
+  font-size: 0.76rem;
+  color: #475569;
+}
+.comparativa-desc {
+  margin: 0;
+  font-size: 0.76rem;
+  color: #78350f;
+  line-height: 1.4;
+  opacity: 0.9;
+}
+
+/* Section Titles */
+.sugerencias-section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-top: 1px solid rgba(15, 23, 42, 0.05);
+  padding-top: 1rem;
+  margin-top: 0.25rem;
+}
+.sugerencias-section-title strong {
+  font-size: 0.95rem;
+  font-weight: 850;
+  color: #0f172a;
+}
+.sugerencias-section-title .sub-title {
+  font-size: 0.7rem;
+  color: #64748b;
+  font-weight: 700;
+}
+
+/* Suggestion Cards */
+.sugerencias-list-premium {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+.sugerencia-card {
+  border-radius: 12px;
+  padding: 0.95rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  position: relative;
+}
+.sugerencia-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
+}
+.sugerencia-card.impacto-alto {
+  background: rgba(16, 185, 129, 0.035);
+  border: 1px solid rgba(16, 185, 129, 0.12);
+}
+.sugerencia-card.impacto-alto:hover {
+  border-color: rgba(16, 185, 129, 0.24);
+}
+.sugerencia-card.impacto-medio {
+  background: rgba(22, 145, 172, 0.035);
+  border: 1px solid rgba(22, 145, 172, 0.12);
+}
+.sugerencia-card.impacto-medio:hover {
+  border-color: rgba(22, 145, 172, 0.24);
+}
+
+.sug-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.sug-badges {
+  display: flex;
+  gap: 0.4rem;
+}
+.sug-badge {
+  font-size: 0.64rem;
+  font-weight: 800;
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.sug-badge.impact.alto {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid rgba(6, 95, 70, 0.12);
+}
+.sug-badge.impact.medio {
+  background: #ccfbf1;
+  color: #0f766e;
+  border: 1px solid rgba(15, 118, 110, 0.12);
+}
+.sug-badge.difficulty {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid rgba(71, 85, 105, 0.12);
+}
+.sug-status-pill.aplicada {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.68rem;
+  font-weight: 850;
+  color: #059669;
+  background: #d1fae5;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  animation: scaleInCheck 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes scaleInCheck {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.sug-status-pill.aplicada .material-symbols-outlined {
+  font-size: 0.95rem;
+}
+
+.sug-description {
+  margin: 0;
+  font-size: 0.86rem;
+  color: #334155;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.sug-card-actions {
+  display: flex;
+  margin-top: 0.15rem;
+}
+.sug-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border: none;
+  border-radius: 8px;
+  padding: 0.55rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.16s ease;
+  width: 100%;
+}
+.sug-btn .material-symbols-outlined {
+  font-size: 1.05rem;
+}
+.sug-btn.primary {
+  background: #1691ac;
+  color: #ffffff;
+  box-shadow: 0 2px 4px rgba(22, 145, 172, 0.12);
+}
+.sug-btn.primary:hover {
+  background: #0f766e;
+  box-shadow: 0 4px 8px rgba(22, 145, 172, 0.2);
+}
+.sug-btn.secondary {
+  background: #ffffff;
+  color: #1691ac;
+  border: 1px solid rgba(22, 145, 172, 0.25);
+}
+.sug-btn.secondary:hover {
+  background: rgba(22, 145, 172, 0.04);
+  border-color: #1691ac;
+}
+.sug-btn.success-applied {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid rgba(6, 95, 70, 0.2);
+  cursor: default;
+}
+.sug-confirm-inline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.4rem 0;
+}
+.confirm-text {
+  font-size: 0.8rem;
+  font-weight: 750;
+  color: #1e293b;
+  line-height: 1.35;
+}
+.confirm-buttons-group {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+}
+.sug-confirm-btn {
+  flex: 1;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.16s ease;
+  text-align: center;
+  border: none;
+}
+.sug-confirm-btn.confirm-yes {
+  background: #10b981;
+  color: #ffffff;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.12);
+}
+.sug-confirm-btn.confirm-yes:hover {
+  background: #059669;
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.2);
+}
+.sug-confirm-btn.confirm-no {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+.sug-confirm-btn.confirm-no:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+/* Toast Notifications */
+.toast-notification-banner {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1.25rem;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  max-width: 380px;
+  animation: toastSlideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+}
+@keyframes toastSlideUp {
+  from { transform: translateY(20px) scale(0.95); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+.toast-notification-banner.exito {
+  border-left: 4px solid #10b981;
+  background: #f0fdf4;
+}
+.toast-notification-banner.exito .material-symbols-outlined {
+  color: #10b981;
+}
+.toast-notification-banner.info {
+  border-left: 4px solid #3b82f6;
+  background: #eff6ff;
+}
+.toast-notification-banner.info .material-symbols-outlined {
+  color: #3b82f6;
+}
+.toast-notification-banner span {
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.side-panel-footer {
+  padding: 1.5rem;
+  border-top: 1px solid rgba(15,23,42,0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.primary-btn {
+  width: 100%;
+  background: #1691ac;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 0.8rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.16s ease;
+  text-align: center;
+}
+.primary-btn:hover {
+  background: #0f766e;
+}
+.outline-btn {
+  width: 100%;
+  background: #ffffff;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 0.8rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.16s ease;
+  text-align: center;
+}
+.outline-btn:hover {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+
+/* --- MOZOS --- */
+.mozos-grid {
+  margin-top: 1rem;
+}
+.mozos-list {
+  display: grid;
+  gap: 0.8rem;
+  padding: 1rem;
+}
+.mozo-row {
+  border: 1px solid rgba(15,23,42,0.08);
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+}
+.mozo-row.danger {
+  border-color: rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.03);
+}
+.mozo-row.success {
+  border-color: rgba(34, 197, 94, 0.2);
+  background: rgba(34, 197, 94, 0.03);
+}
+.mozo-row.info {
+  border-color: rgba(22, 145, 172, 0.2);
+  background: rgba(22, 145, 172, 0.03);
+}
+.mozo-header {
+  display: grid;
+  gap: 0.3rem;
+}
+.mozo-header strong {
+  color: #0f172a;
+  font-size: 1.05rem;
+}
+.mozo-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  width: fit-content;
+}
+.mozo-row.danger .mozo-badge { background: rgba(239, 68, 68, 0.15); color: #b91c1c; }
+.mozo-row.success .mozo-badge { background: rgba(34, 197, 94, 0.15); color: #15803d; }
+.mozo-row.info .mozo-badge { background: rgba(22, 145, 172, 0.15); color: #0f766e; }
+
+.mozo-metrics {
+  display: flex;
+  gap: 2rem;
+}
+.mozo-metrics .metric {
+  display: grid;
+  gap: 0.2rem;
+  text-align: right;
+}
+.mozo-metrics small {
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.mozo-metrics strong {
+  color: #0f172a;
+  font-size: 1.1rem;
+}
+
+/* --- EMPTY FAVORITES STATE --- */
+.empty-favorites-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4rem 2rem;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px dashed rgba(15, 23, 42, 0.15);
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+}
+.empty-favorites-state .material-symbols-outlined {
+  font-size: 3rem;
+  color: #94a3b8;
+  margin-bottom: 1rem;
+}
+.empty-favorites-state h2 {
+  font-size: 1.25rem;
+  color: #0f172a;
+  margin: 0 0 0.5rem 0;
+}
+.empty-favorites-state p {
+  color: #64748b;
+  max-width: 400px;
+  margin: 0 0 1.5rem 0;
+  line-height: 1.5;
+}
+
+/* --- LOW SALES ACTION BUTTON --- */
+.compact-row-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.4rem;
+}
+.low-action-btn {
+  background: #f59e0b;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
+}
+.low-action-btn:hover {
+  background: #d97706;
+  transform: translateY(-1px);
+}
+.low-action-btn:active {
+  transform: translateY(0);
+}
+
+/* --- FAVORITES RESPONSIVE & BUTTONS --- */
+.fav-icon-btn, .favorite-btn {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  flex-shrink: 0;
+}
+.fav-icon-btn:hover, .favorite-btn:hover {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #64748b;
+  transform: scale(1.05);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+.fav-icon-btn.active, .favorite-btn.active {
+  color: #f59e0b;
+  background: #fffbeb;
+  border-color: #fde68a;
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+}
+.fav-icon-btn .material-symbols-outlined, .favorite-btn .material-symbols-outlined {
+  font-size: 1.25rem;
+}
+
+/* --- DYNAMIC DASHBOARD GRID SYSTEM --- */
+.dashboard-grid-container {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 1.25rem;
+  width: 100%;
+  align-items: stretch;
+  margin-bottom: 2rem;
+}
+
+.grid-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+.grid-item > * {
+  flex: 1 1 auto;
+  height: 100%;
+  min-height: 0;
+}
+
+/* Colspan utilities */
+.col-span-1 { grid-column: span 1; }
+.col-span-2 { grid-column: span 2; }
+.col-span-3 { grid-column: span 3; }
+.col-span-4 { grid-column: span 4; }
+.col-span-5 { grid-column: span 5; }
+.col-span-6 { grid-column: span 6; }
+.col-span-7 { grid-column: span 7; }
+.col-span-8 { grid-column: span 8; }
+.col-span-9 { grid-column: span 9; }
+.col-span-10 { grid-column: span 10; }
+.col-span-11 { grid-column: span 11; }
+.col-span-12 { grid-column: span 12; }
+
+/* Responsive Grid Behavior for General Report View */
+@media (max-width: 1024px) {
+  .dashboard-grid-container {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .dashboard-grid-container > .grid-item {
+    grid-column: span 2 !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .dashboard-grid-container {
+    grid-template-columns: 1fr !important;
+  }
+  .dashboard-grid-container > .grid-item {
+    grid-column: span 1 !important;
+  }
+}
+
+/* --- AUTO-FLOW RESPONSIVE LAYOUT FOR FAVORITES VIEW --- */
+.mode-favoritos .dashboard-grid-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.mode-favoritos .grid-item {
+  flex: 1 1 300px;
+  grid-column: auto !important;
+}
+
+/* KPIs in Favorites: flexible but compact. On a wide screen, they can sit 4 in a row. */
+.mode-favoritos .grid-item[data-widget-id^="kpi-"] {
+  flex: 1 1 240px;
+}
+
+/* Platos, Insumos, Acciones in Favorites: medium size, can pair side-by-side or expand */
+.mode-favoritos .grid-item[data-widget-id="platos-mas-vendidos"],
+.mode-favoritos .grid-item[data-widget-id="platos-menos-vendidos"],
+.mode-favoritos .grid-item[data-widget-id="proximas-acciones"] {
+  flex: 1 1 400px;
+}
+
+/* Large panels in Favorites: should be full-width so they have space to display their contents correctly */
+.mode-favoritos .grid-item[data-widget-id="ventas-calendario"],
+.mode-favoritos .grid-item[data-widget-id="mozos"],
+.mode-favoritos .grid-item[data-widget-id="insumos-vencer"],
+.mode-favoritos .grid-item[data-widget-id="lectura-comercial"] {
+  flex: 1 1 100%;
+}
+
+/* Make commercial reading cards auto-flow internally in Favorites mode */
+.mode-favoritos .commercial-reading {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.mode-favoritos .commercial-reading-card {
+  flex: 1 1 280px;
+}
+.kpi-card {
+  position: relative;
+}
+
+/* --- PANEL HEADING --- */
+.panel-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+.panel-heading > div:first-child {
+  flex: 1;
+}
+.panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* --- CUSTOMIZABLE FAVORITES CANVAS & EDITING MODE --- */
+
+/* Customize Layout Button */
+.customize-layout-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 38px;
+  border: 1px solid rgba(22, 145, 172, 0.3);
+  border-radius: 11px;
+  padding: 0.5rem 1rem;
+  background: rgba(22, 145, 172, 0.05);
+  color: #1691ac;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.customize-layout-btn:hover {
+  background: rgba(22, 145, 172, 0.1);
+  border-color: #1691ac;
+  transform: translateY(-1px);
+}
+
+.customize-layout-btn.editing {
+  background: #1691ac;
+  color: #ffffff;
+  border-color: #1691ac;
+  box-shadow: 0 4px 12px rgba(22, 145, 172, 0.25);
+}
+
+.customize-layout-btn .material-symbols-outlined {
+  font-size: 1.2rem;
+}
+
+/* Dashboard Views Container - Handle Drawer Sliding Layout */
+.dashboard-views {
+  display: flex;
+  position: relative;
+  gap: 2rem;
+  width: 100%;
+  transition: gap 0.3s ease;
+}
+
+.dashboard-views.editing-active {
+  gap: 1.5rem;
+}
+
+/* Canvas Wrapper */
+.dashboard-canvas-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Edit Drawer (Sidebar) */
+.edit-drawer {
+  position: sticky;
+  top: 1rem;
+  width: 380px;
+  height: calc(100vh - 12rem);
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 100;
+  animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.drawer-header {
+  padding: 1.25rem;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.drawer-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #1691ac;
+  letter-spacing: 0.05em;
+}
+
+.drawer-header h2 {
+  margin: 0.15rem 0 0;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.close-drawer-btn {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  transition: all 0.2s ease;
+}
+
+.close-drawer-btn:hover {
+  background: rgba(15, 23, 42, 0.05);
+  color: #0f172a;
+}
+
+.drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.drawer-instruction {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.drawer-modules-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.drawer-module-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 12px;
+  background: #ffffff;
+  cursor: grab;
+  transition: all 0.2s ease;
+}
+
+.drawer-module-item:hover {
+  border-color: rgba(22, 145, 172, 0.3);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+  transform: translateY(-1px);
+}
+
+.drawer-module-item.already-added {
+  background: rgba(22, 145, 172, 0.02);
+  border-color: rgba(22, 145, 172, 0.15);
+}
+
+.module-info-wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.module-icon {
+  font-size: 1.35rem;
+  color: #1691ac;
+  margin-top: 0.15rem;
+}
+
+.module-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.module-category {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.module-text strong {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.1rem;
+}
+
+.module-text p {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #64748b;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.add-module-btn {
+  background: rgba(22, 145, 172, 0.08);
+  border: none;
+  color: #1691ac;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  margin-left: 0.75rem;
+}
+
+.add-module-btn:hover {
+  background: #1691ac;
+  color: #ffffff;
+}
+
+.drawer-module-item.already-added .add-module-btn {
+  background: rgba(239, 68, 68, 0.08);
+  color: #ef4444;
+}
+
+.drawer-module-item.already-added .add-module-btn:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+/* Favorites Canvas layout */
+.dashboard-grid-container.mode-favoritos-canvas {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: 135px;
+  grid-auto-flow: dense;
+  gap: 1.25rem;
+  width: 100%;
+  align-items: stretch !important;
+  align-content: start !important;
+}
+
+.mode-favoritos-canvas .grid-item {
+  height: 100% !important;
+}
+
+/* Width/height spans for Tetris packing.
+   25% cards now span 2 rows (same as 50%) so they are always the same height.
+   This eliminates the gap that appears when 25% cards (1 row) sit next to 50% cards (2 rows). */
+.mode-favoritos-canvas .grid-item.col-width-25 {
+  grid-column: span 1 !important;
+  grid-row: span 2 !important;
+}
+
+.mode-favoritos-canvas .grid-item.col-width-50 {
+  grid-column: span 2 !important;
+  grid-row: span 2 !important;
+}
+
+.mode-favoritos-canvas .grid-item.col-width-100 {
+  grid-column: span 4 !important;
+  grid-row: span 4 !important; /* 4×135px + 3×20px gap = 600px — room for full calendar + detail overlay */
+}
+
+/* Prevent edit bar from stretching vertically inside the grid-item flexbox */
+.grid-item > .canvas-item-edit-bar {
+  flex: 0 0 auto !important;
+  height: auto !important;
+}
+
+/* Ensure the card widget stretches to occupy the full remaining grid-item height */
+.mode-favoritos-canvas .grid-item > article,
+.mode-favoritos-canvas .grid-item > section,
+.mode-favoritos-canvas .grid-item > .commercial-reading-card {
+  flex: 1 1 auto !important;
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+/* Dragging Placeholder Drop Shadow style */
+.mode-favoritos-canvas .grid-item.dragging-placeholder {
+  opacity: 0.35;
+  border: 2px dashed #1691ac !important;
+  background: rgba(22, 145, 172, 0.04) !important;
+  box-shadow: inset 0 0 15px rgba(22, 145, 172, 0.08) !important;
+  transform: scale(0.98);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.mode-favoritos-canvas .grid-item.dragging-placeholder > * {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+.mode-favoritos-canvas .grid-item.dragging-placeholder .canvas-item-edit-bar {
+  opacity: 1 !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Drag-over target highlight styling */
+.mode-favoritos-canvas .grid-item.drag-over-target {
+  border: 2px solid #1691ac !important;
+  background: rgba(22, 145, 172, 0.05) !important;
+  box-shadow: 0 0 15px rgba(22, 145, 172, 0.18) !important;
+  transform: scale(1.015);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  z-index: 20;
+}
+
+/* RESPONSIVE DESIGN ADJUSTMENTS FOR 25% CHICO KPI & INSIGHT CARDS
+   25% cards are now 291px tall (span 2 rows = same height as 50% cards).
+   Content is centered vertically and uses more space than the old 135px compact version. */
+.mode-favoritos-canvas .col-width-25 :is(.kpi-card, .commercial-reading-card) {
+  padding: 1.25rem 1rem !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+.mode-favoritos-canvas .col-width-25 .kpi-card {
+  align-items: center !important;
+}
+
+.mode-favoritos-canvas .col-width-25 .kpi-meta {
+  font-size: 0.85rem !important;
+  line-height: 1.2 !important;
+  justify-content: center !important;
+  gap: 0.4rem !important;
+  width: 100% !important;
+}
+
+.mode-favoritos-canvas .col-width-25 .kpi-value {
+  font-size: 2rem !important;
+  font-weight: 900 !important;
+  margin: 0.75rem 0 !important;
+  line-height: 1.1 !important;
+  width: 100% !important;
+}
+
+.mode-favoritos-canvas .col-width-25 .kpi-card small {
+  font-size: 0.72rem !important;
+  line-height: 1.3 !important;
+  width: 100% !important;
+}
+
+.mode-favoritos-canvas .col-width-25 .commercial-reading-card strong {
+  font-size: 0.95rem !important;
+  line-height: 1.2 !important;
+  margin-bottom: 0.5rem !important;
+  justify-content: center !important;
+  width: 100% !important;
+}
+
+.mode-favoritos-canvas .col-width-25 .commercial-reading-card span {
+  font-size: 0.8rem !important;
+  line-height: 1.35 !important;
+  width: 100% !important;
+}
+
+/* RESPONSIVE DESIGN ADJUSTMENTS FOR 50% MEDIANO CARDS */
+
+.mode-favoritos-canvas .col-width-50 :is(.kpi-card, .commercial-reading-card) {
+  padding: 1.25rem !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .kpi-card {
+  padding: 1.5rem !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .kpi-meta {
+  font-size: 1.05rem !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  width: 100% !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .kpi-value {
+  font-size: 2.6rem !important;
+  font-weight: 900 !important;
+  margin: 1rem 0 !important;
+  line-height: 1.1 !important;
+  width: 100% !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .kpi-card small {
+  font-size: 0.88rem !important;
+  width: 100% !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .commercial-reading-card strong {
+  font-size: 1.15rem !important;
+  justify-content: center !important;
+  width: 100% !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .commercial-reading-card span {
+  font-size: 0.95rem !important;
+  width: 100% !important;
+}
+
+/* List Panels at 50% (Platos, Insumos, Acciones) */
+.mode-favoritos-canvas .col-width-50 .panel-card {
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .panel-heading {
+  padding: 0.65rem 0.85rem !important;
+  margin-bottom: 0 !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .panel-heading h2 {
+  font-size: 0.92rem !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .panel-heading p {
+  font-size: 0.76rem !important;
+}
+
+/* List container scrollability to prevent overflow & overlapping */
+.mode-favoritos-canvas .col-width-50 :is(.ranking-list, .compact-list, .expiry-list, .next-actions-list) {
+  padding: 0.5rem 0.75rem !important;
+  gap: 0.4rem !important;
+  overflow-y: auto !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  scrollbar-width: thin !important;
+}
+
+.mode-favoritos-canvas .col-width-50 :is(.ranking-list, .compact-list, .expiry-list, .next-actions-list)::-webkit-scrollbar {
+  width: 6px !important;
+}
+
+.mode-favoritos-canvas .col-width-50 :is(.ranking-list, .compact-list, .expiry-list, .next-actions-list)::-webkit-scrollbar-thumb {
+  background: rgba(22, 145, 172, 0.25) !important;
+  border-radius: 99px !important;
+}
+
+/* Clean row definitions without forced vertical collapse (no vertical overlap) */
+.mode-favoritos-canvas .col-width-50 :is(.compact-row, .expiry-row) {
+  padding: 0.45rem 0.6rem !important;
+  min-height: 52px !important; /* Minimum space to hold contents safely */
+  flex-shrink: 0 !important; /* Prevent browser from flattening rows */
+}
+
+.mode-favoritos-canvas .col-width-50 .ranking-row {
+  padding: 0.5rem 0.65rem !important;
+  min-height: 82px !important; /* Enough height to hold rank, name, price, units pill and progress bar safely */
+  flex-shrink: 0 !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .ranking-row .rank {
+  width: 1.5rem !important;
+  height: 1.5rem !important;
+  font-size: 0.72rem !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .ranking-content {
+  gap: 0.25rem !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .ranking-title strong {
+  font-size: 0.78rem !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .ranking-title small {
+  font-size: 0.65rem !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .ranking-value {
+  font-size: 0.68rem !important;
+  padding: 0.1rem 0.35rem !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .compact-row strong {
+  font-size: 0.78rem !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .compact-row small {
+  font-size: 0.65rem !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .compact-row-actions {
+  font-size: 0.75rem !important;
+  gap: 0.25rem !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .compact-row-actions button.low-action-btn {
+  padding: 0.2rem 0.5rem !important;
+  font-size: 0.68rem !important;
+}
+
+/* Platos más vendidos layout overrides at 50% */
+.mode-favoritos-canvas .col-width-50 .ranking-list {
+  grid-template-columns: 1fr !important; /* Stack rows instead of side-by-side */
+}
+
+.mode-favoritos-canvas .col-width-50 .ranking-list .ranking-recommendation {
+  display: none !important; /* Hide suggestion box to give space to list */
+}
+
+/* Insumos por vencer layout overrides at 50% */
+.mode-favoritos-canvas .col-width-50 .expiry-panel :is(.expiry-recommendation-wrapper, .expiry-summary) {
+  display: none !important; /* Hide massive counts and suggestion blocks */
+}
+
+.mode-favoritos-canvas .col-width-50 .expiry-list {
+  grid-template-columns: 1fr !important; /* Stack rows instead of 2-columns */
+}
+
+.mode-favoritos-canvas .col-width-50 .expiry-row {
+  min-height: 48px !important;
+  align-items: center !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .expiry-copy strong {
+  font-size: 0.78rem !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .expiry-copy small {
+  font-size: 0.65rem !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .expiry-meta {
+  font-size: 0.65rem !important;
+  text-align: right !important;
+}
+
+/* Próximas acciones layout overrides at 50% */
+.mode-favoritos-canvas .col-width-50 .next-action {
+  padding: 0.4rem 0.5rem !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .next-action .next-action-priority {
+  font-size: 0.62rem !important;
+  padding: 0.1rem 0.3rem !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .next-action .next-action-title {
+  font-size: 0.78rem !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .next-action small {
+  font-size: 0.68rem !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .next-action em {
+  font-size: 0.62rem !important;
+}
+
+/* Fix monthly panel overflow in canvas: the base style has overflow:visible which causes the
+   heatmap to grow beyond the card boundary. Override it for all canvas cards. */
+.mode-favoritos-canvas .grid-item .monthly-panel {
+  overflow: hidden !important;
+}
+
+/* Ventas Calendario / Chart overrides at 50% */
+.mode-favoritos-canvas .col-width-50 .monthly-chart {
+  min-height: 0 !important;
+  height: 100% !important;
+  padding: 0.4rem 0.6rem !important;
+  gap: 0.35rem !important;
+  overflow-y: hidden !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .bar-track {
+  height: 105px !important; /* Scale down the bar tracks to fit in 290px */
+}
+
+/* Convert month-heatmap to flexbox so children can fill remaining space adaptively */
+.mode-favoritos-canvas .col-width-50 .month-heatmap {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  padding: 0.35rem 0.5rem !important;
+  gap: 0.2rem !important;
+}
+
+/* Weekday labels stay compact */
+.mode-favoritos-canvas .col-width-50 .month-heatmap .heatmap-weekdays {
+  flex: 0 0 auto !important;
+  gap: 0.2rem !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .month-heatmap .heatmap-weekdays span {
+  font-size: 0.6rem !important;
+}
+
+/* Day grid fills all remaining height; grid-auto-rows:1fr distributes rows equally */
+.mode-favoritos-canvas .col-width-50 .month-heatmap .heatmap-grid {
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  gap: 0.2rem !important;
+  grid-auto-rows: 1fr !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .month-heatmap .heatmap-day {
+  min-height: 0 !important;
+  aspect-ratio: unset !important;
+  font-size: 0.62rem !important;
+  border-radius: 5px !important;
+  gap: 0 !important;
+  padding: 1px !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .month-heatmap .heatmap-day span:not(.day-tooltip) {
+  line-height: 1 !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .month-heatmap .heatmap-day .day-badge {
+  display: none !important; /* Hide low/best badges in small view */
+}
+
+.mode-favoritos-canvas .col-width-50 .month-heatmap :is(.heatmap-legend, .heatmap-insights) {
+  display: none !important; /* Hide massive insights to let calendar fit */
+}
+
+/* RESPONSIVE DESIGN ADJUSTMENTS FOR 100% GRANDE CARDS */
+
+.mode-favoritos-canvas .col-width-100 :is(.kpi-card, .commercial-reading-card) {
+  padding: 2rem !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+.mode-favoritos-canvas .col-width-100 .kpi-card {
+  padding: 2.5rem !important;
+}
+
+.mode-favoritos-canvas .col-width-100 .kpi-meta {
+  font-size: 1.30rem !important;
+  justify-content: center !important;
+  gap: 0.75rem !important;
+  width: 100% !important;
+}
+
+.mode-favoritos-canvas .col-width-100 .kpi-value {
+  font-size: 3.8rem !important;
+  font-weight: 900 !important;
+  margin: 1.5rem 0 !important;
+  line-height: 1.1 !important;
+  width: 100% !important;
+}
+
+.mode-favoritos-canvas .col-width-100 .kpi-card small {
+  font-size: 1.1rem !important;
+  width: 100% !important;
+}
+
+.mode-favoritos-canvas .col-width-100 .commercial-reading-card strong {
+  font-size: 1.5rem !important;
+  justify-content: center !important;
+  width: 100% !important;
+  margin-bottom: 0.75rem !important;
+}
+
+.mode-favoritos-canvas .col-width-100 .commercial-reading-card span {
+  font-size: 1.2rem !important;
+  width: 100% !important;
+}
+
+/* Ventas del mes heatmap at col-width-100 (445px tall).
+   Without this, overflow:hidden clips the calendar because cells have a fixed min-height.
+   Same flexbox approach as col-width-50: let the grid rows share available height equally. */
+.mode-favoritos-canvas .col-width-100 .month-heatmap {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  padding: 0.5rem 0.75rem !important;
+  gap: 0.35rem !important;
+}
+
+.mode-favoritos-canvas .col-width-100 .month-heatmap .heatmap-weekdays {
+  flex: 0 0 auto !important;
+}
+
+.mode-favoritos-canvas .col-width-100 .month-heatmap .heatmap-grid {
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  grid-auto-rows: 1fr !important;
+  gap: 0.4rem !important;
+}
+
+.mode-favoritos-canvas .col-width-100 .month-heatmap .heatmap-day {
+  min-height: 0 !important;
+  aspect-ratio: unset !important;
+}
+
+.mode-favoritos-canvas .col-width-100 .month-heatmap .heatmap-insights {
+  display: none !important; /* Section is too tall to fit in the canvas card */
+}
+
+/* Day-detail-panel overlay fix for canvas cards.
+   By default the panel is a flex sibling of .month-heatmap, which compresses the calendar.
+   In canvas mode we position it absolute at the card bottom so the heatmap keeps its full height. */
+.mode-favoritos-canvas .col-width-100 .monthly-panel,
+.mode-favoritos-canvas .col-width-50 .monthly-panel {
+  position: relative !important;
+}
+
+.mode-favoritos-canvas .col-width-100 .day-detail-panel,
+.mode-favoritos-canvas .col-width-50 .day-detail-panel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: 0 !important;
+  border-radius: 0 0 14px 14px;
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+  border-top: 1px solid rgba(22, 145, 172, 0.18) !important;
+  background: rgba(248, 250, 252, 0.96) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  z-index: 10;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06) !important;
+}
+
+.mode-favoritos-canvas .col-width-100 .day-detail-panel .detail-date,
+.mode-favoritos-canvas .col-width-50 .day-detail-panel .detail-date {
+  color: #0f766e !important;
+}
+
+.mode-favoritos-canvas .col-width-100 .day-detail-panel .detail-metric small,
+.mode-favoritos-canvas .col-width-50 .day-detail-panel .detail-metric small {
+  color: #64748b !important;
+}
+
+.mode-favoritos-canvas .col-width-100 .day-detail-panel .detail-metric strong,
+.mode-favoritos-canvas .col-width-50 .day-detail-panel .detail-metric strong {
+  color: #0f172a !important;
+}
+
+.mode-favoritos-canvas .col-width-100 .day-detail-panel .close-detail,
+.mode-favoritos-canvas .col-width-50 .day-detail-panel .close-detail {
+  color: #64748b !important;
+}
+
+.mode-favoritos-canvas .col-width-100 .day-detail-panel .close-detail:hover,
+.mode-favoritos-canvas .col-width-50 .day-detail-panel .close-detail:hover {
+  background: rgba(15, 23, 42, 0.06) !important;
+  color: #0f172a !important;
+}
+
+/* Compact version for the narrower 50% card */
+.mode-favoritos-canvas .col-width-50 .day-detail-panel {
+  padding: 0.6rem 0.75rem !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .day-detail-panel .detail-header {
+  margin-bottom: 0.4rem !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .day-detail-panel .detail-date {
+  font-size: 0.72rem !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .day-detail-panel .detail-metrics {
+  gap: 0.5rem !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .day-detail-panel .detail-metric small {
+  font-size: 0.58rem !important;
+}
+
+.mode-favoritos-canvas .col-width-50 .day-detail-panel .detail-metric strong {
+  font-size: 0.82rem !important;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-grid-container.mode-favoritos-canvas {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .mode-favoritos-canvas .grid-item.col-width-25 {
+    flex: none !important;
+    width: auto !important;
+    grid-column: span 1 !important;
+    grid-row: span 2 !important;
+  }
+  .mode-favoritos-canvas .grid-item.col-width-50 {
+    flex: none !important;
+    width: auto !important;
+    grid-column: span 2 !important;
+    grid-row: span 2 !important;
+  }
+  .mode-favoritos-canvas .grid-item.col-width-100 {
+    flex: none !important;
+    width: auto !important;
+    grid-column: span 2 !important;
+    grid-row: span 3 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-grid-container.mode-favoritos-canvas {
+    grid-template-columns: 1fr !important;
+    grid-auto-rows: auto !important;
+  }
+  .mode-favoritos-canvas .grid-item.col-width-25,
+  .mode-favoritos-canvas .grid-item.col-width-50,
+  .mode-favoritos-canvas .grid-item.col-width-100 {
+    flex: none !important;
+    width: auto !important;
+    grid-column: span 1 !important;
+    grid-row: auto !important;
+    height: auto !important;
+  }
+  .mode-favoritos-canvas .grid-item > article,
+  .mode-favoritos-canvas .grid-item > section,
+  .mode-favoritos-canvas .grid-item > .commercial-reading-card {
+    height: auto !important;
+  }
+}
+
+/* Edit border styles for Canvas items in editing mode */
+.canvas-editing .grid-item {
+  position: relative;
+  border: 2px dashed rgba(22, 145, 172, 0.4);
+  border-radius: 12px;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.5);
+  transition: all 0.2s ease, border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);
+}
+
+.canvas-editing .grid-item:hover {
+  border-color: #1691ac;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(22, 145, 172, 0.08);
+}
+
+/* Card top action/drag bar in editing mode */
+.canvas-item-edit-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.35rem 0.5rem;
+  background: #f8fafc;
+  border: 1px solid rgba(15, 23, 42, 0.05);
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  z-index: 10;
+  position: relative;
+}
+
+.canvas-drag-handle {
+  color: #94a3b8;
+  cursor: move;
+  font-size: 1.25rem;
+  user-select: none;
+}
+
+.canvas-drag-handle:hover {
+  color: #64748b;
+}
+
+.canvas-edit-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.canvas-size-btn,
+.canvas-delete-btn {
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: all 0.2s ease;
+}
+
+.canvas-size-btn:hover {
+  border-color: rgba(22, 145, 172, 0.3);
+  color: #1691ac;
+  background: rgba(22, 145, 172, 0.02);
+}
+
+.canvas-delete-btn {
+  color: #64748b;
+  padding: 0.25rem;
+}
+
+.canvas-delete-btn:hover {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.canvas-size-btn .material-symbols-outlined,
+.canvas-delete-btn .material-symbols-outlined {
+  font-size: 0.95rem;
+}
+
+/* Popover for selecting Widget Width Size */
+.size-selector-popover {
+  position: absolute;
+  top: 100%;
+  right: 0.5rem;
+  margin-top: 0.35rem;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.09);
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
+  padding: 0.65rem;
+  width: 170px;
+  z-index: 50;
+  animation: fadeInPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeInPop {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.popover-title {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  margin-bottom: 0.45rem;
+}
+
+.popover-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.popover-options button {
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 0.4rem 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #334155;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  width: 100%;
+}
+
+.popover-options button:hover {
+  background: rgba(22, 145, 172, 0.08);
+  color: #1691ac;
+}
+
+.popover-options button.active {
+  background: #1691ac;
+  color: #ffffff;
+}
+
+/* Empty Favorites State styling */
+.empty-favorites-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4rem 2rem;
+  background: #ffffff;
+  border: 2px dashed rgba(15, 23, 42, 0.08);
+  border-radius: 16px;
+  margin-top: 1rem;
+}
+
+.empty-favorites-state .material-symbols-outlined {
+  font-size: 3.5rem;
+  color: #cbd5e1;
+  margin-bottom: 1rem;
+}
+
+.empty-favorites-state h2 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 0.5rem;
+}
+
+.empty-favorites-state p {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0 0 1.5rem;
+  max-width: 420px;
+  line-height: 1.5;
+}
+
+/* Favorite indicator button on standard reports */
+.fav-icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #cbd5e1;
+  padding: 2px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.fav-icon-btn:hover {
+  color: #f59e0b;
+}
+
+.fav-icon-btn.active {
+  color: #f59e0b;
+}
+
+/* Font highlight improvements as requested */
+.expiry-recommendation strong,
+.ranking-recommendation strong {
+  font-size: 1.15rem; /* Larger font */
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.expiry-recommendation small,
+.ranking-recommendation small {
+  font-size: 0.98rem; /* Highlighted */
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.attention-card strong {
+  font-size: 1.12rem; /* Larger */
+}
+
+.attention-qty-badge {
+  font-size: 1.05rem !important; /* Standout qty */
+  font-weight: 900 !important;
+}
+
+/* --- REFRESH INDICATOR & BUTTON --- */
+.refresh-indicator-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  padding: 0.4rem 0.75rem;
+  border-radius: 30px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+  margin-left: 0.5rem;
+}
+
+.refresh-time {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  font-variant-numeric: tabular-nums;
+}
+
+.refresh-btn {
+  background: none;
+  border: none;
+  color: #1691ac;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  width: 24px;
+  height: 24px;
+}
+
+.refresh-btn:hover {
+  background: rgba(22, 145, 172, 0.08);
+  color: #0f766e;
+}
+
+.refresh-btn.spinning span {
+  animation: spin 1.2s infinite linear;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --- EDIT DRAWER PRESETS & RESET --- */
+.presets-section {
+  background: #f8fafc;
+  border: 1px solid rgba(15, 23, 42, 0.05);
+  border-radius: 12px;
+  padding: 0.85rem;
+  margin-bottom: 1.5rem;
+}
+
+.presets-section h3 {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #475569;
+  text-transform: uppercase;
+  margin: 0 0 0.65rem;
+  letter-spacing: 0.05em;
+}
+
+.preset-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.45rem;
+  margin-bottom: 0.65rem;
+}
+
+.preset-btn {
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 8px;
+  padding: 0.45rem 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: center;
+}
+
+.preset-btn:hover {
+  border-color: #1691ac;
+  background: rgba(22, 145, 172, 0.02);
+  color: #1691ac;
+  transform: translateY(-1px);
+}
+
+.preset-btn:active {
+  transform: translateY(0);
+}
+
+.reset-layout-btn {
+  width: 100%;
+  background: none;
+  border: 1px dashed rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  padding: 0.45rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ef4444;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  transition: all 0.2s ease;
+}
+
+.reset-layout-btn:hover {
+  background: rgba(239, 68, 68, 0.06);
+  border-color: #ef4444;
+}
+
+.reset-layout-btn .material-symbols-outlined {
+  font-size: 0.95rem;
+}
+
+/* --- MOBILE ORDERING CHEVRONS --- */
+.canvas-mobile-order-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.canvas-mobile-order-actions .order-btn {
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 6px;
+  padding: 0.25rem;
+  color: #475569;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.canvas-mobile-order-actions .order-btn:hover:not(:disabled) {
+  border-color: #1691ac;
+  color: #1691ac;
+  background: rgba(22, 145, 172, 0.04);
+}
+
+.canvas-mobile-order-actions .order-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: #f1f5f9;
+}
+
+.canvas-mobile-order-actions .order-btn .material-symbols-outlined {
+  font-size: 0.9rem;
+}
+
+/* --- PREMIUM DROP GUIDE ANIMATION --- */
+.mode-favoritos-canvas .grid-item.drag-over-target {
+  border: 2px dashed #1691ac !important;
+  background: rgba(22, 145, 172, 0.06) !important;
+  box-shadow: 0 0 25px rgba(22, 145, 172, 0.2) !important;
+  transform: scale(1.02);
+  outline: none;
+  animation: pulseGuide 1.5s infinite ease-in-out;
+}
+
+@keyframes pulseGuide {
+  0% {
+    border-color: rgba(22, 145, 172, 0.6);
+  }
+  50% {
+    border-color: rgba(22, 145, 172, 1);
+  }
+  100% {
+    border-color: rgba(22, 145, 172, 0.6);
   }
 }
