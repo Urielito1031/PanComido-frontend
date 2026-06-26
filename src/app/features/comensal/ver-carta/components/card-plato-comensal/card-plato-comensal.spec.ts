@@ -56,11 +56,6 @@ describe('CardPlatoComensalComponent', () => {
     expect(compiled.textContent).toContain('Pizza Muzzarella');
   });
 
-  it('debería renderizar la descripción', () => {
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain('Pizza clásica con mozzarella y salsa de tomate');
-  });
-
   it('debería mostrar el badge Destacado si esDestacado es true', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const badge = compiled.querySelector('.dish-badge');

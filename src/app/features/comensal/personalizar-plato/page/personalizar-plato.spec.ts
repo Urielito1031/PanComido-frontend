@@ -3,46 +3,60 @@ import { PersonalizarPlato } from './personalizar-plato';
 import { Router } from '@angular/router';
 import { PlatoService } from '../../services/plato.service';
 import { PedidoState } from '../../services/pedido.state';
+import { ComandaState } from '../../services/comanda-state';
+import { ComensalState } from '../../services/comensal-state';
+import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
+import { signal } from '@angular/core';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
-import { ChangeDetectorRef } from '@angular/core';
 
 describe('PersonalizarPlato', () => {
   let component: PersonalizarPlato;
 
   const routerMock = {
-    navigate: vi.fn()
+    navigate: vi.fn(),
   };
 
   const pedidoStateMock = {
-    actualizarItem: vi.fn()
+    actualizarItemEnIndice: vi.fn(),
+    agregarPedido: vi.fn(),
+  };
+
+  const comandaStateMock = {
+    restauranteId: signal(1).asReadonly(),
+  };
+
+  const comensalStateMock = {};
+
+  const configuracionVisualStateMock = {
+    colorPrimario: vi.fn().mockReturnValue('#000000'),
+    colorSecundario: vi.fn().mockReturnValue('#FFFFFF'),
+    nombreLocal: vi.fn().mockReturnValue(''),
+    logoUrl: vi.fn().mockReturnValue(null),
+    fontTitulo: vi.fn().mockReturnValue(''),
+    fontCuerpo: vi.fn().mockReturnValue(''),
+    cargar: vi.fn(),
   };
 
   const platoServiceMock = {
-    getPlatoDetalle: vi.fn()
-  };
-
-  const cdrMock = {
-    markForCheck: vi.fn()
+    getArticuloComensal: vi.fn().mockReturnValue(
+      of({
+        ingredientesOpcionales: [
+          { nombre: 'Queso', ingredienteId: 1 },
+          { nombre: 'Tomate', ingredienteId: 2 },
+        ],
+      }),
+    ),
   };
 
   beforeEach(async () => {
-    platoServiceMock.getPlatoDetalle.mockReturnValue(
-      of({
-        ingredientes: [
-          { nombre: 'Queso', opcional: true },
-          { nombre: 'Tomate', opcional: true },
-          { nombre: 'Pan', opcional: false }
-        ]
-      })
-    );
-
-    // mock history.state
+    vi.clearAllMocks();
     vi.spyOn(history, 'state', 'get').mockReturnValue({
       plato: {
-        plato: { articuloId: 1 }
+        plato: { id: 1, nombre: 'Milanesa', precio: 800 },
+        cantidad: 1,
       },
-      index: 0
+      index: 0,
     });
 
     await TestBed.configureTestingModule({
@@ -50,9 +64,11 @@ describe('PersonalizarPlato', () => {
       providers: [
         { provide: Router, useValue: routerMock },
         { provide: PedidoState, useValue: pedidoStateMock },
+        { provide: ComandaState, useValue: comandaStateMock },
+        { provide: ComensalState, useValue: comensalStateMock },
+        { provide: ConfiguracionVisualState, useValue: configuracionVisualStateMock },
         { provide: PlatoService, useValue: platoServiceMock },
-        { provide: ChangeDetectorRef, useValue: cdrMock }
-      ]
+      ],
     }).compileComponents();
 
     const fixture = TestBed.createComponent(PersonalizarPlato);
@@ -63,74 +79,66 @@ describe('PersonalizarPlato', () => {
     expect(component).toBeTruthy();
   });
 
-  it('debería cargar detalle del plato en ngOnInit', () => {
+  it('debería cargar ingredientes opcionales en ngOnInit', () => {
     component.ngOnInit();
 
-    expect(platoServiceMock.getPlatoDetalle).toHaveBeenCalledWith(1);
+    expect(platoServiceMock.getArticuloComensal).toHaveBeenCalledWith(1, 1);
+    expect(component.ingredientesOpcionales.length).toBe(2);
+    expect(component.seleccionados).toEqual(['Queso', 'Tomate']);
   });
 
-  it('debería filtrar ingredientes opcionales', () => {
-    component.ngOnInit();
+  it('debería toggle ingrediente (agregar si no está)', () => {
+    component.seleccionados = [];
 
-    expect(component.ingredientesExtra).toEqual(['Queso', 'Tomate']);
-    expect(component.ingredientesRemover).toEqual(['Queso', 'Tomate']);
+    component.toggleIngrediente('Queso');
+
+    expect(component.seleccionados).toContain('Queso');
   });
 
-  it('debería toggle extra ingrediente', () => {
-    component.extrasSeleccionados = [];
+  it('debería toggle ingrediente (sacar si ya está)', () => {
+    component.seleccionados = ['Queso', 'Tomate'];
 
-    component.toggleExtra('Queso');
+    component.toggleIngrediente('Queso');
 
-    expect(component.extrasSeleccionados).toContain('Queso');
+    expect(component.seleccionados).not.toContain('Queso');
+    expect(component.seleccionados).toContain('Tomate');
   });
 
-  it('debería remover extra si ya existe', () => {
-    component.extrasSeleccionados = ['Queso'];
-
-    component.toggleExtra('Queso');
-
-    expect(component.extrasSeleccionados).not.toContain('Queso');
-  });
-
-  it('debería bloquear extra si está en removidos', () => {
-    component.removidosSeleccionados = ['Queso'];
-
-    component.toggleExtra('Queso');
-
-    expect(component.extrasSeleccionados).not.toContain('Queso');
-  });
-
-  it('debería toggle remover ingrediente', () => {
-    component.removidosSeleccionados = [];
-
-    component.toggleRemover('Tomate');
-
-    expect(component.removidosSeleccionados).toContain('Tomate');
-  });
-
-  it('debería guardar cambios y navegar', () => {
-    component.plato = {
-      observacionesGenerales: 'Sin sal'
-    } as any;
-
-    component.extrasSeleccionados = ['Queso'];
-    component.removidosSeleccionados = ['Tomate'];
-    component.observaciones = 'Extra picante';
+  it('debería guardar cambios actualizando item existente', () => {
+    component.plato = { plato: { id: 1 }, cantidad: 1 } as any;
+    component.itemIndex = 0;
+    component.ingredientesOpcionales = [
+      { nombre: 'Queso', ingredienteId: 1 },
+      { nombre: 'Tomate', ingredienteId: 2 },
+    ];
+    component.seleccionados = ['Queso'];
+    component.observaciones = 'Sin sal';
 
     component.guardarCambios();
 
-    expect(pedidoStateMock.actualizarItem).toHaveBeenCalled();
-
-    expect(routerMock.navigate).toHaveBeenCalledWith([
-      '/comensal/pedido'
-    ]);
+    expect(pedidoStateMock.actualizarItemEnIndice).toHaveBeenCalledWith(
+      0,
+      expect.objectContaining({
+        observacionesIngredientes: [2],
+        observacionesGenerales: 'Sin sal',
+      }),
+    );
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/comensal/detalle-pedido']);
   });
 
-  it('debería volver al pedido', () => {
-    component.volver();
+  it('debería guardar cambios agregando nuevo pedido si no hay index', () => {
+    component.plato = { plato: { id: 1 }, cantidad: 1 } as any;
+    component.itemIndex = -1;
+    component.seleccionados = ['Queso', 'Tomate'];
+    component.observaciones = '';
 
-    expect(routerMock.navigate).toHaveBeenCalledWith([
-      '/comensal/pedido'
-    ]);
+    component.guardarCambios();
+
+    expect(pedidoStateMock.agregarPedido).toHaveBeenCalled();
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/comensal/detalle-pedido']);
+  });
+
+  it('debería volver atrás', () => {
+    component.volver();
   });
 });

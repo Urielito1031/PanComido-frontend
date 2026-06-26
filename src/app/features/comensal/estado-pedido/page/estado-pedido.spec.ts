@@ -3,25 +3,23 @@ import { EstadoPedido } from './estado-pedido';
 import { Router } from '@angular/router';
 import { ComandaState } from '../../services/comanda-state';
 import { ComensalState } from '../../services/comensal-state';
+import { signal } from '@angular/core';
 import { vi } from 'vitest';
 
 describe('EstadoPedido', () => {
   let component: EstadoPedido;
+  const estadoSignal = signal<{ estadoUI: string } | null>({ estadoUI: 'En preparación' });
 
   const routerMock = {
     navigate: vi.fn()
   };
 
-  const estadoMock = {
-    estadoUI: 'En preparación'
-  };
-
   const comandaStateMock = {
-    estadoPedido: vi.fn(() => estadoMock),
-    mesaId: vi.fn(() => 10),
-    restauranteId: vi.fn(() => 1),
-    cargando: false,
-    error: null,
+    estadoPedido: estadoSignal.asReadonly(),
+    mesaId: signal(10).asReadonly(),
+    restauranteId: signal(1).asReadonly(),
+    cargando: signal(false).asReadonly(),
+    error: signal<string | null>(null).asReadonly(),
     consultarEstado: vi.fn(),
     iniciarEscucha: vi.fn().mockResolvedValue(undefined),
     detenerEscucha: vi.fn()
@@ -47,8 +45,6 @@ describe('EstadoPedido', () => {
     expect(component).toBeTruthy();
   });
 
-
-
   it('debería iniciar escucha si hay mesaId', async () => {
     component.ngOnInit();
 
@@ -65,10 +61,7 @@ describe('EstadoPedido', () => {
     component.volver();
 
     expect(routerMock.navigate).toHaveBeenCalledWith([
-      '/comensal/ver-carta',
-      1,
-      10,
-      1
+      '/comensal/ver-carta'
     ]);
   });
 
@@ -85,20 +78,14 @@ describe('EstadoPedido', () => {
   });
 
   it('debería calcular color de estado listo', () => {
-    comandaStateMock.estadoPedido.mockReturnValue({
-      estadoUI: 'Listo para servir'
-    });
+    estadoSignal.set({ estadoUI: 'Listo para servir' });
 
     expect(component.estadoColor).toBe('#6bb446');
   });
 
   it('debería color gris por defecto', () => {
-    comandaStateMock.estadoPedido.mockReturnValue({
-      estadoUI: 'Otro estado'
-    });
+    estadoSignal.set({ estadoUI: 'Otro estado' });
 
     expect(component.estadoColor).toBe('#a3a3a3');
   });
-
-
 });
