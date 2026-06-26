@@ -10,6 +10,7 @@ describe('LlamadoCard', () => {
     id: 1,
     mozoId: 1,
     mesaId: 3,
+    numeroDeMesa: 3,
     gerenteId: null,
     categoriaLlamadoId: 1,
     categoriaDescripcion: 'Cubiertos',
