@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, ChangeDetectionStrategy, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Buscador } from '../../../../shared/ui/buscador/buscador';
 import { Plato } from '../../../../core/models/domain/plato';
 import { ListaPlatosComponent } from '../components/lista-platos/lista-platos';
@@ -28,6 +28,7 @@ import { ModificarCartaStateService } from '../services/modificar-carta.state';
 })
 export class ModificarCartaComponent implements OnInit {
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   // Make state available to the template (since we use it in @if(state.mostrarModalRestaurar))
   public state = inject(ModificarCartaStateService);
 
@@ -57,6 +58,28 @@ export class ModificarCartaComponent implements OnInit {
 
   ngOnInit() {
     this.state.cargarPlatos();
+
+    this.route.queryParams.subscribe(params => {
+      const buscar = params['buscar'];
+      const editar = params['editar'] === 'true';
+      if (buscar) {
+        this.state.setSearchTerm(buscar);
+        if (editar) {
+          const checkAndEdit = () => {
+            const list = this.state.platos();
+            if (list.length > 0) {
+              const plato = list.find(p => p.nombre.toLowerCase() === buscar.toLowerCase());
+              if (plato) {
+                this.state.setPlatoAEditar(plato);
+              }
+            } else {
+              setTimeout(checkAndEdit, 100);
+            }
+          };
+          checkAndEdit();
+        }
+      }
+    });
   }
 
   onTipoBebidaSeleccionado(tipo: string | null) {

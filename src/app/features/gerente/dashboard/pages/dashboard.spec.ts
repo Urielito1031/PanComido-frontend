@@ -67,6 +67,7 @@ describe('DashboardPage', () => {
       platoSeleccionado: signal(null),
       mozos: signal([]),
       insightMozos: signal(''),
+      recordatoriosAdicionales: signal([]),
       toastMensaje: signal(null),
       cargarDatos: vi.fn(),
       setPeriodo: vi.fn(),

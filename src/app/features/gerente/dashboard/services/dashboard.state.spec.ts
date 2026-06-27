@@ -24,7 +24,8 @@ describe('DashboardStateService', () => {
         variacionVentas: '0%',
         variacionPedidos: '0%',
         variacionTicket: '0%',
-        grafico: []
+        grafico: [],
+        recordatorios: []
       })),
       getAnalisisPlato: vi.fn().mockImplementation((nombre: string) => of({
         platoId: 10,

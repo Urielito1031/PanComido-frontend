@@ -18,8 +18,8 @@ export const DEFAULT_LAYOUT: WidgetLayout[] = [
   { id: 'lectura-comercial', colSpan: 12 },
   { id: 'platos-mas-vendidos', colSpan: 6 },
   { id: 'platos-menos-vendidos', colSpan: 6 },
-  { id: 'insumos-vencer', colSpan: 8 },
-  { id: 'proximas-acciones', colSpan: 4 },
+  { id: 'insumos-vencer', colSpan: 12 },
+  { id: 'proximas-acciones', colSpan: 12 },
   { id: 'mozos', colSpan: 12 }
 ];
 
@@ -157,10 +157,10 @@ export class DashboardStateService implements OnDestroy {
   vencimientosResumen = computed(() => {
     const insumos = this.insumosPorVencer();
     return [
-      { label: 'En radar', value: insumos.length, tone: 'info' },
-      { label: 'Alta', value: insumos.filter(item => item.criticidad === 'alta').length, tone: 'danger' },
-      { label: 'Media', value: insumos.filter(item => item.criticidad === 'media').length, tone: 'warning' },
-      { label: 'Baja', value: insumos.filter(item => item.criticidad === 'baja').length, tone: 'neutral' }
+      { label: 'Total', value: insumos.length, tone: 'info', key: 'todos' as const },
+      { label: 'Alta', value: insumos.filter(item => item.criticidad === 'alta').length, tone: 'danger', key: 'alta' as const },
+      { label: 'Media', value: insumos.filter(item => item.criticidad === 'media').length, tone: 'warning', key: 'media' as const },
+      { label: 'Baja', value: insumos.filter(item => item.criticidad === 'baja').length, tone: 'neutral', key: 'baja' as const }
     ];
   });
 
@@ -459,6 +459,11 @@ export class DashboardStateService implements OnDestroy {
     this.api.getResumenOperativo(desdeIso, hastaIso).subscribe({
       next: (resumen) => {
         this._resumen.set(resumen);
+        if (resumen.recordatorios) {
+          this._recordatoriosAdicionales.set(resumen.recordatorios);
+        } else {
+          this._recordatoriosAdicionales.set([]);
+        }
         checkComplete();
       },
       error: (err) => {
@@ -757,6 +762,19 @@ export class DashboardStateService implements OnDestroy {
 
   cerrarDetallePlato(): void {
     this._platoSeleccionado.set(null);
+  }
+
+  resolverRecordatorio(id: number): void {
+    this.api.resolverRecordatorio(id).subscribe({
+      next: () => {
+        this._recordatoriosAdicionales.update(list => list.filter(item => item.id !== id));
+        this.mostrarToast('Recordatorio resuelto con éxito', 'exito');
+      },
+      error: (err) => {
+        console.error('Error al resolver el recordatorio', err);
+        this.mostrarToast('No se pudo resolver el recordatorio en el servidor', 'info');
+      }
+    });
   }
 
   // --- ESTADISTICAS MOZOS (MOCK) ---

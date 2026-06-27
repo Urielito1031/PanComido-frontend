@@ -80,6 +80,8 @@
     </div>
   </section>
 
+
+
   <div class="dashboard-views" [class.mode-favoritos]="state.viewMode() === 'favoritos'" [class.editing-active]="state.viewMode() === 'favoritos' && state.isEditing()">
 
   @if (state.viewMode() === 'favoritos' && state.isEditing()) {
@@ -139,6 +141,36 @@
   }
 
   <div class="dashboard-canvas-content">
+  @if (state.recordatoriosAdicionales().length > 0) {
+    <section class="highlighted-reminders-section" aria-label="Recordatorios de Gestión Recientes">
+      <div class="reminders-banner-header">
+        <span class="material-symbols-outlined alert-pulse-icon">notifications_active</span>
+        <h2>Tareas Programadas Recientes</h2>
+      </div>
+      <div class="reminders-highlight-grid">
+        @for (rec of state.recordatoriosAdicionales(); track rec.titulo) {
+          <article class="reminder-highlight-card" [class]="rec.tono">
+            <button type="button" class="dismiss-reminder-btn" (click)="state.resolverRecordatorio(rec.id!); $event.stopPropagation()" aria-label="Descartar recordatorio">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+            <div class="reminder-card-content">
+              <div class="reminder-text-area">
+                <strong>{{ rec.titulo }}</strong>
+                <p>{{ rec.detalle }}</p>
+              </div>
+              <div class="reminder-meta">
+                <span class="impact-tag">{{ rec.impacto }}</span>
+                <button type="button" class="action-btn" (click)="gestionarRecordatorio(rec)">
+                  Gestionar <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+                </button>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+  }
+
   @if (state.atencion().length > 0) {
     <section class="attention-section" aria-label="Resumen de Atencion">
       <div class="attention-grid">
@@ -164,7 +196,8 @@
         @if (shouldShowWidget(widget)) {
           <div
             class="grid-item col-span-{{ widget.colSpan }}"
-            [attr.data-widget-id]="widget.id">
+            [attr.data-widget-id]="widget.id"
+            [id]="'widget-' + widget.id">
             <ng-container *ngTemplateOutlet="widgetTemplate; context: { id: widget.id }"></ng-container>
           </div>
         }
@@ -183,6 +216,7 @@
           [class.dragging-placeholder]="draggedIndex() === i"
           [class.drag-over-target]="dragOverIndex() === i && draggedIndex() !== i"
           [attr.data-widget-id]="fav.id"
+          [id]="'widget-' + fav.id"
           [attr.data-index]="i"
           [draggable]="state.isEditing() && !isMobile()"
           (dragstart)="onCanvasDragStart($event, i)"
@@ -534,10 +568,42 @@
       }
       @case ('platos-menos-vendidos') {
         <article class="panel-card low-sales-panel">
-          <div class="panel-heading">
+          <div class="panel-heading" style="position: relative;">
             <div>
-              <h2>Platos menos vendidos</h2>
-              <p>Con accion sugerida</p>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <h2>Platos menos vendidos</h2>
+                <button type="button" class="info-icon-btn" (click)="toggleCriteriosExplicacion($event)" title="Ver criterios de sugerencia" aria-label="Información de criterios">
+                  <span class="material-symbols-outlined">info</span>
+                </button>
+              </div>
+              <p>Con acción sugerida</p>
+
+              @if (mostrandoCriterios()) {
+                <div class="criterios-popover animate-fade-in" (click)="$event.stopPropagation()">
+                  <div class="popover-header">
+                    <strong>Criterios de Sugerencia</strong>
+                    <button type="button" class="close-popover-btn" (click)="mostrandoCriterios.set(false)" aria-label="Cerrar">
+                      <span class="material-symbols-outlined">close</span>
+                    </button>
+                  </div>
+                  <div class="popover-body">
+                    <ul>
+                      <li>
+                        <strong>Revisar precio o visibilidad:</strong>
+                        Se aplica a los platos con rotación intermedia/baja (puestos 1 y 2 de menos vendidos). Se sugiere revisar precio o destacarlo en carta.
+                      </li>
+                      <li>
+                        <strong>Candidato a pausar o relanzar:</strong>
+                        Se aplica a platos con rotación crítica (puestos 3 al 5). Se recomienda reformular o pausar para reducir merma.
+                      </li>
+                      <li>
+                        <strong>Análisis dinámico:</strong>
+                        Al presionar "Analizar" se evalúa el costo actual de insumos, margen de ganancia, tendencia de demanda y comparación con el plato líder.
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              }
             </div>
             <div class="panel-actions" (click)="$event.stopPropagation()">
               <button class="favorite-btn" [class.active]="state.esFavorito('platos-menos-vendidos')" (click)="state.toggleFavorito('platos-menos-vendidos')" title="Fijar en favoritos">
@@ -593,15 +659,21 @@
 
           <div class="expiry-summary">
             @for (item of state.vencimientosResumen(); track item.label) {
-              <div class="expiry-summary-item" [class]="item.tone">
+              <button 
+                type="button" 
+                class="expiry-summary-item" 
+                [class]="item.tone"
+                [class.active]="filtroCriticidadVencimiento() === item.key"
+                (click)="setFiltroCriticidadVencimiento(item.key)"
+                [attr.aria-label]="'Filtrar por ' + item.label">
                 <strong>{{ item.value }}</strong>
                 <span>{{ item.label }}</span>
-              </div>
+              </button>
             }
           </div>
 
           <div class="expiry-list">
-            @for (insumo of state.insumosPorVencer(); track insumo.nombre) {
+            @for (insumo of insumosFiltrados(); track insumo.nombre) {
               <div class="expiry-row" [class]="insumo.criticidad">
                 <div class="expiry-copy">
                   <strong>{{ insumo.nombre }}</strong>
@@ -620,7 +692,7 @@
         <article class="panel-card next-actions-panel">
           <div class="panel-heading">
             <div>
-              <h2>Proximas acciones</h2>
+              <h2>Próximas acciones</h2>
               <p>Atajos para resolver lo urgente</p>
             </div>
             <div class="panel-actions" (click)="$event.stopPropagation()">
@@ -631,15 +703,24 @@
           </div>
 
           <div class="next-actions-list">
-            @for (item of state.acciones(); track item.titulo) {
-              <button type="button" class="next-action" [class]="item.tono" (click)="irA(item.destino)">
-                <span class="next-action-priority">{{ item.prioridad }}</span>
-                <span class="next-action-title">
-                  <span>{{ item.titulo }}</span>
-                  <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-                </span>
-                <small>{{ item.detalle }}</small>
-                <em>{{ item.impacto }}</em>
+            @for (item of state.acciones(); track item.titulo; let index = $index) {
+              <button type="button" class="next-action-card" [class]="item.tono" (click)="irA(item.destino)">
+                <div class="next-action-left">
+                  <span class="next-action-badge">{{ index + 1 }}</span>
+                  <div class="next-action-icon-wrapper">
+                    <span class="material-symbols-outlined">{{ getActionIcon(item.destino) }}</span>
+                  </div>
+                </div>
+                <div class="next-action-content">
+                  <div class="next-action-title-row">
+                    <strong>{{ item.titulo }}</strong>
+                    <span class="material-symbols-outlined action-arrow">arrow_forward</span>
+                  </div>
+                  <p class="next-action-desc">{{ item.detalle }}</p>
+                  <div class="next-action-meta">
+                    <span class="next-action-impact">{{ item.impacto }}</span>
+                  </div>
+                </div>
               </button>
             }
           </div>
@@ -879,12 +960,17 @@
           </div>
         </div>
         
-        <div class="side-panel-footer">
-          <button class="primary-btn" (click)="irA('carta'); cerrarDetallePlato()">
-            Ir a modificar carta
+        <div class="side-panel-footer" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <button class="primary-btn" style="flex: 1 1 auto; min-width: 120px;" (click)="irA('carta', { buscar: detalle.plato.nombre, editar: 'true' }); cerrarDetallePlato()">
+            <span class="material-symbols-outlined" style="font-size: 1.1rem; margin-right: 4px; vertical-align: middle;">edit</span>
+            Editar plato
           </button>
-          <button class="outline-btn" (click)="cerrarDetallePlato()">
-            Cerrar panel
+          <button class="outline-btn" style="flex: 1 1 auto; min-width: 120px;" (click)="irA('carta', { buscar: detalle.plato.nombre }); cerrarDetallePlato()">
+            <span class="material-symbols-outlined" style="font-size: 1.1rem; margin-right: 4px; vertical-align: middle;">visibility</span>
+            Ver en carta
+          </button>
+          <button class="outline-btn" style="border-color: rgba(15, 23, 42, 0.1); color: #64748b;" (click)="cerrarDetallePlato()">
+            Cerrar
           </button>
         </div>
       </aside>
@@ -900,4 +986,70 @@
     </div>
   }
   </div>
+
+  <footer class="dashboard-footer">
+    <button type="button" class="back-to-top-btn" (click)="scrollToTop()">
+      <span class="material-symbols-outlined">arrow_upward</span> Volver al principio
+    </button>
+  </footer>
+
+  @if (state.viewMode() === 'reportes') {
+    <div class="floating-sections-container">
+      @if (mostrarGloboInfo() && !floatingMenuOpen()) {
+        <div class="navigation-tooltip-bubble">
+          <span>Navega rápido entre secciones desde aquí</span>
+          <button type="button" class="tooltip-close-btn" (click)="cerrarGloboInfo($event)" title="Cerrar aviso">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+          <div class="tooltip-arrow"></div>
+        </div>
+      }
+
+      <div class="floating-menu-card" [class.open]="floatingMenuOpen()">
+        <div class="floating-menu-header">
+          <strong>Navegar Secciones</strong>
+        </div>
+        <div class="floating-menu-body">
+          <button type="button" class="floating-menu-item" (click)="scrollToSection('kpi-ventas')">
+            <span class="material-symbols-outlined">payments</span>
+            <span>Resumen Financiero</span>
+          </button>
+          <button type="button" class="floating-menu-item" (click)="scrollToSection('ventas-calendario')">
+            <span class="material-symbols-outlined">calendar_month</span>
+            <span>Tendencia de Ventas</span>
+          </button>
+          <button type="button" class="floating-menu-item" (click)="scrollToSection('platos-mas-vendidos')">
+            <span class="material-symbols-outlined">restaurant_menu</span>
+            <span>Platos y Menú</span>
+          </button>
+          <button type="button" class="floating-menu-item" (click)="scrollToSection('insumos-vencer')">
+            <span class="material-symbols-outlined">warning</span>
+            <span>Inventario y Mermas</span>
+          </button>
+          <button type="button" class="floating-menu-item" (click)="scrollToSection('mozos')">
+            <span class="material-symbols-outlined">groups</span>
+            <span>Personal de Salón</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="floating-actions-row">
+        <button 
+          type="button" 
+          class="floating-back-to-top" 
+          (click)="scrollToTop()"
+          title="Volver arriba">
+          <span class="material-symbols-outlined">arrow_upward</span>
+        </button>
+        <button 
+          type="button" 
+          class="floating-menu-trigger" 
+          [class.active]="floatingMenuOpen()"
+          (click)="floatingMenuOpen.set(!floatingMenuOpen()); mostrarGloboInfo.set(false)"
+          title="Navegar secciones del dashboard">
+          <span class="material-symbols-outlined">{{ floatingMenuOpen() ? 'close' : 'explore' }}</span>
+        </button>
+      </div>
+    </div>
+  }
 </main>

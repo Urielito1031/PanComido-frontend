@@ -7,7 +7,7 @@ import { Instance } from 'flatpickr/dist/types/instance';
 import { CustomLocale } from 'flatpickr/dist/types/locale';
 import { ArsCurrencyPipe } from '../../../../shared/pipes/ars-currency.pipe';
 import { DashboardStateService, DEFAULT_LAYOUT } from '../services/dashboard.state';
-import { DashboardDestino, DashboardPeriodo, DashboardVentaDia, WidgetLayout, FavoriteWidgetConfig } from '../../../../core/models/domain/dashboard';
+import { DashboardDestino, DashboardPeriodo, DashboardVentaDia, WidgetLayout, FavoriteWidgetConfig, DashboardAccionItem } from '../../../../core/models/domain/dashboard';
 
 export interface AvailableWidget {
   id: string;
@@ -66,6 +66,8 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
   private calendarioHasta: Instance | null = null;
 
   isMobile = signal<boolean>(typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
+  readonly floatingMenuOpen = signal<boolean>(false);
+  readonly mostrarGloboInfo = signal<boolean>(true);
 
   @HostListener('window:resize')
   onResize(): void {
@@ -507,11 +509,55 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     return Math.round(((item.ventas - promedio) / promedio) * 100);
   }
 
-  irA(destino: DashboardDestino): void {
+  readonly mostrandoCriterios = signal<boolean>(false);
+  readonly filtroCriticidadVencimiento = signal<'todos' | 'alta' | 'media' | 'baja'>('todos');
+
+  readonly insumosFiltrados = computed(() => {
+    const todos = this.state.insumosPorVencer();
+    const filtro = this.filtroCriticidadVencimiento();
+    if (filtro === 'todos') {
+      return todos;
+    }
+    return todos.filter(item => item.criticidad.toLowerCase() === filtro);
+  });
+
+  toggleCriteriosExplicacion(event: Event): void {
+    event.stopPropagation();
+    this.mostrandoCriterios.update(v => !v);
+  }
+
+  setFiltroCriticidadVencimiento(filtro: 'todos' | 'alta' | 'media' | 'baja'): void {
+    this.filtroCriticidadVencimiento.set(filtro);
+  }
+
+  scrollToSection(widgetId: string): void {
+    const element = document.getElementById('widget-' + widgetId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    this.floatingMenuOpen.set(false);
+    this.mostrarGloboInfo.set(false);
+  }
+
+  cerrarGloboInfo(event: Event): void {
+    event.stopPropagation();
+    this.mostrarGloboInfo.set(false);
+  }
+
+  getActionIcon(destino: string): string {
+    switch (destino) {
+      case 'pedido': return 'local_shipping';
+      case 'stock': return 'inventory_2';
+      case 'carta': return 'restaurant_menu';
+      default: return 'task_alt';
+    }
+  }
+
+  irA(destino: DashboardDestino, extraParams?: any): void {
     if (destino === 'vencimientos') {
       this.state.setViewMode('reportes');
       setTimeout(() => {
-        const element = document.getElementById('riesgos-operativos');
+        const element = document.getElementById('widget-insumos-vencer');
         if (element) {
           element.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
@@ -524,6 +570,11 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
+    if (destino === 'carta') {
+      this.router.navigate(['/staff', 'gerente', 'modificar-carta'], { queryParams: extraParams });
+      return;
+    }
+
     const routes: Record<DashboardDestino, string[]> = {
       stock: ['/staff', 'gerente', 'stock-mercaderia'],
       carta: ['/staff', 'gerente', 'modificar-carta'],
@@ -532,6 +583,15 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
       vencimientos: []
     };
 
-    this.router.navigate(routes[destino]);
+    this.router.navigate(routes[destino], { queryParams: extraParams });
+  }
+
+  gestionarRecordatorio(rec: DashboardAccionItem): void {
+    const platoNombre = rec.titulo.replace('Revisión: ', '').trim();
+    this.state.abrirDetallePlato({ nombre: platoNombre, valor: 0, detalle: '' }, 0);
+  }
+
+  scrollToTop(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }

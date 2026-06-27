@@ -41,6 +41,7 @@ export interface DashboardAtencionItem {
 }
 
 export interface DashboardAccionItem {
+  id?: number;
   titulo: string;
   detalle: string;
   destino: DashboardDestino;
