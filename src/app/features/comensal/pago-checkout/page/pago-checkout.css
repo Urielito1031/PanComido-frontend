@@ -1,7 +1,3 @@
 .opacity-50 {
   opacity: 0.5;
 }
-.btn-pagar-efectivo {
-  background: var(--color-primario, #02596C);
-  color: #ffffff;
-}

@@ -131,7 +131,7 @@
 
 /* Botón agregar más */
 .btn-agregar-mas {
-  background: var(--color-primario, #02596C);
+  background: var(--color-secundario, #02596C);
   border-radius: var(--border-radius-md);
   padding: 0.9rem 1.5rem;
   font-weight: 700;

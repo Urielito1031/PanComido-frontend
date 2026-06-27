@@ -60,5 +60,8 @@ export class LlamadoCard {
     'esta-resolviendo': this.resolviendo(),
     'esta-saliendo': this.saliendo(),
     'es-nuevo': this.nuevo(),
+    'llamado-categoria-mesa': this.llamado().categoriaLlamadoId === 3,
+    'llamado-categoria-cocina': [1, 4, 5, 6].includes(this.llamado().categoriaLlamadoId),
+    'llamado-categoria-bar': this.llamado().categoriaLlamadoId === 2,
   }));
 }

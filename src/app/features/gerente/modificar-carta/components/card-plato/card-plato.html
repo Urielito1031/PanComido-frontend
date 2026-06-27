@@ -10,7 +10,13 @@
       
       <!-- HERO IMAGE HEADER -->
       <div class="dish-hero-wrapper position-relative flex-shrink-0">
-        <img [src]="plato().imagen" class="dish-hero-img w-100" [alt]="plato().nombre">
+        @if (plato().imagen && !imgError()) {
+          <img [src]="plato().imagen" class="dish-hero-img w-100" [alt]="plato().nombre" (error)="onImgError()">
+        } @else {
+          <div class="dish-hero-placeholder w-100 d-flex align-items-center justify-content-center">
+            <span class="material-symbols-outlined" style="font-size:2.5rem;color:#94a3b8;">restaurant</span>
+          </div>
+        }
         
         <!-- Glassmorphism Overlay Badges -->
         <div class="dish-hero-badges position-absolute top-0 start-0 w-100 p-3 d-flex justify-content-between align-items-start">
@@ -75,7 +81,13 @@
     <div class="d-flex align-items-center p-3 gap-3 h-100">
       <!-- IMAGE -->
       <div class="dish-image-wrapper flex-shrink-0 position-relative">
-        <img [src]="plato().imagen" class="dish-img-compact rounded-3" [alt]="plato().nombre">
+        @if (plato().imagen && !imgError()) {
+          <img [src]="plato().imagen" class="dish-img-compact rounded-3" [alt]="plato().nombre" (error)="onImgError()">
+        } @else {
+          <div class="dish-img-compact rounded-3 d-flex align-items-center justify-content-center" style="width:64px;height:64px;background:#f1f5f9;">
+            <span class="material-symbols-outlined" style="font-size:1.5rem;color:#94a3b8;">restaurant</span>
+          </div>
+        }
         @if (plato().recomendado) {
           <div class="dish-star-badge-compact">
             <span class="material-symbols-outlined star-icon-filled">star</span>

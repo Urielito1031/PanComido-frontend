@@ -19,7 +19,7 @@
               <span class="dish-badge">Destacado</span>
             }
           </div>
-          <span class="dish-price">$ {{ plato().precio }}</span>
+          <span class="dish-price">{{ plato().precio | arsCurrency }}</span>
         </div>
 
         @if (plato().esPlato && plato().tipoPlato) {
