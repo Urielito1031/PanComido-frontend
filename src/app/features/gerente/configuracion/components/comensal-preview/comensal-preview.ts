@@ -49,7 +49,7 @@ export class ComensalPreviewComponent {
   readonly displayItems = computed((): PreviewItem[] => {
     const real = this.cartaState.items();
     if (real.length > 0) {
-      return real.slice(0, 2).map(item => ({
+      return real.slice(0, 5).map(item => ({
         nombre: item.nombre,
         esDestacado: item.esDestacado,
         tipo: item.tipoPlato ?? item.categoriaBebida,
@@ -61,10 +61,13 @@ export class ComensalPreviewComponent {
     return this.platosMock;
   });
 
+  private _ultimoCargadoId = -1;
+
   constructor() {
     effect(() => {
       const id = this.datosLocal().id;
-      if (id) {
+      if (id && id !== this._ultimoCargadoId) {
+        this._ultimoCargadoId = id;
         this.cartaState.cargarCarta(id);
       }
     });

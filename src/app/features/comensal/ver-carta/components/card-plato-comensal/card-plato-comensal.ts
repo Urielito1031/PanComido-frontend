@@ -3,12 +3,13 @@ import { Router } from '@angular/router';
 import { ItemPedido } from '../../../../../core/models/domain/item-pedido';
 import { CartaItem } from '../../../../../core/models/domain/carta-item';
 import { ConfiguracionVisualState } from '../../../services/visual/configuracion-visual-state';
+import { ArsCurrencyPipe } from '../../../../../shared/pipes/ars-currency.pipe';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-card-plato-comensal',
   standalone: true,
-  imports: [],
+  imports: [ArsCurrencyPipe],
   templateUrl: './card-plato-comensal.html',
   styleUrls: ['./card-plato-comensal.css'],
 })

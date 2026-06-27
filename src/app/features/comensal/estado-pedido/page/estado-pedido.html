@@ -68,7 +68,7 @@
     </button>
 
     <div class="d-flex gap-2">
-      <app-boton-comensal class="w-50" backgroundColor="#ffffff" textColor="#000000" [tieneBorde]="true"
+      <app-boton-comensal class="w-50" backgroundColor="#ffffff" [textColor]="configuracionVisualState.colorSecundario() ?? '#000000'" [tieneBorde]="true"
         (clicked)="modalLlamarMozo.abrirModal()">
         <div class="d-flex align-items-center justify-content-center gap-2 w-100 fw-bold" style="padding: 0 5px;">
           <span class="material-symbols-outlined fs-3">room_service</span>
@@ -76,7 +76,7 @@
         </div>
       </app-boton-comensal>
 
-      <app-boton-comensal class="w-50" backgroundColor="#ffffff" textColor="#000000" [tieneBorde]="true"
+      <app-boton-comensal class="w-50" [backgroundColor]="configuracionVisualState.colorPrimario() ?? '#02596C'" textColor="#ffffff"
         (clicked)="pagarCuenta()">
         <div class="d-flex align-items-center justify-content-center gap-2 w-100 fw-bold" style="padding: 0 5px;">
           <span class="material-symbols-outlined fs-3">credit_card</span>

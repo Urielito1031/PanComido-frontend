@@ -10,6 +10,8 @@ export class CartaState {
   private api = inject(CartaService);
   private _items = signal<CartaItem[]>([]);
   private _cargando = signal(false);
+  private _cargandoId: number | null = null;
+  private _cache = new Map<number, CartaItem[]>();
 
   items = this._items.asReadonly();
   cargando = this._cargando.asReadonly();
@@ -109,14 +111,27 @@ if (restricciones.length > 0) {
   });
 
   cargarCarta(restauranteId: number): void {
+    // Cache hit — devolvemos lo que ya tenemos
+    if (this._cache.has(restauranteId)) {
+      this._items.set(this._cache.get(restauranteId)!);
+      return;
+    }
+    // Ya hay un request en vuelo para este ID — no duplicamos
+    if (this._cargandoId === restauranteId) return;
+
+    this._cargandoId = restauranteId;
     this._cargando.set(true);
     this.api.obtenerCarta(restauranteId).subscribe({
       next: (data) => {
+        this._cache.set(restauranteId, data);
         this._items.set(data);
-        console.log("Datos de state: ", data);
         this._cargando.set(false);
+        this._cargandoId = null;
       },
-      error: () => this._cargando.set(false)
+      error: () => {
+        this._cargando.set(false);
+        this._cargandoId = null;
+      }
     });
   }
 
