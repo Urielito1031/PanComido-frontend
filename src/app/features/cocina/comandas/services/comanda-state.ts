@@ -28,20 +28,16 @@ export class ComandaState {
   comandasEnEspera = computed(() =>
     this.#comandas().filter(c => c.estado === 'EnEspera')
   );
-  comandasfinalizadas = computed(() =>
-    this.#comandas().filter(c => c.estado === 'Finalizada')
-  );
-
 
   modificarEstadoComanda(comandaId: number, tipoId: number): void {
     this.api.modificarEstadoComanda(comandaId, tipoId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (comandaActualizada) => {
-        this.#comandas.update(lista =>
-          lista.map(c => c.id === comandaActualizada.id
-            ? comandaActualizada
-            : c
-          )
-        );
+        this.#comandas.update(lista => {
+          if (comandaActualizada.estado === 'Finalizada') {
+            return lista.filter(c => c.id !== comandaActualizada.id);
+          }
+          return lista.map(c => c.id === comandaActualizada.id ? comandaActualizada : c);
+        });
       },
       error: (err) => console.error('Error al modificar comanda', err)
     });
@@ -67,13 +63,16 @@ export class ComandaState {
     };
 
     this.#comandas.update(listaActual => {
+      if (normalizada.estado === 'Finalizada') {
+        return listaActual.filter(comanda => comanda.id !== normalizada.id);
+      }
       const existe = listaActual.some(comanda => comanda.id === normalizada.id);
       if (existe) {
         return listaActual.map(comanda => comanda.id === normalizada.id ? normalizada : comanda);
       } else {
         return [...listaActual, normalizada];
       }
-    })
+    });
   }
 
   cargarComandasActivas(): void {

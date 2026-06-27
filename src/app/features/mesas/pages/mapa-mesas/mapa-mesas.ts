@@ -256,8 +256,13 @@ export class MapaMesas implements OnInit {
   }
 
   cobrarComanda() {
-    console.log('Cobrar pedido clickeado para comanda', this.comandaCargada()?.id);
-    this.state.mostrarNotificacion('Cobrar pedido: Pendiente de implementación', 'info');
+    const comandaId = this.comandaCargada()?.id;
+    if (!comandaId) return;
+
+    this.mesaService.confirmarPagoEfectivo(comandaId).subscribe({
+      next: () => this.cerrarComandaDetalle(),
+      error: () => this.state.mostrarNotificacion('Error al confirmar el pago', 'error')
+    });
   }
 
   cerrarMesaComanda() {
