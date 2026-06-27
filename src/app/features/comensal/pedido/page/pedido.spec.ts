@@ -4,92 +4,50 @@ import { Router } from '@angular/router';
 import { PedidoState } from '../../services/pedido.state';
 import { ComensalState } from '../../services/comensal-state';
 import { ComandaState } from '../../services/comanda-state';
-<<<<<<< HEAD
 import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
-=======
+import { PlatoService } from '../../services/plato.service';
+import { signal } from '@angular/core';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
->>>>>>> origin/vista-comensal-nueva
 
 describe('Pedido', () => {
   let component: Pedido;
 
   const routerMock = {
-    navigate: vi.fn()
+    navigate: vi.fn(),
   };
 
   const pedidoStateMock = {
-    pedidos: () => [
-      {
-        cantidad: 2,
-        plato: { precioVentaFinal: 100 }
-      }
-    ],
-    eliminarPedido: vi.fn(),
-    incrementarCantidad: vi.fn(),
-    decrementarCantidad: vi.fn()
+    agregarPedido: vi.fn(),
+  };
+
+  const platoServiceMock = {
+    getArticuloComensal: vi.fn().mockReturnValue(of({ id: 1, nombre: 'Pizza' })),
+  };
+
+  const comandaStateMock = {
+    restauranteId: signal(1).asReadonly(),
+    mesaId: signal(10).asReadonly(),
   };
 
   const comensalStateMock = {};
-  const comandaStateMock = {
-    restauranteId: () => 1,
-    mesaId: () => 10
+
+  const configuracionVisualStateMock = {
+    colorPrimario: vi.fn().mockReturnValue('#000000'),
+    colorSecundario: vi.fn().mockReturnValue('#FFFFFF'),
+    nombreLocal: vi.fn().mockReturnValue(''),
+    logoUrl: vi.fn().mockReturnValue(null),
+    fontTitulo: vi.fn().mockReturnValue(''),
+    fontCuerpo: vi.fn().mockReturnValue(''),
+    cargar: vi.fn(),
   };
 
   beforeEach(async () => {
-<<<<<<< HEAD
-    routerMock = {
-      navigate: vi.fn()
-    };
+    vi.clearAllMocks();
+    vi.spyOn(history, 'state', 'get').mockReturnValue({
+      plato: { id: 1, nombre: 'Pizza', precio: 100 },
+    });
 
-    pedidoStateMock = {
-      pedidos: signal([
-        {
-          plato: {
-            precioVentaFinal: 100
-          },
-          cantidad: 2
-        },
-        {
-          plato: {
-            precioVentaFinal: 50
-          },
-          cantidad: 1
-        }
-      ]),
-      eliminarPedido: vi.fn(),
-      incrementarCantidad: vi.fn(),
-      decrementarCantidad: vi.fn()
-    };
-
-    comensalStateMock = {
-      enviando: signal(false),
-      exito: signal(false),
-      error: signal(null),
-      solicitarMozo: vi.fn(),
-      limpiarEstado: vi.fn()
-    };
-    comandaStateMock = {
-      mesaId: signal(1),
-      restauranteId: signal(1),
-      cargando: signal(false),
-      error: signal(null),
-      estadoPedido: signal(null),
-      confirmarPedido: vi.fn()
-    };
-
-    const configuracionVisualStateMock = {
-      colorPrimario: vi.fn().mockReturnValue('#000000'),
-      colorSecundario: vi.fn().mockReturnValue('#FFFFFF'),
-      nombreLocal: vi.fn().mockReturnValue(''),
-      logoUrl: vi.fn().mockReturnValue(null),
-      fontTitulo: vi.fn().mockReturnValue(''),
-      fontCuerpo: vi.fn().mockReturnValue(''),
-      cargar: vi.fn(),
-    };
-
-=======
->>>>>>> origin/vista-comensal-nueva
     await TestBed.configureTestingModule({
       imports: [Pedido],
       providers: [
@@ -97,8 +55,9 @@ describe('Pedido', () => {
         { provide: PedidoState, useValue: pedidoStateMock },
         { provide: ComensalState, useValue: comensalStateMock },
         { provide: ComandaState, useValue: comandaStateMock },
-        { provide: ConfiguracionVisualState, useValue: configuracionVisualStateMock }
-      ]
+        { provide: ConfiguracionVisualState, useValue: configuracionVisualStateMock },
+        { provide: PlatoService, useValue: platoServiceMock },
+      ],
     }).compileComponents();
 
     const fixture = TestBed.createComponent(Pedido);
@@ -109,60 +68,49 @@ describe('Pedido', () => {
     expect(component).toBeTruthy();
   });
 
-  it('debería calcular el total correctamente', () => {
-    expect(component.total()).toBe(200);
-  });
-
-  it('debería navegar a detalle pedido', () => {
-    component.irADetallePedido();
-
-    expect(routerMock.navigate).toHaveBeenCalledWith([
-      '/comensal/detalle-pedido'
-    ]);
-  });
-
-  it('debería volver a ver carta', () => {
-    component.volver();
-
-    expect(routerMock.navigate).toHaveBeenCalledWith([
-      '/comensal/ver-carta',
-      1,
-      10,
-      1
-    ]);
-  });
-
-  it('debería eliminar pedido', () => {
-    component.eliminarPedido(0);
-
-    expect(pedidoStateMock.eliminarPedido).toHaveBeenCalledWith(0);
-  });
-
   it('debería incrementar cantidad', () => {
-    component.agregarAlPedido(0);
-
-    expect(pedidoStateMock.incrementarCantidad).toHaveBeenCalledWith(0);
+    component.cantidad.set(1);
+    component.incrementar();
+    expect(component.cantidad()).toBe(2);
   });
 
-  it('debería decrementar cantidad', () => {
-    component.eliminarUno(0);
+  it('debería decrementar cantidad sin bajar de 1', () => {
+    component.cantidad.set(1);
+    component.decrementar();
+    expect(component.cantidad()).toBe(1);
 
-    expect(pedidoStateMock.decrementarCantidad).toHaveBeenCalledWith(0);
+    component.cantidad.set(3);
+    component.decrementar();
+    expect(component.cantidad()).toBe(2);
+  });
+
+  it('debería agregar al pedido y navegar', () => {
+    component.plato = { id: 1, nombre: 'Pizza', precio: 100 } as any;
+
+    component.agregarAlPedido();
+
+    expect(pedidoStateMock.agregarPedido).toHaveBeenCalledWith({
+      plato: component.plato,
+      cantidad: 1,
+    });
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/comensal/detalle-pedido']);
   });
 
   it('debería navegar a personalizar plato', () => {
-    const item = {
-      cantidad: 1,
-      plato: { precioVentaFinal: 50 }
-    } as any;
+    component.plato = { id: 1, nombre: 'Pizza', precio: 100 } as any;
+    component.cantidad.set(2);
 
-    component.irAPersonalizar(item, 0);
+    component.irAPersonalizar();
 
     expect(routerMock.navigate).toHaveBeenCalledWith(
       ['/comensal/personalizar-plato'],
-      {
-        state: { plato: item, index: 0 }
-      }
+      { state: { plato: { plato: component.plato, cantidad: 2 } } },
     );
+  });
+
+  it('no debería agregar al pedido si no hay plato', () => {
+    component.plato = null;
+    component.agregarAlPedido();
+    expect(pedidoStateMock.agregarPedido).not.toHaveBeenCalled();
   });
 });

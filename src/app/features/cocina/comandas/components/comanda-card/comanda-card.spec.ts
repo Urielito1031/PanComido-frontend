@@ -10,15 +10,16 @@ describe('ComandaCard', () => {
   const mockComanda: Comanda = {
     id: 15,
     mesaId: 3,
+    numeroDeMesa: 3,
     cantComensales: 4,
     estado: 'Nueva',
-    estadoId: 1,
     horaInicio: '2026-05-30T10:15:00',
     horaFin: null,
+    horaUltimoCambioEstado: null,
     tiempoEstimadoTotal: 35,
-    platos: [
-      { nombre: 'Milanesa con fritas', cantidad: 2, observaciones: 'Sin lechuga' },
-      { nombre: 'Coca-Cola', cantidad: 2, observaciones: null }
+    items: [
+      { id: 1, articulo: { id: 1, nombre: 'Milanesa con fritas', urlImagen: null }, cantidad: 2, entregado: false, observacionesGenerales: 'Sin lechuga', observacionesIngredientes: null },
+      { id: 2, articulo: { id: 2, nombre: 'Coca-Cola', urlImagen: null }, cantidad: 2, entregado: false, observacionesGenerales: null, observacionesIngredientes: null },
     ]
   };
 
@@ -52,7 +53,6 @@ describe('ComandaCard', () => {
     const comandaEnPrep: Comanda = { 
       ...mockComanda, 
       estado: 'EnPreparacion', 
-      estadoId: 2 
     };
 
     fixture.componentRef.setInput('comanda', comandaEnPrep);

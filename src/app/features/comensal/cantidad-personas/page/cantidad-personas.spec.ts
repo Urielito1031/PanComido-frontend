@@ -1,7 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { CantidadPersonas } from './cantidad-personas';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { ComandaState } from '../../services/comanda-state';
+import { signal } from '@angular/core';
 import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
@@ -13,37 +14,28 @@ describe('CantidadPersonas', () => {
   };
 
   const comandaStateMock = {
-    cargando: false,
+    cargando: signal(false).asReadonly(),
     ocuparMesa: vi.fn()
   };
 
-  const activatedRouteMock = {
-    snapshot: {
-      paramMap: {
-        get: (key: string) => {
-          const data: any = {
-            restauranteId: '1',
-            mesaId: '10'
-          };
-          return data[key];
-        },
-        keys: []
-      }
-    }
-  };
-
   beforeEach(async () => {
+    sessionStorage.setItem('restauranteId', '1');
+    sessionStorage.setItem('mesaId', '10');
+
     await TestBed.configureTestingModule({
       imports: [CantidadPersonas],
       providers: [
         { provide: Router, useValue: routerMock },
-        { provide: ComandaState, useValue: comandaStateMock },
-        { provide: ActivatedRoute, useValue: activatedRouteMock }
+        { provide: ComandaState, useValue: comandaStateMock }
       ]
     }).compileComponents();
 
     const fixture = TestBed.createComponent(CantidadPersonas);
     component = fixture.componentInstance;
+  });
+
+  afterEach(() => {
+    sessionStorage.clear();
   });
 
   it('should create', () => {
@@ -76,7 +68,7 @@ describe('CantidadPersonas', () => {
 
     component.aceptar();
 
-    expect(comandaStateMock.ocuparMesa).toHaveBeenCalled();
+    expect(comandaStateMock.ocuparMesa).toHaveBeenCalledWith(1, 10, 1, 'Juan');
   });
 
   it('debería manejar mesa ocupada (409) con sesión válida', () => {
@@ -91,7 +83,7 @@ describe('CantidadPersonas', () => {
       throwError(() => error)
     );
 
-    vi.spyOn(Storage.prototype, 'getItem').mockReturnValue(
+    vi.spyOn(Storage.prototype, 'getItem').mockReturnValueOnce(
       JSON.stringify({
         restauranteId: 1,
         mesaId: 10
@@ -100,7 +92,7 @@ describe('CantidadPersonas', () => {
 
     component.aceptar();
 
-    expect(routerMock.navigate).toHaveBeenCalled();
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/comensal/ver-carta']);
   });
 
   it('debería volver atrás', () => {
