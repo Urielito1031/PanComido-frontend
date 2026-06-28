@@ -112,6 +112,11 @@ toggleCategoria(categoria: string): void {
         break;
     }
 
+    resultado = [...resultado].sort((a, b) => {
+      if (a.esDestacado === b.esDestacado) return 0;
+      return a.esDestacado ? -1 : 1;
+    });
+
     return resultado;
   });
 

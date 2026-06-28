@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════
-   detalle-pedido — Diseño con identidad recibo + bolsa
+   detalle-pedido
    ═══════════════════════════════════════════════════ */
 
 .detalle-wrapper {
@@ -11,37 +11,7 @@
   font-family: var(--font-cuerpo, 'system-ui'), sans-serif;
 }
 
-/* ────────────────────────────────────────────────
-   STATUS BAR
-   ──────────────────────────────────────────────── */
-.status-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-  padding: 0 0.15rem;
-}
-.status-left {
-  display: flex;
-  align-items: baseline;
-  gap: 0.35rem;
-}
-.status-count {
-  font-size: 1.6rem;
-  font-weight: 800;
-  color: var(--gray-900);
-  line-height: 1;
-}
-.status-label {
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: var(--gray-500);
-}
-
-
-/* ────────────────────────────────────────────────
-   ALERTA SIN MESA
-   ──────────────────────────────────────────────── */
+/* ── Alerta sin mesa ── */
 .alerta-mesa {
   display: flex;
   align-items: center;
@@ -58,128 +28,6 @@
 .alerta-mesa .material-symbols-outlined {
   font-size: 1.3rem;
   flex-shrink: 0;
-}
-
-/* ════════════════════════════════════════════════
-   RECIBO — Pedido confirmado
-   ════════════════════════════════════════════════ */
-.recibo-card {
-  background: #ffffff;
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-sm);
-  border: 1.5px solid var(--gray-200);
-  margin-bottom: 1rem;
-  overflow: hidden;
-}
-
-/* ── Recibo top ── */
-.recibo-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.25rem 0.5rem;
-}
-
-/* Estado badge (restaurado) */
-.estado-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 999px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  white-space: nowrap;
-  box-shadow: var(--shadow-sm);
-}
-
-
-
-/* ── Recibo items ── */
-.recibo-items {
-  padding: 0.15rem 1.25rem 0.75rem;
-}
-
-/* Grupo */
-.recibo-grupo {
-  margin-top: 0.65rem;
-}
-.recibo-comensal {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--gray-500);
-  margin-bottom: 0.35rem;
-}
-.recibo-comensal .material-symbols-outlined {
-  font-size: 1rem;
-}
-
-/* Item */
-.recibo-item {
-  padding: 0.4rem 0;
-}
-.recibo-item-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.5rem;
-}
-.recibo-item-nombre {
-  font-size: 0.87rem;
-  font-weight: 700;
-  color: var(--gray-800);
-}
-.recibo-item-cant {
-  font-weight: 600;
-  color: var(--gray-500);
-  font-size: 0.8rem;
-  margin-left: 0.15rem;
-}
-.recibo-item-precio {
-  font-size: 0.87rem;
-  font-weight: 700;
-  color: var(--gray-900);
-  white-space: nowrap;
-}
-
-/* Details personalizada (restaurado) */
-.details-custom {
-  margin-top: 0.15rem;
-}
-.details-custom summary {
-  font-size: 0.78rem;
-  color: var(--gray-500);
-  cursor: pointer;
-  list-style: none;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-weight: 600;
-  transition: color var(--transition-fast);
-}
-.details-custom summary:hover {
-  color: var(--gray-700);
-}
-.details-custom summary::-webkit-details-marker {
-  display: none;
-}
-.obs-text {
-  font-size: 0.78rem;
-  color: var(--gray-500);
-  margin-top: 0.2rem;
-  line-height: 1.4;
-}
-
-/* Separador entre items confirmados */
-.recibo-sep {
-  height: 1px;
-  background: var(--gray-100);
-  margin: 0;
 }
 
 /* ════════════════════════════════════════════════
@@ -381,9 +229,7 @@
   user-select: none;
 }
 
-/* ────────────────────────────────────────────────
-   EMPTY STATE — Carrito vacío
-   ──────────────────────────────────────────────── */
+/* ── Empty state ── */
 .carrito-vacio {
   display: flex;
   flex-direction: column;
@@ -434,37 +280,14 @@
   letter-spacing: -0.02em;
 }
 
-.btn-confirmar {
+.botones-vacios {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  width: 100%;
-  padding: 0.95rem 1.5rem;
-  border: none;
-  border-radius: var(--border-radius-lg);
-  background: var(--color-primario, #02596C);
-  color: #ffffff;
-  font-size: 1rem;
-  font-weight: 800;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  box-shadow: var(--shadow-md);
-  line-height: 1;
+  gap: 0.5rem;
 }
-.btn-confirmar:hover:not(:disabled) {
-  opacity: 0.92;
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-lg);
+.botones-vacios app-boton-comensal {
+  flex: 1;
 }
-.btn-confirmar:active:not(:disabled) {
-  transform: scale(0.98);
-}
-.btn-confirmar:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  box-shadow: none;
-}
+
 .btn-confirmar-items {
   font-size: 0.78rem;
   font-weight: 600;
@@ -480,12 +303,6 @@
   }
   .carrito-item {
     padding: 0.75rem 1rem;
-  }
-  .recibo-top {
-    padding: 0.85rem 1rem 0.35rem;
-  }
-  .recibo-items {
-    padding: 0.15rem 1rem 0.65rem;
   }
   .carrito-header {
     padding: 0.85rem 1rem;

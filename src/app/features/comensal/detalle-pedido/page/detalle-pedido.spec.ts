@@ -85,7 +85,7 @@ describe('DetallePedido', () => {
   it('debería volver al pedido', () => {
     component.volver();
 
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/comensal/pedido']);
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/comensal/ver-carta']);
   });
 
   it('debería abrir modal al confirmar pedido', () => {

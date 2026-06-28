@@ -62,6 +62,7 @@ interface PlatoArticuloBackend {
   urlImagen: string | null;
   tipoArticulo: string;
   categoria: string;
+  destacado?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -114,7 +115,8 @@ export class PlatoApiService {
         visible: dto.visibleEnCarta,
         imagen: dto.urlImagen || '',
         tipo: dto.tipoArticulo,
-        categoria: dto.categoria
+        categoria: dto.categoria,
+        recomendado: dto.destacado ?? false
       })))
     );
   }
@@ -154,6 +156,10 @@ export class PlatoApiService {
       payload['urlImagen'] = data.imagen;
       delete payload['imagen'];
     }
+    if (data.recomendado !== undefined) {
+      payload['destacado'] = data.recomendado;
+      delete payload['recomendado'];
+    }
 
     return this.api.patch<PlatoArticuloBackend>(`carta/articulos/${id}`, payload).pipe(
       map(dto => {
@@ -167,6 +173,7 @@ export class PlatoApiService {
           if (dto.urlImagen !== undefined) result.imagen = dto.urlImagen || '';
           if (dto.tipoArticulo !== undefined) result.tipo = dto.tipoArticulo;
           if (dto.categoria !== undefined) result.categoria = dto.categoria;
+          if (dto.destacado !== undefined) result.recomendado = dto.destacado;
         }
         return result as Plato;
       })

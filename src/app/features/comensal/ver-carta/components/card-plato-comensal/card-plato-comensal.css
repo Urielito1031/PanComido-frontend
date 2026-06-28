@@ -78,9 +78,9 @@
 .dish-badge {
   background-color: var(--comensal-green);
   color: #ffffff;
-  font-size: 0.65rem;
+  font-size: 0.85rem;
   font-weight: 700;
-  padding: 0.2rem 0.5rem;
+  padding: 0.25rem 0.75rem;
   border-radius: var(--border-radius-sm);
   display: inline-block;
   white-space: nowrap;
