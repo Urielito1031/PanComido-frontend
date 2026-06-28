@@ -160,7 +160,7 @@ describe('PagoCheckout', () => {
       component.pagarEfectivo();
 
       expect(pagoServiceMock.solicitarPagoEfectivo).toHaveBeenCalledWith(42, 1);
-      expect(component.cargandoPago()).toBe(false);
+      expect(component.metodoCargando()).toBeNull();
       expect(component.pagoSolicitado()).toBe(true);
       expect(routerMock.navigate).toHaveBeenCalledWith(['/comensal/pago-confirmado']);
     });
@@ -174,7 +174,7 @@ describe('PagoCheckout', () => {
 
       component.pagarEfectivo();
 
-      expect(component.cargandoPago()).toBe(false);
+      expect(component.metodoCargando()).toBeNull();
       expect(component.error()).toBe(errorMsg);
     });
 
@@ -226,7 +226,7 @@ describe('PagoCheckout', () => {
       component.pagarMercadoPago();
 
       expect(pagoServiceMock.solicitarPagoMP).toHaveBeenCalledWith(42, 1);
-      expect(component.cargandoPago()).toBe(false);
+      expect(component.metodoCargando()).toBeNull();
     });
 
     it('deberia mostrar error si la API falla', () => {
@@ -237,13 +237,13 @@ describe('PagoCheckout', () => {
 
       component.pagarMercadoPago();
 
-      expect(component.cargandoPago()).toBe(false);
+      expect(component.metodoCargando()).toBeNull();
       expect(component.error()).toBe('Error MP');
     });
 
     it('NO deberia hacer nada si esta cargando', () => {
       configurarTest({}, estadoPedidoMock);
-      component.cargandoPago.set(true);
+      component.metodoCargando.set('mp');
 
       component.pagarMercadoPago();
 
@@ -282,13 +282,13 @@ describe('PagoCheckout', () => {
   describe('efectos del hub (pagoRechazado)', () => {
     it('deberia mostrar error y desactivar loading cuando el pago se rechaza', () => {
       configurarTest();
-      component.cargandoPago.set(true);
+      component.metodoCargando.set('mp');
 
       comandaHubMock.pagoRechazado.set({} as Comanda);
       fixture.detectChanges();
 
       expect(component.error()).toBe('El pago fue rechazado. Intenta de nuevo.');
-      expect(component.cargandoPago()).toBe(false);
+      expect(component.metodoCargando()).toBeNull();
     });
 
     it('NO deberia hacer nada si pagoRechazado es null', () => {
@@ -335,9 +335,9 @@ describe('PagoCheckout', () => {
       expect(texto).toContain('El mozo está en camino');
     });
 
-    it('deberia mostrar spinner en boton de efectivo cuando cargandoPago es true', () => {
+    it('deberia mostrar spinner en boton de efectivo cuando metodoCargando es true', () => {
       configurarTest({}, estadoPedidoMock);
-      component.cargandoPago.set(true);
+      component.metodoCargando.set('mp');
       fixture.detectChanges();
 
       const spinner = fixture.nativeElement.querySelector('.spinner-border');

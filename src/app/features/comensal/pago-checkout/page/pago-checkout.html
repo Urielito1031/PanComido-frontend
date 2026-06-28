@@ -1,83 +1,164 @@
 <app-header-comensal [showBack]="true" (back)="volver()" />
 
-<div class="container-fluid p-4 bg-light min-vh-100">
+<div class="checkout-wrapper">
 
   @if (error()) {
-    <div class="alert alert-warning border-0 rounded-4 shadow-sm mb-4">
-      <div class="d-flex align-items-center gap-2">
-        <span class="material-symbols-outlined">warning</span>
-        {{ error() }}
-      </div>
+    <div class="checkout-error">
+      <span class="material-symbols-outlined">warning</span>
+      {{ error() }}
     </div>
   }
 
   @if (estado()) {
-    
-    <div class="d-flex justify-content-between mb-3 px-1">
-      <div class="badge bg-white text-dark border p-2 rounded-3">Cantidad de ítems: <span class="fw-bold">{{ estado()!.items.length }}</span></div>
-      <div class="badge bg-white text-dark border p-2 rounded-3">Nro mesa: <span class="fw-bold">{{ mesaId() }}</span></div>
+
+    <div class="checkout-top">
+      <div class="checkout-badge">Cantidad de ítems: <span>{{ estado()!.items.length }}</span></div>
+      <div class="checkout-badge">Nro mesa: <span>{{ mesaId() }}</span></div>
     </div>
 
-    
-    <div class="card border border-2 shadow-sm rounded-4 mb-4">
-      <div class="card-body p-4">
-        <h6 class="fw-bold mb-3">Detalle del pedido</h6>
-        @for (item of estado()!.items; track item.articuloId) {
-          <div class="d-flex justify-content-between py-1 mb-1">
-            <span class="fw-semibold">{{ item.nombre }} x{{ item.cantidad }}</span>
-            <span class="text-muted">${{ item.precioUnitario * item.cantidad | number:'1.0-0' }}</span>
+    <div class="checkout-card mb-4">
+      <h6 class="checkout-card-titulo">Detalle del pedido</h6>
+      @for (grupo of itemsAgrupados(); track grupo.nombre) {
+        <p class="checkout-grupo">{{ grupo.nombre }}</p>
+        @for (item of grupo.items; track item.articuloId) {
+          <div class="checkout-item">
+            <span class="checkout-item-nombre">{{ item.nombre }} <span class="checkout-item-cant">x {{ item.cantidad }}</span></span>
+            <span class="checkout-item-precio">$ {{ item.precioUnitario * item.cantidad | number:'1.0-0' }}</span>
           </div>
         }
-      </div>
+      }
     </div>
 
-    
-    <div class="d-flex justify-content-between align-items-center mb-4 px-1">
-      <span class="fs-4">Total:</span>
-      <div class="badge bg-white text-dark border border-secondary p-2 fs-5 rounded-3 shadow-sm">${{ estado()!.totalAPagar | number:'1.0-0' }}</div>
+    <div class="checkout-total-card">
+      <div class="checkout-total">
+        <span class="checkout-total-label">Total:</span>
+        <span class="checkout-total-monto">$ {{ estado()!.totalAPagar | number:'1.0-0' }}</span>
+      </div>
+
+      <details class="split-card">
+      <summary class="split-summary">
+        División de cuenta
+        <span class="material-symbols-outlined split-chevron">expand_more</span>
+      </summary>
+
+      <div class="split-opciones">
+        <label class="split-opcion" [class.split-opcion--activa]="modoSplit() === 'igual'">
+          <input type="radio" name="split" value="igual" [checked]="modoSplit() === 'igual'" (change)="modoSplit.set('igual')">
+          <span class="material-symbols-outlined split-icono">group</span>
+          <span>Partes iguales</span>
+        </label>
+        <label class="split-opcion" [class.split-opcion--activa]="modoSplit() === 'individual'">
+          <input type="radio" name="split" value="individual" [checked]="modoSplit() === 'individual'" (change)="modoSplit.set('individual')">
+          <span class="material-symbols-outlined split-icono">person</span>
+          <span>Por lo que pidió cada uno</span>
+        </label>
+      </div>
+
+      <div class="split-resultado">
+        @if (modoSplit() === 'igual') {
+          <div class="split-igual">
+            <span class="split-resultado-label">Cada persona paga</span>
+            <span class="split-resultado-monto">$ {{ totalPorPersonaIgual() | number:'1.0-0' }}</span>
+          </div>
+        } @else {
+          @for (comensal of resumenPorComensal(); track comensal.nombre) {
+            <div class="split-fila">
+              <span class="split-fila-nombre">{{ comensal.nombre }}</span>
+              <span class="split-fila-monto">$ {{ comensal.subtotal | number:'1.0-0' }}</span>
+            </div>
+          }
+        }
+      </div>
+
+      <div class="split-disclaimer">
+        <span class="material-symbols-outlined split-disclaimer-icono">info</span>
+        <span>Esto es un facilitador para hacer la cuenta. El cobro se realizará por el total.</span>
+      </div>
+      </details>
     </div>
 
     @if (pagoSolicitado()) {
-      <div class="alert alert-success border-0 rounded-4 shadow-sm mt-4 text-center">
-        <span class="material-symbols-outlined fs-1 text-success mb-2 d-block">hourglass_top</span>
+      <div class="checkout-confirmado">
+        <span class="material-symbols-outlined checkout-confirmado-icono">hourglass_top</span>
         <h5 class="fw-bold">El mozo está en camino</h5>
-        <p class="mb-0 text-muted">Aguardá un instante para realizar el pago en efectivo.</p>
+        <p class="text-muted mb-0">Aguardá un instante para realizar el pago en efectivo.</p>
       </div>
     } @else {
-      
-      <div class="d-flex flex-column gap-3 mt-4">
-        <button class="btn btn-light bg-white border-2 rounded-4 p-3 d-flex align-items-center justify-content-center gap-2 shadow-sm"
-                [style.border-color]="configuracionVisualState.colorSecundario()"
-                (click)="pagarMercadoPago()"
-                [disabled]="cargandoPago()">
-          <span class="material-symbols-outlined fs-3" [style.color]="configuracionVisualState.colorSecundario()">account_balance</span>
-          <span class="fw-bold fs-5" [style.color]="configuracionVisualState.colorSecundario()">Mercado Pago</span>
-        </button>
+      <div class="checkout-botones">
+        @if (tieneMercadoPago()) {
+          <app-boton-comensal backgroundColor="#ffffff"
+            [textColor]="configuracionVisualState.colorSecundario()"
+            [tieneBorde]="true"
+            [disabled]="metodoCargando() !== null"
+            (clicked)="pagarMercadoPago()">
+            @if (metodoCargando() === 'mp') {
+              <div class="spinner-border spinner-border-sm" role="status"></div>
+            } @else {
+              <div class="d-flex align-items-center justify-content-center gap-2 fw-bold">
+                <span class="material-symbols-outlined" style="font-size:1.3rem">account_balance</span>
+                <span>Mercado Pago</span>
+              </div>
+            }
+          </app-boton-comensal>
+        }
 
-        <button class="btn btn-light bg-white border-2 rounded-4 p-3 d-flex align-items-center justify-content-center gap-2 shadow-sm"
-                [style.border-color]="configuracionVisualState.colorSecundario()"
-                (click)="pagarMercadoPago()"
-                [disabled]="cargandoPago()">
-          <span class="material-symbols-outlined fs-3" [style.color]="configuracionVisualState.colorSecundario()">credit_card</span>
-          <span class="fw-bold fs-5" [style.color]="configuracionVisualState.colorSecundario()">Tarjeta</span>
-        </button>
+        @if (tieneTarjeta()) {
+          <app-boton-comensal backgroundColor="#ffffff"
+            [textColor]="configuracionVisualState.colorSecundario()"
+            [tieneBorde]="true"
+            [disabled]="metodoCargando() !== null"
+            (clicked)="pagarTarjeta()">
+            @if (metodoCargando() === 'tarjeta') {
+              <div class="spinner-border spinner-border-sm" role="status"></div>
+            } @else {
+              <div class="d-flex align-items-center justify-content-center gap-2 fw-bold">
+                <span class="material-symbols-outlined" style="font-size:1.3rem">credit_card</span>
+                <span>Tarjeta</span>
+              </div>
+            }
+          </app-boton-comensal>
+        }
 
-        <button class="btn btn-light bg-white border-2 rounded-4 p-3 d-flex align-items-center justify-content-center gap-2 shadow-sm"
-                [style.border-color]="configuracionVisualState.colorSecundario()"
-                (click)="pagarEfectivo()"
-                [disabled]="cargandoPago()">
-          @if (cargandoPago()) {
-            <div class="spinner-border spinner-border-sm" role="status"></div>
-          } @else {
-            <span class="material-symbols-outlined fs-3" [style.color]="configuracionVisualState.colorSecundario()">payments</span>
-            <span class="fw-bold fs-5" [style.color]="configuracionVisualState.colorSecundario()">Efectivo</span>
-          }
-        </button>
+        @if (tieneTransferencia()) {
+          <app-boton-comensal backgroundColor="#ffffff"
+            [textColor]="configuracionVisualState.colorSecundario()"
+            [tieneBorde]="true"
+            [disabled]="metodoCargando() !== null"
+            (clicked)="pagarTransferencia()">
+            @if (metodoCargando() === 'transferencia') {
+              <div class="spinner-border spinner-border-sm" role="status"></div>
+            } @else {
+              <div class="d-flex align-items-center justify-content-center gap-2 fw-bold">
+                <span class="material-symbols-outlined" style="font-size:1.3rem">swap_horiz</span>
+                <span>Transferencia</span>
+              </div>
+            }
+          </app-boton-comensal>
+        }
+
+        @if (tieneEfectivo()) {
+          <app-boton-comensal backgroundColor="#ffffff"
+            [textColor]="configuracionVisualState.colorSecundario()"
+            [tieneBorde]="true"
+            [disabled]="metodoCargando() !== null"
+            (clicked)="pagarEfectivo()">
+            @if (metodoCargando() === 'efectivo') {
+              <div class="spinner-border spinner-border-sm" role="status"></div>
+            } @else {
+              <div class="d-flex align-items-center justify-content-center gap-2 fw-bold">
+                <span class="material-symbols-outlined" style="font-size:1.3rem">payments</span>
+                <span>Efectivo</span>
+              </div>
+            }
+          </app-boton-comensal>
+        }
       </div>
     }
+
   } @else {
     <div class="text-center py-5">
       <div class="spinner-border text-primary" role="status"></div>
     </div>
   }
+
 </div>
