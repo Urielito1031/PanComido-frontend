@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, HostListener, OnDestroy, OnInit, computed, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -6,10 +6,10 @@ import flatpickr from 'flatpickr';
 import { Instance } from 'flatpickr/dist/types/instance';
 import { CustomLocale } from 'flatpickr/dist/types/locale';
 import { ArsCurrencyPipe } from '../../../../shared/pipes/ars-currency.pipe';
-import { DashboardStateService, DEFAULT_LAYOUT } from '../services/dashboard.state';
+import { DashboardStateService, DISEÑO_POR_DEFECTO } from '../services/dashboard.state';
 import { DashboardDestino, DashboardPeriodo, DashboardVentaDia, WidgetLayout, FavoriteWidgetConfig, DashboardAccionItem } from '../../../../core/models/domain/dashboard';
 
-export interface AvailableWidget {
+export interface ModuloDisponible {
   id: string;
   name: string;
   description: string;
@@ -18,7 +18,7 @@ export interface AvailableWidget {
   allowedWidths: ('25' | '50' | '100')[];
 }
 
-export const AVAILABLE_WIDGETS: AvailableWidget[] = [
+export const MODULOS_DISPONIBLES: ModuloDisponible[] = [
   { id: 'kpi-ventas', name: 'Ventas Totales', description: 'Facturación total y variación porcentual', icon: 'payments', category: 'Finanzas', allowedWidths: ['25', '50', '100'] },
   { id: 'kpi-pedidos', name: 'Pedidos Totales', description: 'Contador de órdenes y promedio por día', icon: 'shopping_bag', category: 'Ventas', allowedWidths: ['25', '50', '100'] },
   { id: 'kpi-ticket', name: 'Ticket Promedio', description: 'Gasto medio por comanda finalizada', icon: 'receipt_long', category: 'Finanzas', allowedWidths: ['25', '50', '100'] },
@@ -34,7 +34,7 @@ export const AVAILABLE_WIDGETS: AvailableWidget[] = [
   { id: 'mozos', name: 'Desempeño de Mozos', description: 'Eficiencia y carga del personal de salón', icon: 'groups', category: 'Personal', allowedWidths: ['100'] }
 ];
 
-const SPANISH_LOCALE: CustomLocale = {
+const LOCALIZACION_ESPANOLA: CustomLocale = {
   weekdays: {
     shorthand: ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'],
     longhand: ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado']
@@ -60,38 +60,38 @@ const SPANISH_LOCALE: CustomLocale = {
 export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
   readonly state = inject(DashboardStateService);
   private readonly router = inject(Router);
+  private readonly documento = inject(DOCUMENT);
   private readonly fechaDesdeInput = viewChild<ElementRef<HTMLInputElement>>('fechaDesdeInput');
   private readonly fechaHastaInput = viewChild<ElementRef<HTMLInputElement>>('fechaHastaInput');
   private calendarioDesde: Instance | null = null;
   private calendarioHasta: Instance | null = null;
 
-  isMobile = signal<boolean>(typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
-  readonly floatingMenuOpen = signal<boolean>(false);
+  esMovil = signal<boolean>(typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
+  readonly menuFlotanteAbierto = signal<boolean>(false);
   readonly mostrarGloboInfo = signal<boolean>(true);
 
   @HostListener('window:resize')
-  onResize(): void {
+  alRedimensionar(): void {
     if (typeof window !== 'undefined') {
-      this.isMobile.set(window.innerWidth <= 768);
+      this.esMovil.set(window.innerWidth <= 768);
     }
   }
 
-  readonly currentLayout = computed(() => {
-    return DEFAULT_LAYOUT;
+  readonly diseñoActual = computed(() => {
+    return DISEÑO_POR_DEFECTO;
   });
 
   readonly diaSeleccionado = signal<DashboardVentaDia | null>(null);
-  readonly availableWidgets = AVAILABLE_WIDGETS;
-  readonly activeWidgetConfigMenu = signal<string | null>(null);
-  readonly draggedIndex = signal<number | null>(null);
-  readonly dragOverIndex = signal<number | null>(null);
-  private draggedWidgetIdFromSidebar: string | null = null;
-  private draggedCanvasIndex: number | null = null;
-  /** Tracks whether the drag was initiated from the drag handle. Resets on mouseup. */
-  private _dragHandlePressed = false;
+  readonly modulosDisponibles = MODULOS_DISPONIBLES;
+  readonly menuConfiguracionModuloActivo = signal<string | null>(null);
+  readonly indiceArrastrado = signal<number | null>(null);
+  readonly indiceArrastradoSobre = signal<number | null>(null);
+  private idModuloArrastradoDesdeBarra: string | null = null;
+  private indiceLienzoArrastrado: number | null = null;
+  private _manijaArrastrePresionada = false;
 
-  onDragStartFromSidebar(event: DragEvent, widgetId: string): void {
-    this.draggedWidgetIdFromSidebar = widgetId;
+  alIniciarArrastreDesdeBarra(event: DragEvent, widgetId: string): void {
+    this.idModuloArrastradoDesdeBarra = widgetId;
     if (event.dataTransfer) {
       event.dataTransfer.effectAllowed = 'copy';
       event.dataTransfer.setData('widget-id', widgetId);
@@ -99,133 +99,123 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  onDropOnCanvas(event: DragEvent): void {
+  alSoltarEnLienzo(event: DragEvent): void {
     event.preventDefault();
-    this.dragOverIndex.set(null);
-    const widgetId = this.draggedWidgetIdFromSidebar || event.dataTransfer?.getData('widget-id') || event.dataTransfer?.getData('text/plain');
+    this.indiceArrastradoSobre.set(null);
+    const widgetId = this.idModuloArrastradoDesdeBarra || event.dataTransfer?.getData('widget-id') || event.dataTransfer?.getData('text/plain');
     if (widgetId && widgetId !== 'undefined' && isNaN(Number(widgetId))) {
-      this.state.addFavorite(widgetId);
-      this.draggedWidgetIdFromSidebar = null;
+      this.state.agregarFavorito(widgetId);
+      this.idModuloArrastradoDesdeBarra = null;
       setTimeout(() => {
-        this.activeWidgetConfigMenu.set(widgetId);
+        this.menuConfiguracionModuloActivo.set(widgetId);
       }, 100);
     }
   }
 
-  onCanvasDragOver(event: DragEvent): void {
+  alArrastrarSobreLienzo(event: DragEvent): void {
     event.preventDefault();
     if (event.dataTransfer) {
       event.dataTransfer.dropEffect = 'move';
     }
   }
 
-  onCanvasDragEnter(event: DragEvent, targetIndex: number): void {
+  alEntrarArrastreEnLienzo(event: DragEvent, targetIndex: number): void {
     event.preventDefault();
-    if (this.draggedCanvasIndex !== null || this.draggedWidgetIdFromSidebar !== null) {
-      this.dragOverIndex.set(targetIndex);
+    if (this.indiceLienzoArrastrado !== null || this.idModuloArrastradoDesdeBarra !== null) {
+      this.indiceArrastradoSobre.set(targetIndex);
     }
   }
 
-  onCanvasDragLeave(event: DragEvent, targetIndex: number): void {
-    // Only clear the highlight if we're truly leaving this card, not just entering a child element.
-    // Without this check, dragleave fires for every child element, causing the highlight to flicker.
+  alSalirArrastreDeLienzo(event: DragEvent, targetIndex: number): void {
     const relatedTarget = event.relatedTarget as HTMLElement | null;
     const currentTarget = event.currentTarget as HTMLElement;
     if (!relatedTarget || !currentTarget.contains(relatedTarget)) {
-      if (this.dragOverIndex() === targetIndex) {
-        this.dragOverIndex.set(null);
+      if (this.indiceArrastradoSobre() === targetIndex) {
+        this.indiceArrastradoSobre.set(null);
       }
     }
   }
 
-  /**
-   * Only allow drags that originate from the drag handle.
-   * NOTE: event.target in dragstart is always the draggable element (.grid-item),
-   * never the inner handle child — so we must rely on the _dragHandlePressed flag.
-   */
-  onCanvasDragStart(event: DragEvent, index: number): void {
-    if (!this._dragHandlePressed) {
+  alIniciarArrastreEnLienzo(event: DragEvent, index: number): void {
+    if (!this._manijaArrastrePresionada) {
       event.preventDefault();
       return;
     }
 
-    this.draggedCanvasIndex = index;
-    this.draggedIndex.set(index);
+    this.indiceLienzoArrastrado = index;
+    this.indiceArrastrado.set(index);
     if (event.dataTransfer) {
       event.dataTransfer.effectAllowed = 'move';
       event.dataTransfer.setData('text/plain', String(index));
     }
   }
 
-  /** Set when the user presses the drag handle. Auto-cleared on mouseup. */
-  onHandleMouseDown(): void {
-    this._dragHandlePressed = true;
+  alPresionarManijaArrastre(): void {
+    this._manijaArrastrePresionada = true;
   }
 
-  /** Reset the handle flag whenever the mouse is released anywhere on the document. */
   @HostListener('document:mouseup')
-  onDocumentMouseUp(): void {
-    this._dragHandlePressed = false;
+  alLiberarMouseEnDocumento(): void {
+    this._manijaArrastrePresionada = false;
   }
 
-  onCanvasDrop(event: DragEvent, targetIndex: number): void {
+  alSoltarEnLienzoCard(event: DragEvent, targetIndex: number): void {
     event.preventDefault();
-    event.stopPropagation(); // Prevent bubbling up to the canvas drop zone
-    this.dragOverIndex.set(null);
+    event.stopPropagation();
+    this.indiceArrastradoSobre.set(null);
 
-    const sidebarWidgetId = this.draggedWidgetIdFromSidebar || event.dataTransfer?.getData('widget-id');
+    const sidebarWidgetId = this.idModuloArrastradoDesdeBarra || event.dataTransfer?.getData('widget-id');
     if (sidebarWidgetId && isNaN(Number(sidebarWidgetId))) {
-      // It is a widget from the sidebar dropped onto a card: insert it at this index
-      this.state.insertFavoriteAt(sidebarWidgetId, targetIndex);
-      this.draggedWidgetIdFromSidebar = null;
+      this.state.insertarFavoritoEn(sidebarWidgetId, targetIndex);
+      this.idModuloArrastradoDesdeBarra = null;
       setTimeout(() => {
-        this.activeWidgetConfigMenu.set(sidebarWidgetId);
+        this.menuConfiguracionModuloActivo.set(sidebarWidgetId);
       }, 100);
       return;
     }
 
-    const sourceIndexStr = this.draggedCanvasIndex !== null ? String(this.draggedCanvasIndex) : event.dataTransfer?.getData('text/plain');
+    const sourceIndexStr = this.indiceLienzoArrastrado !== null ? String(this.indiceLienzoArrastrado) : event.dataTransfer?.getData('text/plain');
     if (sourceIndexStr !== undefined) {
       const sourceIndex = Number(sourceIndexStr);
       if (!isNaN(sourceIndex) && sourceIndex !== targetIndex) {
-        const doc = document as any;
+        const doc = this.documento as any;
         if (doc.startViewTransition) {
           doc.startViewTransition(() => {
-            this.state.reorderFavorites(sourceIndex, targetIndex);
+            this.state.reordenarFavoritos(sourceIndex, targetIndex);
           });
         } else {
-          this.state.reorderFavorites(sourceIndex, targetIndex);
+          this.state.reordenarFavoritos(sourceIndex, targetIndex);
         }
       }
     }
-    this.draggedCanvasIndex = null;
-    this.draggedIndex.set(null);
+    this.indiceLienzoArrastrado = null;
+    this.indiceArrastrado.set(null);
   }
 
-  onCanvasDragEnd(): void {
-    this._dragHandlePressed = false;
-    this.draggedCanvasIndex = null;
-    this.draggedIndex.set(null);
-    this.dragOverIndex.set(null);
+  alTerminarArrastreEnLienzo(): void {
+    this._manijaArrastrePresionada = false;
+    this.indiceLienzoArrastrado = null;
+    this.indiceArrastrado.set(null);
+    this.indiceArrastradoSobre.set(null);
   }
 
-  setWidgetWidth(widgetId: string, width: '25' | '50' | '100'): void {
-    this.state.updateFavoriteWidth(widgetId, width);
-    this.activeWidgetConfigMenu.set(null);
+  establecerAnchoModulo(widgetId: string, width: '25' | '50' | '100'): void {
+    this.state.actualizarAnchoFavorito(widgetId, width);
+    this.menuConfiguracionModuloActivo.set(null);
   }
 
-  toggleWidgetSizePopover(event: Event, widgetId: string): void {
+  alternarSelectorTamaño(event: Event, widgetId: string): void {
     event.stopPropagation();
-    if (this.activeWidgetConfigMenu() === widgetId) {
-      this.activeWidgetConfigMenu.set(null);
+    if (this.menuConfiguracionModuloActivo() === widgetId) {
+      this.menuConfiguracionModuloActivo.set(null);
     } else {
-      this.activeWidgetConfigMenu.set(widgetId);
+      this.menuConfiguracionModuloActivo.set(widgetId);
     }
   }
 
-  moveFavoriteUp(index: number): void {
+  moverFavoritoArriba(index: number): void {
     if (index > 0) {
-      const doc = document as any;
+      const doc = this.documento as any;
       if (doc.startViewTransition) {
         doc.startViewTransition(() => {
           this.state.moverFavorito(index, index - 1);
@@ -236,10 +226,10 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  moveFavoriteDown(index: number): void {
-    const len = this.state.favoritesConfig().length;
+  moverFavoritoAbajo(index: number): void {
+    const len = this.state.configuracionFavoritos().length;
     if (index < len - 1) {
-      const doc = document as any;
+      const doc = this.documento as any;
       if (doc.startViewTransition) {
         doc.startViewTransition(() => {
           this.state.moverFavorito(index, index + 1);
@@ -254,7 +244,7 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     this.state.cargarDatos();
   }
 
-  getSparklinePoints(tendencia: number[]): string {
+  obtenerPuntosSparkline(tendencia: number[]): string {
     if (!tendencia || tendencia.length === 0) return '';
     const minVal = Math.min(...tendencia);
     const maxVal = Math.max(...tendencia);
@@ -272,7 +262,7 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     }).join(' ');
   }
 
-  getSparklinePointsArray(tendencia: number[]): { x: number; y: number }[] {
+  obtenerArrayPuntosSparkline(tendencia: number[]): { x: number; y: number }[] {
     if (!tendencia || tendencia.length === 0) return [];
     const minVal = Math.min(...tendencia);
     const maxVal = Math.max(...tendencia);
@@ -311,8 +301,8 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     this.state.agendarRecordatorioDirecto(platoNombre, accionTitulo);
   }
 
-  shouldShowWidget(widget: WidgetLayout): boolean {
-    if (this.state.viewMode() === 'reportes') return true;
+  deberiaMostrarModulo(widget: WidgetLayout): boolean {
+    if (this.state.modoVista() === 'reportes') return true;
 
     if (widget.id === 'lectura-comercial') {
       return this.state.esFavorito('lectura-0') || 
@@ -322,7 +312,7 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     return this.state.esFavorito(widget.id);
   }
 
-  readonly calendarOffset = computed(() => {
+  readonly desplazamientoCalendario = computed(() => {
     const dias = this.state.ventasCalendarioMes();
     if (dias.length === 0) return [];
 
@@ -358,7 +348,6 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     return Math.round(dias.reduce((total, dia) => total + dia.ventas, 0) / dias.length);
   });
 
-
   readonly periodos: { label: string; value: DashboardPeriodo }[] = [
     { label: '1 día', value: '1d' },
     { label: '3 días', value: '3d' },
@@ -368,13 +357,12 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
   ];
 
   ngOnInit(): void {
-    // Cargar los datos iniciales
     this.state.cargarDatos();
   }
 
   ngAfterViewInit(): void {
     const baseOptions = {
-      locale: SPANISH_LOCALE,
+      locale: LOCALIZACION_ESPANOLA,
       dateFormat: 'd/m/Y',
       allowInput: true,
       disableMobile: true,
@@ -392,14 +380,14 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     if (desde) {
       this.calendarioDesde = flatpickr(desde, {
         ...baseOptions,
-        onChange: (_dates, value) => this.setFechaDesde(value)
+        onChange: (_dates, value) => this.establecerFechaDesde(value)
       });
     }
 
     if (hasta) {
       this.calendarioHasta = flatpickr(hasta, {
         ...baseOptions,
-        onChange: (_dates, value) => this.setFechaHasta(value)
+        onChange: (_dates, value) => this.establecerFechaHasta(value)
       });
     }
   }
@@ -409,7 +397,7 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     this.calendarioHasta?.destroy();
   }
 
-  setPeriodo(periodo: DashboardPeriodo): void {
+  establecerPeriodo(periodo: DashboardPeriodo): void {
     this.state.setPeriodo(periodo);
     if (periodo !== 'custom') {
       this.calendarioDesde?.clear(false);
@@ -430,11 +418,11 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  setFechaDesde(fecha: string): void {
+  establecerFechaDesde(fecha: string): void {
     this.state.setFechaDesde(fecha);
   }
 
-  setFechaHasta(fecha: string): void {
+  establecerFechaHasta(fecha: string): void {
     this.state.setFechaHasta(fecha);
   }
 
@@ -443,7 +431,6 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     if (max === 0) return 0;
     return Math.max(8, Math.round((valor / max) * 100));
   }
-
 
   porcentajeVentaMensual(valor: number): number {
     return Math.max(10, Math.round((valor / this.mayorVentaMensual()) * 100));
@@ -485,14 +472,21 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     this.diaSeleccionado.set(null);
   }
 
+  private obtenerPrecioPromedioTicket(): number {
+    const ticketStr = this.state.resumenOperativo()?.ticketPromedio ?? '';
+    const numeric = Number(ticketStr.replace(/[^0-9]/g, '')) || 0;
+    return numeric > 0 ? numeric : 4160;
+  }
+
   calcularPedidosDia(ventas: number): number {
-    return Math.max(1, Math.round(ventas / 4160));
+    const avgTicket = this.obtenerPrecioPromedioTicket();
+    return Math.max(1, Math.round(ventas / avgTicket));
   }
 
   calcularTicketPromedioDia(ventas: number): number {
-    const base = 4160;
-    const seed = (ventas % 15) - 7;
-    return base + seed * 100;
+    const avgTicket = this.obtenerPrecioPromedioTicket();
+    const shift = (ventas % 15) - 7;
+    return avgTicket + shift * 10;
   }
 
   esMejorDia(item: DashboardVentaDia): boolean {
@@ -521,21 +515,21 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     return todos.filter(item => item.criticidad.toLowerCase() === filtro);
   });
 
-  toggleCriteriosExplicacion(event: Event): void {
+  alternarExplicacionCriterios(event: Event): void {
     event.stopPropagation();
     this.mostrandoCriterios.update(v => !v);
   }
 
-  setFiltroCriticidadVencimiento(filtro: 'todos' | 'alta' | 'media' | 'baja'): void {
+  establecerFiltroCriticidad(filtro: 'todos' | 'alta' | 'media' | 'baja'): void {
     this.filtroCriticidadVencimiento.set(filtro);
   }
 
-  scrollToSection(widgetId: string): void {
-    const element = document.getElementById('widget-' + widgetId);
+  desplazarASeccion(widgetId: string): void {
+    const element = this.documento.getElementById('widget-' + widgetId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-    this.floatingMenuOpen.set(false);
+    this.menuFlotanteAbierto.set(false);
     this.mostrarGloboInfo.set(false);
   }
 
@@ -544,7 +538,7 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     this.mostrarGloboInfo.set(false);
   }
 
-  getActionIcon(destino: string): string {
+  obtenerIconoAccion(destino: string): string {
     switch (destino) {
       case 'pedido': return 'local_shipping';
       case 'stock': return 'inventory_2';
@@ -555,9 +549,9 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
 
   irA(destino: DashboardDestino, extraParams?: any): void {
     if (destino === 'vencimientos') {
-      this.state.setViewMode('reportes');
+      this.state.establecerModoVista('reportes');
       setTimeout(() => {
-        const element = document.getElementById('widget-insumos-vencer');
+        const element = this.documento.getElementById('widget-insumos-vencer');
         if (element) {
           element.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
@@ -591,7 +585,9 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     this.state.abrirDetallePlato({ nombre: platoNombre, valor: 0, detalle: '' }, 0);
   }
 
-  scrollToTop(): void {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  desplazarAlPrincipio(): void {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 }

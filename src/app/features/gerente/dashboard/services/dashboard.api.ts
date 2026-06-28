@@ -3,7 +3,7 @@ import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ApiService } from '../../../../core/services/api-service';
-import { DashboardInsumoVencimiento, DashboardRankingItem, PlatoAnalisis, DashboardAccionItem } from '../../../../core/models/domain/dashboard';
+import { DashboardInsumoVencimiento, DashboardRankingItem, PlatoAnalisis, DashboardAccionItem, EstadisticaMozo } from '../../../../core/models/domain/dashboard';
 import { DashboardVencimientoDto } from '../../../../core/models/dtos/responses/dashboard-vencimiento.response';
 import { DashboardRendimientoResponseDto } from '../../../../core/models/dtos/responses/dashboard-rendimiento.response';
 import { mapVencimientoDtoToDomain, mapPlatoRendimientoDtoToDomain } from '../../../../infra/http/mappers/dashboard.mapper';
@@ -83,4 +83,5 @@ export interface DashboardResumenOperativoResponse {
   variacionTicket: string;
   grafico: VentaAgrupadaDto[];
   recordatorios?: DashboardAccionItem[];
+  mozos: EstadisticaMozo[];
 }

@@ -1,15 +1,16 @@
 import { computed, inject, Injectable, signal, OnDestroy } from '@angular/core';
+import { take } from 'rxjs';
 import { 
   DashboardPeriodo, DashboardRankingItem, DashboardInsumoVencimiento, 
   DashboardLecturaComercial, DashboardAtencionItem, DashboardAccionItem, 
   DashboardDestino, DashboardVentaMensual, DashboardVentaDia,
-  DashboardViewMode, PlatoAnalisis, PlatoSugerencia, MozoStat, WidgetLayout, FavoriteWidgetConfig
+  DashboardViewMode, PlatoAnalisis, EstadisticaMozo, WidgetLayout, FavoriteWidgetConfig
 } from '../../../../core/models/domain/dashboard';
 import { DashboardApiService, DashboardResumenOperativoResponse } from './dashboard.api';
 import { SignalRConexionService } from '../../../../core/services/hubs/base-hub-service';
 import { AuthService } from '../../../../core/services/auth.service';
 
-export const DEFAULT_LAYOUT: WidgetLayout[] = [
+export const DISEÑO_POR_DEFECTO: WidgetLayout[] = [
   { id: 'kpi-ventas', colSpan: 3 },
   { id: 'kpi-pedidos', colSpan: 3 },
   { id: 'kpi-ticket', colSpan: 3 },
@@ -23,7 +24,7 @@ export const DEFAULT_LAYOUT: WidgetLayout[] = [
   { id: 'mozos', colSpan: 12 }
 ];
 
-export const DEFAULT_FAVORITES: FavoriteWidgetConfig[] = [
+export const FAVORITOS_POR_DEFECTO: FavoriteWidgetConfig[] = [
   { id: 'kpi-ventas', width: '25' },
   { id: 'kpi-pedidos', width: '25' },
   { id: 'kpi-ticket', width: '25' },
@@ -31,7 +32,7 @@ export const DEFAULT_FAVORITES: FavoriteWidgetConfig[] = [
   { id: 'ventas-calendario', width: '100' }
 ];
 
-export const PRESET_FINANCIERO: FavoriteWidgetConfig[] = [
+export const PLANTILLA_FINANCIERA: FavoriteWidgetConfig[] = [
   { id: 'kpi-ventas', width: '25' },
   { id: 'kpi-ticket', width: '25' },
   { id: 'kpi-promedio', width: '25' },
@@ -39,14 +40,14 @@ export const PRESET_FINANCIERO: FavoriteWidgetConfig[] = [
   { id: 'ventas-calendario', width: '100' }
 ];
 
-export const PRESET_OPERATIVO: FavoriteWidgetConfig[] = [
+export const PLANTILLA_OPERATIVA: FavoriteWidgetConfig[] = [
   { id: 'insumos-vencer', width: '100' },
   { id: 'proximas-acciones', width: '50' },
   { id: 'kpi-pedidos', width: '25' },
   { id: 'kpi-promedio', width: '25' }
 ];
 
-export const PRESET_PERSONAL: FavoriteWidgetConfig[] = [
+export const PLANTILLA_PERSONAL: FavoriteWidgetConfig[] = [
   { id: 'mozos', width: '100' },
   { id: 'kpi-pedidos', width: '50' },
   { id: 'proximas-acciones', width: '50' }
@@ -62,9 +63,9 @@ export class DashboardStateService implements OnDestroy {
   private _fechaDesde = signal<string>('');
   private _fechaHasta = signal<string>('');
 
-  private _viewMode = signal<DashboardViewMode>('reportes');
-  private _favoritesConfig = signal<FavoriteWidgetConfig[]>(this.cargarFavoritesConfig());
-  isEditing = signal<boolean>(false);
+  private _modoVista = signal<DashboardViewMode>('reportes');
+  private _configuracionFavoritos = signal<FavoriteWidgetConfig[]>(this.cargarConfiguracionFavoritos());
+  estaEditando = signal<boolean>(false);
   private _platoSeleccionado = signal<PlatoAnalisis | null>(null);
   private _vencimientos = signal<DashboardInsumoVencimiento[]>([]);
   private _platosMasVendidos = signal<DashboardRankingItem[]>([]);
@@ -87,15 +88,14 @@ export class DashboardStateService implements OnDestroy {
     }, 4000);
   }
 
-  private pollingIntervalId: any = null;
-  private refreshTimeoutId: any = null;
+  private idIntervaloPolling: any = null;
+  private idTimeoutRefresco: any = null;
 
   constructor() {
     this.conectarHubYPolling();
   }
 
   private conectarHubYPolling(): void {
-    // 1. Conectar SignalR
     this.signalR.iniciar().then(async () => {
       const rol = this.auth.rol();
       const restauranteId = this.auth.restauranteId;
@@ -113,26 +113,25 @@ export class DashboardStateService implements OnDestroy {
       console.warn('SignalR falló en DashboardStateService, usando fallback de polling', err);
     });
 
-    // 2. Fallback de Polling cada 120 segundos
-    this.pollingIntervalId = setInterval(() => {
+    this.idIntervaloPolling = setInterval(() => {
       this.cargarDatos();
     }, 120000);
   }
 
   ngOnDestroy(): void {
-    if (this.pollingIntervalId) {
-      clearInterval(this.pollingIntervalId);
+    if (this.idIntervaloPolling) {
+      clearInterval(this.idIntervaloPolling);
     }
-    if (this.refreshTimeoutId) {
-      clearTimeout(this.refreshTimeoutId);
+    if (this.idTimeoutRefresco) {
+      clearTimeout(this.idTimeoutRefresco);
     }
   }
 
   private refrescarConDebounce(): void {
-    if (this.refreshTimeoutId) {
-      clearTimeout(this.refreshTimeoutId);
+    if (this.idTimeoutRefresco) {
+      clearTimeout(this.idTimeoutRefresco);
     }
-    this.refreshTimeoutId = setTimeout(() => {
+    this.idTimeoutRefresco = setTimeout(() => {
       this.cargarDatos();
     }, 2000);
   }
@@ -140,10 +139,9 @@ export class DashboardStateService implements OnDestroy {
   periodo = this._periodo.asReadonly();
   fechaDesde = this._fechaDesde.asReadonly();
   fechaHasta = this._fechaHasta.asReadonly();
-  viewMode = this._viewMode.asReadonly();
-  favoritesConfig = this._favoritesConfig.asReadonly();
+  modoVista = this._modoVista.asReadonly();
+  configuracionFavoritos = this._configuracionFavoritos.asReadonly();
   platoSeleccionado = this._platoSeleccionado.asReadonly();
-
 
   insumosPorVencer = this._vencimientos.asReadonly();
   platosMasVendidos = this._platosMasVendidos.asReadonly();
@@ -251,12 +249,10 @@ export class DashboardStateService implements OnDestroy {
       const partes = g.etiqueta.split('-');
       
       if (partes.length === 3) {
-        // Formato yyyy-MM-dd: obtenemos el día de la semana
         const date = new Date(parseInt(partes[0], 10), parseInt(partes[1], 10) - 1, parseInt(partes[2], 10));
         const nombresDias = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
         etiquetaFormateada = nombresDias[date.getDay()];
       } else if (partes.length === 2) {
-        // Formato yyyy-MM: obtenemos el nombre completo del mes
         const indexMes = parseInt(partes[1], 10) - 1;
         const nombresMeses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
         if (indexMes >= 0 && indexMes < 12) {
@@ -326,11 +322,6 @@ export class DashboardStateService implements OnDestroy {
     const dias = this.diasDelPeriodo();
     return Math.round(total / Math.max(1, dias));
   });
-
-  lecturaCanales = computed(() => [
-    { titulo: 'Mostrador en alza', detalle: '+15% comparado al mes anterior, impulsado por mediodías.' },
-    { titulo: 'Delivery estable', detalle: 'Representa el mayor volumen, pero con ticket promedio más bajo.' }
-  ]);
 
   periodoLabel = computed(() => {
     const labels: Record<DashboardPeriodo, string> = {
@@ -426,8 +417,7 @@ export class DashboardStateService implements OnDestroy {
       }
     };
 
-    // 1. Cargar Vencimientos
-    this.api.getVencimientos().subscribe({
+    this.api.getVencimientos().pipe(take(1)).subscribe({
       next: (vencimientos) => {
         this._vencimientos.set(vencimientos);
         checkComplete();
@@ -442,8 +432,7 @@ export class DashboardStateService implements OnDestroy {
     const desdeIso = desde.toISOString();
     const hastaIso = hasta.toISOString();
 
-    // 2. Cargar Rendimiento Comercial con las fechas reales del filtro
-    this.api.getRendimientoComercial(desdeIso, hastaIso).subscribe({
+    this.api.getRendimientoComercial(desdeIso, hastaIso).pipe(take(1)).subscribe({
       next: (res) => {
         this._platosMasVendidos.set(res.masVendidos);
         this._platosMenosVendidos.set(res.menosVendidos);
@@ -455,8 +444,7 @@ export class DashboardStateService implements OnDestroy {
       }
     });
 
-    // 3. Cargar Resumen Operativo (nuevo endpoint)
-    this.api.getResumenOperativo(desdeIso, hastaIso).subscribe({
+    this.api.getResumenOperativo(desdeIso, hastaIso).pipe(take(1)).subscribe({
       next: (resumen) => {
         this._resumen.set(resumen);
         if (resumen.recordatorios) {
@@ -541,8 +529,7 @@ export class DashboardStateService implements OnDestroy {
     return Math.max(1, Math.round(diff / 86400000) + 1);
   }
 
-  // --- REPORTES Y FAVORITOS ---
-  cargarFavoritesConfig(): FavoriteWidgetConfig[] {
+  cargarConfiguracionFavoritos(): FavoriteWidgetConfig[] {
     try {
       const saved = localStorage.getItem('dashboard_favorites_config');
       if (saved) {
@@ -552,13 +539,13 @@ export class DashboardStateService implements OnDestroy {
     return [];
   }
 
-  saveFavoritesConfig(config: FavoriteWidgetConfig[]): void {
+  guardarConfiguracionFavoritos(config: FavoriteWidgetConfig[]): void {
     try {
       localStorage.setItem('dashboard_favorites_config', JSON.stringify(config));
     } catch (e) {}
   }
 
-  addFavorite(id: string, width?: '25' | '50' | '100'): void {
+  agregarFavorito(id: string, width?: '25' | '50' | '100'): void {
     if (this.esFavorito(id)) return;
     let defaultWidth: '25' | '50' | '100' = width ?? '50';
     if (!width) {
@@ -568,12 +555,12 @@ export class DashboardStateService implements OnDestroy {
         defaultWidth = '100';
       }
     }
-    const current = [...this._favoritesConfig(), { id, width: defaultWidth }];
-    this._favoritesConfig.set(current);
-    this.saveFavoritesConfig(current);
+    const current = [...this._configuracionFavoritos(), { id, width: defaultWidth }];
+    this._configuracionFavoritos.set(current);
+    this.guardarConfiguracionFavoritos(current);
   }
 
-  insertFavoriteAt(id: string, index: number, width?: '25' | '50' | '100'): void {
+  insertarFavoritoEn(id: string, index: number, width?: '25' | '50' | '100'): void {
     if (this.esFavorito(id)) return;
     let defaultWidth: '25' | '50' | '100' = width ?? '50';
     if (!width) {
@@ -583,67 +570,67 @@ export class DashboardStateService implements OnDestroy {
         defaultWidth = '100';
       }
     }
-    const current = [...this._favoritesConfig()];
+    const current = [...this._configuracionFavoritos()];
     current.splice(index, 0, { id, width: defaultWidth });
-    this._favoritesConfig.set(current);
-    this.saveFavoritesConfig(current);
+    this._configuracionFavoritos.set(current);
+    this.guardarConfiguracionFavoritos(current);
   }
 
-  removeFavorite(id: string): void {
-    const current = this._favoritesConfig().filter(w => w.id !== id);
-    this._favoritesConfig.set(current);
-    this.saveFavoritesConfig(current);
+  quitarFavorito(id: string): void {
+    const current = this._configuracionFavoritos().filter(w => w.id !== id);
+    this._configuracionFavoritos.set(current);
+    this.guardarConfiguracionFavoritos(current);
   }
 
-  updateFavoriteWidth(id: string, width: '25' | '50' | '100'): void {
-    const current = this._favoritesConfig().map(w => {
+  actualizarAnchoFavorito(id: string, width: '25' | '50' | '100'): void {
+    const current = this._configuracionFavoritos().map(w => {
       if (w.id === id) {
         return { ...w, width };
       }
       return w;
     });
-    this._favoritesConfig.set(current);
-    this.saveFavoritesConfig(current);
+    this._configuracionFavoritos.set(current);
+    this.guardarConfiguracionFavoritos(current);
   }
 
-  reorderFavorites(fromIndex: number, toIndex: number): void {
-    const current = [...this._favoritesConfig()];
+  reordenarFavoritos(fromIndex: number, toIndex: number): void {
+    const current = [...this._configuracionFavoritos()];
     if (fromIndex >= 0 && fromIndex < current.length && toIndex >= 0 && toIndex < current.length) {
       const [moved] = current.splice(fromIndex, 1);
       current.splice(toIndex, 0, moved);
-      this._favoritesConfig.set(current);
-      this.saveFavoritesConfig(current);
+      this._configuracionFavoritos.set(current);
+      this.guardarConfiguracionFavoritos(current);
     }
   }
 
   moverFavorito(fromIndex: number, toIndex: number): void {
-    this.reorderFavorites(fromIndex, toIndex);
+    this.reordenarFavoritos(fromIndex, toIndex);
   }
 
   aplicarPreset(tipo: 'financiero' | 'operativo' | 'personal'): void {
     let preset: FavoriteWidgetConfig[] = [];
     if (tipo === 'financiero') {
-      preset = PRESET_FINANCIERO;
+      preset = PLANTILLA_FINANCIERA;
     } else if (tipo === 'operativo') {
-      preset = PRESET_OPERATIVO;
+      preset = PLANTILLA_OPERATIVA;
     } else if (tipo === 'personal') {
-      preset = PRESET_PERSONAL;
+      preset = PLANTILLA_PERSONAL;
     }
-    this._favoritesConfig.set(preset);
-    this.saveFavoritesConfig(preset);
+    this._configuracionFavoritos.set(preset);
+    this.guardarConfiguracionFavoritos(preset);
   }
 
   restablecerFavoritos(): void {
-    this._favoritesConfig.set(DEFAULT_FAVORITES);
-    this.saveFavoritesConfig(DEFAULT_FAVORITES);
+    this._configuracionFavoritos.set(FAVORITOS_POR_DEFECTO);
+    this.guardarConfiguracionFavoritos(FAVORITOS_POR_DEFECTO);
   }
 
-  toggleEditing(val?: boolean): void {
-    this.isEditing.set(val ?? !this.isEditing());
+  alternarEdicion(val?: boolean): void {
+    this.estaEditando.set(val ?? !this.estaEditando());
   }
 
   toggleFavorito(panelId: string): void {
-    const current = [...this._favoritesConfig()];
+    const current = [...this._configuracionFavoritos()];
     const idx = current.findIndex(w => w.id === panelId);
     if (idx !== -1) {
       current.splice(idx, 1);
@@ -656,25 +643,23 @@ export class DashboardStateService implements OnDestroy {
       }
       current.push({ id: panelId, width: defaultWidth });
     }
-    this._favoritesConfig.set(current);
-    this.saveFavoritesConfig(current);
+    this._configuracionFavoritos.set(current);
+    this.guardarConfiguracionFavoritos(current);
   }
 
-  setViewMode(mode: DashboardViewMode): void {
-    this._viewMode.set(mode);
+  establecerModoVista(mode: DashboardViewMode): void {
+    this._modoVista.set(mode);
     if (mode !== 'favoritos') {
-      this.isEditing.set(false);
+      this.estaEditando.set(false);
     }
   }
 
   esFavorito(panelId: string): boolean {
-    return this._favoritesConfig().some(w => w.id === panelId);
+    return this._configuracionFavoritos().some(w => w.id === panelId);
   }
 
-  // --- DETALLE PLATO MENOS VENDIDO ---
-  // --- DETALLE PLATO MENOS VENDIDO ---
   abrirDetallePlato(plato: DashboardRankingItem, index: number): void {
-    this.api.getAnalisisPlato(plato.nombre).subscribe({
+    this.api.getAnalisisPlato(plato.nombre).pipe(take(1)).subscribe({
       next: (detalle) => {
         this._platoSeleccionado.set(detalle);
       },
@@ -691,7 +676,7 @@ export class DashboardStateService implements OnDestroy {
 
     const platoId = actual.platoId || 0;
 
-    this.api.aplicarDescuentoPlato(platoId, 10).subscribe({
+    this.api.aplicarDescuentoPlato(platoId, 10).pipe(take(1)).subscribe({
       next: (res) => {
         const precioNuevoStr = this.formatCurrency(res.precioNuevo);
         const metricasNuevas = {
@@ -735,7 +720,7 @@ export class DashboardStateService implements OnDestroy {
 
     const platoId = actual.platoId || 0;
 
-    this.api.agendarRecordatorioPlato(platoId, accionTitulo).subscribe({
+    this.api.agendarRecordatorioPlato(platoId, accionTitulo).pipe(take(1)).subscribe({
       next: (res) => {
         const sugerenciasNuevas = actual.sugerenciasDetalladas.map(s => {
           if (s.accion === accionTitulo) {
@@ -765,7 +750,7 @@ export class DashboardStateService implements OnDestroy {
   }
 
   resolverRecordatorio(id: number): void {
-    this.api.resolverRecordatorio(id).subscribe({
+    this.api.resolverRecordatorio(id).pipe(take(1)).subscribe({
       next: () => {
         this._recordatoriosAdicionales.update(list => list.filter(item => item.id !== id));
         this.mostrarToast('Recordatorio resuelto con éxito', 'exito');
@@ -777,19 +762,15 @@ export class DashboardStateService implements OnDestroy {
     });
   }
 
-  // --- ESTADISTICAS MOZOS (MOCK) ---
-  mozos = signal<MozoStat[]>([
-    { nombre: 'Juan Pérez', mesasAtendidas: 24, facturacionTotal: 85000, tiempoPromedioAtencion: '45m', estado: 'Sobrecargado' },
-    { nombre: 'María Gómez', mesasAtendidas: 15, facturacionTotal: 54000, tiempoPromedioAtencion: '38m', estado: 'Optimo' },
-    { nombre: 'Carlos Ruiz', mesasAtendidas: 8, facturacionTotal: 29000, tiempoPromedioAtencion: '30m', estado: 'Baja carga' }
-  ]).asReadonly();
+  readonly mozos = computed<EstadisticaMozo[]>(() => {
+    return this._resumen()?.mozos ?? [];
+  });
 
-  insightMozos = computed(() => {
+  readonly analisisMozos = computed<string>(() => {
     const sobrecargados = this.mozos().filter(m => m.estado === 'Sobrecargado').length;
     if (sobrecargados > 0) {
       return `${sobrecargados} mozo(s) sobrecargado(s). Considera añadir refuerzos para los fines de semana.`;
     }
     return 'Distribución de mesas equilibrada.';
   });
-
 }

@@ -10,17 +10,17 @@
   <section class="dashboard-toolbar" aria-label="Filtros del dashboard">
     <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
       <div class="view-tabs" role="tablist">
-        <button role="tab" [class.active]="state.viewMode() === 'favoritos'" (click)="state.setViewMode('favoritos')">
+        <button role="tab" [class.active]="state.modoVista() === 'favoritos'" (click)="state.establecerModoVista('favoritos')">
           <span class="material-symbols-outlined" aria-hidden="true">star</span> Favoritos
         </button>
-        <button role="tab" [class.active]="state.viewMode() === 'reportes'" (click)="state.setViewMode('reportes')">
+        <button role="tab" [class.active]="state.modoVista() === 'reportes'" (click)="state.establecerModoVista('reportes')">
           <span class="material-symbols-outlined" aria-hidden="true">dashboard</span> Todos los Reportes
         </button>
       </div>
-      @if (state.viewMode() === 'favoritos') {
-        <button type="button" class="customize-layout-btn" [class.editing]="state.isEditing()" (click)="state.toggleEditing()" [title]="state.isEditing() ? 'Guardar y salir del modo edición' : 'Personalizar distribución de favoritos'">
-          <span class="material-symbols-outlined" aria-hidden="true">{{ state.isEditing() ? 'check' : 'edit' }}</span>
-          {{ state.isEditing() ? 'Listo' : 'Personalizar' }}
+      @if (state.modoVista() === 'favoritos') {
+        <button type="button" class="customize-layout-btn" [class.editing]="state.estaEditando()" (click)="state.alternarEdicion()" [title]="state.estaEditando() ? 'Guardar y salir del modo edición' : 'Personalizar distribución de favoritos'">
+          <span class="material-symbols-outlined" aria-hidden="true">{{ state.estaEditando() ? 'check' : 'edit' }}</span>
+          {{ state.estaEditando() ? 'Listo' : 'Personalizar' }}
         </button>
       }
       <div class="refresh-indicator-container">
@@ -37,7 +37,7 @@
           type="button"
           class="period-button"
           [class.active]="state.periodo() === periodo.value"
-          (click)="setPeriodo(periodo.value)">
+          (click)="establecerPeriodo(periodo.value)">
           {{ periodo.label }}
         </button>
       }
@@ -60,7 +60,7 @@
             inputmode="numeric"
             placeholder="dd/mm/aaaa"
             [ngModel]="state.fechaDesde()"
-            (ngModelChange)="setFechaDesde($event)">
+            (ngModelChange)="establecerFechaDesde($event)">
           <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
         </span>
       </label>
@@ -73,25 +73,23 @@
             inputmode="numeric"
             placeholder="dd/mm/aaaa"
             [ngModel]="state.fechaHasta()"
-            (ngModelChange)="setFechaHasta($event)">
+            (ngModelChange)="establecerFechaHasta($event)">
           <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
         </span>
       </label>
     </div>
   </section>
 
+  <div class="dashboard-views" [class.mode-favoritos]="state.modoVista() === 'favoritos'" [class.editing-active]="state.modoVista() === 'favoritos' && state.estaEditando()">
 
-
-  <div class="dashboard-views" [class.mode-favoritos]="state.viewMode() === 'favoritos'" [class.editing-active]="state.viewMode() === 'favoritos' && state.isEditing()">
-
-  @if (state.viewMode() === 'favoritos' && state.isEditing()) {
+  @if (state.modoVista() === 'favoritos' && state.estaEditando()) {
     <aside class="edit-drawer">
       <div class="drawer-header">
         <div>
           <span class="drawer-eyebrow">Personalizar</span>
           <h2>Panel de Módulos</h2>
         </div>
-        <button type="button" class="close-drawer-btn" (click)="state.toggleEditing(false)" aria-label="Cerrar panel de edición">
+        <button type="button" class="close-drawer-btn" (click)="state.alternarEdicion(false)" aria-label="Cerrar panel de edición">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
@@ -112,12 +110,12 @@
         </div>
 
         <div class="drawer-modules-list">
-          @for (widget of availableWidgets; track widget.id) {
+          @for (widget of modulosDisponibles; track widget.id) {
             <div 
               class="drawer-module-item" 
               [class.already-added]="state.esFavorito(widget.id)"
               draggable="true" 
-              (dragstart)="onDragStartFromSidebar($event, widget.id)">
+              (dragstart)="alIniciarArrastreDesdeBarra($event, widget.id)">
               <div class="module-info-wrapper">
                 <span class="material-symbols-outlined module-icon">{{ widget.icon }}</span>
                 <div class="module-text">
@@ -129,7 +127,7 @@
               <button 
                 type="button" 
                 class="add-module-btn" 
-                (click)="state.esFavorito(widget.id) ? state.removeFavorite(widget.id) : state.addFavorite(widget.id)" 
+                (click)="state.esFavorito(widget.id) ? state.quitarFavorito(widget.id) : state.agregarFavorito(widget.id)" 
                 [title]="state.esFavorito(widget.id) ? 'Quitar de favoritos' : 'Añadir a favoritos'">
                 <span class="material-symbols-outlined">{{ state.esFavorito(widget.id) ? 'remove' : 'add' }}</span>
               </button>
@@ -190,10 +188,10 @@
     </section>
   }
 
-  @if (state.viewMode() === 'reportes') {
+  @if (state.modoVista() === 'reportes') {
     <div class="dashboard-grid-container">
-      @for (widget of currentLayout(); track widget.id) {
-        @if (shouldShowWidget(widget)) {
+      @for (widget of diseñoActual(); track widget.id) {
+        @if (deberiaMostrarModulo(widget)) {
           <div
             class="grid-item col-span-{{ widget.colSpan }}"
             [attr.data-widget-id]="widget.id"
@@ -206,34 +204,34 @@
   } @else {
     <div 
       class="dashboard-grid-container mode-favoritos-canvas"
-      (dragover)="onCanvasDragOver($event)"
-      (drop)="onDropOnCanvas($event)"
-      [class.canvas-editing]="state.isEditing()">
+      (dragover)="alArrastrarSobreLienzo($event)"
+      (drop)="alSoltarEnLienzo($event)"
+      [class.canvas-editing]="state.estaEditando()">
       
-      @for (fav of state.favoritesConfig(); track fav.id; let i = $index) {
+      @for (fav of state.configuracionFavoritos(); track fav.id; let i = $index) {
         <div
           class="grid-item col-width-{{ fav.width }}"
-          [class.dragging-placeholder]="draggedIndex() === i"
-          [class.drag-over-target]="dragOverIndex() === i && draggedIndex() !== i"
+          [class.dragging-placeholder]="indiceArrastrado() === i"
+          [class.drag-over-target]="indiceArrastradoSobre() === i && indiceArrastrado() !== i"
           [attr.data-widget-id]="fav.id"
           [id]="'widget-' + fav.id"
           [attr.data-index]="i"
-          [draggable]="state.isEditing() && !isMobile()"
-          (dragstart)="onCanvasDragStart($event, i)"
-          (dragend)="onCanvasDragEnd()"
-          (dragover)="onCanvasDragOver($event)"
-          (dragenter)="onCanvasDragEnter($event, i)"
-          (dragleave)="onCanvasDragLeave($event, i)"
-          (drop)="onCanvasDrop($event, i)">
+          [draggable]="state.estaEditando() && !esMovil()"
+          (dragstart)="alIniciarArrastreEnLienzo($event, i)"
+          (dragend)="alTerminarArrastreEnLienzo()"
+          (dragover)="alArrastrarSobreLienzo($event)"
+          (dragenter)="alEntrarArrastreEnLienzo($event, i)"
+          (dragleave)="alSalirArrastreDeLienzo($event, i)"
+          (drop)="alSoltarEnLienzoCard($event, i)">
           
-          @if (state.isEditing()) {
+          @if (state.estaEditando()) {
             <div class="canvas-item-edit-bar">
-              @if (isMobile()) {
+              @if (esMovil()) {
                 <div class="canvas-mobile-order-actions">
-                  <button type="button" class="order-btn" [disabled]="i === 0" (click)="moveFavoriteUp(i)" title="Mover arriba">
+                  <button type="button" class="order-btn" [disabled]="i === 0" (click)="moverFavoritoArriba(i)" title="Mover arriba">
                     <span class="material-symbols-outlined">arrow_upward</span>
                   </button>
-                  <button type="button" class="order-btn" [disabled]="i === state.favoritesConfig().length - 1" (click)="moveFavoriteDown(i)" title="Mover abajo">
+                  <button type="button" class="order-btn" [disabled]="i === state.configuracionFavoritos().length - 1" (click)="moverFavoritoAbajo(i)" title="Mover abajo">
                     <span class="material-symbols-outlined">arrow_downward</span>
                   </button>
                 </div>
@@ -241,31 +239,31 @@
                 <span 
                   class="material-symbols-outlined canvas-drag-handle" 
                   title="Arrastrar para reordenar"
-                  (mousedown)="onHandleMouseDown()">
+                  (mousedown)="alPresionarManijaArrastre()">
                   drag_indicator
                 </span>
               }
               <div class="canvas-edit-actions">
-                <button type="button" class="canvas-size-btn" (click)="toggleWidgetSizePopover($event, fav.id)" title="Cambiar tamaño del módulo">
+                <button type="button" class="canvas-size-btn" (click)="alternarSelectorTamaño($event, fav.id)" title="Cambiar tamaño del módulo">
                   <span class="material-symbols-outlined">photo_size_select_large</span>
                   {{ fav.width }}%
                 </button>
-                <button type="button" class="canvas-delete-btn" (click)="state.removeFavorite(fav.id)" title="Quitar de favoritos">
+                <button type="button" class="canvas-delete-btn" (click)="state.quitarFavorito(fav.id)" title="Quitar de favoritos">
                   <span class="material-symbols-outlined">close</span>
                 </button>
               </div>
 
-              @if (activeWidgetConfigMenu() === fav.id) {
+              @if (menuConfiguracionModuloActivo() === fav.id) {
                 <div class="size-selector-popover" (click)="$event.stopPropagation()">
                   <div class="popover-title">Seleccionar ancho:</div>
                   <div class="popover-options">
                     @if (fav.id.startsWith('kpi-') || fav.id === 'proximas-acciones' || fav.id.startsWith('lectura-')) {
-                      <button type="button" [class.active]="fav.width === '25'" (click)="setWidgetWidth(fav.id, '25')">Chico (25%)</button>
+                      <button type="button" [class.active]="fav.width === '25'" (click)="establecerAnchoModulo(fav.id, '25')">Chico (25%)</button>
                     }
                     @if (fav.id !== 'mozos') {
-                      <button type="button" [class.active]="fav.width === '50'" (click)="setWidgetWidth(fav.id, '50')">Mediano (50%)</button>
+                      <button type="button" [class.active]="fav.width === '50'" (click)="establecerAnchoModulo(fav.id, '50')">Mediano (50%)</button>
                     }
-                    <button type="button" [class.active]="fav.width === '100'" (click)="setWidgetWidth(fav.id, '100')">Grande (100%)</button>
+                    <button type="button" [class.active]="fav.width === '100'" (click)="establecerAnchoModulo(fav.id, '100')">Grande (100%)</button>
                   </div>
                 </div>
               }
@@ -276,12 +274,12 @@
         </div>
       }
 
-      @if (state.favoritesConfig().length === 0 && !state.isEditing()) {
+      @if (state.configuracionFavoritos().length === 0 && !state.estaEditando()) {
         <div class="empty-favorites-state" style="grid-column: 1 / -1; width: 100%;">
           <span class="material-symbols-outlined">star_border</span>
           <h2>Aún no tienes paneles favoritos</h2>
           <p>Pulsa en <strong>"Personalizar"</strong> para desplegar la barra lateral y empezar a armar tu vista personalizada de favoritos.</p>
-          <button class="primary-btn" style="width: auto; padding: 0.5rem 1.5rem;" (click)="state.toggleEditing(true)">
+          <button class="primary-btn" style="width: auto; padding: 0.5rem 1.5rem;" (click)="state.alternarEdicion(true)">
             Personalizar Vista
           </button>
         </div>
@@ -385,7 +383,7 @@
               </div>
 
               <div class="heatmap-grid">
-                @for (empty of calendarOffset(); track $index) {
+                @for (empty of desplazamientoCalendario(); track $index) {
                   <div class="heatmap-day-empty" aria-hidden="true"></div>
                 }
                 @for (item of state.ventasCalendarioMes(); track item.dia) {
@@ -572,7 +570,7 @@
             <div>
               <div style="display: flex; align-items: center; gap: 0.5rem;">
                 <h2>Platos menos vendidos</h2>
-                <button type="button" class="info-icon-btn" (click)="toggleCriteriosExplicacion($event)" title="Ver criterios de sugerencia" aria-label="Información de criterios">
+                <button type="button" class="info-icon-btn" (click)="alternarExplicacionCriterios($event)" title="Ver criterios de sugerencia" aria-label="Información de criterios">
                   <span class="material-symbols-outlined">info</span>
                 </button>
               </div>
@@ -664,7 +662,7 @@
                 class="expiry-summary-item" 
                 [class]="item.tone"
                 [class.active]="filtroCriticidadVencimiento() === item.key"
-                (click)="setFiltroCriticidadVencimiento(item.key)"
+                (click)="establecerFiltroCriticidad(item.key)"
                 [attr.aria-label]="'Filtrar por ' + item.label">
                 <strong>{{ item.value }}</strong>
                 <span>{{ item.label }}</span>
@@ -708,7 +706,7 @@
                 <div class="next-action-left">
                   <span class="next-action-badge">{{ index + 1 }}</span>
                   <div class="next-action-icon-wrapper">
-                    <span class="material-symbols-outlined">{{ getActionIcon(item.destino) }}</span>
+                    <span class="material-symbols-outlined">{{ obtenerIconoAccion(item.destino) }}</span>
                   </div>
                 </div>
                 <div class="next-action-content">
@@ -731,7 +729,7 @@
           <div class="panel-heading">
             <div>
               <h2>Desempeño de Mozos</h2>
-              <p>{{ state.insightMozos() }}</p>
+              <p>{{ state.analisisMozos() }}</p>
             </div>
             <div class="panel-actions" (click)="$event.stopPropagation()">
               <button class="favorite-btn" [class.active]="state.esFavorito('mozos')" (click)="state.toggleFavorito('mozos')">
@@ -851,9 +849,9 @@
                   stroke-width="2.5" 
                   stroke-linecap="round" 
                   stroke-linejoin="round"
-                  [attr.points]="getSparklinePoints(detalle.tendencia)">
+                  [attr.points]="obtenerPuntosSparkline(detalle.tendencia)">
                 </polyline>
-                @for (pt of getSparklinePointsArray(detalle.tendencia); track pt; let last = $last) {
+                @for (pt of obtenerArrayPuntosSparkline(detalle.tendencia); track pt; let last = $last) {
                   <circle 
                     [attr.cx]="pt.x" 
                     [attr.cy]="pt.y" 
@@ -926,8 +924,8 @@
                     @if (sug.tipo === 'descuento') {
                       @if (!confirmandoDescuento()) {
                         <button class="sug-btn primary" (click)="confirmandoDescuento.set(true)">
-                          <span class="material-symbols-outlined">percent</span>
-                          Aplicar Descuento 10%
+                           <span class="material-symbols-outlined">percent</span>
+                           Aplicar Descuento 10%
                         </button>
                       } @else {
                         <div class="sug-confirm-inline animate-fade-in">
@@ -988,14 +986,14 @@
   </div>
 
   <footer class="dashboard-footer">
-    <button type="button" class="back-to-top-btn" (click)="scrollToTop()">
+    <button type="button" class="back-to-top-btn" (click)="desplazarAlPrincipio()">
       <span class="material-symbols-outlined">arrow_upward</span> Volver al principio
     </button>
   </footer>
 
-  @if (state.viewMode() === 'reportes') {
+  @if (state.modoVista() === 'reportes') {
     <div class="floating-sections-container">
-      @if (mostrarGloboInfo() && !floatingMenuOpen()) {
+      @if (mostrarGloboInfo() && !menuFlotanteAbierto()) {
         <div class="navigation-tooltip-bubble">
           <span>Navega rápido entre secciones desde aquí</span>
           <button type="button" class="tooltip-close-btn" (click)="cerrarGloboInfo($event)" title="Cerrar aviso">
@@ -1005,28 +1003,28 @@
         </div>
       }
 
-      <div class="floating-menu-card" [class.open]="floatingMenuOpen()">
+      <div class="floating-menu-card" [class.open]="menuFlotanteAbierto()">
         <div class="floating-menu-header">
           <strong>Navegar Secciones</strong>
         </div>
         <div class="floating-menu-body">
-          <button type="button" class="floating-menu-item" (click)="scrollToSection('kpi-ventas')">
+          <button type="button" class="floating-menu-item" (click)="desplazarASeccion('kpi-ventas')">
             <span class="material-symbols-outlined">payments</span>
             <span>Resumen Financiero</span>
           </button>
-          <button type="button" class="floating-menu-item" (click)="scrollToSection('ventas-calendario')">
+          <button type="button" class="floating-menu-item" (click)="desplazarASeccion('ventas-calendario')">
             <span class="material-symbols-outlined">calendar_month</span>
             <span>Tendencia de Ventas</span>
           </button>
-          <button type="button" class="floating-menu-item" (click)="scrollToSection('platos-mas-vendidos')">
+          <button type="button" class="floating-menu-item" (click)="desplazarASeccion('platos-mas-vendidos')">
             <span class="material-symbols-outlined">restaurant_menu</span>
             <span>Platos y Menú</span>
           </button>
-          <button type="button" class="floating-menu-item" (click)="scrollToSection('insumos-vencer')">
+          <button type="button" class="floating-menu-item" (click)="desplazarASeccion('insumos-vencer')">
             <span class="material-symbols-outlined">warning</span>
             <span>Inventario y Mermas</span>
           </button>
-          <button type="button" class="floating-menu-item" (click)="scrollToSection('mozos')">
+          <button type="button" class="floating-menu-item" (click)="desplazarASeccion('mozos')">
             <span class="material-symbols-outlined">groups</span>
             <span>Personal de Salón</span>
           </button>
@@ -1037,17 +1035,17 @@
         <button 
           type="button" 
           class="floating-back-to-top" 
-          (click)="scrollToTop()"
+          (click)="desplazarAlPrincipio()"
           title="Volver arriba">
           <span class="material-symbols-outlined">arrow_upward</span>
         </button>
         <button 
           type="button" 
           class="floating-menu-trigger" 
-          [class.active]="floatingMenuOpen()"
-          (click)="floatingMenuOpen.set(!floatingMenuOpen()); mostrarGloboInfo.set(false)"
+          [class.active]="menuFlotanteAbierto()"
+          (click)="menuFlotanteAbierto.set(!menuFlotanteAbierto()); mostrarGloboInfo.set(false)"
           title="Navegar secciones del dashboard">
-          <span class="material-symbols-outlined">{{ floatingMenuOpen() ? 'close' : 'explore' }}</span>
+          <span class="material-symbols-outlined">{{ menuFlotanteAbierto() ? 'close' : 'explore' }}</span>
         </button>
       </div>
     </div>

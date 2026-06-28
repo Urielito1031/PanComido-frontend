@@ -93,7 +93,7 @@ export interface PlatoAnalisis {
   tendencia: number[];
 }
 
-export interface MozoStat {
+export interface EstadisticaMozo {
   nombre: string;
   mesasAtendidas: number;
   facturacionTotal: number;

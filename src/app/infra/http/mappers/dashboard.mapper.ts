@@ -9,7 +9,7 @@ export function mapPlatoRendimientoDtoToDomain(dto: PlatoRendimientoDto): Dashbo
   
   return {
     nombre: nombre,
-    valor: parseInt(String(unidades).replace(/\\D/g, '')) || 0,
+    valor: parseInt(String(unidades).replace(/\D/g, '')) || 0,
     detalle: facturacion
   };
 }
@@ -23,7 +23,7 @@ export function mapVencimientoDtoToDomain(dto: DashboardVencimientoDto): Dashboa
 
   const cantidadCruda = dto.cantidad || dto.Cantidad || '';
   let cantidadFinal = cantidadCruda;
-  const numMatch = cantidadCruda.match(/^[0-9]+(\\.[0-9]+)?/);
+  const numMatch = cantidadCruda.match(/^[0-9]+(\.[0-9]+)?/);
   if (numMatch && parseFloat(numMatch[0]) === 0) {
     cantidadFinal = 'Agotado';
   }
