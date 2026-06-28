@@ -1,5 +1,5 @@
-import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { Component, ChangeDetectionStrategy, OnInit, inject, signal, computed, effect } from '@angular/core';
+import { CommonModule, DatePipe, DOCUMENT } from '@angular/common';
 import { Router } from '@angular/router';
 import { take } from 'rxjs';
 import { PlatoSugerido } from '../../../../core/models/domain/sugerencia-ia';
@@ -30,6 +30,7 @@ export class AvisosPage implements OnInit {
   pedidoState = inject(VencimientosState);
   pedidoSugeridoState = inject(RealizarPedidoSugeridoStateService);
   router = inject(Router);
+  private readonly documento = inject(DOCUMENT);
 
   isPedidoOffcanvasOpen = false;
   cantidadAgregar = 1;
@@ -39,6 +40,79 @@ export class AvisosPage implements OnInit {
 
   isStockExpanded = signal(true);
   isVencimientosExpanded = signal(true);
+
+  paginaStock = signal(1);
+  paginaVencimientos = signal(1);
+
+  totalPaginasStock = computed(() => {
+    return Math.max(1, Math.ceil(this.state.stockBajo().length / 6));
+  });
+
+  insumosStockPaginados = computed(() => {
+    const inicio = (this.paginaStock() - 1) * 6;
+    return this.state.stockBajo().slice(inicio, inicio + 6);
+  });
+
+  totalPaginasVencimientos = computed(() => {
+    return Math.max(1, Math.ceil(this.state.vencimientos().length / 6));
+  });
+
+  vencimientosPaginados = computed(() => {
+    const inicio = (this.paginaVencimientos() - 1) * 6;
+    return this.state.vencimientos().slice(inicio, inicio + 6);
+  });
+
+  constructor() {
+    effect(() => {
+      const totalStock = this.totalPaginasStock();
+      if (this.paginaStock() > totalStock) {
+        this.paginaStock.set(1);
+      }
+    }, { allowSignalWrites: true });
+
+    effect(() => {
+      const totalVenc = this.totalPaginasVencimientos();
+      if (this.paginaVencimientos() > totalVenc) {
+        this.paginaVencimientos.set(1);
+      }
+    }, { allowSignalWrites: true });
+  }
+
+  cambiarPaginaStock(delta: number, event: Event) {
+    event.stopPropagation();
+    const nuevaPagina = this.paginaStock() + delta;
+    if (nuevaPagina >= 1 && nuevaPagina <= this.totalPaginasStock()) {
+      this.paginaStock.set(nuevaPagina);
+    }
+  }
+
+  cambiarPaginaVencimientos(delta: number, event: Event) {
+    event.stopPropagation();
+    const nuevaPagina = this.paginaVencimientos() + delta;
+    if (nuevaPagina >= 1 && nuevaPagina <= this.totalPaginasVencimientos()) {
+      this.paginaVencimientos.set(nuevaPagina);
+    }
+  }
+
+  desplazarASeccion(id: string) {
+    if (id === 'seccion-stock') {
+      this.isStockExpanded.set(true);
+    } else if (id === 'seccion-vencimientos') {
+      this.isVencimientosExpanded.set(true);
+    }
+    setTimeout(() => {
+      const element = this.documento.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 50);
+  }
+
+  desplazarAlPrincipio() {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
 
   toggleStock() {
     this.isStockExpanded.update(v => !v);
