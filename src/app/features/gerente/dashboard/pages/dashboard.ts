@@ -84,6 +84,36 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     return DISEÑO_POR_DEFECTO;
   });
 
+  readonly widgetsParaVista = computed(() => {
+    const modo = this.state.modoVista();
+    let base = this.disenoActual().map(w => ({ ...w }));
+    
+    if (modo === 'personal') {
+      // Mover 'proximas-acciones' al final
+      const idxAcciones = base.findIndex(w => w.id === 'proximas-acciones');
+      if (idxAcciones !== -1) {
+        const [acciones] = base.splice(idxAcciones, 1);
+        base.push(acciones);
+      }
+      // Redimensionar las 2 KPIs (kpi-ticket, kpi-pedidos) para que ocupen colSpan 6
+      base = base.map(w => {
+        if (w.id === 'kpi-ticket' || w.id === 'kpi-pedidos') {
+          return { ...w, colSpan: 6 };
+        }
+        return w;
+      });
+    } else if (modo === 'operativo') {
+      // Redimensionar las 2 KPIs (kpi-pedidos, kpi-promedio) a colSpan 6
+      base = base.map(w => {
+        if (w.id === 'kpi-pedidos' || w.id === 'kpi-promedio') {
+          return { ...w, colSpan: 6 };
+        }
+        return w;
+      });
+    }
+    return base;
+  });
+
   readonly diaSeleccionado = signal<DashboardVentaDia | null>(null);
   readonly modulosDisponibles = MODULOS_DISPONIBLES;
   readonly menuConfiguracionModuloActivo = signal<string | null>(null);
@@ -309,7 +339,11 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     if (modo === 'reportes') return true;
 
     if (modo === 'finanzas') {
-      return widget.id === 'kpi-ventas' || widget.id === 'ventas-calendario';
+      return widget.id === 'kpi-ventas' || 
+             widget.id === 'kpi-pedidos' || 
+             widget.id === 'kpi-ticket' || 
+             widget.id === 'kpi-promedio' || 
+             widget.id === 'ventas-calendario';
     }
 
     if (modo === 'operativo') {

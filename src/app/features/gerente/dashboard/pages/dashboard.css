@@ -37,17 +37,33 @@ h1 {
 
 .dashboard-toolbar {
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 1.25rem;
   width: 100%;
-  margin: 1.35rem 0 1.25rem;
+  margin: 1.35rem 0 1.5rem;
   padding: 0;
   border: 0;
   border-radius: 0;
   background: transparent;
   box-shadow: none;
 }
+
+.dashboard-toolbar-row-top,
+.dashboard-toolbar-row-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.dashboard-toolbar-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 
 .period-filter,
 .date-filter {

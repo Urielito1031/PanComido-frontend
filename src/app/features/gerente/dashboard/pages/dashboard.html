@@ -8,7 +8,7 @@
   </header>
 
   <section class="dashboard-toolbar" aria-label="Filtros del dashboard">
-    <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+    <div class="dashboard-toolbar-row-top">
       <div class="view-tabs" role="tablist">
         <button role="tab" [class.active]="state.modoVista() === 'favoritos'" (click)="state.establecerModoVista('favoritos')">
           <span class="material-symbols-outlined" aria-hidden="true">star</span> Favoritos
@@ -26,66 +26,70 @@
           <span class="material-symbols-outlined" aria-hidden="true">settings</span> Operativo
         </button>
       </div>
-      @if (state.modoVista() === 'favoritos') {
-        <button type="button" class="customize-layout-btn" [class.editing]="state.estaEditando()" (click)="state.alternarEdicion()" [title]="state.estaEditando() ? 'Guardar y salir del modo edición' : 'Personalizar distribución de favoritos'">
-          <span class="material-symbols-outlined" aria-hidden="true">{{ state.estaEditando() ? 'check' : 'edit' }}</span>
-          {{ state.estaEditando() ? 'Listo' : 'Personalizar' }}
-        </button>
-      }
-      <div class="refresh-indicator-container">
-        <span class="refresh-time">Act: {{ state.ultimoRefresco() | date: 'HH:mm:ss' }}</span>
-        <button type="button" class="refresh-btn" [class.spinning]="state.cargando()" (click)="refrescarManual()" title="Refrescar datos ahora">
-          <span class="material-symbols-outlined">refresh</span>
-        </button>
+      <div class="dashboard-toolbar-actions-group">
+        @if (state.modoVista() === 'favoritos') {
+          <button type="button" class="customize-layout-btn" [class.editing]="state.estaEditando()" (click)="state.alternarEdicion()" [title]="state.estaEditando() ? 'Guardar y salir del modo edición' : 'Personalizar distribución de favoritos'">
+            <span class="material-symbols-outlined" aria-hidden="true">{{ state.estaEditando() ? 'check' : 'edit' }}</span>
+            {{ state.estaEditando() ? 'Listo' : 'Personalizar' }}
+          </button>
+        }
+        <div class="refresh-indicator-container">
+          <span class="refresh-time">Act: {{ state.ultimoRefresco() | date: 'HH:mm:ss' }}</span>
+          <button type="button" class="refresh-btn" [class.spinning]="state.cargando()" (click)="refrescarManual()" title="Refrescar datos ahora">
+            <span class="material-symbols-outlined">refresh</span>
+          </button>
+        </div>
       </div>
     </div>
 
-    <div class="period-filter" role="group" aria-label="Periodo del dashboard">
-      @for (periodo of periodos; track periodo.value) {
+    <div class="dashboard-toolbar-row-bottom">
+      <div class="period-filter" role="group" aria-label="Periodo del dashboard">
+        @for (periodo of periodos; track periodo.value) {
+          <button
+            type="button"
+            class="period-button"
+            [class.active]="state.periodo() === periodo.value"
+            (click)="establecerPeriodo(periodo.value)">
+            {{ periodo.label }}
+          </button>
+        }
         <button
           type="button"
-          class="period-button"
-          [class.active]="state.periodo() === periodo.value"
-          (click)="establecerPeriodo(periodo.value)">
-          {{ periodo.label }}
+          class="period-button custom-period"
+          [class.active]="state.periodo() === 'custom'"
+          (click)="abrirFiltroPersonalizado()">
+          Personalizado
         </button>
-      }
-      <button
-        type="button"
-        class="period-button custom-period"
-        [class.active]="state.periodo() === 'custom'"
-        (click)="abrirFiltroPersonalizado()">
-        Personalizado
-      </button>
-    </div>
+      </div>
 
-    <div class="date-filter">
-      <label>
-        Desde
-        <span class="date-field">
-          <input
-            #fechaDesdeInput
-            type="text"
-            inputmode="numeric"
-            placeholder="dd/mm/aaaa"
-            [ngModel]="state.fechaDesde()"
-            (ngModelChange)="establecerFechaDesde($event)">
-          <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
-        </span>
-      </label>
-      <label>
-        Hasta
-        <span class="date-field">
-          <input
-            #fechaHastaInput
-            type="text"
-            inputmode="numeric"
-            placeholder="dd/mm/aaaa"
-            [ngModel]="state.fechaHasta()"
-            (ngModelChange)="establecerFechaHasta($event)">
-          <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
-        </span>
-      </label>
+      <div class="date-filter">
+        <label>
+          Desde
+          <span class="date-field">
+            <input
+              #fechaDesdeInput
+              type="text"
+              inputmode="numeric"
+              placeholder="dd/mm/aaaa"
+              [ngModel]="state.fechaDesde()"
+              (ngModelChange)="establecerFechaDesde($event)">
+            <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+          </span>
+        </label>
+        <label>
+          Hasta
+          <span class="date-field">
+            <input
+              #fechaHastaInput
+              type="text"
+              inputmode="numeric"
+              placeholder="dd/mm/aaaa"
+              [ngModel]="state.fechaHasta()"
+              (ngModelChange)="establecerFechaHasta($event)">
+            <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+          </span>
+        </label>
+      </div>
     </div>
   </section>
 
@@ -199,7 +203,7 @@
 
   @if (state.modoVista() !== 'favoritos') {
     <div class="dashboard-grid-container">
-      @for (widget of disenoActual(); track widget.id) {
+      @for (widget of widgetsParaVista(); track widget.id) {
         @if (deberiaMostrarModulo(widget)) {
           <div
             class="grid-item col-span-{{ widget.colSpan }}"
