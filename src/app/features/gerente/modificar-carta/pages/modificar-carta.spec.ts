@@ -105,11 +105,6 @@ describe('ModificarCartaComponent', () => {
     expect(stateServiceMock.setTipoComida).toHaveBeenCalledWith('Principal');
   });
 
-  it('debería delegar onSortChanged al state extrayendo el value', () => {
-    const mockEvent = { target: { value: 'ventas-desc' } } as unknown as Event;
-    component.onSortChanged(mockEvent);
-    expect(stateServiceMock.setSortOrder).toHaveBeenCalledWith('ventas-desc');
-  });
 
   it('debería delegar toggleRecomendado al state', () => {
     component.toggleRecomendado(mockPlatos[0]);

@@ -31,7 +31,7 @@ export class ModificarCartaComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private readonly documento = inject(DOCUMENT);
-  public state = inject(ModificarCartaStateService);
+  readonly state = inject(ModificarCartaStateService);
 
   layoutMode = signal<'grid' | 'list'>('grid');
 
@@ -103,10 +103,6 @@ export class ModificarCartaComponent implements OnInit {
     this.state.setTipoComida(tipo);
   }
 
-  onSortChanged(event: Event) {
-    const select = event.target as HTMLSelectElement;
-    this.state.setSortOrder(select.value as 'default' | 'ventas-desc' | 'ventas-asc' | 'precio-desc' | 'precio-asc');
-  }
 
   setOrden(valor: string, dropdown: { cerrar: () => void }) {
     this.state.setSortOrder(valor as 'default' | 'ventas-desc' | 'ventas-asc' | 'precio-desc' | 'precio-asc');

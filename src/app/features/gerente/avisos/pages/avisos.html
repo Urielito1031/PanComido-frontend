@@ -414,7 +414,7 @@
   }
 
   <!-- ─── Modal Detalle Vencimiento ─── -->
-  @if (vencimientoSeleccionado) {
+  @if (vencimientoSeleccionado()) {
   <div class="avisos-modal-overlay" (click)="cerrarModalVencimiento()">
     <div class="avisos-modal-card shadow border p-4 bg-white text-start" role="dialog" aria-modal="true"
       aria-labelledby="vencimiento-modal-title" (click)="$event.stopPropagation()">
@@ -423,17 +423,17 @@
         <h4 id="vencimiento-modal-title" class="mb-0 fw-bold">Detalle de Lote</h4>
       </div>
       <div class="mb-4">
-        <h5 class="fw-bold mb-3 text-dark">{{ vencimientoSeleccionado.titulo }}</h5>
+        <h5 class="fw-bold mb-3 text-dark">{{ vencimientoSeleccionado()?.titulo }}</h5>
         <div class="d-flex justify-content-between py-2 border-bottom">
           <span class="text-muted fw-medium">Cantidad:</span>
-          <span class="fw-bold">{{ vencimientoSeleccionado.payloadVencimiento?.cantidad }}</span>
+          <span class="fw-bold">{{ vencimientoSeleccionado()?.payloadVencimiento?.cantidad }}</span>
         </div>
         <div class="d-flex justify-content-between py-2 border-bottom">
           <span class="text-muted fw-medium">Fecha de Vencimiento:</span>
           <span class="fw-bold text-danger">{{
-            vencimientoSeleccionado.payloadVencimiento?.fechaVencimiento === '0001-01-01'
+            vencimientoSeleccionado()?.payloadVencimiento?.fechaVencimiento === '0001-01-01'
             ? 'Sin fecha especificada'
-            : vencimientoSeleccionado.payloadVencimiento?.fechaVencimiento
+            : vencimientoSeleccionado()?.payloadVencimiento?.fechaVencimiento
             }}</span>
         </div>
       </div>
@@ -442,7 +442,7 @@
           <div class="fw-bold">Cerrar</div>
         </app-boton>
         <app-boton variante="success" tamanio="md"
-          (clicked)="state.avisarCocina(vencimientoSeleccionado.id); cerrarModalVencimiento()">
+          (clicked)="state.avisarCocina(vencimientoSeleccionado()!.id); cerrarModalVencimiento()">
           <div class="d-flex align-items-center gap-1 text-white">
             <span class="material-symbols-outlined fs-6">send</span>
             <span class="fw-bold">Avisar a cocina</span>
@@ -454,7 +454,7 @@
   }
 
   <!-- ─── Offcanvas pedido por stock ─── -->
-  @if (isPedidoOffcanvasOpen) {
+  @if (isPedidoOffcanvasOpen()) {
   <div class="offcanvas-backdrop fade show" (click)="cerrarPedidoStock()"></div>
 
   <div class="offcanvas offcanvas-end show shadow" tabindex="-1" style="width: 400px; z-index: 1050;">
@@ -498,7 +498,7 @@
         <div class="mb-4 mt-3">
           <label class="form-label fw-medium small text-muted">Cantidad ({{ nombreUnidad(ingrediente.unidadMedida)
             }})</label>
-          <input type="number" class="form-control" [value]="cantidadAgregar" (input)="updateCantidad($event)" min="1">
+          <input type="number" class="form-control" [value]="cantidadAgregar()" (input)="updateCantidad($event)" min="1">
         </div>
 
         <app-boton variante="success" tamanio="md" (clicked)="confirmarPedidoStock()">

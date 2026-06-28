@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, effect } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, effect, OnInit } from '@angular/core';
 import { InsumoList } from '../../components/stock-list/insumo-list';
 import { CommonModule } from '@angular/common';
 import { PageToolbar } from "../../../../../shared/ui/page-toolbar/page-toolbar";
@@ -22,7 +22,7 @@ type EstadoStockFiltro = 'todos' | 'criticos' | 'bajos' | 'ok';
   styleUrl: './insumo-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class InsumoPage {
+export class InsumoPage implements OnInit {
 
   protected state = inject(StockMercaderiaState);
   protected bodegaState = inject(BodegaState);
@@ -68,7 +68,7 @@ export class InsumoPage {
   }
 
   termino = signal<string>('');
-  categoria = signal<string>('Categorías');
+  categoria = signal<string | null>(null);
   categoriasColapsado = signal<boolean>(true);
   estadoFiltro = signal<EstadoStockFiltro>('todos');
   
@@ -79,13 +79,6 @@ export class InsumoPage {
     return this.productoEditandoId() ? 'Editar Insumo' : 'Nuevo Insumo'
   })
   modalAbierto = signal<boolean>(false);
-
-
-
-  categoriasFiltro = computed(() => {
-    const nombres = this.state.categoriasInsumos().map(c => c.descripcion);
-    return [...nombres];
-  });
 
   categoriasConInfo = computed(() => {
     const productos = this.state.productos();
@@ -120,7 +113,7 @@ export class InsumoPage {
   filtrosActivos = computed(() => {
     let total = 0;
     if (this.termino().trim()) total++;
-    if (this.categoria() !== 'Categorías') total++;
+    if (this.categoria() !== null) total++;
     if (this.estadoFiltro() !== 'todos') total++;
     if (this.tabSeleccionada() === 'bodegas' && this.bodegaSeleccionadaId()) total++;
     return total;
@@ -166,7 +159,7 @@ export class InsumoPage {
     if (busqueda) {
       listaBase = listaBase.filter(p => p.nombre.toLowerCase().includes(busqueda));
     }
-    if (cat && cat !== 'Categorías') {
+    if (cat !== null) {
       listaBase = listaBase.filter(p => p.categoriaIngrediente?.descripcion === cat);
     }
     listaBase = this.filtrarPorEstado(listaBase);
@@ -197,7 +190,7 @@ export class InsumoPage {
         return item.producto!.nombre.toLowerCase().includes(busqueda) ||
           item.lote.nombre.toLowerCase().includes(busqueda);
       })
-      .filter(item => cat === 'Categorías' || item.producto!.categoriaIngrediente.descripcion === cat);
+      .filter(item => cat === null || item.producto!.categoriaIngrediente.descripcion === cat);
   });
 
   lotesCriticos = computed(() => this.lotesVista().filter(item => item.estadoClase === 'danger').length);
@@ -234,7 +227,7 @@ export class InsumoPage {
 
   limpiarFiltros() {
     this.termino.set('');
-    this.categoria.set('Categorías');
+    this.categoria.set(null);
     this.estadoFiltro.set('todos');
     if (this.tabSeleccionada() === 'bodegas' && !this.bodegaSeleccionadaId()) {
       this.tabSeleccionada.set('productos');
@@ -242,11 +235,11 @@ export class InsumoPage {
   }
 
   seleccionarCategoria(nombre: string) {
-    this.categoria.set(nombre === this.categoria() ? 'Categorías' : nombre);
+    this.categoria.set(nombre === this.categoria() ? null : nombre);
   }
 
   limpiarCategoria() {
-    this.categoria.set('Categorías');
+    this.categoria.set(null);
   }
 
   private filtrarPorEstado(productos: Insumo[]): Insumo[] {
@@ -263,8 +256,6 @@ export class InsumoPage {
         (estado === 'ok' && ok);
     });
   }
-
-
 
   ngOnInit() {
     this.state.cargarMercaderia();
@@ -296,25 +287,27 @@ export class InsumoPage {
     if (dias <= 30) return 'Próximo';
     return 'Ok';
   }
-  
-    abrirModalCrear(modal: Modal) { 
-      this.productoEditandoId.set(null);
-      this.modalAbierto.set(true);
-      modal.abrir();
-    }
-    abrirModalEditar(modal: Modal, id:number) {
-      this.productoEditandoId.set(id);
-      this.modalAbierto.set(true);
-      modal.abrir();
-    }
-    limpiarEstadoModal() { 
-      this.productoEditandoId.set(null);
-      this.modalAbierto.set(false);
-    }
-    guardarCambios(datosProducto: CrearInsumo, modal:Modal){
-      this.state.guardarProducto(datosProducto);
-      modal.cerrar();
-      this.limpiarEstadoModal();
-    }
-  
+
+  abrirModalCrear(modal: Modal) {
+    this.productoEditandoId.set(null);
+    this.modalAbierto.set(true);
+    modal.abrir();
+  }
+
+  abrirModalEditar(modal: Modal, id: number) {
+    this.productoEditandoId.set(id);
+    this.modalAbierto.set(true);
+    modal.abrir();
+  }
+
+  limpiarEstadoModal() {
+    this.productoEditandoId.set(null);
+    this.modalAbierto.set(false);
+  }
+
+  guardarCambios(datosProducto: CrearInsumo, modal: Modal) {
+    this.state.guardarProducto(datosProducto);
+    modal.cerrar();
+    this.limpiarEstadoModal();
+  }
 }

@@ -24,7 +24,7 @@
         (click)="categoriasColapsado.set(!categoriasColapsado())">
         <span class="material-symbols-outlined header-icon">filter_list</span>
         <span class="header-title">Categorías</span>
-        @if (categoria() !== 'Categorías') {
+        @if (categoria() !== null) {
           <span class="header-badge active-category-badge">{{ categoria() }}</span>
         }
         <span class="spacer"></span>
@@ -38,7 +38,7 @@
           <button
             type="button"
             class="categoria-pill"
-            [class.activa]="categoria() === 'Categorías'"
+            [class.activa]="categoria() === null"
             (click)="limpiarCategoria()">
             <span class="pill-label">Todos</span>
             <span class="pill-count">{{ totalProductos() }}</span>

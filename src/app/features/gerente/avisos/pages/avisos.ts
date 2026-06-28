@@ -26,16 +26,16 @@ import { ArsCurrencyPipe } from '../../../../shared/pipes/ars-currency.pipe';
 })
 export class AvisosPage implements OnInit {
 
-  state = inject(AvisosStateService);
-  pedidoState = inject(VencimientosState);
-  pedidoSugeridoState = inject(RealizarPedidoSugeridoStateService);
-  router = inject(Router);
+  protected readonly state = inject(AvisosStateService);
+  protected readonly pedidoState = inject(VencimientosState);
+  protected readonly pedidoSugeridoState = inject(RealizarPedidoSugeridoStateService);
+  protected readonly router = inject(Router);
   private readonly documento = inject(DOCUMENT);
 
-  isPedidoOffcanvasOpen = false;
-  cantidadAgregar = 1;
-  stockAvisoSeleccionado: Aviso | null = null;
-  vencimientoSeleccionado: Aviso | null = null;
+  protected readonly isPedidoOffcanvasOpen = signal(false);
+  protected readonly cantidadAgregar = signal(1);
+  protected readonly stockAvisoSeleccionado = signal<Aviso | null>(null);
+  protected readonly vencimientoSeleccionado = signal<Aviso | null>(null);
   panelPreviewAbierto = signal<'sistema' | 'ia' | null>(null);
 
   isStockExpanded = signal(true);
@@ -153,14 +153,14 @@ export class AvisosPage implements OnInit {
 
   abrirAviso(aviso: Aviso) {
     if (aviso.tipo === 'vencimiento') {
-      this.vencimientoSeleccionado = aviso;
+      this.vencimientoSeleccionado.set(aviso);
     } else {
       this.abrirVencimientos(aviso.id);
     }
   }
 
   cerrarModalVencimiento() {
-    this.vencimientoSeleccionado = null;
+    this.vencimientoSeleccionado.set(null);
   }
 
   abrirVencimientos(avisoId: string) {
@@ -168,8 +168,8 @@ export class AvisosPage implements OnInit {
   }
 
   abrirPedidoStock(aviso: Aviso) {
-    this.stockAvisoSeleccionado = aviso;
-    this.cantidadAgregar = 1;
+    this.stockAvisoSeleccionado.set(aviso);
+    this.cantidadAgregar.set(1);
 
 
     this.pedidoState.seleccionarIngredienteParaPedido({
@@ -180,12 +180,12 @@ export class AvisosPage implements OnInit {
       unidadMedida: this.getUnidadMedida(aviso)
     });
 
-    this.isPedidoOffcanvasOpen = true;
+    this.isPedidoOffcanvasOpen.set(true);
   }
 
   cerrarPedidoStock() {
-    this.isPedidoOffcanvasOpen = false;
-    this.stockAvisoSeleccionado = null;
+    this.isPedidoOffcanvasOpen.set(false);
+    this.stockAvisoSeleccionado.set(null);
     this.pedidoState.limpiarSeleccion();
   }
 
@@ -198,12 +198,12 @@ export class AvisosPage implements OnInit {
   }
 
   updateCantidad(e: Event) {
-    this.cantidadAgregar = Number((e.target as HTMLInputElement).value);
+    this.cantidadAgregar.set(Number((e.target as HTMLInputElement).value));
   }
 
   confirmarPedidoStock() {
-    const pedido = this.pedidoState.crearPedidoPendiente(this.cantidadAgregar);
-    const aviso = this.stockAvisoSeleccionado;
+    const pedido = this.pedidoState.crearPedidoPendiente(this.cantidadAgregar());
+    const aviso = this.stockAvisoSeleccionado();
 
     if (!pedido || !aviso) return;
 
