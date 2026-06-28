@@ -19,7 +19,7 @@ export class ModificarCartaStateService {
   private _loading = signal<boolean>(false);
   private _selectedTipoBebida = signal<string | null>(null);
   private _selectedTipoComida = signal<string | null>(null);
-  private _sortOrder = signal<'default' | 'ventas-desc' | 'ventas-asc'>('default');
+  private _sortOrder = signal<'default' | 'ventas-desc' | 'ventas-asc' | 'precio-desc' | 'precio-asc'>('default');
 
   private _platosEliminados = signal<Plato[]>([]);
   private _mostrarModalRestaurar = signal<boolean>(false);
@@ -166,6 +166,10 @@ export class ModificarCartaStateService {
         return (b.ventas ?? 0) - (a.ventas ?? 0);
       } else if (currentSort === 'ventas-asc') {
         return (a.ventas ?? 0) - (b.ventas ?? 0);
+      } else if (currentSort === 'precio-desc') {
+        return (b.precioVenta ?? 0) - (a.precioVenta ?? 0);
+      } else if (currentSort === 'precio-asc') {
+        return (a.precioVenta ?? 0) - (b.precioVenta ?? 0);
       }
       
       const aVisible = a.visible ?? true;
@@ -213,6 +217,10 @@ export class ModificarCartaStateService {
         return (b.ventas ?? 0) - (a.ventas ?? 0);
       } else if (currentSort === 'ventas-asc') {
         return (a.ventas ?? 0) - (b.ventas ?? 0);
+      } else if (currentSort === 'precio-desc') {
+        return (b.precioVenta ?? 0) - (a.precioVenta ?? 0);
+      } else if (currentSort === 'precio-asc') {
+        return (a.precioVenta ?? 0) - (b.precioVenta ?? 0);
       }
       
       const aVisible = a.visible ?? true;
@@ -239,7 +247,7 @@ export class ModificarCartaStateService {
     this._selectedTipoComida.set(tipo);
   }
 
-  setSortOrder(order: 'default' | 'ventas-desc' | 'ventas-asc'): void {
+  setSortOrder(order: 'default' | 'ventas-desc' | 'ventas-asc' | 'precio-desc' | 'precio-asc'): void {
     this._sortOrder.set(order);
   }
 
@@ -373,7 +381,7 @@ export class ModificarCartaStateService {
 
   toggleRecomendado(plato: Plato): void {
     const targetState = !plato.recomendado;
-    // Optimistic update
+    // Actualización optimista
     this._platos.update(platos =>
       platos.map(p => p.id === plato.id ? { ...p, recomendado: targetState } : p)
     );
@@ -387,7 +395,7 @@ export class ModificarCartaStateService {
           );
         },
         error: () => {
-          // Revert on error
+          // Revertir en caso de error
           this._platos.update(platos =>
             platos.map(p => p.id === plato.id ? { ...p, recomendado: plato.recomendado } : p)
           );
@@ -414,7 +422,7 @@ export class ModificarCartaStateService {
   }
 
   restaurarPlato(plato: Plato): void {
-    // Optimistic update
+    // Actualización optimista
     this._platosEliminados.update(lista => lista.filter(p => p.id !== plato.id));
     const platoRestaurado = { ...plato, visible: true };
     this._platos.update(lista => [...lista, platoRestaurado]);
@@ -423,7 +431,7 @@ export class ModificarCartaStateService {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         error: () => {
-          // Revert
+          // Revertir
           this._platosEliminados.update(lista => [...lista, plato]);
           this._platos.update(lista => lista.filter(p => p.id !== plato.id));
         }

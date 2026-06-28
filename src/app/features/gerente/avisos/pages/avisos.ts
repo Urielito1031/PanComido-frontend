@@ -1,5 +1,5 @@
-import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { Component, ChangeDetectionStrategy, OnInit, inject, signal, computed, effect } from '@angular/core';
+import { CommonModule, DatePipe, DOCUMENT } from '@angular/common';
 import { Router } from '@angular/router';
 import { take } from 'rxjs';
 import { PlatoSugerido } from '../../../../core/models/domain/sugerencia-ia';
@@ -26,19 +26,93 @@ import { ArsCurrencyPipe } from '../../../../shared/pipes/ars-currency.pipe';
 })
 export class AvisosPage implements OnInit {
 
-  state = inject(AvisosStateService);
-  pedidoState = inject(VencimientosState);
-  pedidoSugeridoState = inject(RealizarPedidoSugeridoStateService);
-  router = inject(Router);
+  protected readonly state = inject(AvisosStateService);
+  protected readonly pedidoState = inject(VencimientosState);
+  protected readonly pedidoSugeridoState = inject(RealizarPedidoSugeridoStateService);
+  protected readonly router = inject(Router);
+  private readonly documento = inject(DOCUMENT);
 
-  isPedidoOffcanvasOpen = false;
-  cantidadAgregar = 1;
-  stockAvisoSeleccionado: Aviso | null = null;
-  vencimientoSeleccionado: Aviso | null = null;
+  protected readonly isPedidoOffcanvasOpen = signal(false);
+  protected readonly cantidadAgregar = signal(1);
+  protected readonly stockAvisoSeleccionado = signal<Aviso | null>(null);
+  protected readonly vencimientoSeleccionado = signal<Aviso | null>(null);
   panelPreviewAbierto = signal<'sistema' | 'ia' | null>(null);
 
   isStockExpanded = signal(true);
   isVencimientosExpanded = signal(true);
+
+  paginaStock = signal(1);
+  paginaVencimientos = signal(1);
+
+  totalPaginasStock = computed(() => {
+    return Math.max(1, Math.ceil(this.state.stockBajo().length / 6));
+  });
+
+  insumosStockPaginados = computed(() => {
+    const inicio = (this.paginaStock() - 1) * 6;
+    return this.state.stockBajo().slice(inicio, inicio + 6);
+  });
+
+  totalPaginasVencimientos = computed(() => {
+    return Math.max(1, Math.ceil(this.state.vencimientos().length / 6));
+  });
+
+  vencimientosPaginados = computed(() => {
+    const inicio = (this.paginaVencimientos() - 1) * 6;
+    return this.state.vencimientos().slice(inicio, inicio + 6);
+  });
+
+  constructor() {
+    effect(() => {
+      const totalStock = this.totalPaginasStock();
+      if (this.paginaStock() > totalStock) {
+        this.paginaStock.set(1);
+      }
+    }, { allowSignalWrites: true });
+
+    effect(() => {
+      const totalVenc = this.totalPaginasVencimientos();
+      if (this.paginaVencimientos() > totalVenc) {
+        this.paginaVencimientos.set(1);
+      }
+    }, { allowSignalWrites: true });
+  }
+
+  cambiarPaginaStock(delta: number, event: Event) {
+    event.stopPropagation();
+    const nuevaPagina = this.paginaStock() + delta;
+    if (nuevaPagina >= 1 && nuevaPagina <= this.totalPaginasStock()) {
+      this.paginaStock.set(nuevaPagina);
+    }
+  }
+
+  cambiarPaginaVencimientos(delta: number, event: Event) {
+    event.stopPropagation();
+    const nuevaPagina = this.paginaVencimientos() + delta;
+    if (nuevaPagina >= 1 && nuevaPagina <= this.totalPaginasVencimientos()) {
+      this.paginaVencimientos.set(nuevaPagina);
+    }
+  }
+
+  desplazarASeccion(id: string) {
+    if (id === 'seccion-stock') {
+      this.isStockExpanded.set(true);
+    } else if (id === 'seccion-vencimientos') {
+      this.isVencimientosExpanded.set(true);
+    }
+    setTimeout(() => {
+      const element = this.documento.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 50);
+  }
+
+  desplazarAlPrincipio() {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
 
   toggleStock() {
     this.isStockExpanded.update(v => !v);
@@ -79,14 +153,14 @@ export class AvisosPage implements OnInit {
 
   abrirAviso(aviso: Aviso) {
     if (aviso.tipo === 'vencimiento') {
-      this.vencimientoSeleccionado = aviso;
+      this.vencimientoSeleccionado.set(aviso);
     } else {
       this.abrirVencimientos(aviso.id);
     }
   }
 
   cerrarModalVencimiento() {
-    this.vencimientoSeleccionado = null;
+    this.vencimientoSeleccionado.set(null);
   }
 
   abrirVencimientos(avisoId: string) {
@@ -94,8 +168,8 @@ export class AvisosPage implements OnInit {
   }
 
   abrirPedidoStock(aviso: Aviso) {
-    this.stockAvisoSeleccionado = aviso;
-    this.cantidadAgregar = 1;
+    this.stockAvisoSeleccionado.set(aviso);
+    this.cantidadAgregar.set(1);
 
 
     this.pedidoState.seleccionarIngredienteParaPedido({
@@ -106,12 +180,12 @@ export class AvisosPage implements OnInit {
       unidadMedida: this.getUnidadMedida(aviso)
     });
 
-    this.isPedidoOffcanvasOpen = true;
+    this.isPedidoOffcanvasOpen.set(true);
   }
 
   cerrarPedidoStock() {
-    this.isPedidoOffcanvasOpen = false;
-    this.stockAvisoSeleccionado = null;
+    this.isPedidoOffcanvasOpen.set(false);
+    this.stockAvisoSeleccionado.set(null);
     this.pedidoState.limpiarSeleccion();
   }
 
@@ -124,12 +198,12 @@ export class AvisosPage implements OnInit {
   }
 
   updateCantidad(e: Event) {
-    this.cantidadAgregar = Number((e.target as HTMLInputElement).value);
+    this.cantidadAgregar.set(Number((e.target as HTMLInputElement).value));
   }
 
   confirmarPedidoStock() {
-    const pedido = this.pedidoState.crearPedidoPendiente(this.cantidadAgregar);
-    const aviso = this.stockAvisoSeleccionado;
+    const pedido = this.pedidoState.crearPedidoPendiente(this.cantidadAgregar());
+    const aviso = this.stockAvisoSeleccionado();
 
     if (!pedido || !aviso) return;
 

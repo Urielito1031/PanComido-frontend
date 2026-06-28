@@ -1,5 +1,6 @@
-import { Component, OnInit, inject, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, signal, computed } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { DOCUMENT } from '@angular/common';
 import { Buscador } from '../../../../shared/ui/buscador/buscador';
 import { Plato } from '../../../../core/models/domain/plato';
 import { ListaPlatosComponent } from '../components/lista-platos/lista-platos';
@@ -29,8 +30,8 @@ import { ModificarCartaStateService } from '../services/modificar-carta.state';
 export class ModificarCartaComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  // Make state available to the template (since we use it in @if(state.mostrarModalRestaurar))
-  public state = inject(ModificarCartaStateService);
+  private readonly documento = inject(DOCUMENT);
+  readonly state = inject(ModificarCartaStateService);
 
   layoutMode = signal<'grid' | 'list'>('grid');
 
@@ -55,6 +56,18 @@ export class ModificarCartaComponent implements OnInit {
   totalComidasCount = this.state.totalComidasCount;
 
   sortOrder = this.state.sortOrder;
+
+  readonly opcionesOrden: { valor: string; etiqueta: string; icono: string }[] = [
+    { valor: 'default',     etiqueta: 'Por Relevancia', icono: 'tune'          },
+    { valor: 'ventas-desc', etiqueta: 'Más Vendidos',   icono: 'trending_up'   },
+    { valor: 'ventas-asc',  etiqueta: 'Menos Vendidos', icono: 'trending_down' },
+    { valor: 'precio-desc', etiqueta: 'Mayor Precio',   icono: 'arrow_upward'  },
+    { valor: 'precio-asc',  etiqueta: 'Menor Precio',   icono: 'arrow_downward'},
+  ];
+
+  ordenActivo = computed(() => {
+    return this.opcionesOrden.find(o => o.valor === this.state.sortOrder()) ?? this.opcionesOrden[0];
+  });
 
   ngOnInit() {
     this.state.cargarPlatos();
@@ -90,9 +103,15 @@ export class ModificarCartaComponent implements OnInit {
     this.state.setTipoComida(tipo);
   }
 
-  onSortChanged(event: Event) {
-    const select = event.target as HTMLSelectElement;
-    this.state.setSortOrder(select.value as 'default' | 'ventas-desc' | 'ventas-asc');
+
+  setOrden(valor: string, dropdown: { cerrar: () => void }) {
+    this.state.setSortOrder(valor as 'default' | 'ventas-desc' | 'ventas-asc' | 'precio-desc' | 'precio-asc');
+    dropdown.cerrar();
+  }
+
+  resetOrden(event: Event) {
+    event.stopPropagation();
+    this.state.setSortOrder('default');
   }
 
   toggleRecomendado(plato: Plato) {
@@ -133,6 +152,19 @@ export class ModificarCartaComponent implements OnInit {
 
   irACrearPlato() {
     this.router.navigate(['/staff/gerente/crear-plato']);
+  }
+
+  desplazarASeccion(id: string) {
+    const element = this.documento.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  desplazarAlPrincipio() {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
   setLayoutMode(mode: 'grid' | 'list') {

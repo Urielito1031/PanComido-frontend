@@ -17,42 +17,38 @@
       <span class="text-end">Acción</span>
     </div>
 
-    <cdk-virtual-scroll-viewport
-      class="stock-viewport"
-      [itemSize]="itemSize()"
-      minBufferPx="560"
-      maxBufferPx="1120"
-    >
-      <div
-        *cdkVirtualFor="let fila of filas(); trackBy: trackById"
-        class="stock-row"
-        [class.row-danger]="fila.estado === 'critical'"
-        [class.row-warning]="fila.estado === 'warning'"
-      >
-        <div class="stock-cell product-cell">
-          <strong>{{ fila.nombre }}</strong>
+    <div class="stock-rows-container">
+      @for (fila of filas(); track fila.id) {
+        <div
+          class="stock-row"
+          [class.row-danger]="fila.estado === 'critical'"
+          [class.row-warning]="fila.estado === 'warning'"
+        >
+          <div class="stock-cell product-cell">
+            <strong>{{ fila.nombre }}</strong>
+          </div>
+          <div class="stock-cell">{{ fila.categoria }}</div>
+          <div class="stock-cell text-end strong-number">{{ fila.stock }}</div>
+          <div class="stock-cell text-end">{{ fila.minimo }}</div>
+          <div class="stock-cell text-end">{{ fila.precioVentaFinal | arsCurrency }}</div>
+          <div class="stock-cell">{{ fila.vencimiento }}</div>
+          <div class="stock-cell">
+            <span
+              class="fast-pill"
+              [class.danger]="fila.estado === 'critical'"
+              [class.warning]="fila.estado === 'warning'"
+              [class.success]="fila.estado === 'success'"
+            >
+              {{ fila.estadoLabel }}
+            </span>
+          </div>
+          <div class="stock-cell action-cell">
+            <button class="btn-icon" type="button" title="Editar producto" (click)="editar.emit(fila.id)">
+              <span class="material-symbols-outlined" aria-hidden="true">settings</span>
+            </button>
+          </div>
         </div>
-        <div class="stock-cell">{{ fila.categoria }}</div>
-        <div class="stock-cell text-end strong-number">{{ fila.stock }}</div>
-        <div class="stock-cell text-end">{{ fila.minimo }}</div>
-        <div class="stock-cell text-end">{{ fila.precioVentaFinal | arsCurrency }}</div>
-        <div class="stock-cell">{{ fila.vencimiento }}</div>
-        <div class="stock-cell">
-          <span
-            class="fast-pill"
-            [class.danger]="fila.estado === 'critical'"
-            [class.warning]="fila.estado === 'warning'"
-            [class.success]="fila.estado === 'success'"
-          >
-            {{ fila.estadoLabel }}
-          </span>
-        </div>
-        <div class="stock-cell action-cell">
-          <button class="btn-icon" type="button" title="Editar producto" (click)="editar.emit(fila.id)">
-            <span class="material-symbols-outlined" aria-hidden="true">settings</span>
-          </button>
-        </div>
-      </div>
-    </cdk-virtual-scroll-viewport>
+      }
+    </div>
   </section>
 }
