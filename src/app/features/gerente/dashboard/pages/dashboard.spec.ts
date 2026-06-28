@@ -21,22 +21,35 @@ describe('DashboardPage', () => {
   let mockState: any;
 
   beforeEach(async () => {
+    const _viewMode = signal('reportes');
+    const _favoritesConfig = signal([]);
+    const _isEditing = signal(false);
+    const _insightMozos = signal('');
     // Create a mock state service with signals
     mockState = {
       periodo: signal('7d'),
       fechaDesde: signal(''),
       fechaHasta: signal(''),
-      viewMode: signal('reportes'),
-      favoritesConfig: signal([]),
-      isEditing: signal(false),
+      viewMode: _viewMode,
+      modoVista: _viewMode,
+      favoritesConfig: _favoritesConfig,
+      configuracionFavoritos: _favoritesConfig,
+      isEditing: _isEditing,
+      estaEditando: _isEditing,
       esFavorito: vi.fn().mockReturnValue(false),
       toggleFavorito: vi.fn(),
       addFavorite: vi.fn(),
+      agregarFavorito: vi.fn(),
       insertFavoriteAt: vi.fn(),
+      insertarFavoritoEn: vi.fn(),
       removeFavorite: vi.fn(),
+      quitarFavorito: vi.fn(),
       updateFavoriteWidth: vi.fn(),
+      actualizarAnchoFavorito: vi.fn(),
       reorderFavorites: vi.fn(),
+      reordenarFavoritos: vi.fn(),
       toggleEditing: vi.fn(),
+      alternarEdicion: vi.fn(),
       atencion: signal([]),
       resumenOperativo: signal(null),
       esModoCalendario: signal(false),
@@ -66,7 +79,8 @@ describe('DashboardPage', () => {
       lecturaCanales: signal([]),
       platoSeleccionado: signal(null),
       mozos: signal([]),
-      insightMozos: signal(''),
+      insightMozos: _insightMozos,
+      analisisMozos: _insightMozos,
       recordatoriosAdicionales: signal([]),
       toastMensaje: signal(null),
       cargarDatos: vi.fn(),

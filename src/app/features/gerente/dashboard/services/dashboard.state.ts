@@ -773,4 +773,38 @@ export class DashboardStateService implements OnDestroy {
     }
     return 'Distribución de mesas equilibrada.';
   });
+
+  get favoritesConfig() {
+    return this.configuracionFavoritos;
+  }
+  get viewMode() {
+    return this.modoVista;
+  }
+  get isEditing() {
+    return this.estaEditando;
+  }
+  reorderFavorites(fromIndex: number, toIndex: number): void {
+    this.reordenarFavoritos(fromIndex, toIndex);
+  }
+  addFavorite(id: string, width?: '25' | '50' | '100'): void {
+    this.agregarFavorito(id, width);
+  }
+  removeFavorite(id: string): void {
+    this.quitarFavorito(id);
+  }
+  insertFavoriteAt(id: string, index: number, width?: '25' | '50' | '100'): void {
+    this.insertarFavoritoEn(id, index, width);
+  }
+  updateFavoriteWidth(id: string, width: '25' | '50' | '100'): void {
+    this.actualizarAnchoFavorito(id, width);
+  }
+  toggleEditing(val?: boolean): void {
+    this.alternarEdicion(val);
+  }
+  setViewMode(mode: DashboardViewMode): void {
+    this.establecerModoVista(mode);
+  }
+  get insightMozos() {
+    return this.analisisMozos;
+  }
 }

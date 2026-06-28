@@ -84,7 +84,7 @@ describe('CardPlatoComensalComponent', () => {
 
   it('debería mostrar el precio formateado', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain('$ 4500');
+    expect(compiled.textContent).toContain('4.500');
   });
 
   it('debería emitir el plato al agregar', () => {

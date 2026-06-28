@@ -190,7 +190,7 @@
 
   @if (state.modoVista() === 'reportes') {
     <div class="dashboard-grid-container">
-      @for (widget of diseñoActual(); track widget.id) {
+      @for (widget of disenoActual(); track widget.id) {
         @if (deberiaMostrarModulo(widget)) {
           <div
             class="grid-item col-span-{{ widget.colSpan }}"
@@ -244,7 +244,7 @@
                 </span>
               }
               <div class="canvas-edit-actions">
-                <button type="button" class="canvas-size-btn" (click)="alternarSelectorTamaño($event, fav.id)" title="Cambiar tamaño del módulo">
+                <button type="button" class="canvas-size-btn" (click)="alternarSelectorTamano($event, fav.id)" title="Cambiar tamaño del módulo">
                   <span class="material-symbols-outlined">photo_size_select_large</span>
                   {{ fav.width }}%
                 </button>

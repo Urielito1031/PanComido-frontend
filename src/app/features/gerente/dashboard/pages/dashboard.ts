@@ -77,7 +77,7 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  readonly diseñoActual = computed(() => {
+  readonly disenoActual = computed(() => {
     return DISEÑO_POR_DEFECTO;
   });
 
@@ -204,7 +204,7 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     this.menuConfiguracionModuloActivo.set(null);
   }
 
-  alternarSelectorTamaño(event: Event, widgetId: string): void {
+  alternarSelectorTamano(event: Event, widgetId: string): void {
     event.stopPropagation();
     if (this.menuConfiguracionModuloActivo() === widgetId) {
       this.menuConfiguracionModuloActivo.set(null);
