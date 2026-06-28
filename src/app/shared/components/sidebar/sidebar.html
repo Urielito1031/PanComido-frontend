@@ -35,8 +35,7 @@
                   [routerLink]="child.route"
                   [fragment]="child.fragment"
                   class="submenu-item"
-                  [class.active]="isActive(child.route)"
-                  routerLinkActive="active">
+                  [class.active]="isActive(child.route, child.fragment)">
                   <span class="submenu-label">{{ child.label }}</span>
                 </a>
               }

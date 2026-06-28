@@ -176,14 +176,34 @@ export class SidebarComponent implements OnInit {
     return this.expandedMenus().includes(label);
   }
 
-  isActive(route?: string): boolean {
+  isActive(route?: string, fragment?: string): boolean {
     if (!route) return false;
-    return this.router.isActive(route, {
+    
+    const isRouteActive = this.router.isActive(route, {
       paths: 'subset',
       queryParams: 'ignored',
       fragment: 'ignored',
       matrixParams: 'ignored'
     });
+
+    if (!isRouteActive) return false;
+
+    // Obtener fragment actual de la URL
+    const urlTree = this.router.parseUrl(this.router.url);
+    const currentFragment = urlTree.fragment;
+
+    if (fragment) {
+      return currentFragment === fragment;
+    }
+
+    // Si este item no tiene fragment, pero la URL de la app sí lo tiene,
+    // significa que estamos en una sección específica del Dashboard, por lo tanto
+    // no se debería marcar como activo el link general/raiz si tiene sub-items.
+    if (!fragment && currentFragment) {
+      return false;
+    }
+
+    return true;
   }
 
   isParentActive(item: MenuItem): boolean {
