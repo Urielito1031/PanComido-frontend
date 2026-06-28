@@ -16,6 +16,15 @@
         <button role="tab" [class.active]="state.modoVista() === 'reportes'" (click)="state.establecerModoVista('reportes')">
           <span class="material-symbols-outlined" aria-hidden="true">dashboard</span> Todos los Reportes
         </button>
+        <button role="tab" [class.active]="state.modoVista() === 'finanzas'" (click)="state.establecerModoVista('finanzas')">
+          <span class="material-symbols-outlined" aria-hidden="true">payments</span> Finanzas
+        </button>
+        <button role="tab" [class.active]="state.modoVista() === 'personal'" (click)="state.establecerModoVista('personal')">
+          <span class="material-symbols-outlined" aria-hidden="true">groups</span> Personal
+        </button>
+        <button role="tab" [class.active]="state.modoVista() === 'operativo'" (click)="state.establecerModoVista('operativo')">
+          <span class="material-symbols-outlined" aria-hidden="true">settings</span> Operativo
+        </button>
       </div>
       @if (state.modoVista() === 'favoritos') {
         <button type="button" class="customize-layout-btn" [class.editing]="state.estaEditando()" (click)="state.alternarEdicion()" [title]="state.estaEditando() ? 'Guardar y salir del modo edición' : 'Personalizar distribución de favoritos'">
@@ -188,7 +197,7 @@
     </section>
   }
 
-  @if (state.modoVista() === 'reportes') {
+  @if (state.modoVista() !== 'favoritos') {
     <div class="dashboard-grid-container">
       @for (widget of disenoActual(); track widget.id) {
         @if (deberiaMostrarModulo(widget)) {

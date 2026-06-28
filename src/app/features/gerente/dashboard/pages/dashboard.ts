@@ -305,7 +305,26 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
   }
 
   deberiaMostrarModulo(widget: WidgetLayout): boolean {
-    if (this.state.modoVista() === 'reportes') return true;
+    const modo = this.state.modoVista();
+    if (modo === 'reportes') return true;
+
+    if (modo === 'finanzas') {
+      return widget.id === 'kpi-ventas' || widget.id === 'ventas-calendario';
+    }
+
+    if (modo === 'operativo') {
+      return widget.id === 'insumos-vencer' || 
+             widget.id === 'proximas-acciones' || 
+             widget.id === 'kpi-pedidos' || 
+             widget.id === 'kpi-promedio';
+    }
+
+    if (modo === 'personal') {
+      return widget.id === 'mozos' || 
+             widget.id === 'kpi-ticket' || 
+             widget.id === 'kpi-pedidos' || 
+             widget.id === 'proximas-acciones';
+    }
 
     if (widget.id === 'lectura-comercial') {
       return this.state.esFavorito('lectura-0') || 

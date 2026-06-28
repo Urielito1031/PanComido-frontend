@@ -60,7 +60,7 @@ export interface DashboardVentaDia {
   fecha: string;
   ventas: number;
 }
-export type DashboardViewMode = 'favoritos' | 'reportes';
+export type DashboardViewMode = 'favoritos' | 'reportes' | 'finanzas' | 'personal' | 'operativo';
 
 export interface PlatoSugerencia {
   accion: string;
