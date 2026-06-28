@@ -2,15 +2,6 @@
 
 <div class="detalle-wrapper">
 
-  <!-- ─── Barra de estado ─── -->
-  <div class="status-bar">
-    <div class="status-left">
-      <span class="status-count">{{ pedidos().length + (comandaState.estadoPedido()?.items?.length || 0) }}</span>
-      <span class="status-label">items</span>
-    </div>
-  </div>
-
-  <!-- ─── Alerta sin mesa ─── -->
   @if (!comandaState.tieneComandaActiva()) {
     <div class="alerta-mesa">
       <span class="material-symbols-outlined">qr_code_scanner</span>
@@ -18,67 +9,13 @@
     </div>
   }
 
-  <!-- ════════════════════════════════════════════════ -->
-  <!-- ─── SECCIÓN: Pedido confirmado (recibo) ────── -->
-  <!-- ════════════════════════════════════════════════ -->
   @if (comandaState.estadoPedido()?.items?.length) {
-    <div class="recibo-card">
-      <div class="recibo-top">
-        <div class="estado-badge"
-          [style.background-color]="estadoColor()"
-          [style.border]="'2px solid ' + estadoBorder"
-          [style.color]="estadoTextColor()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z" />
-            <line x1="6" y1="17" x2="18" y2="17" />
-          </svg>
-          <span>{{ comandaState.estadoPedido()!.estadoUI }}</span>
-        </div>
-      </div>
-
-      <div class="recibo-items">
-        @for (grupo of itemsAgrupados(); track grupo.nombre) {
-          <div class="recibo-grupo">
-            <div class="recibo-comensal">
-              <span class="material-symbols-outlined">person</span>
-              {{ grupo.nombre }}
-            </div>
-
-            @for (item of grupo.items; track $index) {
-              <div class="recibo-item">
-                <div class="recibo-item-row">
-                  <span class="recibo-item-nombre">
-                    {{ item.nombre }}
-                    <span class="recibo-item-cant">x{{ item.cantidad }}</span>
-                  </span>
-                  <span class="recibo-item-precio">$ {{ item.precioUnitario * item.cantidad | number:'1.0-0' }}</span>
-                </div>
-                @if (item.observacionesIngredientes?.length || item.observacionesGenerales) {
-                  <details class="details-custom">
-                    <summary>Personalizada</summary>
-                    @if (item.observacionesIngredientes?.length) {
-                    <div class="obs-text">{{ item.observacionesIngredientes!.join(', ') }}</div>
-                    }
-                    @if (item.observacionesGenerales) {
-                    <div class="obs-text"><span style="font-weight:600;">Obs:</span> {{ item.observacionesGenerales }}</div>
-                    }
-                  </details>
-                }
-              </div>
-              @if (!$last) {
-                <div class="recibo-sep"></div>
-              }
-            }
-          </div>
-        }
-      </div>
-    </div>
+    <app-resumen-pedido
+      [items]="comandaState.estadoPedido()!.items"
+      [estadoUI]="comandaState.estadoPedido()!.estadoUI"
+      [mesaId]="mesaId()" />
   }
 
-  <!-- ════════════════════════════════════════════════ -->
-  <!-- ─── SECCIÓN: Carrito (nuevos items) ────────── -->
-  <!-- ════════════════════════════════════════════════ -->
   @if (pedidos().length > 0) {
     <div class="carrito-card">
       <div class="carrito-header">
@@ -102,6 +39,12 @@
               </div>
             </div>
 
+            @if (item.ingredientesRemovidosNombres?.length) {
+              <div class="carrito-item-obs">
+                <span class="material-symbols-outlined">remove_circle</span>
+                Sin: {{ item.ingredientesRemovidosNombres!.join(', ') }}
+              </div>
+            }
             @if (item.observacionesGenerales) {
               <div class="carrito-item-obs">
                 <span class="material-symbols-outlined">info</span>
@@ -134,23 +77,35 @@
     </div>
   }
 
-  <!-- ════════════════════════════════════════════════ -->
-  <!-- ─── TOTAL + CONFIRMAR ───────────────────────── -->
-  <!-- ════════════════════════════════════════════════ -->
   <div class="footer-section">
     <div class="total-card">
       <span class="total-label">Total a pagar</span>
       <span class="total-monto">$ {{ total() | number:'1.0-0' }}</span>
     </div>
 
-    <button class="btn-confirmar"
-      [disabled]="!comandaState.tieneComandaActiva() || pedidos().length === 0"
-      (click)="confirmarPedido()">
-      <span class="btn-confirmar-texto">Confirmar pedido</span>
-      @if (pedidos().length > 0) {
-        <span class="btn-confirmar-items">{{ pedidos().length }} items</span>
-      }
-    </button>
+    @if (pedidos().length === 0) {
+      <div class="botones-vacios">
+        <app-boton-comensal [backgroundColor]="configuracionVisualState.colorSecundario()" [textColor]="'#ffffff'" (clicked)="volver()">
+          + Agregar más platos
+        </app-boton-comensal>
+        @if (comandaState.estadoPedido()?.items?.length) {
+          <app-boton-comensal [backgroundColor]="configuracionVisualState.colorPrimario()" [textColor]="'#ffffff'" (clicked)="verEstado()">
+            Finalizar
+          </app-boton-comensal>
+        }
+      </div>
+    } @else {
+      <app-boton-comensal
+        [backgroundColor]="configuracionVisualState.colorSecundario()"
+        [textColor]="'#ffffff'"
+        [disabled]="!comandaState.tieneComandaActiva()"
+        (clicked)="confirmarPedido()">
+        <div class="d-flex align-items-center justify-content-center gap-2">
+          <span>Confirmar pedido</span>
+          <span class="btn-confirmar-items">{{ pedidos().length }} items</span>
+        </div>
+      </app-boton-comensal>
+    }
   </div>
 
 </div>

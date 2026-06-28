@@ -27,16 +27,17 @@
     @if (ingredientesOpcionales.length > 0) {
     <div class="seccion-group">
       <h4>Ingredientes</h4>
-      <div class="ingredientes-grid">
-      @for (ing of ingredientesOpcionales; track ing.ingredienteId) {
-        <label class="ingrediente-check">
-          <input type="checkbox"
-            [checked]="seleccionados.includes(ing.nombre)"
-            (change)="toggleIngrediente(ing.nombre)"
-            class="ingrediente-check-input">
-          <span class="ingrediente-check-visual">{{ ing.nombre }}</span>
-        </label>
-      }
+      <div class="ingredientes-lista">
+        @for (ing of ingredientesOpcionales; track ing.ingredienteId) {
+          <label class="ingrediente-check">
+            <span class="ingrediente-nombre">{{ ing.nombre }}</span>
+            <input type="checkbox"
+              [checked]="seleccionados.includes(ing.nombre)"
+              (change)="toggleIngrediente(ing.nombre)"
+              class="ingrediente-check-input">
+            <span class="ingrediente-check-box"></span>
+          </label>
+        }
       </div>
     </div>
     }
@@ -49,7 +50,7 @@
   </div>
 
   <div class="action-buttons">
-    <app-boton-comensal [backgroundColor]="configuracionVisualState.colorPrimario()" [textColor]="'#FFFFFF'"
+    <app-boton-comensal [backgroundColor]="configuracionVisualState.colorSecundario()" [textColor]="'#FFFFFF'"
       (clicked)="guardarCambios()">
       Guardar cambios
     </app-boton-comensal>

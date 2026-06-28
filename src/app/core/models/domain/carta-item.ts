@@ -9,6 +9,7 @@
     tiempoPreparacionBase: number | null;
     tiempoPreparacionEstimado: number | null;
     tipoPlato: string | null;
+    categoriaPlato: string | null;
     categoriaBebida: string | null;
     restricciones: string[];
   }

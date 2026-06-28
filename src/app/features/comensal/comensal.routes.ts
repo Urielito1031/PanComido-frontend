@@ -28,7 +28,7 @@ export const COMENSAL_ROUTES: Routes = [
         loadComponent: () => import('./ver-carta/page/ver-carta').then((m) => m.VerCarta),
       },
       {
-        path: 'pedido',
+        path: 'plato-especifico',
         loadComponent: () => import('./pedido/page/pedido').then((m) => m.Pedido),
       },
       {

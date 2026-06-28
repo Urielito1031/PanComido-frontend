@@ -44,7 +44,7 @@ export class CardPlatoComensalComponent {
   }
 
   verDetalle(): void {
-    this.router.navigate(['/comensal/pedido'], {
+    this.router.navigate(['/comensal/plato-especifico'], {
       state: { plato: this.plato() }
     });
   }

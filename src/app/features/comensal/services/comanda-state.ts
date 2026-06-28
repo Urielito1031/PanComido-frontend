@@ -153,11 +153,13 @@ export class ComandaState {
           this.pedidoService.limpiarPedidos();
         },
         error: (err) => {
-          console.error('Error completo:', err);
-          console.log('Error body:', err.error);
-          console.log('Errores de validación:', err.error?.errors);
-
-          this.#error.set('Error al confirmar el pedido. Intenta nuevamente.');
+          const msg: string = err.error?.error ?? '';
+          const stockMatch = msg.match(/preparar \d+x (.+?) \(x\d+\)/);
+          if (stockMatch) {
+            this.#error.set(`No hay stock suficiente para preparar ${stockMatch[1]}. Intentá con menos unidades o elegí otro plato.`);
+          } else {
+            this.#error.set('Error al confirmar el pedido. Intenta nuevamente.');
+          }
           this.#cargando.set(false);
         }
       });

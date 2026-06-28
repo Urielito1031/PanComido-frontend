@@ -1,10 +1,8 @@
 <button
   class="btn w-100"
-  [class.border]="tieneBorde()"
-  [class.border-2]="tieneBorde()"
-  [class.border-secondary]="tieneBorde()"
   [style.background-color]="backgroundColor()"
   [style.color]="textColor()"
+  [style.border]="tieneBorde() ? '2px solid ' + textColor() : 'none'"
   [disabled]="disabled()"
   (click)="clicked.emit($event)">
   {{ label() }}
