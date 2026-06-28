@@ -17,31 +17,50 @@
 
   <!-- Barra de filtro por categorías -->
   @if (categoriasConInfo().length > 0) {
-    <div class="categoria-pills-bar">
-      <button
-        type="button"
-        class="categoria-pill"
-        [class.activa]="categoria() === 'Categorías'"
-        (click)="limpiarCategoria()">
-        <span class="pill-label">Todos</span>
-        <span class="pill-count">{{ totalProductos() }}</span>
+    <div class="categoria-pills-container" [class.colapsado]="categoriasColapsado()">
+      <button 
+        type="button" 
+        class="categoria-pills-header" 
+        (click)="categoriasColapsado.set(!categoriasColapsado())">
+        <span class="material-symbols-outlined header-icon">filter_list</span>
+        <span class="header-title">Categorías</span>
+        @if (categoria() !== 'Categorías') {
+          <span class="header-badge active-category-badge">{{ categoria() }}</span>
+        }
+        <span class="spacer"></span>
+        <span class="material-symbols-outlined chevron-icon">
+          {{ categoriasColapsado() ? 'expand_more' : 'expand_less' }}
+        </span>
       </button>
 
-      @for (cat of categoriasConInfo(); track cat.nombre) {
-        <button
-          type="button"
-          class="categoria-pill"
-          [class.activa]="categoria() === cat.nombre"
-          [class.alerta-critico]="cat.alerta === 'critico'"
-          [class.alerta-bajo]="cat.alerta === 'bajo'"
-          (click)="seleccionarCategoria(cat.nombre)">
-          <span class="pill-alerta-dot" [class.critico]="cat.alerta === 'critico'" [class.bajo]="cat.alerta === 'bajo'" [class.ok]="cat.alerta === 'ok'"></span>
-          <span class="pill-label">{{ cat.nombre }}</span>
-          <span class="pill-count">{{ cat.total }}</span>
-          @if (categoria() === cat.nombre) {
-            <span class="material-symbols-outlined pill-close" (click)="limpiarCategoria(); $event.stopPropagation()">close</span>
+      @if (!categoriasColapsado()) {
+        <div class="categoria-pills-bar">
+          <button
+            type="button"
+            class="categoria-pill"
+            [class.activa]="categoria() === 'Categorías'"
+            (click)="limpiarCategoria()">
+            <span class="pill-label">Todos</span>
+            <span class="pill-count">{{ totalProductos() }}</span>
+          </button>
+
+          @for (cat of categoriasConInfo(); track cat.nombre) {
+            <button
+              type="button"
+              class="categoria-pill"
+              [class.activa]="categoria() === cat.nombre"
+              [class.alerta-critico]="cat.alerta === 'critico'"
+              [class.alerta-bajo]="cat.alerta === 'bajo'"
+              (click)="seleccionarCategoria(cat.nombre)">
+              <span class="pill-alerta-dot" [class.critico]="cat.alerta === 'critico'" [class.bajo]="cat.alerta === 'bajo'" [class.ok]="cat.alerta === 'ok'"></span>
+              <span class="pill-label">{{ cat.nombre }}</span>
+              <span class="pill-count">{{ cat.total }}</span>
+              @if (categoria() === cat.nombre) {
+                <span class="material-symbols-outlined pill-close" (click)="limpiarCategoria(); $event.stopPropagation()">close</span>
+              }
+            </button>
           }
-        </button>
+        </div>
       }
     </div>
   }

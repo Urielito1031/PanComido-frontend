@@ -69,6 +69,7 @@ export class InsumoPage {
 
   termino = signal<string>('');
   categoria = signal<string>('Categorías');
+  categoriasColapsado = signal<boolean>(true);
   estadoFiltro = signal<EstadoStockFiltro>('todos');
   
   tabSeleccionada = signal<'productos' | 'bodegas' | 'lotes'>('productos');
