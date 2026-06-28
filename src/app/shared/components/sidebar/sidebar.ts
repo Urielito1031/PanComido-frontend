@@ -71,9 +71,6 @@ export class SidebarComponent {
       
       { label: 'Mapa de mesas', icon: 'faTableCells', route: 'gerente/mapa-de-mesas', roles: ['Gerente'] },
       { label: 'Cerrar Caja', icon: 'faReceipt', route: 'gerente/caja', roles: ['Gerente'], dividerAfter: true },
-      
-      { label: 'Plato del día', icon: 'faTag', route: 'gerente/plato-dia', roles: ['Gerente'] },
-      { label: 'Platos y Precios', icon: 'faUtensils', route: 'gerente/platos', roles: ['Gerente'] },
       {
         label: 'Modificar Carta',
         icon: 'faClipboardList',
