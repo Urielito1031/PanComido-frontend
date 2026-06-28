@@ -4,6 +4,8 @@ import { DashboardStateService } from '../services/dashboard.state';
 import { signal } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { vi, expect, describe, it, beforeEach, afterEach } from 'vitest';
+import { ActivatedRoute, Router } from '@angular/router';
+import { of } from 'rxjs';
 
 vi.mock('flatpickr', () => {
   return {
@@ -88,6 +90,7 @@ describe('DashboardPage', () => {
       setFechaDesde: vi.fn(),
       setFechaHasta: vi.fn(),
       setViewMode: vi.fn(),
+      establecerModoVista: vi.fn(),
       abrirDetallePlato: vi.fn(),
       cerrarDetallePlato: vi.fn(),
       aplicarDescuentoDirecto: vi.fn(),
@@ -97,7 +100,9 @@ describe('DashboardPage', () => {
     await TestBed.configureTestingModule({
       imports: [DashboardPage],
       providers: [
-        { provide: DashboardStateService, useValue: mockState }
+        { provide: DashboardStateService, useValue: mockState },
+        { provide: Router, useValue: { navigate: vi.fn(), url: '/' } },
+        { provide: ActivatedRoute, useValue: { fragment: of(null), queryParams: of({}) } }
       ]
     }).compileComponents();
 

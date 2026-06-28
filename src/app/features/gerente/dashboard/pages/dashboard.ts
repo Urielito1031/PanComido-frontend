@@ -1,7 +1,8 @@
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, HostListener, OnDestroy, OnInit, computed, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import flatpickr from 'flatpickr';
 import { Instance } from 'flatpickr/dist/types/instance';
 import { CustomLocale } from 'flatpickr/dist/types/locale';
@@ -60,11 +61,13 @@ const LOCALIZACION_ESPANOLA: CustomLocale = {
 export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
   readonly state = inject(DashboardStateService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly documento = inject(DOCUMENT);
   private readonly fechaDesdeInput = viewChild<ElementRef<HTMLInputElement>>('fechaDesdeInput');
   private readonly fechaHastaInput = viewChild<ElementRef<HTMLInputElement>>('fechaHastaInput');
   private calendarioDesde: Instance | null = null;
   private calendarioHasta: Instance | null = null;
+  private fragmentSub?: Subscription;
 
   esMovil = signal<boolean>(typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
   readonly menuFlotanteAbierto = signal<boolean>(false);
@@ -358,6 +361,14 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.state.cargarDatos();
+
+    // Escuchar navegación por fragment desde el sidebar
+    this.fragmentSub = this.route.fragment.subscribe(fragment => {
+      if (fragment) {
+        this.state.establecerModoVista('reportes');
+        setTimeout(() => this.desplazarASeccion(fragment), 150);
+      }
+    });
   }
 
   ngAfterViewInit(): void {
@@ -395,6 +406,7 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.calendarioDesde?.destroy();
     this.calendarioHasta?.destroy();
+    this.fragmentSub?.unsubscribe();
   }
 
   establecerPeriodo(periodo: DashboardPeriodo): void {

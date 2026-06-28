@@ -32,7 +32,8 @@
             <div class="submenu">
               @for (child of item.children; track child.label) {
                 <a 
-                  [routerLink]="child.route" 
+                  [routerLink]="child.route"
+                  [fragment]="child.fragment"
                   class="submenu-item"
                   [class.active]="isActive(child.route)"
                   routerLinkActive="active">

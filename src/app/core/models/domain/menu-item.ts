@@ -2,6 +2,7 @@ export interface MenuItem {
   label: string;
   icon: string;
   route?: string;
+  fragment?: string;
   roles: string[];
   children?: MenuItem[];
   dividerAfter?: boolean;
