@@ -5,6 +5,59 @@
       <h1>Dashboard</h1>
       <p class="subtitle">Resumen operativo para {{ state.periodoLabel() }}</p>
     </div>
+
+    <!-- Burbuja de Notificaciones en la esquina superior derecha -->
+    <div class="notifications-container" 
+         (mouseenter)="hoverNotificaciones.set(true)" 
+         (mouseleave)="hoverNotificaciones.set(false)"
+         (click)="$event.stopPropagation()">
+         
+      <button type="button" 
+              class="notifications-bubble-btn" 
+              [class.has-unread]="state.recordatoriosAdicionales().length > 0"
+              (click)="alternarNotificaciones($event)"
+              title="Recordatorios de Tareas Programadas">
+        <span class="material-symbols-outlined">notifications</span>
+        @if (state.recordatoriosAdicionales().length > 0) {
+          <span class="notifications-badge">{{ state.recordatoriosAdicionales().length }}</span>
+        }
+      </button>
+      
+      <!-- Dropdown flotante que se abre al pasar el mouse o hacer click -->
+      @if (mostrarNotificaciones() || hoverNotificaciones()) {
+        <div class="notifications-dropdown shadow border" (click)="$event.stopPropagation()">
+          <div class="notifications-dropdown-header">
+            <h3>Tareas Programadas ({{ state.recordatoriosAdicionales().length }})</h3>
+          </div>
+          <div class="notifications-dropdown-body">
+            @if (state.recordatoriosAdicionales().length === 0) {
+              <div class="no-notifications">
+                <span class="material-symbols-outlined">notifications_off</span>
+                <p>No hay tareas programadas pendientes</p>
+              </div>
+            } @else {
+              @for (rec of state.recordatoriosAdicionales(); track rec.titulo) {
+                <div class="notification-dropdown-item" [class]="rec.tono">
+                  <div class="notification-item-header">
+                    <strong>{{ rec.titulo }}</strong>
+                    <button type="button" class="dismiss-btn" (click)="state.resolverRecordatorio(rec.id!); $event.stopPropagation()" title="Resolver">
+                      <span class="material-symbols-outlined">close</span>
+                    </button>
+                  </div>
+                  <p class="notification-detail">{{ rec.detalle }}</p>
+                  <div class="notification-item-actions">
+                    <span class="impact-badge">{{ rec.impacto }}</span>
+                    <button type="button" class="manage-btn" (click)="gestionarRecordatorio(rec); cerrarDropdowns(); $event.stopPropagation()">
+                      Gestionar <span class="material-symbols-outlined">arrow_forward</span>
+                    </button>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        </div>
+      }
+    </div>
   </header>
 
   <section class="dashboard-toolbar" aria-label="Filtros del dashboard">
@@ -152,35 +205,6 @@
   }
 
   <div class="dashboard-canvas-content">
-  @if (state.recordatoriosAdicionales().length > 0) {
-    <section class="highlighted-reminders-section" aria-label="Recordatorios de Gestión Recientes">
-      <div class="reminders-banner-header">
-        <span class="material-symbols-outlined alert-pulse-icon">notifications_active</span>
-        <h2>Tareas Programadas Recientes</h2>
-      </div>
-      <div class="reminders-highlight-grid">
-        @for (rec of state.recordatoriosAdicionales(); track rec.titulo) {
-          <article class="reminder-highlight-card" [class]="rec.tono">
-            <button type="button" class="dismiss-reminder-btn" (click)="state.resolverRecordatorio(rec.id!); $event.stopPropagation()" aria-label="Descartar recordatorio">
-              <span class="material-symbols-outlined">close</span>
-            </button>
-            <div class="reminder-card-content">
-              <div class="reminder-text-area">
-                <strong>{{ rec.titulo }}</strong>
-                <p>{{ rec.detalle }}</p>
-              </div>
-              <div class="reminder-meta">
-                <span class="impact-tag">{{ rec.impacto }}</span>
-                <button type="button" class="action-btn" (click)="gestionarRecordatorio(rec)">
-                  Gestionar <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-                </button>
-              </div>
-            </div>
-          </article>
-        }
-      </div>
-    </section>
-  }
 
   @if (state.atencion().length > 0) {
     <section class="attention-section" aria-label="Resumen de Atencion">

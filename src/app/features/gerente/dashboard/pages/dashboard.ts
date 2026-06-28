@@ -72,6 +72,8 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
   esMovil = signal<boolean>(typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
   readonly menuFlotanteAbierto = signal<boolean>(false);
   readonly mostrarGloboInfo = signal<boolean>(true);
+  readonly mostrarNotificaciones = signal<boolean>(false);
+  readonly hoverNotificaciones = signal<boolean>(false);
 
   @HostListener('window:resize')
   alRedimensionar(): void {
@@ -190,6 +192,16 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
   @HostListener('document:mouseup')
   alLiberarMouseEnDocumento(): void {
     this._manijaArrastrePresionada = false;
+  }
+
+  @HostListener('document:click')
+  cerrarDropdowns(): void {
+    this.mostrarNotificaciones.set(false);
+  }
+
+  alternarNotificaciones(event: Event): void {
+    event.stopPropagation();
+    this.mostrarNotificaciones.update(v => !v);
   }
 
   alSoltarEnLienzoCard(event: DragEvent, targetIndex: number): void {
