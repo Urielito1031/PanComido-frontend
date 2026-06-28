@@ -47,11 +47,9 @@
   white-space: nowrap;
 }
 
-.stock-viewport {
+.stock-rows-container {
   width: 100%;
   min-width: 1020px;
-  height: min(620px, calc(100vh - 330px));
-  min-height: 312px;
   background: rgba(255, 255, 255, 0.7);
 }
 
@@ -197,10 +195,8 @@
     display: none;
   }
 
-  .stock-viewport {
+  .stock-rows-container {
     min-width: 0;
-    height: min(640px, calc(100vh - 300px));
-    min-height: 360px;
     background: transparent;
   }
 

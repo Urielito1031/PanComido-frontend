@@ -1,7 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, effect } from '@angular/core';
 import { InsumoList } from '../../components/stock-list/insumo-list';
 import { CommonModule } from '@angular/common';
-import { Boton } from "../../../../../shared/ui/botones/boton/boton";
 import { PageToolbar } from "../../../../../shared/ui/page-toolbar/page-toolbar";
 import { Buscador } from "../../../../../shared/ui/buscador/buscador";
 import { Dropdown } from '../../../../../shared/ui/dropdown/dropdown';
@@ -18,7 +17,7 @@ type EstadoStockFiltro = 'todos' | 'criticos' | 'bajos' | 'ok';
 @Component({
   selector: 'app-insumo',
   standalone: true,
-  imports: [InsumoList, CommonModule, Boton, PageToolbar, Buscador, Dropdown, Modal, ProductoForm, PriceNoteComponent],
+  imports: [InsumoList, CommonModule, PageToolbar, Buscador, Dropdown, Modal, ProductoForm, PriceNoteComponent],
   templateUrl: './insumo-page.html',
   styleUrl: './insumo-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -28,9 +27,46 @@ export class InsumoPage {
   protected state = inject(StockMercaderiaState);
   protected bodegaState = inject(BodegaState);
   
+  pagina = signal<number>(1);
+  itemsPorPagina = 9;
 
-  
-  
+  totalPaginas = computed(() => {
+    const totalItems = this.tabSeleccionada() === 'lotes' 
+      ? this.lotesVista().length 
+      : this.productosFiltrados().length;
+    return Math.max(1, Math.ceil(totalItems / this.itemsPorPagina));
+  });
+
+  productosPaginados = computed(() => {
+    const inicio = (this.pagina() - 1) * this.itemsPorPagina;
+    return this.productosFiltrados().slice(inicio, inicio + this.itemsPorPagina);
+  });
+
+  lotesPaginados = computed(() => {
+    const inicio = (this.pagina() - 1) * this.itemsPorPagina;
+    return this.lotesVista().slice(inicio, inicio + this.itemsPorPagina);
+  });
+
+  constructor() {
+    effect(() => {
+      // Registrar dependencias de filtros y pestañas para resetear página
+      this.termino();
+      this.categoria();
+      this.estadoFiltro();
+      this.tabSeleccionada();
+      this.bodegaSeleccionadaId();
+
+      this.pagina.set(1);
+    }, { allowSignalWrites: true });
+  }
+
+  cambiarPagina(delta: number) {
+    const nuevaPagina = this.pagina() + delta;
+    if (nuevaPagina >= 1 && nuevaPagina <= this.totalPaginas()) {
+      this.pagina.set(nuevaPagina);
+    }
+  }
+
   termino = signal<string>('');
   categoria = signal<string>('Categorías');
   estadoFiltro = signal<EstadoStockFiltro>('todos');
@@ -45,10 +81,26 @@ export class InsumoPage {
 
 
 
-  categoriasFiltro = computed(() =>{
+  categoriasFiltro = computed(() => {
     const nombres = this.state.categoriasInsumos().map(c => c.descripcion);
     return [...nombres];
-  })
+  });
+
+  categoriasConInfo = computed(() => {
+    const productos = this.state.productos();
+    return this.state.categoriasInsumos().map(cat => {
+      const insumosCat = productos.filter(
+        p => p.categoriaIngrediente?.descripcion === cat.descripcion
+      );
+      const tieneCritico = insumosCat.some(p => p.stockActual < p.stockMinimo);
+      const tieneBajo = insumosCat.some(
+        p => p.stockActual >= p.stockMinimo && p.stockActual < p.stockMinimo * 2
+      );
+      const alerta: 'critico' | 'bajo' | 'ok' =
+        tieneCritico ? 'critico' : tieneBajo ? 'bajo' : 'ok';
+      return { nombre: cat.descripcion, total: insumosCat.length, alerta };
+    });
+  });
 
   totalProductos = computed(() => this.state.productos().length);
 
@@ -186,6 +238,14 @@ export class InsumoPage {
     if (this.tabSeleccionada() === 'bodegas' && !this.bodegaSeleccionadaId()) {
       this.tabSeleccionada.set('productos');
     }
+  }
+
+  seleccionarCategoria(nombre: string) {
+    this.categoria.set(nombre === this.categoria() ? 'Categorías' : nombre);
+  }
+
+  limpiarCategoria() {
+    this.categoria.set('Categorías');
   }
 
   private filtrarPorEstado(productos: Insumo[]): Insumo[] {

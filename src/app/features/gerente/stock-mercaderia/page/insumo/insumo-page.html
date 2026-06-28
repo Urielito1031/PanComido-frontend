@@ -6,24 +6,6 @@
       (busquedaCambiada)="termino.set($event)">
     </app-buscador>
 
-    <app-dropdown filtros #filtroDropdown>
-      <app-boton
-        trigger
-        [label]="categoria() || 'Categorías'"
-        variante="teal"
-        tamanio="md">
-      </app-boton>
-
-      <div menu>
-        <ul>
-          <li (click)="categoria.set('Categorías'); filtroDropdown.cerrar()">Todos</li>
-          @for(cat of categoriasFiltro(); track cat){
-            <li (click)="categoria.set(cat); filtroDropdown.cerrar()">{{cat}}</li>
-          }
-        </ul>
-      </div>
-    </app-dropdown>
-
     <button 
       acciones
       class="btn-premium-primary d-flex align-items-center gap-2"
@@ -32,6 +14,37 @@
       <span class="fw-semibold">Nuevo producto</span>
     </button>
   </app-page-toolbar>
+
+  <!-- Barra de filtro por categorías -->
+  @if (categoriasConInfo().length > 0) {
+    <div class="categoria-pills-bar">
+      <button
+        type="button"
+        class="categoria-pill"
+        [class.activa]="categoria() === 'Categorías'"
+        (click)="limpiarCategoria()">
+        <span class="pill-label">Todos</span>
+        <span class="pill-count">{{ totalProductos() }}</span>
+      </button>
+
+      @for (cat of categoriasConInfo(); track cat.nombre) {
+        <button
+          type="button"
+          class="categoria-pill"
+          [class.activa]="categoria() === cat.nombre"
+          [class.alerta-critico]="cat.alerta === 'critico'"
+          [class.alerta-bajo]="cat.alerta === 'bajo'"
+          (click)="seleccionarCategoria(cat.nombre)">
+          <span class="pill-alerta-dot" [class.critico]="cat.alerta === 'critico'" [class.bajo]="cat.alerta === 'bajo'" [class.ok]="cat.alerta === 'ok'"></span>
+          <span class="pill-label">{{ cat.nombre }}</span>
+          <span class="pill-count">{{ cat.total }}</span>
+          @if (categoria() === cat.nombre) {
+            <span class="material-symbols-outlined pill-close" (click)="limpiarCategoria(); $event.stopPropagation()">close</span>
+          }
+        </button>
+      }
+    </div>
+  }
 
   <section class="stock-panel">
     <div class="stock-topline">
@@ -79,12 +92,36 @@
         <app-price-note text="Precio venta: valor configurado para venta directa del insumo. No es el precio de compra del proveedor." />
       </div>
 
-      @if (filtrosActivos() > 0) {
-        <button class="clear-filters-btn" type="button" (click)="limpiarFiltros()">
-          <span class="material-symbols-outlined">filter_alt_off</span>
-          Limpiar filtros
-        </button>
-      }
+      <div class="d-flex align-items-center gap-3">
+        @if (totalPaginas() > 1) {
+          <div class="paginacion-header">
+            <button 
+              type="button" 
+              class="btn-paginacion-flecha" 
+              [disabled]="pagina() === 1" 
+              (click)="cambiarPagina(-1)" 
+              aria-label="Página anterior">
+              <span class="material-symbols-outlined">keyboard_arrow_left</span>
+            </button>
+            <span class="paginacion-texto">{{ pagina() }} / {{ totalPaginas() }}</span>
+            <button 
+              type="button" 
+              class="btn-paginacion-flecha" 
+              [disabled]="pagina() === totalPaginas()" 
+              (click)="cambiarPagina(1)" 
+              aria-label="Página siguiente">
+              <span class="material-symbols-outlined">keyboard_arrow_right</span>
+            </button>
+          </div>
+        }
+
+        @if (filtrosActivos() > 0) {
+          <button class="clear-filters-btn" type="button" (click)="limpiarFiltros()">
+            <span class="material-symbols-outlined">filter_alt_off</span>
+            Limpiar filtros
+          </button>
+        }
+      </div>
     </div>
 
     <div class="stock-tabs">
@@ -156,7 +193,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (item of lotesVista(); track item.lote.id) {
+              @for (item of lotesPaginados(); track item.lote.id) {
                 <tr [class.row-danger]="item.estadoClase === 'danger'" [class.row-warning]="item.estadoClase === 'warning'">
                   <td>
                     <strong>{{ item.lote.nombre }}</strong>
@@ -184,7 +221,7 @@
       </div>
     } @else {
       <app-insumo-list
-        [productos]="productosFiltrados()"
+        [productos]="productosPaginados()"
         (editar)="abrirModalEditar(modalFormulario, $event)">
       </app-insumo-list>
     }
