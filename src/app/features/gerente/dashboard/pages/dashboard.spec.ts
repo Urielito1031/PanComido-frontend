@@ -154,16 +154,10 @@ describe('DashboardPage', () => {
     expect(mockState.setPeriodo).toHaveBeenCalledWith('30d');
   });
 
-  it('should open custom filter when clicking Personalizado', async () => {
-    vi.useFakeTimers();
+  it('should set period to custom when modifying date inputs', () => {
     fixture.detectChanges();
-    
-    const customBtn = fixture.debugElement.query(By.css('.custom-period'));
-    customBtn.triggerEventHandler('click', null);
-    
-    vi.runAllTimers();
+    component.establecerFechaDesde('2026-06-01');
     expect(mockState.setPeriodo).toHaveBeenCalledWith('custom');
-    vi.useRealTimers();
   });
 
   it('should render monthly chart when not in calendar mode', () => {

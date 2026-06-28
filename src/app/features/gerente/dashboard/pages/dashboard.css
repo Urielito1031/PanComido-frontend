@@ -82,6 +82,17 @@ h1 {
   justify-content: flex-end;
 }
 
+.date-filter.active .date-field {
+  border-color: #1691ac;
+  background: rgba(22, 145, 172, 0.04);
+  box-shadow: 0 0 0 3px rgba(22, 145, 172, 0.12);
+}
+
+.date-filter.active label {
+  color: #1691ac;
+  font-weight: 700;
+}
+
 .period-button {
   min-height: 36px;
   border: 1px solid rgba(15, 23, 42, 0.08);
@@ -2548,34 +2559,38 @@ h1 {
 }
 
 /* --- EMPTY FAVORITES STATE --- */
+/* --- EMPTY FAVORITES STATE --- */
 .empty-favorites-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 4rem 2rem;
+  padding: 3rem 2rem;
   background: #ffffff;
-  border-radius: 12px;
-  border: 1px dashed rgba(15, 23, 42, 0.15);
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+  border-radius: 16px;
+  border: 2px dashed rgba(15, 23, 42, 0.12);
+  margin: 1.5rem 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 .empty-favorites-state .material-symbols-outlined {
   font-size: 3rem;
-  color: #94a3b8;
-  margin-bottom: 1rem;
+  color: #cbd5e1;
+  margin-bottom: 0.75rem;
 }
 .empty-favorites-state h2 {
-  font-size: 1.25rem;
+  font-size: 1.15rem;
+  font-weight: 800;
   color: #0f172a;
   margin: 0 0 0.5rem 0;
 }
 .empty-favorites-state p {
   color: #64748b;
-  max-width: 400px;
-  margin: 0 0 1.5rem 0;
+  max-width: 420px;
+  margin: 0 0 1.25rem 0;
   line-height: 1.5;
+  font-size: 0.85rem;
 }
 
 /* --- LOW SALES ACTION BUTTON --- */
@@ -3770,40 +3785,7 @@ h1 {
   color: #ffffff;
 }
 
-/* Empty Favorites State styling */
-.empty-favorites-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 4rem 2rem;
-  background: #ffffff;
-  border: 2px dashed rgba(15, 23, 42, 0.08);
-  border-radius: 16px;
-  margin-top: 1rem;
-}
 
-.empty-favorites-state .material-symbols-outlined {
-  font-size: 3.5rem;
-  color: #cbd5e1;
-  margin-bottom: 1rem;
-}
-
-.empty-favorites-state h2 {
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: #0f172a;
-  margin: 0 0 0.5rem;
-}
-
-.empty-favorites-state p {
-  font-size: 0.9rem;
-  color: #64748b;
-  margin: 0 0 1.5rem;
-  max-width: 420px;
-  line-height: 1.5;
-}
 
 /* Favorite indicator button on standard reports */
 .fav-icon-btn {

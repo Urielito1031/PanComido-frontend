@@ -482,24 +482,13 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  abrirFiltroPersonalizado(): void {
-    this.state.setPeriodo('custom');
-    const desde = this.fechaDesdeInput()?.nativeElement;
-    if (desde) {
-      setTimeout(() => {
-        desde.focus();
-        this.calendarioDesde?.open();
-      }, 0);
-    } else {
-      this.calendarioDesde?.open();
-    }
-  }
-
   establecerFechaDesde(fecha: string): void {
+    this.state.setPeriodo('custom');
     this.state.setFechaDesde(fecha);
   }
 
   establecerFechaHasta(fecha: string): void {
+    this.state.setPeriodo('custom');
     this.state.setFechaHasta(fecha);
   }
 

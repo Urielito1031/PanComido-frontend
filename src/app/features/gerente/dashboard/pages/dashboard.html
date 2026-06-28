@@ -106,16 +106,9 @@
             {{ periodo.label }}
           </button>
         }
-        <button
-          type="button"
-          class="period-button custom-period"
-          [class.active]="state.periodo() === 'custom'"
-          (click)="abrirFiltroPersonalizado()">
-          Personalizado
-        </button>
       </div>
 
-      <div class="date-filter">
+      <div class="date-filter" [class.active]="state.periodo() === 'custom'">
         <label>
           Desde
           <span class="date-field">
