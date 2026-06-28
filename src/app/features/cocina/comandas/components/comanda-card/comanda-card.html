@@ -19,7 +19,7 @@
       @for (item of itemsOrdenados(); track item.id) {
       <li class="plato-item" [class.entregado]="item.entregado">
         <div class="plato-main">
-          <span class="cantidad">{{ item.cantidad }} x</span>
+          <span class="cantidad">{{ item.cantidad }}x</span>
           <span class="nombre">{{ item.articulo.nombre }}</span>
         </div>
         @if (item.observacionesGenerales) {
