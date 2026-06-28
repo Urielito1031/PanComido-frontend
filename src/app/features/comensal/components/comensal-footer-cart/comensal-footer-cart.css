@@ -11,7 +11,7 @@
 .footer-content {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   gap: 16px;
   max-width: 500px;
   margin: 0 auto;
@@ -73,9 +73,13 @@
 
 .mozo-wrapper {
   flex-shrink: 0;
-  margin-left: auto; 
+  display: flex;
+  align-items: center;
 }
 ::ng-deep .mozo-wrapper .waiter-btn {
+  position: relative !important;
+  bottom: auto !important;
+  right: auto !important;
   width: 52px !important;
   height: 52px !important;
   border-radius: 50% !important;

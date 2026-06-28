@@ -73,13 +73,12 @@ export class PersonalizarPlato implements OnInit {
   guardarCambios(): void {
     if (!this.plato) return;
 
-    const removidosIds = this.ingredientesOpcionales
-    .filter(i => !this.seleccionados.includes(i.nombre))
-    .map(i=> i.ingredienteId);
+    const removidos = this.ingredientesOpcionales.filter(i => !this.seleccionados.includes(i.nombre));
 
     const itemActualizado: ItemPedido = {
       ...this.plato,
-      observacionesIngredientes: removidosIds,
+      observacionesIngredientes: removidos.map(i => i.ingredienteId),
+      ingredientesRemovidosNombres: removidos.map(i => i.nombre),
       observacionesGenerales: this.observaciones
     };
 

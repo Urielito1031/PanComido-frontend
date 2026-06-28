@@ -17,93 +17,6 @@
   margin: 0 auto;
 }
 
-/* Estado badge — mantiene colores dinámicos inline, base visual acá */
-.estado-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 999px;
-  font-size: 0.95rem;
-  font-weight: 700;
-  white-space: nowrap;
-  box-shadow: var(--shadow-sm);
-}
-
-/* Mesa badge */
-.mesa-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.4rem 0.9rem;
-  border-radius: var(--border-radius-sm);
-  border: 1.5px solid var(--gray-200);
-  background: #ffffff;
-  color: var(--gray-700);
-  font-size: 0.9rem;
-  font-weight: 600;
-  white-space: nowrap;
-}
-.mesa-badge span {
-  font-weight: 700;
-  color: var(--gray-900);
-}
-
-/* Card de detalle del pedido */
-.pedido-card {
-  border: 1.5px solid var(--gray-200);
-  border-radius: var(--border-radius-lg);
-  padding: 1.25rem;
-  background: #ffffff;
-  box-shadow: var(--shadow-sm);
-}
-.pedido-card h6 {
-  font-family: var(--font-titulo, 'system-ui'), sans-serif;
-}
-
-/* Items del pedido */
-.item-nombre {
-  font-weight: 700;
-  color: var(--gray-900);
-  font-size: 0.95rem;
-}
-.item-precio {
-  font-weight: 700;
-  color: var(--gray-900);
-  font-size: 0.95rem;
-}
-
-/* Personalizaciones details/summary */
-.details-custom {
-  margin-top: 0.25rem;
-}
-.details-custom summary {
-  font-size: 0.8rem;
-  color: var(--gray-500);
-  cursor: pointer;
-  list-style: none;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-weight: 600;
-  transition: color var(--transition-fast);
-}
-.details-custom summary:hover {
-  color: var(--gray-700);
-}
-.details-custom summary::-webkit-details-marker {
-  display: none;
-}
-.obs-text {
-  font-size: 0.8rem;
-  color: var(--gray-500);
-  margin-top: 0.25rem;
-  line-height: 1.4;
-}
-.obs-label {
-  font-weight: 600;
-}
-
 /* Total card */
 .total-card {
   display: flex;
@@ -129,29 +42,6 @@
   color: var(--color-secundario, var(--gray-900));
 }
 
-/* Botón agregar más */
-.btn-agregar-mas {
-  background: var(--color-primario, #02596C);
-  border-radius: var(--border-radius-md);
-  padding: 0.9rem 1.5rem;
-  font-weight: 700;
-  font-size: 1.05rem;
-  border: none;
-  color: #ffffff;
-  width: 100%;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  box-shadow: var(--shadow-sm);
-}
-.btn-agregar-mas:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
-}
-.btn-agregar-mas:active {
-  transform: scale(0.98);
-}
-
 /* Separador */
 .separador-total {
   opacity: 0.15;
@@ -172,35 +62,18 @@
   to { transform: rotate(360deg); }
 }
 
-/* Grupo de comensal */
-.grupo-header {
-  font-weight: 600;
-  font-size: 0.8rem;
-  color: var(--gray-500);
-  margin-bottom: 0.25rem;
-  margin-top: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+/* Botones acción */
+.botones-acciones {
+  display: flex;
+  gap: 0.5rem;
+}
+.botones-acciones app-boton-comensal {
+  flex: 1;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
   .container-fluid.p-3 {
     padding: 0.75rem !important;
-  }
-  .estado-badge {
-    font-size: 0.85rem;
-    padding: 0.4rem 0.8rem;
-  }
-}
-
-@media (max-width: 420px) {
-  .d-flex.gap-2 {
-    flex-direction: column;
-    gap: 0.75rem !important;
-  }
-  .d-flex.gap-2 app-boton-comensal,
-  .d-flex.gap-2 .w-50 {
-    width: 100% !important;
   }
 }

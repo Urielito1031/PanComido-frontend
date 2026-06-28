@@ -192,17 +192,23 @@ describe('ComandaState (comensal)', () => {
       expect(comandaServiceMock.confirmarPedido).toHaveBeenCalledWith(
         42,
         5,
-        {
-          items: [
-            {
+        [
+          {
+            plato: {
               articuloId: 1,
-              cantidad: 2,
-              observacionesIngredientes: null,
-              observacionesGenerales: null,
-            }
-          ],
-          nombreComensal: ''
-        }
+              nombre: 'Milanesa napolitana',
+              urlImagen: null,
+              precioVentaFinal: 800,
+              costo: 400,
+              visibleEnCarta: true,
+              tipoArticulo: 'Plato',
+              categoria: 'Principales',
+              restricciones: [],
+            },
+            cantidad: 2,
+          },
+        ],
+        '',
       );
 
       expect(state.estadoPedido()?.comandaId).toBe(42);
@@ -223,14 +229,13 @@ describe('ComandaState (comensal)', () => {
       expect(comandaServiceMock.confirmarPedido).toHaveBeenCalledWith(
         42,
         5,
-        expect.objectContaining({
-          items: [
-            expect.objectContaining({
-              observacionesIngredientes: 'Sin cebolla',
-              observacionesGenerales: 'Bien cocido'
-            })
-          ]
-        })
+        [
+          expect.objectContaining({
+            observacionesIngredientes: 'Sin cebolla',
+            observacionesGenerales: 'Bien cocido',
+          }),
+        ],
+        '',
       );
     });
 

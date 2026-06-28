@@ -4,8 +4,15 @@ import { ComandaState } from '../../services/comanda-state';
 import { ComandoVozService } from '../../services/comando-voz/comando-voz.service';
 import { ComandaHubService } from '../../../../../core/services/hubs/comanda/comanda-hub-service';
 import { AuthService } from '../../../../../core/services/auth.service';
-import { signal } from '@angular/core';
+import { LlamadoService } from '../../../../../features/comensal/services/llamado.service';
+import { signal, Injectable } from '@angular/core';
 import { vi } from 'vitest';
+import { of } from 'rxjs';
+
+@Injectable()
+class LlamadoServiceMock {
+  crearLlamado = vi.fn().mockReturnValue(of({}));
+}
 
 describe('ComandaPage', () => {
   let component: ComandaPage;
@@ -29,6 +36,7 @@ describe('ComandaPage', () => {
     mockVozService = {
       comandoDetectado: signal(null),
       enEscucha: signal(false),
+      error: signal<string | null>(null),
       toggleListening: vi.fn()
     };
 
@@ -39,7 +47,7 @@ describe('ComandaPage', () => {
     };
 
     mockAuth = {
-      currentRestauranteId: 1,
+      restauranteId: 1,
     };
 
     await TestBed.configureTestingModule({
@@ -49,6 +57,7 @@ describe('ComandaPage', () => {
         { provide: ComandoVozService, useValue: mockVozService },
         { provide: ComandaHubService, useValue: mockHub },
         { provide: AuthService, useValue: mockAuth },
+        { provide: LlamadoService, useClass: LlamadoServiceMock },
       ]
     }).compileComponents();
 

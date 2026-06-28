@@ -43,7 +43,7 @@ export class VerCarta implements OnDestroy {
   ordenSeleccionado = signal('');
   popupAbierto = signal(false);
   urlInvitacion = signal('');
-  mostrarOnboarding = signal(!localStorage.getItem('pancomido-onboarding-visto'));
+  mostrarOnboarding = signal(!sessionStorage.getItem('pancomido-onboarding-visto'));
 
   cantidadTotalPedido = this.pedidoService.cantidadTotal;
   totalPedido = this.pedidoService.totalPrecio;
@@ -55,7 +55,7 @@ export class VerCarta implements OnDestroy {
 
   cerrarOnboarding(): void {
     this.mostrarOnboarding.set(false);
-    localStorage.setItem('pancomido-onboarding-visto', 'true');
+    sessionStorage.setItem('pancomido-onboarding-visto', 'true');
   }
 
   @HostListener('document:mousedown', ['$event'])

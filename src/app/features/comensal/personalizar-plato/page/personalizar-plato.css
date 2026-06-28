@@ -100,18 +100,33 @@
   letter-spacing: 0.04em;
 }
 
-/* ─── Grid de ingredientes ─── */
-.ingredientes-grid {
+/* ─── Lista de ingredientes ─── */
+.ingredientes-lista {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  flex-direction: column;
 }
-
-/* ─── Checkbox custom tipo pill ─── */
 .ingrediente-check {
-  display: inline-flex;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--gray-100);
   cursor: pointer;
-  position: relative;
+  gap: 1rem;
+  user-select: none;
+}
+.ingrediente-check:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.ingrediente-check:first-child {
+  padding-top: 0;
+}
+.ingrediente-nombre {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--gray-800);
+  flex: 1;
 }
 .ingrediente-check-input {
   position: absolute;
@@ -120,28 +135,34 @@
   height: 0;
   pointer-events: none;
 }
-.ingrediente-check-visual {
-  display: inline-flex;
+.ingrediente-check-box {
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  border: 2px solid var(--gray-300);
+  background: #ffffff;
+  flex-shrink: 0;
+  display: flex;
   align-items: center;
-  padding: 0.45rem 0.9rem;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--gray-700);
-  background: var(--gray-50);
-  border: 1.5px solid var(--gray-200);
+  justify-content: center;
   transition: all var(--transition-fast);
-  user-select: none;
 }
-.ingrediente-check:hover .ingrediente-check-visual {
-  border-color: var(--gray-400);
-  background: var(--gray-100);
+.ingrediente-check:hover .ingrediente-check-box {
+  border-color: var(--color-secundario, #02596C);
 }
-.ingrediente-check-input:checked + .ingrediente-check-visual {
-  background: color-mix(in srgb, var(--color-primario, #333) 12%, white);
-  border-color: var(--color-primario, #333);
-  color: var(--color-primario, #333);
-  font-weight: 700;
+.ingrediente-check-input:checked + .ingrediente-check-box {
+  background: var(--color-secundario, #02596C);
+  border-color: var(--color-secundario, #02596C);
+}
+.ingrediente-check-input:checked + .ingrediente-check-box::after {
+  content: '';
+  display: block;
+  width: 5px;
+  height: 9px;
+  border: 2.5px solid #ffffff;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg) translate(-1px, -1px);
 }
 
 /* ─── Textarea ─── */

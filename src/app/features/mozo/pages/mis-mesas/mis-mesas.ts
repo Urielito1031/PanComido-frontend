@@ -3,6 +3,7 @@ import { MapaMesasReadonly } from "../../../mesas/shared/mapa-mesas-readonly/map
 import { MesaLecturaState } from '../../../mesas/shared/mesa-lectura-state';
 import { AuthService } from '../../../../core/services/auth.service';
 import { MesaService } from '../../../mesas/services/mesa.service';
+import { MozoComandaService } from '../../services/mozo-comanda-service';
 import { ComandaDetalleUiComponent } from '../../../../shared/components/comanda-detalle-ui/comanda-detalle-ui';
 import { EstadoMesa } from '../../../../core/models/domain/mesa';
 
@@ -48,6 +49,7 @@ export class MisMesasPage {
   }
 
   private mesaService = inject(MesaService);
+  private mozoComandaService = inject(MozoComandaService);
 
   comandaCargada = signal<any>(null);
 
@@ -65,6 +67,16 @@ export class MisMesasPage {
   calcularTotalComanda(items: any[]): number {
     if (!items || items.length === 0) return 0;
     return items.reduce((acc, curr) => acc + ((curr.articulo?.precioVentaFinal || 0) * curr.cantidad), 0);
+  }
+
+  cobrarPedido() {
+    const comandaId = this.comandaCargada()?.id;
+    if (!comandaId) return;
+
+    this.mozoComandaService.confirmarPagoEfectivo(comandaId).subscribe({
+      next: () => this.cerrarModalComanda(),
+      error: () => this.mesaState.mostrarNotificacion('Error al confirmar el pago', 'error')
+    });
   }
 
   cerrarMesaComanda() {

@@ -1,0 +1,193 @@
+.rp-card {
+  background: #ffffff;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1.5px solid var(--gray-200);
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.rp-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem 0.75rem;
+}
+
+.rp-estado-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: 2.5px solid #828282;
+}
+.rp-estado-badge .material-symbols-outlined {
+  font-size: 20px;
+}
+.badge-recibido {
+  background-color: #A3A3A3;
+  color: #ffffff;
+}
+.badge-preparacion {
+  background-color: #EED239;
+  color: #000000;
+}
+.badge-listo {
+  background-color: #7CB342;
+  color: #ffffff;
+}
+
+.rp-mesa-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: var(--border-radius-sm);
+  border: 1.5px solid var(--gray-200);
+  background: #ffffff;
+  color: var(--gray-700);
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.rp-mesa-badge span {
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.rp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1.25rem 0.15rem;
+}
+.rp-titulo {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--gray-900);
+}
+.rp-count {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--gray-400);
+}
+
+.rp-items {
+  padding: 0.1rem 1.25rem 0.85rem;
+}
+
+.rp-grupo {
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--gray-500);
+  margin-bottom: 0.25rem;
+  margin-top: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.rp-item {
+  padding: 0.4rem 0;
+}
+.rp-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+.rp-item-nombre {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gray-800);
+}
+.rp-item-cant {
+  font-weight: 600;
+  color: var(--gray-500);
+  font-size: 0.88rem;
+  margin-left: 0.1rem;
+}
+.rp-item-precio {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  white-space: nowrap;
+}
+
+.rp-sep {
+  height: 1px;
+  background: var(--gray-100);
+}
+
+.rp-details {
+  margin-top: 0.15rem;
+}
+.rp-details summary {
+  font-size: 0.78rem;
+  color: var(--gray-500);
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 600;
+  transition: color var(--transition-fast);
+}
+.rp-details summary:hover {
+  color: var(--gray-700);
+}
+.rp-details summary::-webkit-details-marker {
+  display: none;
+}
+.rp-chevron {
+  font-size: 0.95rem;
+  transition: transform var(--transition-fast);
+  line-height: 1;
+}
+.rp-details[open] .rp-chevron {
+  transform: rotate(180deg);
+}
+.rp-obs {
+  font-size: 0.78rem;
+  color: var(--gray-500);
+  margin-top: 0.2rem;
+  line-height: 1.4;
+}
+.rp-obs-label {
+  font-weight: 600;
+}
+
+/* ── Entregados colapsable ── */
+.rp-entregados {
+  margin-top: 0.75rem;
+  border-top: 1px solid var(--gray-100);
+  padding-top: 0.5rem;
+}
+.rp-entregados-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gray-800);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  padding: 0.25rem 0;
+}
+.rp-entregados-summary::-webkit-details-marker {
+  display: none;
+}
+.rp-entregados-icono {
+  font-size: 1rem;
+  color: #7CB342;
+}
+.rp-entregados-chevron {
+  margin-left: auto;
+  transition: transform var(--transition-fast);
+}
+.rp-entregados[open] .rp-entregados-chevron {
+  transform: rotate(180deg);
+}

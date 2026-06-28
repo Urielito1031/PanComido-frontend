@@ -1,0 +1,79 @@
+<div class="rp-card">
+  <div class="rp-top">
+    <div class="rp-estado-badge"
+      [class.badge-recibido]="estadoUI() === 'Recibido'"
+      [class.badge-preparacion]="estadoUI() === 'Preparación'"
+      [class.badge-listo]="estadoUI() === 'Listo'">
+      <span class="material-symbols-outlined">{{ iconoEstado }}</span>
+      <span>{{ estadoUI() }}</span>
+    </div>
+    @if (mesaId()) {
+      <div class="rp-mesa-badge">
+        Nro mesa: <span>{{ mesaId() }}</span>
+      </div>
+    }
+  </div>
+
+  <div class="rp-header">
+    <span class="rp-titulo">Detalle del pedido</span>
+    <span class="rp-count">{{ items().length }} items</span>
+  </div>
+
+  <div class="rp-items">
+    @for (grupo of itemsAgrupados(); track grupo.nombre) {
+      <p class="rp-grupo">{{ grupo.nombre }}</p>
+      @for (item of grupo.items; track item.articuloId) {
+        <div class="rp-item">
+          <div class="rp-item-row">
+            <span class="rp-item-nombre">
+              {{ item.nombre }}
+              <span class="rp-item-cant">x {{ item.cantidad }}</span>
+            </span>
+            <span class="rp-item-precio">$ {{ item.precioUnitario * item.cantidad | number:'1.0-0' }}</span>
+          </div>
+          @if (item.observacionesIngredientes?.length || item.observacionesGenerales) {
+            <details class="rp-details">
+              <summary>Personalizada <span class="material-symbols-outlined rp-chevron">expand_more</span></summary>
+              @if (item.observacionesIngredientes?.length) {
+                <div class="rp-obs">{{ item.observacionesIngredientes!.join(', ') }}</div>
+              }
+              @if (item.observacionesGenerales) {
+                <div class="rp-obs"><span class="rp-obs-label">Obs:</span> {{ item.observacionesGenerales }}</div>
+              }
+            </details>
+          }
+        </div>
+        @if (!$last) {
+          <div class="rp-sep"></div>
+        }
+      }
+    }
+
+    @if (cantidadEntregados() > 0) {
+      <details class="rp-entregados">
+        <summary class="rp-entregados-summary">
+          <span class="material-symbols-outlined rp-entregados-icono">check_circle</span>
+          Entregados ({{ cantidadEntregados() }})
+          <span class="material-symbols-outlined rp-chevron rp-entregados-chevron">expand_more</span>
+        </summary>
+        @for (grupo of itemsEntregados(); track grupo.nombre) {
+          <p class="rp-grupo">{{ grupo.nombre }}</p>
+          @for (item of grupo.items; track item.articuloId) {
+            <div class="rp-item">
+              <div class="rp-item-row">
+                <span class="rp-item-nombre">
+                  {{ item.nombre }}
+                  <span class="rp-item-cant">x {{ item.cantidad }}</span>
+                </span>
+                <span class="rp-item-precio">$ {{ item.precioUnitario * item.cantidad | number:'1.0-0' }}</span>
+              </div>
+            </div>
+            @if (!$last) {
+              <div class="rp-sep"></div>
+            }
+          }
+        }
+      </details>
+    }
+  </div>
+</div>

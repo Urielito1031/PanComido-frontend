@@ -7,11 +7,10 @@ import { MetodosPagoList } from "../../components/metodos-pago-list/metodos-pago
 import { TurnosLaboralesList } from "../../components/turnos-laborales-list/turnos-laborales-list";
 import { ComensalPreviewComponent } from "../../components/comensal-preview/comensal-preview";
 import { Boton } from "../../../../../shared/ui/botones/boton/boton";
-import { PageToolbar } from "../../../../../shared/ui/page-toolbar/page-toolbar";
 
 @Component({
   selector: 'app-configuracion-page',
-  imports: [DatosLocalForm, MetodosPagoList, TurnosLaboralesList, ComensalPreviewComponent, Boton, PageToolbar],
+  imports: [DatosLocalForm, MetodosPagoList, TurnosLaboralesList, ComensalPreviewComponent, Boton],
   templateUrl: './configuracion-page.html',
   styleUrl: './configuracion-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush

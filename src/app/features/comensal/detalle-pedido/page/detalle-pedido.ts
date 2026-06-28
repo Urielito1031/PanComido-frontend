@@ -9,13 +9,15 @@ import { ModalConfirmacionPedido } from '../../components/modal-confirmacion-ped
 import { ComensalState } from '../../services/comensal-state';
 import { ItemPedido } from '../../../../core/models/domain/item-pedido';
 import { HeaderComensal } from '../../../../shared/ui/header-comensal/header-comensal';
+import { BotonComensal } from '../../../../shared/ui/botones/boton-comensal/boton-comensal';
+import { ResumenPedido } from '../../components/resumen-pedido/resumen-pedido';
 
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-detalle-pedido',
   standalone: true,
-  imports: [LlamarAlMozo, ModalConfirmacionPedido, DecimalPipe, HeaderComensal],
+  imports: [LlamarAlMozo, ModalConfirmacionPedido, DecimalPipe, HeaderComensal, BotonComensal, ResumenPedido],
   templateUrl: './detalle-pedido.html',
   styleUrls: ['./detalle-pedido.css']
 })
@@ -49,21 +51,6 @@ export class DetallePedido implements OnInit, OnDestroy {
     this.comandaState.detenerEscucha();
   }
 
-  estadoColor = computed(() => {
-    const st = this.comandaState.estadoPedido()?.estadoUI?.toLowerCase() || '';
-    if (st.includes('preparaci')) return '#ebd038';
-    if (st.includes('listo') || st.includes('hecho') || st.includes('espera')) return '#6bb446';
-    return '#a3a3a3';
-  });
-
-  estadoTextColor = computed(() => {
-    const st = this.comandaState.estadoPedido()?.estadoUI?.toLowerCase() || '';
-    if (st.includes('preparaci')) return '#000000';
-    return '#ffffff';
-  });
-
-  estadoBorder = '#808080';
-
   // Computed para el total
   total = computed(() => {
     const totalCarrito = this.pedidos().reduce(
@@ -77,20 +64,13 @@ export class DetallePedido implements OnInit, OnDestroy {
 
 
   volver(): void {
-    this.router.navigate(['/comensal/pedido']);
+    this.router.navigate(['/comensal/ver-carta']);
+  }
+
+  verEstado(): void {
+    this.router.navigate(['/comensal/estado-pedido']);
   }
   readonly nombreComensalActual = sessionStorage.getItem('nombreComensal') ?? '';
-
-  itemsAgrupados = computed(() => {
-    const items = this.comandaState.estadoPedido()?.items ?? [];
-    const grupos = new Map<string, typeof items>();
-    for (const item of items) {
-      const nombre = item.nombreComensal || 'Sin nombre';
-      if (!grupos.has(nombre)) grupos.set(nombre, []);
-      grupos.get(nombre)!.push(item);
-    }
-    return Array.from(grupos.entries()).map(([nombre, items]) => ({ nombre, items }));
-  });
 
   confirmarPedido(): void {
     // Validación: debe haber comanda activa

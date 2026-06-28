@@ -100,9 +100,9 @@ describe('VerCarta', () => {
     expect(pedidoStateMock.agregarPedido).toHaveBeenCalledWith(item);
   });
 
-  it('debería navegar a pedido', () => {
+  it('debería navegar a detalle pedido', () => {
     component.irAPedido();
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/comensal/pedido']);
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/comensal/detalle-pedido']);
   });
 
   it('debería togglear menú ordenar', () => {

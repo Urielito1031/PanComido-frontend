@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, signal, effect, OnDestroy, OnInit , ChangeDetectionStrategy} from '@angular/core';
+import { Component, DestroyRef, inject, signal, effect, computed, OnDestroy, OnInit , ChangeDetectionStrategy} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
@@ -6,14 +6,16 @@ import { ComandaState } from '../../services/comanda-state';
 import { PagoService } from '../../services/pago.service';
 import { ComandaHubService } from '../../../../core/services/hubs/comanda/comanda-hub-service';
 import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
+import { ConfiguracionState } from '../../../gerente/configuracion/services/configuracion-state';
 import { HeaderComensal } from '../../../../shared/ui/header-comensal/header-comensal';
+import { BotonComensal } from '../../../../shared/ui/botones/boton-comensal/boton-comensal';
 import { take, takeUntil } from 'rxjs';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-pago-checkout',
   standalone: true,
-  imports: [HeaderComensal, DecimalPipe],
+  imports: [HeaderComensal, DecimalPipe, BotonComensal],
   templateUrl: './pago-checkout.html',
   styleUrls: ['./pago-checkout.css']
 })
@@ -26,11 +28,54 @@ export class PagoCheckout implements OnInit, OnDestroy {
   private destroyRef = inject(DestroyRef);
 
   configuracionVisualState = inject(ConfiguracionVisualState);
+  private configuracionState = inject(ConfiguracionState);
+
   estado = this.comandaState.estadoPedido;
   mesaId = this.comandaState.mesaId;
-  cargandoPago = signal(false);
+  metodoCargando = signal<'mp' | 'tarjeta' | 'efectivo' | 'transferencia' | null>(null);
   pagoSolicitado = signal(false);
   error = signal<string | null>(null);
+
+  metodosPago = this.configuracionState.metodosPago;
+
+  tieneMercadoPago = computed(() =>
+    this.metodosPago().some(m => m.descripcion.toLowerCase().includes('mercado') && m.habilitado)
+  );
+  tieneTarjeta = computed(() =>
+    this.metodosPago().some(m => m.descripcion.toLowerCase() === 'tarjeta' && m.habilitado)
+  );
+  tieneEfectivo = computed(() =>
+    this.metodosPago().some(m => m.descripcion.toLowerCase() === 'efectivo' && m.habilitado)
+  );
+  tieneTransferencia = computed(() =>
+    this.metodosPago().some(m => m.descripcion.toLowerCase() === 'transferencia' && m.habilitado)
+  );
+
+  modoSplit = signal<'igual' | 'individual'>('igual');
+
+  itemsAgrupados = computed(() => {
+    const items = this.estado()?.items ?? [];
+    const grupos = new Map<string, typeof items>();
+    for (const item of items) {
+      const nombre = item.nombreComensal || 'Sin nombre';
+      if (!grupos.has(nombre)) grupos.set(nombre, []);
+      grupos.get(nombre)!.push(item);
+    }
+    return Array.from(grupos.entries()).map(([nombre, items]) => ({ nombre, items }));
+  });
+
+  resumenPorComensal = computed(() =>
+    this.itemsAgrupados().map(grupo => ({
+      nombre: grupo.nombre,
+      subtotal: grupo.items.reduce((acc, i) => acc + i.precioUnitario * i.cantidad, 0)
+    }))
+  );
+
+  cantidadPersonas = computed(() => this.itemsAgrupados().length || 1);
+
+  totalPorPersonaIgual = computed(() =>
+    this.estado() ? this.estado()!.totalAPagar / this.cantidadPersonas() : 0
+  );
 
   constructor() {
     effect(() => {
@@ -45,12 +90,13 @@ export class PagoCheckout implements OnInit, OnDestroy {
       const comanda = this.comandaHub.pagoRechazado();
       if(comanda){
         this.error.set("El pago fue rechazado. Intenta de nuevo.")
-        this.cargandoPago.set(false)
+        this.metodoCargando.set(null)
       }
     })
   }
 
   ngOnInit() {
+    this.configuracionState.cargarMetodosPago();
     if (!this.estado()) {
       this.comandaState.consultarEstado();
     }
@@ -82,48 +128,72 @@ export class PagoCheckout implements OnInit, OnDestroy {
 
   pagarEfectivo(): void {
     const comandaId = this.estado()?.comandaId;
-    if (!comandaId || this.pagoSolicitado()) return;
+    if (!comandaId || this.pagoSolicitado() || this.metodoCargando()) return;
 
-    this.cargandoPago.set(true);
+    this.metodoCargando.set('efectivo');
     this.error.set(null);
 
     const restauranteId = this.comandaState.restauranteId() ?? 1;
-    this.pagoService.solicitarPagoEfectivo(comandaId, restauranteId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => {
-        this.cargandoPago.set(false);
-        this.pagoSolicitado.set(true);
-        //ver si es necesario un estado de pendiente a que el mozo confirme el pago en su vista
-        this.router.navigate(['/comensal/pago-confirmado']);
-      },
-      error: (err) => {
-        this.cargandoPago.set(false);
-        this.error.set(err.error?.error || 'Error al solicitar el pago');
-      }
-    });
+    this.pagoService.solicitarPagoEfectivo(comandaId, restauranteId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.metodoCargando.set(null);
+          this.pagoSolicitado.set(true);
+          this.router.navigate(['/comensal/pago-confirmado']);
+        },
+        error: (err) => {
+          this.metodoCargando.set(null);
+          this.error.set(err.error?.error || 'Error al solicitar el pago');
+        }
+      });
   }
 
   pagarMercadoPago(): void {
     const comandaId = this.estado()?.comandaId;
-    if(!comandaId  || this.cargandoPago()) return;
-    
-    this.cargandoPago.set(true);
+    if (!comandaId || this.metodoCargando()) return;
+
+    this.metodoCargando.set('mp');
     this.error.set(null);
 
     const restauranteId = this.comandaState.restauranteId();
-    this.pagoService.solicitarPagoMP(comandaId,restauranteId??1)
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe({
-      next:(res) => {
-        this.cargandoPago.set(false);
-        
-        window.location.href = res.initPoint;
-      },
-      error: (err)=> { 
-        this.cargandoPago.set(false);
-        this.error.set(err.error?.error || 'Error al generar pago');
-      }
-    })
+    this.pagoService.solicitarPagoMP(comandaId, restauranteId ?? 1)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.metodoCargando.set(null);
+          window.location.href = res.initPoint;
+        },
+        error: (err) => {
+          this.metodoCargando.set(null);
+          this.error.set(err.error?.error || 'Error al generar pago');
+        }
+      });
+  }
 
+  pagarTransferencia(): void {
+    // TODO: conectar endpoint cuando el backend esté listo
+  }
 
+  pagarTarjeta(): void {
+    const comandaId = this.estado()?.comandaId;
+    if (!comandaId || this.metodoCargando()) return;
+
+    this.metodoCargando.set('tarjeta');
+    this.error.set(null);
+
+    const restauranteId = this.comandaState.restauranteId();
+    this.pagoService.solicitarPagoMP(comandaId, restauranteId ?? 1)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.metodoCargando.set(null);
+          window.location.href = res.initPoint;
+        },
+        error: (err) => {
+          this.metodoCargando.set(null);
+          this.error.set(err.error?.error || 'Error al generar pago');
+        }
+      });
   }
 }

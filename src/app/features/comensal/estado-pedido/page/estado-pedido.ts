@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, ChangeDetectionStrategy, computed } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { ComandaState } from '../../services/comanda-state';
@@ -7,12 +7,13 @@ import { BotonComensal } from '../../../../shared/ui/botones/boton-comensal/boto
 import { LlamarAlMozo } from '../../components/llamar-al-mozo/llamar-al-mozo';
 import { ComensalState } from '../../services/comensal-state';
 import { HeaderComensal } from '../../../../shared/ui/header-comensal/header-comensal';
+import { ResumenPedido } from '../../components/resumen-pedido/resumen-pedido';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-estado-pedido',
   standalone: true,
-  imports: [HeaderComensal, DecimalPipe, BotonComensal, LlamarAlMozo],
+  imports: [HeaderComensal, DecimalPipe, BotonComensal, LlamarAlMozo, ResumenPedido],
   templateUrl: './estado-pedido.html',
   styleUrls: ['./estado-pedido.css']
 })
@@ -45,35 +46,6 @@ export class EstadoPedido implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.comandaState.detenerEscucha();
   }
-
-  itemsAgrupados = computed(() => {
-    const items = this.estado()?.items ?? [];
-    const grupos = new Map<string, typeof items>();
-    for (const item of items) {
-      const nombre = item.nombreComensal || 'Sin nombre';
-      if (!grupos.has(nombre)) grupos.set(nombre, []);
-      grupos.get(nombre)!.push(item);
-    }
-    return Array.from(grupos.entries()).map(([nombre, items]) => ({ nombre, items }));
-  });
-
-  get estadoColor(): string {
-    const st = this.estado()?.estadoUI?.toLowerCase() || '';
-    if (st.includes('preparaci')) return '#ebd038'; // amarillo
-    if (st.includes('listo') || st.includes('hecho') || st.includes('espera')) return '#6bb446'; // verde
-    return '#a3a3a3'; // gris por defecto
-  }
-
-  get estadoTextColor(): string {
-    const st = this.estado()?.estadoUI?.toLowerCase() || '';
-    if (st.includes('preparaci')) return '#000000';
-    return '#ffffff';
-  }
-
-  get estadoBorder(): string {
-    return '#808080';
-  }
-
 
   volver(): void {
     this.router.navigate(['/comensal/ver-carta']);

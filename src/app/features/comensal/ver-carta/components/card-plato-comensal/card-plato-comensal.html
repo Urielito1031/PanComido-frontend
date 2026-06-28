@@ -19,14 +19,19 @@
               <span class="dish-badge">Destacado</span>
             }
           </div>
-          <span class="dish-price">$ {{ plato().precio }}</span>
+          <span class="dish-price">{{ plato().precio | arsCurrency }}</span>
         </div>
 
-        @if (plato().esPlato && plato().tipoPlato) {
-          <span class="dish-type-badge">{{ plato().tipoPlato }}</span>
-        } @else if (!plato().esPlato && plato().categoriaBebida) {
-          <span class="dish-type-badge drink">{{ plato().categoriaBebida }}</span>
-        }
+        <div class="dish-badges-row">
+          @if (plato().esPlato && plato().tipoPlato) {
+            <span class="dish-type-badge">{{ plato().tipoPlato }}</span>
+          } @else if (!plato().esPlato && plato().categoriaBebida) {
+            <span class="dish-type-badge drink">{{ plato().categoriaBebida }}</span>
+          }
+          @for (r of plato().restricciones; track r) {
+            <span class="restriccion-tag">{{ r }}</span>
+          }
+        </div>
       </div>
 
       @if (plato().esPlato && plato().tiempoPreparacionEstimado) {
@@ -35,14 +40,6 @@
             <span class="material-symbols-outlined">schedule</span>
             {{ plato().tiempoPreparacionEstimado }} min
           </span>
-        </div>
-      }
-
-      @if (plato().restricciones.length) {
-        <div class="dish-restricciones">
-          @for (r of plato().restricciones; track r) {
-            <span class="restriccion-tag">{{ r }}</span>
-          }
         </div>
       }
 

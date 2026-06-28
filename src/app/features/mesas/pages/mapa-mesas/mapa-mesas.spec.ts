@@ -26,7 +26,9 @@ describe('MapaMesas', () => {
     };
 
     mockAuth = {
-      currentRestauranteId: 1,
+      restauranteId: 1,
+      empleadoId: 1,
+      rol: vi.fn().mockReturnValue('Gerente'),
       tieneRoles: vi.fn().mockReturnValue(true),
     };
 

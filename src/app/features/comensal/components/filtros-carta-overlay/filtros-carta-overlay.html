@@ -70,8 +70,8 @@
         <label class="checkbox-item">
       <input
         type="checkbox"
-        [checked]="cartaState.categoriasSeleccionadas().includes('Guarnicion')"
-        (change)="cartaState.toggleCategoria('Guarnicion')">
+        [checked]="cartaState.categoriasSeleccionadas().includes('Guarnición')"
+        (change)="cartaState.toggleCategoria('Guarnición')">
       <span class="checkbox-label">Guarnición</span>
     </label>
 
@@ -164,16 +164,13 @@
 
     </div>
 
+    @if (cartaState.tieneFiltrosActivos()) {
     <div class="actions-footer">
-      @if (cartaState.tieneFiltrosActivos()) {
       <button class="btn-limpiar" (click)="limpiarFiltros()">
         Limpiar filtros
       </button>
-      }
-      <button class="btn-aplicar" (click)="aplicarFiltros()">
-        Aplicar filtros
-      </button>
     </div>
+    }
 
   </div>
 </div>

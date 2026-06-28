@@ -1,4 +1,4 @@
-import { Component, output, input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, output, input, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Plato } from '../../../../../core/models/domain/plato';
 import { ToggleComponent } from '../../../../../shared/ui/toggle/toggle';
 import { ArsCurrencyPipe } from '../../../../../shared/pipes/ars-currency.pipe';
@@ -21,6 +21,7 @@ export class CardPlatoComponent {
   editPlato = output<Plato>();
   deletePlato = output<Plato>();
   toggleRecomendado = output<Plato>();
+  imgError = signal(false);
   
   onToggle() {
     this.toggleVisible.emit(this.plato());
@@ -36,5 +37,9 @@ export class CardPlatoComponent {
 
   onDelete() {
     this.deletePlato.emit(this.plato());
+  }
+
+  onImgError() {
+    this.imgError.set(true);
   }
 }
