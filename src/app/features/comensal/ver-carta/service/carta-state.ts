@@ -44,48 +44,46 @@ toggleCategoria(categoria: string): void {
     this._items().filter(i => i.esPlato === false)
   );
 
+  private readonly CATEGORIAS_PLATO = new Set(['Entrada', 'Principal', 'Postre', 'Guarnición']);
+  private readonly CATEGORIAS_BEBIDA = new Set(['Con alcohol', 'Sin alcohol']);
+
   // Items filtrados (para la vista)
   itemsFiltrados = computed(() => {
     let resultado = this._items();
     const categorias = this.categoriasSeleccionadas();
+    const tipos = this.tiposSeleccionados();
 
-// if (categorias.length > 0) {
-//   resultado = resultado.filter(item =>
-//     item.tipoArticulo === 'Plato' &&
-//     categorias.includes(item.categoria)
-//   );
-// }
+    const restricciones = this.restriccionesSeleccionadas();
 
-const restricciones = this.restriccionesSeleccionadas();
+    if (restricciones.length > 0) {
+      resultado = resultado.filter(item =>
+        restricciones.every(r => item.restricciones?.includes(r))
+      );
+    }
 
-if (restricciones.length > 0) {
-  resultado = resultado.filter(item =>
-    item.restricciones?.some(r =>
-      restricciones.includes(r)
-    )
-  );
-}
+    const categoriasPlato = categorias.filter(c => this.CATEGORIAS_PLATO.has(c));
+    const categoriasBebida = categorias.filter(c => this.CATEGORIAS_BEBIDA.has(c));
 
-  if (categorias.length > 0) {
-    resultado = resultado.filter(item => {
-      const categoria = item.tipoPlato ?? item.categoriaBebida;
-      return categoria !== null && categorias.includes(categoria);
-    });
-  }
+    const filtraPlatos = tipos.includes('Plato') || categoriasPlato.length > 0;
+    const filtraBebidas = tipos.includes('Bebida') || categoriasBebida.length > 0;
+
+    if (filtraPlatos || filtraBebidas) {
+      resultado = resultado.filter(item => {
+        if (item.esPlato) {
+          if (!filtraPlatos) return false;
+          return categoriasPlato.length === 0 || categoriasPlato.includes(item.categoriaPlato ?? '');
+        } else {
+          if (!filtraBebidas) return false;
+          return categoriasBebida.length === 0 || categoriasBebida.includes(item.categoriaBebida ?? '');
+        }
+      });
+    }
 
     // Filtro por búsqueda (solo nombre, descripcion no existe)
     const busqueda = this.busqueda().toLowerCase();
     if (busqueda) {
       resultado = resultado.filter(i =>
         i.nombre.toLowerCase().includes(busqueda)
-      );
-    }
-
-    // Filtro por tipo (Plato / Bebida)
-    const tipos = this.tiposSeleccionados();
-    if (tipos.length > 0) {
-      resultado = resultado.filter(i =>
-      tipos.includes(i.esPlato ? 'Plato' : 'Bebida')
       );
     }
 
@@ -102,6 +100,13 @@ if (restricciones.length > 0) {
         resultado = [...resultado].sort((a, b) =>
           a.nombre.localeCompare(b.nombre)
         );
+        break;
+      case 'tiempo':
+        resultado = [...resultado].sort((a, b) => {
+          const ta = a.tiempoPreparacionEstimado ?? Infinity;
+          const tb = b.tiempoPreparacionEstimado ?? Infinity;
+          return ta - tb;
+        });
         break;
     }
 
