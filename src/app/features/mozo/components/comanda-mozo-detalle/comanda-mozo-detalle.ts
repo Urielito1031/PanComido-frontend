@@ -27,8 +27,8 @@ export class ComandaMozoDetalle {
     return items.length > 0 && items.length === this.seleccionados().size;
   });
 
-    readonly itemsOrdenados = computed(() =>
-    [...this.comanda().items].sort((a, b) => Number(a.entregado) - Number(b.entregado))
+    readonly itemsEntregados = computed(() =>
+    this.comanda().items.filter(i => i.entregado)
   );
 
   isSelected(id: number): boolean {

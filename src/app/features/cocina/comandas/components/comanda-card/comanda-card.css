@@ -19,9 +19,9 @@
   border-bottom: 1px solid #e2e8f0;
 }
 
-.bg-danger { background-color: #dc2626; color: white; }
-.bg-success { background-color: #6abf3f; color: #1e293b; }
-.bg-warning { background-color: #facc15; color: #1e293b; }
+.bg-nueva { background-color: #dc2626; color: white; }
+.bg-preparacion { background-color: #6abf3f; color: white; }
+.bg-espera { background-color: #facc15; color: #1e293b; }
 .bg-gray { background-color: #94a3b8; color: white; }
 
 /* ── Timer ── */
@@ -122,4 +122,35 @@
   font-size: 0.9rem;
   font-weight: 700;
   color: #475569;
+}
+
+.kds-entregados {
+  margin-top: 8px;
+  border-top: 1px solid #cbd5e1;
+  padding-top: 8px;
+}
+
+.kds-entregados-summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #64748b;
+  padding: 4px 0;
+  user-select: none;
+}
+
+.kds-entregados-summary::-webkit-details-marker { display: none; }
+
+.kds-chevron {
+  margin-left: auto;
+  transition: transform 0.2s;
+  font-size: 1.1rem;
+}
+
+.kds-entregados[open] .kds-chevron {
+  transform: rotate(180deg);
 }

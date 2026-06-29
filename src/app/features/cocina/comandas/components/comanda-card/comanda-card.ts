@@ -18,9 +18,9 @@ export class ComandaCard {
 
   readonly headerClass = computed(() => {
     const map: Record<string, string> = {
-      'Nueva': 'bg-danger',
-      'EnPreparacion': 'bg-success',
-      'EnEspera': 'bg-warning',
+      'Nueva': 'bg-nueva',
+      'EnPreparacion': 'bg-preparacion',
+      'EnEspera': 'bg-espera',
     };
     return map[this.comanda().estado] ?? 'bg-gray';
   });
@@ -43,8 +43,12 @@ export class ComandaCard {
     this.comanda().estado === 'Nueva' || this.comanda().estado === 'EnPreparacion'
   );
 
-  readonly itemsOrdenados = computed(() =>
-    [...this.comanda().items].sort((a, b) => Number(a.entregado) - Number(b.entregado))
+  readonly itemsPendientes = computed(() =>
+    this.comanda().items.filter(i => !i.entregado)
+  );
+
+  readonly itemsEntregados = computed(() =>
+    this.comanda().items.filter(i => i.entregado)
   );
 
   onAccion(): void {

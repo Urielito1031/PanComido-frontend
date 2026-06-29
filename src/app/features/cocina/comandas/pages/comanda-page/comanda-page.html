@@ -7,7 +7,7 @@
   }
 
   <details class="kds-section" open>
-    <summary class="section-header bg-orange">
+    <summary class="section-header bg-preparacion">
       EN PREPARACIÓN ({{ state.comandasEnPreparacion().length }})
       <span class="chevron">▼</span>
     </summary>
@@ -23,12 +23,12 @@
   </details>
 
   <details class="kds-section" open>
-    <summary class="section-header bg-teal">
+    <summary class="section-header bg-nueva">
       NUEVAS - Esperando aceptación ({{ state.comandasNuevas().length }})
       <span class="chevron">▼</span>
     </summary>
 
-    <div class="cards-grid">
+    <div class="cards-scroll">
       @for (comanda of state.comandasNuevas(); track comanda.id) {
       <app-comanda-card [comanda]="comanda" (accion)="procesarAccion($event)">
       </app-comanda-card>
@@ -38,12 +38,12 @@
     </div>
   </details>
   <details class="kds-section" open>
-    <summary class="section-header bg-success">
+    <summary class="section-header bg-espera">
       EN ESPERA ({{ state.comandasEnEspera().length }})
       <span class="chevron">▼</span>
     </summary>
 
-    <div class="cards-grid">
+    <div class="cards-scroll">
       @for (comanda of state.comandasEnEspera(); track comanda.id) {
       <app-comanda-card [comanda]="comanda" (accion)="procesarAccion($event)">
       </app-comanda-card>
