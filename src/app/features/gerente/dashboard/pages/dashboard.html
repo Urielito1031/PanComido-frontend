@@ -306,7 +306,7 @@
 
       @if (state.configuracionFavoritos().length === 0 && !state.estaEditando()) {
         <div class="empty-favorites-state" style="grid-column: 1 / -1; width: 100%;">
-          <span class="material-symbols-outlined">star_border</span>
+          <span class="material-symbols-outlined" style="position: static !important; display: inline-block !important; margin: 0 0 0.75rem 0 !important; transform: none !important; font-size: 3rem !important; color: #cbd5e1 !important; line-height: 1 !important; height: auto !important; width: auto !important;">star_border</span>
           <h2>Aún no tienes paneles favoritos</h2>
           <p>Pulsa en <strong>"Personalizar"</strong> para desplegar la barra lateral y empezar a armar tu vista personalizada de favoritos.</p>
           <button class="primary-btn" style="width: auto; padding: 0.5rem 1.5rem;" (click)="state.alternarEdicion(true)">
