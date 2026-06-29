@@ -1,4 +1,4 @@
-import { Component, signal, computed, HostListener, inject, ChangeDetectionStrategy, input, output, OnInit } from '@angular/core';
+import { Component, signal, computed, HostListener, inject, ChangeDetectionStrategy, input, output, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { MenuItem, UserProfile } from '../../../core/models/domain/menu-item';
@@ -22,7 +22,18 @@ import {
   faBell,
   faFireBurner,
   faCarrot,
-  faListCheck
+  faListCheck,
+  faBrain,
+  faExclamationTriangle,
+  faCalendarTimes,
+  faStar,
+  faPlus,
+  faWarehouse,
+  faList,
+  faCalendarAlt,
+  faWineGlass,
+  faClock,
+  faMagic
 } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
@@ -33,7 +44,7 @@ import {
   templateUrl: './sidebar.html',
   styleUrls: ['./sidebar.css']
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
 
   // Íconos de FontAwesome
@@ -54,7 +65,42 @@ export class SidebarComponent implements OnInit {
   readonly faFireBurner = faFireBurner;
   readonly faCarrot = faCarrot;
   readonly faListCheck = faListCheck;
+  readonly faBrain = faBrain;
+  readonly faExclamationTriangle = faExclamationTriangle;
+  readonly faCalendarTimes = faCalendarTimes;
+  readonly faStar = faStar;
+  readonly faPlus = faPlus;
+  readonly faWarehouse = faWarehouse;
+  readonly faList = faList;
+  readonly faCalendarAlt = faCalendarAlt;
+  readonly faWineGlass = faWineGlass;
+  readonly faClock = faClock;
+  readonly faMagic = faMagic;
 
+  currentTime = signal(new Date());
+  private timeIntervalId?: any;
+
+  formattedTime = computed(() => {
+    const d = this.currentTime();
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    const seconds = String(d.getSeconds()).padStart(2, '0');
+    return `${hours}:${minutes}:${seconds}`;
+  });
+
+  formattedTimeMini = computed(() => {
+    const d = this.currentTime();
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
+  });
+
+  formattedDate = computed(() => {
+    const d = this.currentTime();
+    const options: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'long' };
+    const str = d.toLocaleDateString('es-AR', options);
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  });
 
   isCollapsed = signal(true);
   isHovered = signal(false);
@@ -72,14 +118,25 @@ export class SidebarComponent implements OnInit {
         route: 'gerente/dashboard',
         roles: ['Gerente'],
         children: [
-          { label: 'Resumen Financiero', icon: '', route: 'gerente/dashboard', fragment: 'kpi-ventas', roles: ['Gerente'] },
-          { label: 'Tendencia de Ventas', icon: '', route: 'gerente/dashboard', fragment: 'ventas-calendario', roles: ['Gerente'] },
-          { label: 'Platos y Menú', icon: '', route: 'gerente/dashboard', fragment: 'platos-mas-vendidos', roles: ['Gerente'] },
-          { label: 'Inventario y Mermas', icon: '', route: 'gerente/dashboard', fragment: 'insumos-vencer', roles: ['Gerente'] },
-          { label: 'Personal de Salón', icon: '', route: 'gerente/dashboard', fragment: 'mozos', roles: ['Gerente'] },
+          { label: 'Resumen Financiero', icon: 'faReceipt', route: 'gerente/dashboard', fragment: 'kpi-ventas', roles: ['Gerente'] },
+          { label: 'Tendencia de Ventas', icon: 'faChartBar', route: 'gerente/dashboard', fragment: 'ventas-calendario', roles: ['Gerente'] },
+          { label: 'Platos y Menú', icon: 'faUtensils', route: 'gerente/dashboard', fragment: 'platos-mas-vendidos', roles: ['Gerente'] },
+          { label: 'Inventario y Mermas', icon: 'faBox', route: 'gerente/dashboard', fragment: 'insumos-vencer', roles: ['Gerente'] },
+          { label: 'Personal de Salón', icon: 'faUsers', route: 'gerente/dashboard', fragment: 'mozos', roles: ['Gerente'] },
         ]
       },
-      { label: 'Sistema de avisos', icon: 'faBell', route: 'gerente/avisos', roles: ['Gerente'], dividerAfter: true },
+      {
+        label: 'Sistema de avisos',
+        icon: 'faBell',
+        route: 'gerente/avisos',
+        roles: ['Gerente'],
+        children: [
+          { label: 'Sugerencias de IA', icon: 'faBrain', route: 'gerente/avisos', fragment: 'sugerencias-ia', roles: ['Gerente'] },
+          { label: 'Stock crítico', icon: 'faExclamationTriangle', route: 'gerente/avisos', fragment: 'seccion-stock', roles: ['Gerente'] },
+          { label: 'Vencimientos próximos', icon: 'faCalendarTimes', route: 'gerente/avisos', fragment: 'seccion-vencimientos', roles: ['Gerente'] }
+        ],
+        dividerAfter: true
+      },
       
       { label: 'Mapa de mesas', icon: 'faTableCells', route: 'gerente/mapa-de-mesas', roles: ['Gerente'] },
       { label: 'Cerrar Caja', icon: 'faReceipt', route: 'gerente/caja', roles: ['Gerente'], dividerAfter: true },
@@ -89,20 +146,33 @@ export class SidebarComponent implements OnInit {
         route: 'gerente/modificar-carta',
         roles: ['Gerente'],
         children: [
-          { label: 'Ver platos', icon: '', route: 'gerente/modificar-carta', roles: ['Gerente'] },
-          { label: 'Nuevo plato', icon: '', route: '/staff/gerente/crear-plato', roles: ['Gerente'] }
+          { label: 'Destacados', icon: 'faStar', route: 'gerente/modificar-carta', fragment: 'seccion-recomendados', roles: ['Gerente'] },
+          { label: 'Platos', icon: 'faUtensils', route: 'gerente/modificar-carta', fragment: 'seccion-platos', roles: ['Gerente'] },
+          { label: 'Bebidas', icon: 'faWineGlass', route: 'gerente/modificar-carta', fragment: 'seccion-bebidas', roles: ['Gerente'] },
+          { label: 'Nuevo plato', icon: 'faPlus', route: '/staff/gerente/crear-plato', roles: ['Gerente'] }
         ],
         dividerAfter: true
       },
       
-      { label: 'Stock/Mercadería', icon: 'faBox', route: 'gerente/stock-mercaderia', roles: ['Gerente'] },
+      {
+        label: 'Stock/Mercadería',
+        icon: 'faBox',
+        route: 'gerente/stock-mercaderia',
+        roles: ['Gerente'],
+        children: [
+          { label: 'Insumos', icon: 'faList', route: 'gerente/stock-mercaderia', fragment: 'productos', roles: ['Gerente'] },
+          { label: 'Bodegas', icon: 'faWarehouse', route: 'gerente/stock-mercaderia', fragment: 'bodegas', roles: ['Gerente'] },
+          { label: 'Lotes/Vencimientos', icon: 'faCalendarAlt', route: 'gerente/stock-mercaderia', fragment: 'lotes', roles: ['Gerente'] }
+        ]
+      },
       {
         label: 'Pedidos y Proveedor',
         icon: 'faTruck',
         roles: ['Gerente'],
         children: [
-          { label: 'Ver proveedores', icon: '', route: 'gerente/ver-proveedores', roles: ['Gerente'] },
-          { label: 'Nuevo proveedor', icon: '', route: '/staff/gerente/nuevo-proveedor', roles: ['Gerente'] }
+          { label: 'Ver proveedores', icon: 'faUsers', route: 'gerente/ver-proveedores', roles: ['Gerente'] },
+          { label: 'Pedido sugerido', icon: 'faMagic', route: 'gerente/realizar-pedido-sugerido', roles: ['Gerente'] },
+          { label: 'Nuevo proveedor', icon: 'faPlus', route: '/staff/gerente/nuevo-proveedor', roles: ['Gerente'] }
         ],
         dividerAfter: true
       },
@@ -143,6 +213,19 @@ export class SidebarComponent implements OnInit {
         this.expandedMenus.update(menus => [...menus, item.label]);
       }
     });
+
+    this.currentTime.set(new Date());
+    if (typeof window !== 'undefined') {
+      this.timeIntervalId = setInterval(() => {
+        this.currentTime.set(new Date());
+      }, 1000);
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.timeIntervalId) {
+      clearInterval(this.timeIntervalId);
+    }
   }
 
 
@@ -230,7 +313,17 @@ export class SidebarComponent implements OnInit {
       'faBell': this.faBell,
       'faFireBurner': this.faFireBurner,
       'faCarrot': this.faCarrot,
-      'faListCheck': this.faListCheck
+      'faListCheck': this.faListCheck,
+      'faBrain': this.faBrain,
+      'faExclamationTriangle': this.faExclamationTriangle,
+      'faCalendarTimes': this.faCalendarTimes,
+      'faStar': this.faStar,
+      'faPlus': this.faPlus,
+      'faWarehouse': this.faWarehouse,
+      'faList': this.faList,
+      'faCalendarAlt': this.faCalendarAlt,
+      'faWineGlass': this.faWineGlass,
+      'faMagic': this.faMagic
     };
     return iconMap[iconName] || undefined;
   }

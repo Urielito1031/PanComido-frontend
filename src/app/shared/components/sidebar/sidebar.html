@@ -36,6 +36,9 @@
                   [fragment]="child.fragment"
                   class="submenu-item"
                   [class.active]="isActive(child.route, child.fragment)">
+                  @if (child.icon) {
+                    <fa-icon [icon]="getIconComponent(child.icon)" class="submenu-icon"></fa-icon>
+                  }
                   <span class="submenu-label">{{ child.label }}</span>
                 </a>
               }
@@ -62,6 +65,17 @@
 
   <!-- Footer con Perfil de Usuario -->
   <div class="sidebar-footer">
+    <div class="sidebar-datetime" [class.datetime-collapsed]="!isExpanded()" [attr.title]="formattedDate() + ' ' + formattedTime()">
+      <fa-icon [icon]="faClock" class="datetime-icon"></fa-icon>
+      @if (isExpanded()) {
+        <div class="datetime-info">
+          <span class="datetime-time">{{ formattedTime() }}</span>
+          <span class="datetime-date">{{ formattedDate() }}</span>
+        </div>
+      } @else {
+        <span class="datetime-time-mini">{{ formattedTimeMini() }}</span>
+      }
+    </div>
     <div class="user-profile">
       <div class="avatar" [style.background-color]="userProfile().avatarColor">
         {{ userProfile().initials }}

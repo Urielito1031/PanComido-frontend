@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, effect, OnInit } from '@angular/core';
 import { InsumoList } from '../../components/stock-list/insumo-list';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { PageToolbar } from "../../../../../shared/ui/page-toolbar/page-toolbar";
 import { Buscador } from "../../../../../shared/ui/buscador/buscador";
 import { Dropdown } from '../../../../../shared/ui/dropdown/dropdown';
@@ -26,6 +27,7 @@ export class InsumoPage implements OnInit {
 
   protected state = inject(StockMercaderiaState);
   protected bodegaState = inject(BodegaState);
+  private route = inject(ActivatedRoute);
   
   pagina = signal<number>(1);
   itemsPorPagina = 9;
@@ -261,6 +263,18 @@ export class InsumoPage implements OnInit {
     this.state.cargarMercaderia();
     this.bodegaState.cargarBodegas();
     this.state.cargarCatalogos(); 
+
+    this.route.fragment.subscribe(fragment => {
+      if (fragment) {
+        if (fragment === 'lotes') {
+          this.seleccionarLotes();
+        } else if (fragment === 'bodegas') {
+          this.tabSeleccionada.set('bodegas');
+        } else if (fragment === 'productos') {
+          this.seleccionarProductos();
+        }
+      }
+    });
   }
 
   diasHastaVencimiento(lote: LoteInsumo): number {

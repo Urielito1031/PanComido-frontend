@@ -93,6 +93,12 @@ export class ModificarCartaComponent implements OnInit {
         }
       }
     });
+
+    this.route.fragment.subscribe(fragment => {
+      if (fragment) {
+        setTimeout(() => this.desplazarASeccion(fragment), 150);
+      }
+    });
   }
 
   onTipoBebidaSeleccionado(tipo: string | null) {

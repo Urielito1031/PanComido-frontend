@@ -177,7 +177,8 @@
 }
 
 .submenu-item {
-  display: block;
+  display: flex;
+  align-items: center;
   padding: 0.5rem 0.8rem;
   margin: 0.15rem 1rem 0.15rem 0;
   border-radius: 8px;
@@ -187,6 +188,16 @@
   font-weight: 600;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
+}
+
+.submenu-icon {
+  margin-right: 0.5rem;
+  font-size: 0.85rem;
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
 }
 
 .submenu-item:hover {
@@ -233,6 +244,84 @@
   border-top: none;
   padding: 1rem;
   margin-top: auto;
+}
+
+/* ===== DATETIME SECTION ===== */
+.sidebar-datetime {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  color: #334155;
+  animation: datetimeFadeIn 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+.sidebar-datetime.datetime-collapsed {
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.45rem 0.25rem;
+  margin-bottom: 0.5rem;
+  border-radius: 8px;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+}
+
+.datetime-icon {
+  font-size: 1.15rem;
+  color: var(--primary-red, #d8081c);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-datetime.datetime-collapsed .datetime-icon {
+  font-size: 0.95rem;
+}
+
+.datetime-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.datetime-time {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #0f172a;
+  font-family: 'Courier New', Courier, monospace;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+
+.datetime-time-mini {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #0f172a;
+  font-family: 'Courier New', Courier, monospace;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.datetime-date {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  margin-top: 0.1rem;
+}
+
+@keyframes datetimeFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .user-profile {

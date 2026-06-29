@@ -1,7 +1,7 @@
-import { Component, ChangeDetectionStrategy, OnInit, inject, signal, computed, effect } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, OnDestroy, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule, DatePipe, DOCUMENT } from '@angular/common';
-import { Router } from '@angular/router';
-import { take } from 'rxjs';
+import { Router, ActivatedRoute } from '@angular/router';
+import { take, Subscription } from 'rxjs';
 import { PlatoSugerido } from '../../../../core/models/domain/sugerencia-ia';
 // Componentes UI
 import { PageToolbar } from '../../../../shared/ui/page-toolbar/page-toolbar';
@@ -24,12 +24,13 @@ import { ArsCurrencyPipe } from '../../../../shared/pipes/ars-currency.pipe';
   styleUrls: ['./avisos.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AvisosPage implements OnInit {
+export class AvisosPage implements OnInit, OnDestroy {
 
   protected readonly state = inject(AvisosStateService);
   protected readonly pedidoState = inject(VencimientosState);
   protected readonly pedidoSugeridoState = inject(RealizarPedidoSugeridoStateService);
   protected readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly documento = inject(DOCUMENT);
 
   protected readonly isPedidoOffcanvasOpen = signal(false);
@@ -43,6 +44,7 @@ export class AvisosPage implements OnInit {
 
   paginaStock = signal(1);
   paginaVencimientos = signal(1);
+  private fragmentSub?: Subscription;
 
   totalPaginasStock = computed(() => {
     return Math.max(1, Math.ceil(this.state.stockBajo().length / 6));
@@ -145,6 +147,27 @@ export class AvisosPage implements OnInit {
   ngOnInit(): void {
     this.state.cargarAvisos();
     this.state.cargarSugerenciasCocina();
+
+    this.fragmentSub = this.route.fragment.subscribe(fragment => {
+      if (fragment) {
+        if (fragment === 'sugerencias-ia') {
+          this.panelPreviewAbierto.set('ia');
+          this.state.generarSugerenciasIA();
+          setTimeout(() => {
+            const element = this.documento.getElementById('sugerencias-ia');
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }, 150);
+        } else {
+          this.desplazarASeccion(fragment);
+        }
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.fragmentSub?.unsubscribe();
   }
 
   onBuscar(term: string) {
