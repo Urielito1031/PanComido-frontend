@@ -1,7 +1,8 @@
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, HostListener, OnDestroy, OnInit, computed, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import flatpickr from 'flatpickr';
 import { Instance } from 'flatpickr/dist/types/instance';
 import { CustomLocale } from 'flatpickr/dist/types/locale';
@@ -60,15 +61,20 @@ const LOCALIZACION_ESPANOLA: CustomLocale = {
 export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
   readonly state = inject(DashboardStateService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly documento = inject(DOCUMENT);
   private readonly fechaDesdeInput = viewChild<ElementRef<HTMLInputElement>>('fechaDesdeInput');
   private readonly fechaHastaInput = viewChild<ElementRef<HTMLInputElement>>('fechaHastaInput');
   private calendarioDesde: Instance | null = null;
   private calendarioHasta: Instance | null = null;
+  private fragmentSub?: Subscription;
 
   esMovil = signal<boolean>(typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
   readonly menuFlotanteAbierto = signal<boolean>(false);
   readonly mostrarGloboInfo = signal<boolean>(true);
+  readonly mostrarNotificaciones = signal<boolean>(false);
+  readonly hoverNotificaciones = signal<boolean>(false);
+  readonly tabsMovilExpandido = signal<boolean>(false);
 
   @HostListener('window:resize')
   alRedimensionar(): void {
@@ -79,6 +85,36 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
 
   readonly disenoActual = computed(() => {
     return DISEÑO_POR_DEFECTO;
+  });
+
+  readonly widgetsParaVista = computed(() => {
+    const modo = this.state.modoVista();
+    let base = this.disenoActual().map(w => ({ ...w }));
+    
+    if (modo === 'personal') {
+      // Mover 'proximas-acciones' al final
+      const idxAcciones = base.findIndex(w => w.id === 'proximas-acciones');
+      if (idxAcciones !== -1) {
+        const [acciones] = base.splice(idxAcciones, 1);
+        base.push(acciones);
+      }
+      // Redimensionar las 2 KPIs (kpi-ticket, kpi-pedidos) para que ocupen colSpan 6
+      base = base.map(w => {
+        if (w.id === 'kpi-ticket' || w.id === 'kpi-pedidos') {
+          return { ...w, colSpan: 6 };
+        }
+        return w;
+      });
+    } else if (modo === 'operativo') {
+      // Redimensionar las 2 KPIs (kpi-pedidos, kpi-promedio) a colSpan 6
+      base = base.map(w => {
+        if (w.id === 'kpi-pedidos' || w.id === 'kpi-promedio') {
+          return { ...w, colSpan: 6 };
+        }
+        return w;
+      });
+    }
+    return base;
   });
 
   readonly diaSeleccionado = signal<DashboardVentaDia | null>(null);
@@ -157,6 +193,52 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
   @HostListener('document:mouseup')
   alLiberarMouseEnDocumento(): void {
     this._manijaArrastrePresionada = false;
+  }
+
+  @HostListener('document:click')
+  cerrarDropdowns(): void {
+    this.mostrarNotificaciones.set(false);
+    this.tabsMovilExpandido.set(false);
+  }
+
+  alternarNotificaciones(event: Event): void {
+    event.stopPropagation();
+    this.mostrarNotificaciones.update(v => !v);
+  }
+
+  toggleTabsMovil(event: Event): void {
+    event.stopPropagation();
+    this.tabsMovilExpandido.update(v => !v);
+  }
+
+  seleccionarTabMovil(tab: any, event: Event): void {
+    event.stopPropagation();
+    this.state.establecerModoVista(tab);
+    this.tabsMovilExpandido.set(false);
+  }
+
+  obtenerIconoVistaActiva(): string {
+    const modo = this.state.modoVista();
+    switch (modo) {
+      case 'favoritos': return 'star';
+      case 'reportes': return 'dashboard';
+      case 'finanzas': return 'payments';
+      case 'personal': return 'groups';
+      case 'operativo': return 'settings';
+      default: return 'dashboard';
+    }
+  }
+
+  obtenerLabelVistaActiva(): string {
+    const modo = this.state.modoVista();
+    switch (modo) {
+      case 'favoritos': return 'Favoritos';
+      case 'reportes': return 'Todos los Reportes';
+      case 'finanzas': return 'Finanzas';
+      case 'personal': return 'Personal';
+      case 'operativo': return 'Operativo';
+      default: return 'Todos los Reportes';
+    }
   }
 
   alSoltarEnLienzoCard(event: DragEvent, targetIndex: number): void {
@@ -302,7 +384,30 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
   }
 
   deberiaMostrarModulo(widget: WidgetLayout): boolean {
-    if (this.state.modoVista() === 'reportes') return true;
+    const modo = this.state.modoVista();
+    if (modo === 'reportes') return true;
+
+    if (modo === 'finanzas') {
+      return widget.id === 'kpi-ventas' || 
+             widget.id === 'kpi-pedidos' || 
+             widget.id === 'kpi-ticket' || 
+             widget.id === 'kpi-promedio' || 
+             widget.id === 'ventas-calendario';
+    }
+
+    if (modo === 'operativo') {
+      return widget.id === 'insumos-vencer' || 
+             widget.id === 'proximas-acciones' || 
+             widget.id === 'kpi-pedidos' || 
+             widget.id === 'kpi-promedio';
+    }
+
+    if (modo === 'personal') {
+      return widget.id === 'mozos' || 
+             widget.id === 'kpi-ticket' || 
+             widget.id === 'kpi-pedidos' || 
+             widget.id === 'proximas-acciones';
+    }
 
     if (widget.id === 'lectura-comercial') {
       return this.state.esFavorito('lectura-0') || 
@@ -358,6 +463,14 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.state.cargarDatos();
+
+    // Escuchar navegación por fragment desde el sidebar
+    this.fragmentSub = this.route.fragment.subscribe(fragment => {
+      if (fragment) {
+        this.state.establecerModoVista('reportes');
+        setTimeout(() => this.desplazarASeccion(fragment), 150);
+      }
+    });
   }
 
   ngAfterViewInit(): void {
@@ -395,6 +508,7 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.calendarioDesde?.destroy();
     this.calendarioHasta?.destroy();
+    this.fragmentSub?.unsubscribe();
   }
 
   establecerPeriodo(periodo: DashboardPeriodo): void {
@@ -405,24 +519,13 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  abrirFiltroPersonalizado(): void {
-    this.state.setPeriodo('custom');
-    const desde = this.fechaDesdeInput()?.nativeElement;
-    if (desde) {
-      setTimeout(() => {
-        desde.focus();
-        this.calendarioDesde?.open();
-      }, 0);
-    } else {
-      this.calendarioDesde?.open();
-    }
-  }
-
   establecerFechaDesde(fecha: string): void {
+    this.state.setPeriodo('custom');
     this.state.setFechaDesde(fecha);
   }
 
   establecerFechaHasta(fecha: string): void {
+    this.state.setPeriodo('custom');
     this.state.setFechaHasta(fecha);
   }
 

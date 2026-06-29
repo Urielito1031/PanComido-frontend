@@ -5,78 +5,145 @@
       <h1>Dashboard</h1>
       <p class="subtitle">Resumen operativo para {{ state.periodoLabel() }}</p>
     </div>
+
+    <!-- Burbuja de Notificaciones en la esquina superior derecha -->
+    <div class="notifications-container" 
+         (mouseenter)="hoverNotificaciones.set(true)" 
+         (mouseleave)="hoverNotificaciones.set(false)"
+         (click)="$event.stopPropagation()">
+         
+      <button type="button" 
+              class="notifications-bubble-btn" 
+              [class.has-unread]="state.recordatoriosAdicionales().length > 0"
+              (click)="alternarNotificaciones($event)"
+              title="Recordatorios de Tareas Programadas">
+        <span class="material-symbols-outlined">notifications</span>
+        @if (state.recordatoriosAdicionales().length > 0) {
+          <span class="notifications-badge">{{ state.recordatoriosAdicionales().length }}</span>
+        }
+      </button>
+      
+      <!-- Dropdown flotante que se abre al pasar el mouse o hacer click -->
+      @if (mostrarNotificaciones() || hoverNotificaciones()) {
+        <div class="notifications-dropdown shadow border" (click)="$event.stopPropagation()">
+          <div class="notifications-dropdown-header">
+            <h3>Tareas Programadas ({{ state.recordatoriosAdicionales().length }})</h3>
+          </div>
+          <div class="notifications-dropdown-body">
+            @if (state.recordatoriosAdicionales().length === 0) {
+              <div class="no-notifications">
+                <span class="material-symbols-outlined">notifications_off</span>
+                <p>No hay tareas programadas pendientes</p>
+              </div>
+            } @else {
+              @for (rec of state.recordatoriosAdicionales(); track rec.titulo) {
+                <div class="notification-dropdown-item" [class]="rec.tono">
+                  <div class="notification-item-header">
+                    <strong>{{ rec.titulo }}</strong>
+                    <button type="button" class="dismiss-btn" (click)="state.resolverRecordatorio(rec.id!); $event.stopPropagation()" title="Resolver">
+                      <span class="material-symbols-outlined">close</span>
+                    </button>
+                  </div>
+                  <p class="notification-detail">{{ rec.detalle }}</p>
+                  <div class="notification-item-actions">
+                    <span class="impact-badge">{{ rec.impacto }}</span>
+                    <button type="button" class="manage-btn" (click)="gestionarRecordatorio(rec); cerrarDropdowns(); $event.stopPropagation()">
+                      Gestionar <span class="material-symbols-outlined">arrow_forward</span>
+                    </button>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        </div>
+      }
+    </div>
   </header>
 
   <section class="dashboard-toolbar" aria-label="Filtros del dashboard">
-    <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-      <div class="view-tabs" role="tablist">
-        <button role="tab" [class.active]="state.modoVista() === 'favoritos'" (click)="state.establecerModoVista('favoritos')">
-          <span class="material-symbols-outlined" aria-hidden="true">star</span> Favoritos
+    <div class="dashboard-toolbar-row-top">
+      <div class="view-tabs" [class.mobile-expanded]="tabsMovilExpandido()" role="tablist">
+        <button role="tab" class="view-tabs-mobile-trigger" (click)="toggleTabsMovil($event)">
+          <span class="material-symbols-outlined" aria-hidden="true">{{ obtenerIconoVistaActiva() }}</span>
+          <span class="trigger-label">{{ obtenerLabelVistaActiva() }}</span>
+          <span class="material-symbols-outlined chevron-icon">keyboard_arrow_down</span>
         </button>
-        <button role="tab" [class.active]="state.modoVista() === 'reportes'" (click)="state.establecerModoVista('reportes')">
-          <span class="material-symbols-outlined" aria-hidden="true">dashboard</span> Todos los Reportes
-        </button>
+
+        <div class="view-tabs-list-wrapper">
+          <button role="tab" [class.active]="state.modoVista() === 'favoritos'" (click)="seleccionarTabMovil('favoritos', $event)">
+            <span class="material-symbols-outlined" aria-hidden="true">star</span> Favoritos
+          </button>
+          <button role="tab" [class.active]="state.modoVista() === 'reportes'" (click)="seleccionarTabMovil('reportes', $event)">
+            <span class="material-symbols-outlined" aria-hidden="true">dashboard</span> Todos los Reportes
+          </button>
+          <button role="tab" [class.active]="state.modoVista() === 'finanzas'" (click)="seleccionarTabMovil('finanzas', $event)">
+            <span class="material-symbols-outlined" aria-hidden="true">payments</span> Finanzas
+          </button>
+          <button role="tab" [class.active]="state.modoVista() === 'personal'" (click)="seleccionarTabMovil('personal', $event)">
+            <span class="material-symbols-outlined" aria-hidden="true">groups</span> Personal
+          </button>
+          <button role="tab" [class.active]="state.modoVista() === 'operativo'" (click)="seleccionarTabMovil('operativo', $event)">
+            <span class="material-symbols-outlined" aria-hidden="true">settings</span> Operativo
+          </button>
+        </div>
       </div>
-      @if (state.modoVista() === 'favoritos') {
-        <button type="button" class="customize-layout-btn" [class.editing]="state.estaEditando()" (click)="state.alternarEdicion()" [title]="state.estaEditando() ? 'Guardar y salir del modo edición' : 'Personalizar distribución de favoritos'">
-          <span class="material-symbols-outlined" aria-hidden="true">{{ state.estaEditando() ? 'check' : 'edit' }}</span>
-          {{ state.estaEditando() ? 'Listo' : 'Personalizar' }}
-        </button>
-      }
-      <div class="refresh-indicator-container">
-        <span class="refresh-time">Act: {{ state.ultimoRefresco() | date: 'HH:mm:ss' }}</span>
-        <button type="button" class="refresh-btn" [class.spinning]="state.cargando()" (click)="refrescarManual()" title="Refrescar datos ahora">
-          <span class="material-symbols-outlined">refresh</span>
-        </button>
+      <div class="dashboard-toolbar-actions-group">
+        @if (state.modoVista() === 'favoritos') {
+          <button type="button" class="customize-layout-btn" [class.editing]="state.estaEditando()" (click)="state.alternarEdicion()" [title]="state.estaEditando() ? 'Guardar y salir del modo edición' : 'Personalizar distribución de favoritos'">
+            <span class="material-symbols-outlined" aria-hidden="true">{{ state.estaEditando() ? 'check' : 'edit' }}</span>
+            {{ state.estaEditando() ? 'Listo' : 'Personalizar' }}
+          </button>
+        }
+        <div class="refresh-indicator-container">
+          <span class="refresh-time">Act: {{ state.ultimoRefresco() | date: 'HH:mm:ss' }}</span>
+          <button type="button" class="refresh-btn" [class.spinning]="state.cargando()" (click)="refrescarManual()" title="Refrescar datos ahora">
+            <span class="material-symbols-outlined">refresh</span>
+          </button>
+        </div>
       </div>
     </div>
 
-    <div class="period-filter" role="group" aria-label="Periodo del dashboard">
-      @for (periodo of periodos; track periodo.value) {
-        <button
-          type="button"
-          class="period-button"
-          [class.active]="state.periodo() === periodo.value"
-          (click)="establecerPeriodo(periodo.value)">
-          {{ periodo.label }}
-        </button>
-      }
-      <button
-        type="button"
-        class="period-button custom-period"
-        [class.active]="state.periodo() === 'custom'"
-        (click)="abrirFiltroPersonalizado()">
-        Personalizado
-      </button>
-    </div>
+    <div class="dashboard-toolbar-row-bottom">
+      <div class="period-filter" role="group" aria-label="Periodo del dashboard">
+        @for (periodo of periodos; track periodo.value) {
+          <button
+            type="button"
+            class="period-button"
+            [class.active]="state.periodo() === periodo.value"
+            (click)="establecerPeriodo(periodo.value)">
+            {{ periodo.label }}
+          </button>
+        }
+      </div>
 
-    <div class="date-filter">
-      <label>
-        Desde
-        <span class="date-field">
-          <input
-            #fechaDesdeInput
-            type="text"
-            inputmode="numeric"
-            placeholder="dd/mm/aaaa"
-            [ngModel]="state.fechaDesde()"
-            (ngModelChange)="establecerFechaDesde($event)">
-          <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
-        </span>
-      </label>
-      <label>
-        Hasta
-        <span class="date-field">
-          <input
-            #fechaHastaInput
-            type="text"
-            inputmode="numeric"
-            placeholder="dd/mm/aaaa"
-            [ngModel]="state.fechaHasta()"
-            (ngModelChange)="establecerFechaHasta($event)">
-          <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
-        </span>
-      </label>
+      <div class="date-filter" [class.active]="state.periodo() === 'custom'">
+        <label>
+          Desde
+          <span class="date-field">
+            <input
+              #fechaDesdeInput
+              type="text"
+              inputmode="numeric"
+              placeholder="dd/mm/aaaa"
+              [ngModel]="state.fechaDesde()"
+              (ngModelChange)="establecerFechaDesde($event)">
+            <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+          </span>
+        </label>
+        <label>
+          Hasta
+          <span class="date-field">
+            <input
+              #fechaHastaInput
+              type="text"
+              inputmode="numeric"
+              placeholder="dd/mm/aaaa"
+              [ngModel]="state.fechaHasta()"
+              (ngModelChange)="establecerFechaHasta($event)">
+            <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+          </span>
+        </label>
+      </div>
     </div>
   </section>
 
@@ -139,35 +206,6 @@
   }
 
   <div class="dashboard-canvas-content">
-  @if (state.recordatoriosAdicionales().length > 0) {
-    <section class="highlighted-reminders-section" aria-label="Recordatorios de Gestión Recientes">
-      <div class="reminders-banner-header">
-        <span class="material-symbols-outlined alert-pulse-icon">notifications_active</span>
-        <h2>Tareas Programadas Recientes</h2>
-      </div>
-      <div class="reminders-highlight-grid">
-        @for (rec of state.recordatoriosAdicionales(); track rec.titulo) {
-          <article class="reminder-highlight-card" [class]="rec.tono">
-            <button type="button" class="dismiss-reminder-btn" (click)="state.resolverRecordatorio(rec.id!); $event.stopPropagation()" aria-label="Descartar recordatorio">
-              <span class="material-symbols-outlined">close</span>
-            </button>
-            <div class="reminder-card-content">
-              <div class="reminder-text-area">
-                <strong>{{ rec.titulo }}</strong>
-                <p>{{ rec.detalle }}</p>
-              </div>
-              <div class="reminder-meta">
-                <span class="impact-tag">{{ rec.impacto }}</span>
-                <button type="button" class="action-btn" (click)="gestionarRecordatorio(rec)">
-                  Gestionar <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-                </button>
-              </div>
-            </div>
-          </article>
-        }
-      </div>
-    </section>
-  }
 
   @if (state.atencion().length > 0) {
     <section class="attention-section" aria-label="Resumen de Atencion">
@@ -188,9 +226,9 @@
     </section>
   }
 
-  @if (state.modoVista() === 'reportes') {
+  @if (state.modoVista() !== 'favoritos') {
     <div class="dashboard-grid-container">
-      @for (widget of disenoActual(); track widget.id) {
+      @for (widget of widgetsParaVista(); track widget.id) {
         @if (deberiaMostrarModulo(widget)) {
           <div
             class="grid-item col-span-{{ widget.colSpan }}"
@@ -276,7 +314,7 @@
 
       @if (state.configuracionFavoritos().length === 0 && !state.estaEditando()) {
         <div class="empty-favorites-state" style="grid-column: 1 / -1; width: 100%;">
-          <span class="material-symbols-outlined">star_border</span>
+          <span class="material-symbols-outlined" style="position: static !important; display: inline-block !important; margin: 0 0 0.75rem 0 !important; transform: none !important; font-size: 3rem !important; color: #cbd5e1 !important; line-height: 1 !important; height: auto !important; width: auto !important;">star_border</span>
           <h2>Aún no tienes paneles favoritos</h2>
           <p>Pulsa en <strong>"Personalizar"</strong> para desplegar la barra lateral y empezar a armar tu vista personalizada de favoritos.</p>
           <button class="primary-btn" style="width: auto; padding: 0.5rem 1.5rem;" (click)="state.alternarEdicion(true)">
