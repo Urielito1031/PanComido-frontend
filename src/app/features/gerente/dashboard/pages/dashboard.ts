@@ -211,7 +211,8 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     this.tabsMovilExpandido.update(v => !v);
   }
 
-  seleccionarTabMovil(tab: any): void {
+  seleccionarTabMovil(tab: any, event: Event): void {
+    event.stopPropagation();
     this.state.establecerModoVista(tab);
     this.tabsMovilExpandido.set(false);
   }

@@ -70,19 +70,19 @@
         </button>
 
         <div class="view-tabs-list-wrapper">
-          <button role="tab" [class.active]="state.modoVista() === 'favoritos'" (click)="seleccionarTabMovil('favoritos')">
+          <button role="tab" [class.active]="state.modoVista() === 'favoritos'" (click)="seleccionarTabMovil('favoritos', $event)">
             <span class="material-symbols-outlined" aria-hidden="true">star</span> Favoritos
           </button>
-          <button role="tab" [class.active]="state.modoVista() === 'reportes'" (click)="seleccionarTabMovil('reportes')">
+          <button role="tab" [class.active]="state.modoVista() === 'reportes'" (click)="seleccionarTabMovil('reportes', $event)">
             <span class="material-symbols-outlined" aria-hidden="true">dashboard</span> Todos los Reportes
           </button>
-          <button role="tab" [class.active]="state.modoVista() === 'finanzas'" (click)="seleccionarTabMovil('finanzas')">
+          <button role="tab" [class.active]="state.modoVista() === 'finanzas'" (click)="seleccionarTabMovil('finanzas', $event)">
             <span class="material-symbols-outlined" aria-hidden="true">payments</span> Finanzas
           </button>
-          <button role="tab" [class.active]="state.modoVista() === 'personal'" (click)="seleccionarTabMovil('personal')">
+          <button role="tab" [class.active]="state.modoVista() === 'personal'" (click)="seleccionarTabMovil('personal', $event)">
             <span class="material-symbols-outlined" aria-hidden="true">groups</span> Personal
           </button>
-          <button role="tab" [class.active]="state.modoVista() === 'operativo'" (click)="seleccionarTabMovil('operativo')">
+          <button role="tab" [class.active]="state.modoVista() === 'operativo'" (click)="seleccionarTabMovil('operativo', $event)">
             <span class="material-symbols-outlined" aria-hidden="true">settings</span> Operativo
           </button>
         </div>
