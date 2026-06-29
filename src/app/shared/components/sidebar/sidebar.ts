@@ -1,4 +1,4 @@
-import { Component, signal, computed, HostListener, inject, ChangeDetectionStrategy, input, output } from '@angular/core';
+import { Component, signal, computed, HostListener, inject, ChangeDetectionStrategy, input, output, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { MenuItem, UserProfile } from '../../../core/models/domain/menu-item';
@@ -33,7 +33,7 @@ import {
   templateUrl: './sidebar.html',
   styleUrls: ['./sidebar.css']
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit {
   private readonly authService = inject(AuthService);
 
   // Íconos de FontAwesome
@@ -66,7 +66,19 @@ export class SidebarComponent {
   // Configuración de menú por rol
   private menuConfig: Record<string, MenuItem[]> = {
     Gerente: [
-      { label: 'Dashboard', icon: 'faChartBar', route: 'gerente/dashboard', roles: ['Gerente'] },
+      {
+        label: 'Dashboard',
+        icon: 'faChartBar',
+        route: 'gerente/dashboard',
+        roles: ['Gerente'],
+        children: [
+          { label: 'Resumen Financiero', icon: '', route: 'gerente/dashboard', fragment: 'kpi-ventas', roles: ['Gerente'] },
+          { label: 'Tendencia de Ventas', icon: '', route: 'gerente/dashboard', fragment: 'ventas-calendario', roles: ['Gerente'] },
+          { label: 'Platos y Menú', icon: '', route: 'gerente/dashboard', fragment: 'platos-mas-vendidos', roles: ['Gerente'] },
+          { label: 'Inventario y Mermas', icon: '', route: 'gerente/dashboard', fragment: 'insumos-vencer', roles: ['Gerente'] },
+          { label: 'Personal de Salón', icon: '', route: 'gerente/dashboard', fragment: 'mozos', roles: ['Gerente'] },
+        ]
+      },
       { label: 'Sistema de avisos', icon: 'faBell', route: 'gerente/avisos', roles: ['Gerente'], dividerAfter: true },
       
       { label: 'Mapa de mesas', icon: 'faTableCells', route: 'gerente/mapa-de-mesas', roles: ['Gerente'] },
@@ -123,6 +135,15 @@ export class SidebarComponent {
 
   constructor(private router: Router) {}
 
+  ngOnInit(): void {
+    // Auto-expandir el submenú del item activo al montar el sidebar
+    const items = this.menuConfig[this.currentRole()] || [];
+    items.forEach(item => {
+      if (item.children && this.isParentActive(item) && !this.isSubmenuExpanded(item.label)) {
+        this.expandedMenus.update(menus => [...menus, item.label]);
+      }
+    });
+  }
 
 
   onMouseEnter(): void {
@@ -155,9 +176,34 @@ export class SidebarComponent {
     return this.expandedMenus().includes(label);
   }
 
-  isActive(route?: string): boolean {
+  isActive(route?: string, fragment?: string): boolean {
     if (!route) return false;
-    return this.router.url === route;
+    
+    const isRouteActive = this.router.isActive(route, {
+      paths: 'subset',
+      queryParams: 'ignored',
+      fragment: 'ignored',
+      matrixParams: 'ignored'
+    });
+
+    if (!isRouteActive) return false;
+
+    // Obtener fragment actual de la URL
+    const urlTree = this.router.parseUrl(this.router.url);
+    const currentFragment = urlTree.fragment;
+
+    if (fragment) {
+      return currentFragment === fragment;
+    }
+
+    // Si este item no tiene fragment, pero la URL de la app sí lo tiene,
+    // significa que estamos en una sección específica del Dashboard, por lo tanto
+    // no se debería marcar como activo el link general/raiz si tiene sub-items.
+    if (!fragment && currentFragment) {
+      return false;
+    }
+
+    return true;
   }
 
   isParentActive(item: MenuItem): boolean {

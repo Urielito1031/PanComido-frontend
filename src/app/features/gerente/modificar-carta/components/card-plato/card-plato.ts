@@ -42,4 +42,11 @@ export class CardPlatoComponent {
   onImgError() {
     this.imgError.set(true);
   }
+
+  obtenerPorcentajeGanancia(): number {
+    const precio = this.plato().precioVenta;
+    const costo = this.plato().costo;
+    if (precio <= 0) return 0;
+    return Math.round(((precio - costo) / precio) * 100);
+  }
 }

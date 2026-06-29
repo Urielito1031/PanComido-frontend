@@ -27,11 +27,47 @@
    }
 
    <div filtros class="d-flex align-items-center gap-2 gap-sm-3">
-     <select class="form-select form-select-sm border-0 text-secondary fw-semibold shadow-sm" style="border-radius: 10px; background-color: #ffffff; min-width: 140px; cursor: pointer; padding-top: 6px; padding-bottom: 6px;" (change)="onSortChanged($event)">
-       <option value="default" [selected]="sortOrder() === 'default'">Por Relevancia</option>
-       <option value="ventas-desc" [selected]="sortOrder() === 'ventas-desc'">Más Vendidos</option>
-       <option value="ventas-asc" [selected]="sortOrder() === 'ventas-asc'">Menos Vendidos</option>
-     </select>
+
+     <!-- Dropdown de Ordenamiento -->
+     <div class="d-flex align-items-center gap-2">
+       <app-dropdown #ordenDropdown>
+         <button
+           trigger
+           type="button"
+           class="btn-sort-trigger"
+           [class.activo]="sortOrder() !== 'default'">
+           <span class="material-symbols-outlined sort-trigger-icon">{{ ordenActivo().icono }}</span>
+           <span class="sort-trigger-label">{{ ordenActivo().etiqueta }}</span>
+           <span class="material-symbols-outlined sort-trigger-chevron">expand_more</span>
+         </button>
+         <div menu class="sort-menu">
+           @for (opcion of opcionesOrden; track opcion.valor) {
+             <button
+               type="button"
+               class="sort-menu-item"
+               [class.seleccionado]="sortOrder() === opcion.valor"
+               (click)="setOrden(opcion.valor, ordenDropdown)">
+               <span class="material-symbols-outlined sort-item-icon">{{ opcion.icono }}</span>
+               <span>{{ opcion.etiqueta }}</span>
+               @if (sortOrder() === opcion.valor) {
+                 <span class="material-symbols-outlined sort-item-check">check</span>
+               }
+             </button>
+           }
+         </div>
+       </app-dropdown>
+
+       @if (sortOrder() !== 'default') {
+         <button
+           type="button"
+           class="btn-limpiar-orden"
+           (click)="resetOrden($event)"
+           title="Quitar ordenamiento">
+           <span class="material-symbols-outlined" style="font-size: 0.85rem;">close</span>
+           <span>Limpiar</span>
+         </button>
+       }
+     </div>
 
      <div class="segmented-control">
        <button 
@@ -153,7 +189,7 @@
     </div>
   } @else {
     @if (platosRecomendados().length > 0) {
-      <div class="mb-5" style="margin-top: 5px;">
+      <div id="seccion-recomendados" class="mb-5" style="margin-top: 5px;">
         <div class="d-flex align-items-start gap-2 mb-3">
           <div class="section-star-icon mt-1">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -178,7 +214,7 @@
     }
 
     @if (platosComidas().length > 0 || selectedTipoComida()) {
-      <div class="mb-4">
+      <div id="seccion-platos" class="mb-4">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 gap-3">
           <h4 class="fw-bold mb-0 text-dark d-flex align-items-center gap-2">
             <span class="material-symbols-outlined text-secondary" style="font-size: 1.8rem; vertical-align: middle;">restaurant_menu</span>
@@ -215,7 +251,7 @@
     }
 
     @if (platosBebidas().length > 0 || selectedTipoBebida()) {
-      <div class="mb-4">
+      <div id="seccion-bebidas" class="mb-4">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 gap-3">
           <h4 class="fw-bold mb-0 text-dark d-flex align-items-center gap-2">
             <span class="material-symbols-outlined text-secondary" style="font-size: 1.8rem; vertical-align: middle;">local_bar</span>
@@ -282,4 +318,42 @@
       </app-modal-restaurar-plato>
     }
   }
+
+  <!-- Navegación Flotante -->
+  <div class="floating-navegacion-carta">
+    @if (platosRecomendados().length > 0) {
+      <button 
+        type="button" 
+        class="btn-flotante recomendados" 
+        (click)="desplazarASeccion('seccion-recomendados')"
+        title="Ir a Recomendados">
+        <span class="material-symbols-outlined">star</span>
+        <span class="tooltip-flotante">Destacados</span>
+      </button>
+    }
+    <button 
+      type="button" 
+      class="btn-flotante platos" 
+      (click)="desplazarASeccion('seccion-platos')"
+      title="Ir a Platos">
+      <span class="material-symbols-outlined">restaurant_menu</span>
+      <span class="tooltip-flotante">Platos</span>
+    </button>
+    <button 
+      type="button" 
+      class="btn-flotante bebidas" 
+      (click)="desplazarASeccion('seccion-bebidas')"
+      title="Ir a Bebidas">
+      <span class="material-symbols-outlined">local_bar</span>
+      <span class="tooltip-flotante">Bebidas</span>
+    </button>
+    <button 
+      type="button" 
+      class="btn-flotante arriba" 
+      (click)="desplazarAlPrincipio()"
+      title="Volver arriba">
+      <span class="material-symbols-outlined">arrow_upward</span>
+      <span class="tooltip-flotante">Volver arriba</span>
+    </button>
+  </div>
 </div>

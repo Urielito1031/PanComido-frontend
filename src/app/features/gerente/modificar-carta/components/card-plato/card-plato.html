@@ -51,6 +51,13 @@
             <span class="material-symbols-outlined" style="font-size: 15px;">trending_up</span>
             {{ plato().ventas || 0 }} vtas
           </span>
+          <span class="d-inline-flex align-items-center gap-1"
+                [class.badge-margin-high]="obtenerPorcentajeGanancia() >= 40"
+                [class.badge-margin-med]="obtenerPorcentajeGanancia() >= 20 && obtenerPorcentajeGanancia() < 40"
+                [class.badge-margin-low]="obtenerPorcentajeGanancia() < 20">
+            <span class="material-symbols-outlined" style="font-size: 15px;">percent</span>
+            Ganancia: {{ obtenerPorcentajeGanancia() }}%
+          </span>
         </div>
         <app-price-note text="Costo calculado por receta: suma de insumos x cantidad usada." [compact]="true" />
       </div>
@@ -122,6 +129,16 @@
            <div class="d-flex flex-column align-items-center" style="min-width: 60px;">
              <span class="text-muted text-uppercase mb-1" style="font-size: 0.65rem; letter-spacing: 0.05em;">Ventas</span>
              <span class="fw-medium text-dark" style="font-size: 0.9rem;">{{ plato().ventas || 0 }}</span>
+           </div>
+           <div class="d-flex flex-column align-items-center" style="min-width: 70px;">
+             <span class="text-muted text-uppercase mb-1" style="font-size: 0.65rem; letter-spacing: 0.05em;">Ganancia</span>
+             <span class="fw-bold" 
+                   [class.text-success]="obtenerPorcentajeGanancia() >= 40" 
+                   [class.text-warning]="obtenerPorcentajeGanancia() < 40 && obtenerPorcentajeGanancia() >= 20" 
+                   [class.text-danger]="obtenerPorcentajeGanancia() < 20" 
+                   style="font-size: 0.9rem;">
+               {{ obtenerPorcentajeGanancia() }}%
+             </span>
            </div>
         </div>
         

@@ -61,16 +61,6 @@
   box-shadow: none !important;
 }
 
-::ng-deep .stock-page app-dropdown[filtros] .btn,
-::ng-deep .stock-page app-dropdown[filtros] button {
-  min-height: 40px !important;
-  border: 1px solid #1691ac !important;
-  border-radius: 9px !important;
-  background: #1691ac !important;
-  color: #ffffff !important;
-  box-shadow: none !important;
-  font-weight: 800 !important;
-}
 
 .btn-premium-primary {
   min-height: 40px;
@@ -592,3 +582,253 @@
 .stock-tab {
   border-radius: 11px !important;
 }
+
+/* ── BARRA DE CATEGORÍAS ─────────────────────────────── */
+.categoria-pills-container {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(22, 145, 172, 0.12);
+  border-radius: 12px;
+  padding: 0.5rem 0.8rem;
+  margin-bottom: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.categoria-pills-container.colapsado {
+  padding-bottom: 0.5rem;
+}
+
+.categoria-pills-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  color: #334155;
+  outline: none;
+  user-select: none;
+}
+
+.categoria-pills-header:hover {
+  color: #0f766e;
+}
+
+.categoria-pills-header .header-icon {
+  font-size: 1.25rem;
+  margin-right: 6px;
+  color: #0fb4dc;
+}
+
+.categoria-pills-header .header-title {
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.categoria-pills-header .active-category-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: #1691ac;
+  color: #ffffff;
+  padding: 2px 10px;
+  border-radius: 12px;
+  margin-left: 10px;
+  box-shadow: 0 2px 6px rgba(22, 145, 172, 0.2);
+}
+
+.categoria-pills-header .spacer {
+  flex-grow: 1;
+}
+
+.categoria-pills-header .chevron-icon {
+  font-size: 1.4rem;
+  color: #64748b;
+  transition: color 0.15s ease;
+}
+
+.categoria-pills-header:hover .chevron-icon {
+  color: #0f766e;
+}
+
+.categoria-pills-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.6rem 0 0.4rem;
+  align-items: center;
+}
+
+.categoria-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 13px;
+  background: #f1f5f9;
+  border: 1.5px solid transparent;
+  border-radius: 20px;
+  color: #475569;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.categoria-pill:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+}
+
+.categoria-pill.activa {
+  background: #1691ac;
+  border-color: transparent;
+  color: #ffffff;
+  box-shadow: 0 3px 10px rgba(22, 145, 172, 0.28);
+}
+
+.categoria-pill.activa:hover {
+  background: #0e7d98;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 14px rgba(22, 145, 172, 0.32);
+}
+
+/* Estado alerta en pill no activa */
+.categoria-pill.alerta-critico:not(.activa) {
+  background: #fef2f2;
+  border-color: rgba(239, 68, 68, 0.2);
+  color: #991b1b;
+}
+
+.categoria-pill.alerta-bajo:not(.activa) {
+  background: #fffbeb;
+  border-color: rgba(245, 158, 11, 0.2);
+  color: #92400e;
+}
+
+/* Dot de estado */
+.pill-alerta-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: #94a3b8;
+}
+
+.pill-alerta-dot.critico { background: #ef4444; }
+.pill-alerta-dot.bajo    { background: #f59e0b; }
+.pill-alerta-dot.ok      { background: #22c55e; }
+
+.categoria-pill.activa .pill-alerta-dot {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+/* Contador de insumos */
+.pill-count {
+  background: rgba(15, 23, 42, 0.08);
+  color: inherit;
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  min-width: 20px;
+  text-align: center;
+  transition: background 0.15s ease;
+}
+
+.categoria-pill.activa .pill-count {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.categoria-pill.alerta-critico:not(.activa) .pill-count {
+  background: rgba(239, 68, 68, 0.12);
+}
+
+.categoria-pill.alerta-bajo:not(.activa) .pill-count {
+  background: rgba(245, 158, 11, 0.12);
+}
+
+/* Botón cerrar dentro del pill activo */
+.pill-close {
+  font-size: 0.95rem;
+  opacity: 0.75;
+  margin-left: 2px;
+  transition: opacity 0.15s ease;
+  cursor: pointer;
+}
+
+.pill-close:hover {
+  opacity: 1;
+}
+
+/* Mobile: scroll horizontal */
+@media (max-width: 640px) {
+  .categoria-pills-bar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 0.55rem;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .categoria-pills-bar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .categoria-pill {
+    flex-shrink: 0;
+  }
+}
+
+/* Pagination styles */
+.paginacion-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.05);
+  padding: 4px 8px;
+  border-radius: 20px;
+}
+
+.btn-paginacion-flecha {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-paginacion-flecha:hover:not(:disabled) {
+  background: rgba(15, 23, 42, 0.1);
+}
+
+.btn-paginacion-flecha:disabled {
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.btn-paginacion-flecha .material-symbols-outlined {
+  font-size: 1.15rem;
+}
+
+.paginacion-texto {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #334155;
+  user-select: none;
+  min-width: 32px;
+  text-align: center;
+}
+

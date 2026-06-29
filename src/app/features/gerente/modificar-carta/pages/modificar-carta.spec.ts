@@ -1,17 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { signal } from '@angular/core';
 import { ModificarCartaComponent } from './modificar-carta';
 import { ModificarCartaStateService } from '../services/modificar-carta.state';
 import { Plato } from '../../../../core/models/domain/plato';
 import { vi } from 'vitest';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { of } from 'rxjs';
 
 describe('ModificarCartaComponent', () => {
   let component: ModificarCartaComponent;
   let fixture: ComponentFixture<ModificarCartaComponent>;
   let stateServiceMock: any;
   let routerMock: any;
+  let activatedRouteMock: any;
 
   const mockPlatos: Plato[] = [
     { id: 1, nombre: 'Milanesa', precioVenta: 100, costo: 50, visible: true, receta: [], imagen: '' }
@@ -56,9 +58,13 @@ describe('ModificarCartaComponent', () => {
       setCategoria: vi.fn()
     };
 
-    // 2. Mockear Router
+    // 2. Mockear Router e ActivatedRoute
     routerMock = {
       navigate: vi.fn()
+    };
+
+    activatedRouteMock = {
+      queryParams: of({})
     };
 
     // 3. Configurar TestBed
@@ -66,7 +72,8 @@ describe('ModificarCartaComponent', () => {
       imports: [ModificarCartaComponent],
       providers: [
         { provide: ModificarCartaStateService, useValue: stateServiceMock },
-        { provide: Router, useValue: routerMock }
+        { provide: Router, useValue: routerMock },
+        { provide: ActivatedRoute, useValue: activatedRouteMock }
       ]
     })
     // Ignorar subcomponentes complejos en test unitario puro
@@ -98,11 +105,6 @@ describe('ModificarCartaComponent', () => {
     expect(stateServiceMock.setTipoComida).toHaveBeenCalledWith('Principal');
   });
 
-  it('debería delegar onSortChanged al state extrayendo el value', () => {
-    const mockEvent = { target: { value: 'ventas-desc' } } as unknown as Event;
-    component.onSortChanged(mockEvent);
-    expect(stateServiceMock.setSortOrder).toHaveBeenCalledWith('ventas-desc');
-  });
 
   it('debería delegar toggleRecomendado al state', () => {
     component.toggleRecomendado(mockPlatos[0]);

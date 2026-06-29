@@ -4,6 +4,8 @@ import { DashboardStateService } from '../services/dashboard.state';
 import { signal } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { vi, expect, describe, it, beforeEach, afterEach } from 'vitest';
+import { ActivatedRoute, Router } from '@angular/router';
+import { of } from 'rxjs';
 
 vi.mock('flatpickr', () => {
   return {
@@ -21,11 +23,35 @@ describe('DashboardPage', () => {
   let mockState: any;
 
   beforeEach(async () => {
+    const _viewMode = signal('reportes');
+    const _favoritesConfig = signal([]);
+    const _isEditing = signal(false);
+    const _insightMozos = signal('');
     // Create a mock state service with signals
     mockState = {
       periodo: signal('7d'),
       fechaDesde: signal(''),
       fechaHasta: signal(''),
+      viewMode: _viewMode,
+      modoVista: _viewMode,
+      favoritesConfig: _favoritesConfig,
+      configuracionFavoritos: _favoritesConfig,
+      isEditing: _isEditing,
+      estaEditando: _isEditing,
+      esFavorito: vi.fn().mockReturnValue(false),
+      toggleFavorito: vi.fn(),
+      addFavorite: vi.fn(),
+      agregarFavorito: vi.fn(),
+      insertFavoriteAt: vi.fn(),
+      insertarFavoritoEn: vi.fn(),
+      removeFavorite: vi.fn(),
+      quitarFavorito: vi.fn(),
+      updateFavoriteWidth: vi.fn(),
+      actualizarAnchoFavorito: vi.fn(),
+      reorderFavorites: vi.fn(),
+      reordenarFavoritos: vi.fn(),
+      toggleEditing: vi.fn(),
+      alternarEdicion: vi.fn(),
       atencion: signal([]),
       resumenOperativo: signal(null),
       esModoCalendario: signal(false),
@@ -49,19 +75,34 @@ describe('DashboardPage', () => {
       variacionVentasEsNegativa: signal(false),
       variacionPedidosEsNegativa: signal(false),
       variacionTicketEsNegativa: signal(false),
+      ultimoRefresco: signal(new Date()),
+      cargando: signal(false),
       insumosPorVencer: signal([]),
       lecturaCanales: signal([]),
-      
+      platoSeleccionado: signal(null),
+      mozos: signal([]),
+      insightMozos: _insightMozos,
+      analisisMozos: _insightMozos,
+      recordatoriosAdicionales: signal([]),
+      toastMensaje: signal(null),
       cargarDatos: vi.fn(),
       setPeriodo: vi.fn(),
       setFechaDesde: vi.fn(),
       setFechaHasta: vi.fn(),
+      setViewMode: vi.fn(),
+      establecerModoVista: vi.fn(),
+      abrirDetallePlato: vi.fn(),
+      cerrarDetallePlato: vi.fn(),
+      aplicarDescuentoDirecto: vi.fn(),
+      agendarRecordatorioDirecto: vi.fn()
     };
 
     await TestBed.configureTestingModule({
       imports: [DashboardPage],
       providers: [
-        { provide: DashboardStateService, useValue: mockState }
+        { provide: DashboardStateService, useValue: mockState },
+        { provide: Router, useValue: { navigate: vi.fn(), url: '/' } },
+        { provide: ActivatedRoute, useValue: { fragment: of(null), queryParams: of({}) } }
       ]
     }).compileComponents();
 
@@ -95,8 +136,8 @@ describe('DashboardPage', () => {
     });
     fixture.detectChanges();
 
-    const kpiGrid = fixture.debugElement.query(By.css('.kpi-grid'));
-    expect(kpiGrid).toBeTruthy();
+    const gridContainer = fixture.debugElement.query(By.css('.dashboard-grid-container'));
+    expect(gridContainer).toBeTruthy();
     
     const values = fixture.debugElement.queryAll(By.css('.kpi-value'));
     expect(values.length).toBeGreaterThan(0);
@@ -113,16 +154,10 @@ describe('DashboardPage', () => {
     expect(mockState.setPeriodo).toHaveBeenCalledWith('30d');
   });
 
-  it('should open custom filter when clicking Personalizado', async () => {
-    vi.useFakeTimers();
+  it('should set period to custom when modifying date inputs', () => {
     fixture.detectChanges();
-    
-    const customBtn = fixture.debugElement.query(By.css('.custom-period'));
-    customBtn.triggerEventHandler('click', null);
-    
-    vi.runAllTimers();
+    component.establecerFechaDesde('2026-06-01');
     expect(mockState.setPeriodo).toHaveBeenCalledWith('custom');
-    vi.useRealTimers();
   });
 
   it('should render monthly chart when not in calendar mode', () => {

@@ -1,8 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
-import { BreakpointObserver } from '@angular/cdk/layout';
-import { ScrollingModule } from '@angular/cdk/scrolling';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { Insumo } from '../../../../../core/models/domain/insumo';
 import { ArsCurrencyPipe } from '../../../../../shared/pipes/ars-currency.pipe';
 
@@ -23,21 +19,13 @@ interface StockRow {
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-insumo-list',
-  imports: [ ScrollingModule, ArsCurrencyPipe],
+  imports: [ArsCurrencyPipe],
   templateUrl: './insumo-list.html',
   styleUrl: './insumo-list.css',
 })
 export class InsumoList {
   productos = input.required<Insumo[]>();
   editar = output<number>();
-
-  private readonly breakpointObserver = inject(BreakpointObserver);
-  readonly itemSize = toSignal(
-    this.breakpointObserver.observe('(max-width: 820px)').pipe(
-      map((result) => result.matches ? 180 : 56),
-    ),
-    { initialValue: 56 },
-  );
 
   private readonly dateFormatter = new Intl.DateTimeFormat('es-AR', {
     day: '2-digit',

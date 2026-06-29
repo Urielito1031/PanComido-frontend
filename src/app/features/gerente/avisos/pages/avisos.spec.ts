@@ -106,7 +106,7 @@ describe('AvisosPage', () => {
 
   it('debería abrir vencimiento modal si es tipo vencimiento', () => {
     component.abrirAviso(mockAvisoVencimiento);
-    expect(component.vencimientoSeleccionado).toEqual(mockAvisoVencimiento);
+    expect(component.vencimientoSeleccionado()).toEqual(mockAvisoVencimiento);
   });
 
   it('debería navegar a aviso-vencimientos si es tipo vencimiento agrupado u otro (usando abrirVencimientos)', () => {
@@ -117,20 +117,20 @@ describe('AvisosPage', () => {
 
   it('debería abrir el pedido offcanvas al abrirPedidoStock y seleccionar ingrediente', () => {
     component.abrirPedidoStock(mockAvisoStock);
-    expect(component.stockAvisoSeleccionado).toEqual(mockAvisoStock);
-    expect(component.isPedidoOffcanvasOpen).toBe(true);
+    expect(component.stockAvisoSeleccionado()).toEqual(mockAvisoStock);
+    expect(component.isPedidoOffcanvasOpen()).toBe(true);
     expect(pedidoStateMock.seleccionarIngredienteParaPedido).toHaveBeenCalled();
   });
 
   it('debería cerrar pedido stock', () => {
-    component.isPedidoOffcanvasOpen = true;
+    component.isPedidoOffcanvasOpen.set(true);
     component.cerrarPedidoStock();
-    expect(component.isPedidoOffcanvasOpen).toBe(false);
+    expect(component.isPedidoOffcanvasOpen()).toBe(false);
     expect(pedidoStateMock.limpiarSeleccion).toHaveBeenCalled();
   });
 
   it('debería confirmar pedido de stock, marcar revisado y navegar', () => {
-    component.stockAvisoSeleccionado = mockAvisoStock;
+    component.stockAvisoSeleccionado.set(mockAvisoStock);
     component.confirmarPedidoStock();
     
     expect(pedidoStateMock.crearPedidoPendiente).toHaveBeenCalled();

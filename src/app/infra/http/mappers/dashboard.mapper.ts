@@ -9,7 +9,7 @@ export function mapPlatoRendimientoDtoToDomain(dto: PlatoRendimientoDto): Dashbo
   
   return {
     nombre: nombre,
-    valor: parseInt(String(unidades).replace(/\\D/g, '')) || 0,
+    valor: parseInt(String(unidades).replace(/\D/g, '')) || 0,
     detalle: facturacion
   };
 }
@@ -21,10 +21,17 @@ export function mapVencimientoDtoToDomain(dto: DashboardVencimientoDto): Dashboa
     criticidadValida = criticidadCruda as 'alta' | 'media';
   }
 
+  const cantidadCruda = dto.cantidad || dto.Cantidad || '';
+  let cantidadFinal = cantidadCruda;
+  const numMatch = cantidadCruda.match(/^[0-9]+(\.[0-9]+)?/);
+  if (numMatch && parseFloat(numMatch[0]) === 0) {
+    cantidadFinal = 'Agotado';
+  }
+
   return {
     nombre: dto.nombre || dto.Nombre || '',
     fecha: dto.fecha || dto.Fecha || '',
-    cantidad: dto.cantidad || dto.Cantidad || '',
+    cantidad: cantidadFinal,
     criticidad: criticidadValida,
     relativo: dto.relativo || dto.Relativo || ''
   };
