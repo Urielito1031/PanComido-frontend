@@ -74,6 +74,7 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
   readonly mostrarGloboInfo = signal<boolean>(true);
   readonly mostrarNotificaciones = signal<boolean>(false);
   readonly hoverNotificaciones = signal<boolean>(false);
+  readonly tabsMovilExpandido = signal<boolean>(false);
 
   @HostListener('window:resize')
   alRedimensionar(): void {
@@ -197,11 +198,46 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
   @HostListener('document:click')
   cerrarDropdowns(): void {
     this.mostrarNotificaciones.set(false);
+    this.tabsMovilExpandido.set(false);
   }
 
   alternarNotificaciones(event: Event): void {
     event.stopPropagation();
     this.mostrarNotificaciones.update(v => !v);
+  }
+
+  toggleTabsMovil(event: Event): void {
+    event.stopPropagation();
+    this.tabsMovilExpandido.update(v => !v);
+  }
+
+  seleccionarTabMovil(tab: any): void {
+    this.state.establecerModoVista(tab);
+    this.tabsMovilExpandido.set(false);
+  }
+
+  obtenerIconoVistaActiva(): string {
+    const modo = this.state.modoVista();
+    switch (modo) {
+      case 'favoritos': return 'star';
+      case 'reportes': return 'dashboard';
+      case 'finanzas': return 'payments';
+      case 'personal': return 'groups';
+      case 'operativo': return 'settings';
+      default: return 'dashboard';
+    }
+  }
+
+  obtenerLabelVistaActiva(): string {
+    const modo = this.state.modoVista();
+    switch (modo) {
+      case 'favoritos': return 'Favoritos';
+      case 'reportes': return 'Todos los Reportes';
+      case 'finanzas': return 'Finanzas';
+      case 'personal': return 'Personal';
+      case 'operativo': return 'Operativo';
+      default: return 'Todos los Reportes';
+    }
   }
 
   alSoltarEnLienzoCard(event: DragEvent, targetIndex: number): void {

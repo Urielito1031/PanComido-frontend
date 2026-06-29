@@ -56,7 +56,6 @@ h1 {
   width: 100%;
   flex-wrap: wrap;
   gap: 1rem;
-  min-width: 0;
 }
 
 .dashboard-toolbar-actions-group {
@@ -1733,6 +1732,76 @@ h1 {
     width: 100%;
   }
 
+  .view-tabs {
+    position: relative;
+    width: 100%;
+  }
+  
+  .view-tabs-mobile-trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    width: 100%;
+    padding: 0.65rem 1rem;
+    border-radius: 12px;
+    background: #ffffff;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    color: #0f172a;
+    font-weight: 750;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+    transition: all 0.2s ease;
+  }
+  
+  .view-tabs-mobile-trigger .chevron-icon {
+    margin-left: auto;
+    transition: transform 0.22s ease;
+  }
+  
+  .view-tabs.mobile-expanded .view-tabs-mobile-trigger .chevron-icon {
+    transform: rotate(180deg);
+  }
+  
+  .view-tabs-list-wrapper {
+    display: none;
+    flex-direction: column;
+    gap: 0.25rem;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(8px);
+    border-radius: 12px;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
+    padding: 0.5rem;
+    z-index: 1050;
+    animation: dropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .view-tabs.mobile-expanded .view-tabs-list-wrapper {
+    display: flex;
+  }
+  
+  .view-tabs-list-wrapper button {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 0.65rem 0.85rem;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #475569;
+    transition: all 0.15s ease;
+  }
+  
+  .view-tabs-list-wrapper button.active {
+    background: rgba(22, 145, 172, 0.08);
+    color: #1691ac;
+    font-weight: 800;
+    box-shadow: none;
+  }
+
   .period-filter,
   .date-filter {
     width: 100%;
@@ -1870,25 +1939,22 @@ h1 {
 }
 
 /* --- VIEW TABS --- */
+/* --- VIEW TABS --- */
 .view-tabs {
+  position: relative;
+  display: flex;
+}
+.view-tabs-mobile-trigger {
+  display: none;
+}
+.view-tabs-list-wrapper {
   display: flex;
   gap: 0.5rem;
   background: rgba(15, 23, 42, 0.04);
   padding: 0.35rem;
   border-radius: 12px;
-  overflow-x: auto;
-  white-space: nowrap;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none; /* Firefox */
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
 }
-.view-tabs::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
-}
-.view-tabs button {
+.view-tabs-list-wrapper button {
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -1903,12 +1969,12 @@ h1 {
   flex-shrink: 0;
   white-space: nowrap;
 }
-.view-tabs button.active {
+.view-tabs-list-wrapper button.active {
   background: #ffffff;
   color: #0f172a;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
-.view-tabs button .material-symbols-outlined {
+.view-tabs-list-wrapper button .material-symbols-outlined {
   font-size: 1.1rem;
 }
 

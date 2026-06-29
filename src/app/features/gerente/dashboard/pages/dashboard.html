@@ -62,22 +62,30 @@
 
   <section class="dashboard-toolbar" aria-label="Filtros del dashboard">
     <div class="dashboard-toolbar-row-top">
-      <div class="view-tabs" role="tablist">
-        <button role="tab" [class.active]="state.modoVista() === 'favoritos'" (click)="state.establecerModoVista('favoritos')">
-          <span class="material-symbols-outlined" aria-hidden="true">star</span> Favoritos
+      <div class="view-tabs" [class.mobile-expanded]="tabsMovilExpandido()" role="tablist">
+        <button role="tab" class="view-tabs-mobile-trigger" (click)="toggleTabsMovil($event)">
+          <span class="material-symbols-outlined" aria-hidden="true">{{ obtenerIconoVistaActiva() }}</span>
+          <span class="trigger-label">{{ obtenerLabelVistaActiva() }}</span>
+          <span class="material-symbols-outlined chevron-icon">keyboard_arrow_down</span>
         </button>
-        <button role="tab" [class.active]="state.modoVista() === 'reportes'" (click)="state.establecerModoVista('reportes')">
-          <span class="material-symbols-outlined" aria-hidden="true">dashboard</span> Todos los Reportes
-        </button>
-        <button role="tab" [class.active]="state.modoVista() === 'finanzas'" (click)="state.establecerModoVista('finanzas')">
-          <span class="material-symbols-outlined" aria-hidden="true">payments</span> Finanzas
-        </button>
-        <button role="tab" [class.active]="state.modoVista() === 'personal'" (click)="state.establecerModoVista('personal')">
-          <span class="material-symbols-outlined" aria-hidden="true">groups</span> Personal
-        </button>
-        <button role="tab" [class.active]="state.modoVista() === 'operativo'" (click)="state.establecerModoVista('operativo')">
-          <span class="material-symbols-outlined" aria-hidden="true">settings</span> Operativo
-        </button>
+
+        <div class="view-tabs-list-wrapper">
+          <button role="tab" [class.active]="state.modoVista() === 'favoritos'" (click)="seleccionarTabMovil('favoritos')">
+            <span class="material-symbols-outlined" aria-hidden="true">star</span> Favoritos
+          </button>
+          <button role="tab" [class.active]="state.modoVista() === 'reportes'" (click)="seleccionarTabMovil('reportes')">
+            <span class="material-symbols-outlined" aria-hidden="true">dashboard</span> Todos los Reportes
+          </button>
+          <button role="tab" [class.active]="state.modoVista() === 'finanzas'" (click)="seleccionarTabMovil('finanzas')">
+            <span class="material-symbols-outlined" aria-hidden="true">payments</span> Finanzas
+          </button>
+          <button role="tab" [class.active]="state.modoVista() === 'personal'" (click)="seleccionarTabMovil('personal')">
+            <span class="material-symbols-outlined" aria-hidden="true">groups</span> Personal
+          </button>
+          <button role="tab" [class.active]="state.modoVista() === 'operativo'" (click)="seleccionarTabMovil('operativo')">
+            <span class="material-symbols-outlined" aria-hidden="true">settings</span> Operativo
+          </button>
+        </div>
       </div>
       <div class="dashboard-toolbar-actions-group">
         @if (state.modoVista() === 'favoritos') {
