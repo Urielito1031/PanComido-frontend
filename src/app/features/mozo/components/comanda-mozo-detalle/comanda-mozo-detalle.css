@@ -150,6 +150,37 @@
   color: #64748b;
 }
 
+.modal-entregados {
+  margin-top: 8px;
+  border-top: 1px solid #cbd5e1;
+  padding-top: 8px;
+}
+
+.modal-entregados-summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #64748b;
+  padding: 4px 0;
+  user-select: none;
+}
+
+.modal-entregados-summary::-webkit-details-marker { display: none; }
+
+.modal-chevron {
+  margin-left: auto;
+  transition: transform 0.2s;
+  font-size: 1.1rem;
+}
+
+.modal-entregados[open] .modal-chevron {
+  transform: rotate(180deg);
+}
+
 /* ── Footer Info ── */
 .modal-footer-info {
   padding: 16px;

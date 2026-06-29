@@ -42,9 +42,9 @@ export class ConfiguracionState {
   readonly error = this.#error.asReadonly();
   readonly exito = this.#exito.asReadonly();
 
-  cargarMetodosPago(): void {
+  cargarMetodosPago(restauranteId?: number): void {
     if (this.#metodosPago().length > 0) return;
-    this.api.obtenerMetodosPago()
+    this.api.obtenerMetodosPago(restauranteId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (metodos) => this.#metodosPago.set(metodos),

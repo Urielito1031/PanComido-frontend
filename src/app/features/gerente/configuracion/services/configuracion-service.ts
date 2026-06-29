@@ -33,8 +33,11 @@ export class ConfiguracionService {
       formData
     );
   }
-  obtenerMetodosPago():Observable<MetodoPago[]>{
-    return this.api.get<MetodoPago[]>(`${this.endpoint}/metodos-pago`);
+  obtenerMetodosPago(restauranteId?: number):Observable<MetodoPago[]>{
+    const url = restauranteId
+      ? `${this.endpoint}/metodos-pago/${restauranteId}/comensal`
+      : `${this.endpoint}/metodos-pago`;
+    return this.api.get<MetodoPago[]>(url);
   }
   actualizarMetodosPago(metodos: MetodoPago[]): Observable<void>{
     return this.api.put<void>(`${this.endpoint}/habilitar-metodos-pago`,

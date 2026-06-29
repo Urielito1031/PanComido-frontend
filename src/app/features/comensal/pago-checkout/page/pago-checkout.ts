@@ -96,7 +96,7 @@ export class PagoCheckout implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.configuracionState.cargarMetodosPago();
+    this.configuracionState.cargarMetodosPago(this.comandaState.restauranteId() ?? undefined);
     if (!this.estado()) {
       this.comandaState.consultarEstado();
     }

@@ -45,8 +45,7 @@
         @for (comanda of state.comandasEnEspera(); track comanda.id) {
           <app-comanda-mozo-card
             [comanda]="comanda"
-            (ver)="abrirDetalle($event)"
-            >
+            (ver)="abrirDetalle($event)">
           </app-comanda-mozo-card>
         }
       </div>

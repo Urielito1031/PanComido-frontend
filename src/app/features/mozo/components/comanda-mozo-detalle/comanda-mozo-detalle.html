@@ -22,15 +22,11 @@
       }
 
       <ul class="items-list">
-        @for (item of itemsOrdenados(); track item.id; let last = $last) {
-        <li class="item-row" [class.entregado]="item.entregado" [class.seleccionado]="isSelected(item.id)"
-          [class.clickable]="!item.entregado" [class.no-border]="last" (click)="!item.entregado && toggleItem(item.id)">
-
-          @if (!item.entregado) {
+        @for (item of itemsNoEntregados(); track item.id; let last = $last) {
+        <li class="item-row clickable" [class.seleccionado]="isSelected(item.id)"
+          [class.no-border]="last" (click)="toggleItem(item.id)">
           <input type="checkbox" class="item-checkbox" [checked]="isSelected(item.id)"
             (click)="$event.stopPropagation()" (change)="toggleItem(item.id)" />
-          }
-
           <div class="item-content">
             <div class="item-main">
               <span class="item-cantidad">{{ item.cantidad }}x</span>
@@ -46,6 +42,28 @@
         </li>
         }
       </ul>
+
+      @if (itemsEntregados().length > 0) {
+      <details class="modal-entregados">
+        <summary class="modal-entregados-summary">
+          <span class="material-symbols-outlined">check_circle</span>
+          Entregados ({{ itemsEntregados().length }})
+          <span class="material-symbols-outlined modal-chevron">expand_more</span>
+        </summary>
+        <ul class="items-list">
+          @for (item of itemsEntregados(); track item.id) {
+          <li class="item-row entregado">
+            <div class="item-content">
+              <div class="item-main">
+                <span class="item-cantidad">{{ item.cantidad }}x</span>
+                <span class="item-nombre">{{ item.articulo.nombre }}</span>
+              </div>
+            </div>
+          </li>
+          }
+        </ul>
+      </details>
+      }
     </div>
 
     <div class="modal-footer-info">

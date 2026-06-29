@@ -119,3 +119,34 @@
 .item-row.entregado .item-cantidad {
   text-decoration: line-through;
 }
+
+.card-entregados {
+  margin-top: 8px;
+  border-top: 1px solid #cbd5e1;
+  padding-top: 8px;
+}
+
+.card-entregados-summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #64748b;
+  padding: 4px 0;
+  user-select: none;
+}
+
+.card-entregados-summary::-webkit-details-marker { display: none; }
+
+.card-chevron {
+  margin-left: auto;
+  transition: transform 0.2s;
+  font-size: 1.1rem;
+}
+
+.card-entregados[open] .card-chevron {
+  transform: rotate(180deg);
+}

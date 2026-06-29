@@ -23,13 +23,13 @@ export class ComandaMozoCard {
     return map[this.comanda().estado] ?? '';
   });
 
-  readonly cantidadItems = computed(() => this.comanda().items.length);
+  readonly itemsPendientes = computed(() =>
+    this.comanda().items.filter(i => !i.entregado)
+  );
 
-  readonly itemsVisibles = computed(() => {
-    return [...this.comanda().items]
-      .sort((a, b) => Number(a.entregado) - Number(b.entregado))
-      .slice(0, 3);
-  });
+  readonly itemsEntregados = computed(() =>
+    this.comanda().items.filter(i => i.entregado)
+  );
 
   onVer(): void {
     this.ver.emit(this.comanda().id);
