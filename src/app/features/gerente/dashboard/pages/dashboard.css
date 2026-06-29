@@ -1762,7 +1762,7 @@ h1 {
     transform: rotate(180deg);
   }
   
-  .view-tabs-list-wrapper {
+  .view-tabs .view-tabs-list-wrapper {
     display: none;
     flex-direction: column;
     gap: 0.25rem;
@@ -1784,7 +1784,7 @@ h1 {
     display: flex;
   }
   
-  .view-tabs-list-wrapper button {
+  .view-tabs .view-tabs-list-wrapper button {
     width: 100%;
     justify-content: flex-start;
     padding: 0.65rem 0.85rem;
@@ -1795,7 +1795,7 @@ h1 {
     transition: all 0.15s ease;
   }
   
-  .view-tabs-list-wrapper button.active {
+  .view-tabs .view-tabs-list-wrapper button.active {
     background: rgba(22, 145, 172, 0.08);
     color: #1691ac;
     font-weight: 800;
