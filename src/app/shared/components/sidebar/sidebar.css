@@ -72,15 +72,20 @@
 }
 
 .logo-full {
-  height: 55px; /* Reduced from 80px so it doesn't take up too much vertical space */
+  height: 70px;
   width: auto;
   object-fit: contain;
 }
 
 .logo-icon {
-  height: 60px;
-  width: 60px;
+  height: 72px;
+  width: 72px;
   object-fit: contain;
+}
+
+.sidebar.cocina .logo-full,
+.sidebar.cocina .logo-icon {
+  filter: brightness(0) saturate(100%) invert(56%) sepia(100%) saturate(900%) hue-rotate(0deg) brightness(108%);
 }
 
 /* ===== NAVEGACIÓN ===== */

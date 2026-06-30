@@ -52,6 +52,15 @@ export class LlamadoState {
     this.#marcarNuevo(nuevo.id);
   });
 
+  readonly #resueltosMesaEffect = effect(() => {
+    const payload = this.#hub.llamadosResueltosAutomaticamente();
+    if (!payload) return;
+
+    this.#_llamados.update((lista) =>
+      lista.filter((l) => !payload.llamadoIds.includes(l.id))
+    );
+  });
+
   cargar(mozoId: number, restauranteId: number): void {
     this.#mozoId = mozoId;
     this.#restauranteId = restauranteId;

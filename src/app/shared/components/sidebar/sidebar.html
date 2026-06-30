@@ -1,4 +1,4 @@
-<aside class="sidebar" [class.collapsed]="isCollapsed() && !isHovered()"
+<aside class="sidebar" [class.collapsed]="isCollapsed() && !isHovered()" [class.cocina]="currentRole() === 'Cocina'"
  (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()">
   <!-- Header con Logo -->
   <div class="sidebar-header">

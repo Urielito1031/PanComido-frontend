@@ -9,12 +9,23 @@
   display: flex;
   gap: 1.5rem;
   align-items: center;
+  flex-wrap: nowrap;
 }
 
 .header-info .info {
-  font-size: 0.9rem;
+  font-size: 1.2rem;
   color: #555;
   font-weight: 500;
+  white-space: nowrap;
+}
+
+@media (max-width: 400px) {
+  .header-info {
+    gap: 0.6rem;
+  }
+  .header-info .info {
+    font-size: 1rem;
+  }
 }
 
 .plano-fondo {
