@@ -535,66 +535,64 @@
     </button>
   </footer>
 
-  @if (state.modoVista() === 'reportes') {
-    <div class="floating-sections-container">
-      @if (mostrarGloboInfo() && !menuFlotanteAbierto()) {
-        <div class="navigation-tooltip-bubble">
-          <span>Navega rápido entre secciones desde aquí</span>
-          <button type="button" class="tooltip-close-btn" (click)="cerrarGloboInfo($event)" title="Cerrar aviso">
-            <span class="material-symbols-outlined">close</span>
-          </button>
-          <div class="tooltip-arrow"></div>
-        </div>
-      }
-
-      <div class="floating-menu-card" [class.open]="menuFlotanteAbierto()">
-        <div class="floating-menu-header">
-          <strong>Navegar Secciones</strong>
-        </div>
-        <div class="floating-menu-body">
-          <button type="button" class="floating-menu-item" (click)="desplazarASeccion('kpi-ventas')">
-            <span class="material-symbols-outlined">payments</span>
-            <span>Resumen Financiero</span>
-          </button>
-          <button type="button" class="floating-menu-item" (click)="desplazarASeccion('ventas-calendario')">
-            <span class="material-symbols-outlined">calendar_month</span>
-            <span>Tendencia de Ventas</span>
-          </button>
-          <button type="button" class="floating-menu-item" (click)="desplazarASeccion('platos-mas-vendidos')">
-            <span class="material-symbols-outlined">restaurant_menu</span>
-            <span>Platos y Menú</span>
-          </button>
-          <button type="button" class="floating-menu-item" (click)="desplazarASeccion('insumos-vencer')">
-            <span class="material-symbols-outlined">warning</span>
-            <span>Inventario y Mermas</span>
-          </button>
-          <button type="button" class="floating-menu-item" (click)="desplazarASeccion('mozos')">
-            <span class="material-symbols-outlined">groups</span>
-            <span>Personal de Salón</span>
-          </button>
-        </div>
-      </div>
-
-      <div class="floating-actions-row">
-        <button 
-          type="button" 
-          class="floating-back-to-top" 
-          (click)="desplazarAlPrincipio()"
-          aria-label="Volver arriba"
-          title="Volver arriba">
-          <span class="material-symbols-outlined">arrow_upward</span>
+  <div class="floating-sections-container">
+    @if (mostrarGloboInfo() && !menuFlotanteAbierto()) {
+      <div class="navigation-tooltip-bubble">
+        <span>Navega rápido entre secciones desde aquí</span>
+        <button type="button" class="tooltip-close-btn" (click)="cerrarGloboInfo($event)" title="Cerrar aviso">
+          <span class="material-symbols-outlined">close</span>
         </button>
-        <button 
-          type="button" 
-          class="floating-menu-trigger" 
-          [class.active]="menuFlotanteAbierto()"
-          (click)="menuFlotanteAbierto.set(!menuFlotanteAbierto()); mostrarGloboInfo.set(false)"
-          title="Navegar secciones del dashboard"
-          [attr.aria-expanded]="menuFlotanteAbierto()"
-          aria-label="Navegar secciones del dashboard">
-          <span class="material-symbols-outlined">{{ menuFlotanteAbierto() ? 'close' : 'explore' }}</span>
+        <div class="tooltip-arrow"></div>
+      </div>
+    }
+
+    <div class="floating-menu-card" [class.open]="menuFlotanteAbierto()">
+      <div class="floating-menu-header">
+        <strong>Navegar Secciones</strong>
+      </div>
+      <div class="floating-menu-body">
+        <button type="button" class="floating-menu-item" (click)="desplazarASeccion('kpi-ventas')">
+          <span class="material-symbols-outlined">payments</span>
+          <span>Resumen Financiero</span>
+        </button>
+        <button type="button" class="floating-menu-item" (click)="desplazarASeccion('ventas-calendario')">
+          <span class="material-symbols-outlined">calendar_month</span>
+          <span>Tendencia de Ventas</span>
+        </button>
+        <button type="button" class="floating-menu-item" (click)="desplazarASeccion('platos-mas-vendidos')">
+          <span class="material-symbols-outlined">restaurant_menu</span>
+          <span>Platos y Menú</span>
+        </button>
+        <button type="button" class="floating-menu-item" (click)="desplazarASeccion('insumos-vencer')">
+          <span class="material-symbols-outlined">warning</span>
+          <span>Inventario y Mermas</span>
+        </button>
+        <button type="button" class="floating-menu-item" (click)="desplazarASeccion('mozos')">
+          <span class="material-symbols-outlined">groups</span>
+          <span>Personal de Salón</span>
         </button>
       </div>
     </div>
-  }
+
+    <div class="floating-actions-row">
+      <button 
+        type="button" 
+        class="floating-back-to-top" 
+        (click)="desplazarAlPrincipio()"
+        aria-label="Volver arriba"
+        title="Volver arriba">
+        <span class="material-symbols-outlined">arrow_upward</span>
+      </button>
+      <button 
+        type="button" 
+        class="floating-menu-trigger" 
+        [class.active]="menuFlotanteAbierto()"
+        (click)="menuFlotanteAbierto.set(!menuFlotanteAbierto()); mostrarGloboInfo.set(false)"
+        title="Navegar secciones del dashboard"
+        [attr.aria-expanded]="menuFlotanteAbierto()"
+        aria-label="Navegar secciones del dashboard">
+        <span class="material-symbols-outlined">{{ menuFlotanteAbierto() ? 'close' : 'explore' }}</span>
+      </button>
+    </div>
+  </div>
 </main>

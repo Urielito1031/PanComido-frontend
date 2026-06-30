@@ -9,7 +9,7 @@ import { CustomLocale } from 'flatpickr/dist/types/locale';
 
 import { DashboardStateService, DISEÑO_POR_DEFECTO } from '../services/dashboard.state';
 import { DashboardNavigationService } from '../services/dashboard-navigation.service';
-import { DashboardDestino, DashboardPeriodo, WidgetLayout, FavoriteWidgetConfig, DashboardAccionItem } from '../../../../core/models/domain/dashboard';
+import { DashboardDestino, DashboardPeriodo, WidgetLayout, FavoriteWidgetConfig, DashboardAccionItem, DashboardViewMode } from '../../../../core/models/domain/dashboard';
 import { ArsCurrencyPipe } from '../../../../shared/pipes/ars-currency.pipe';
 
 // Import modular components
@@ -424,8 +424,7 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
 
     this.fragmentSub = this.route.fragment.subscribe(fragment => {
       if (fragment) {
-        this.state.establecerModoVista('reportes');
-        setTimeout(() => this.desplazarASeccion(fragment), 150);
+        this.desplazarASeccion(fragment);
       }
     });
   }
@@ -528,7 +527,36 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
   }
 
   desplazarASeccion(widgetId: string): void {
-    this.navigation.desplazarAWidget(widgetId);
+    const validModes: Record<string, DashboardViewMode> = {
+      resumen: 'resumen',
+      finanzas: 'finanzas',
+      reportes: 'reportes',
+      operativo: 'operativo',
+      personal: 'personal',
+      favoritos: 'favoritos'
+    };
+
+    if (validModes[widgetId]) {
+      this.state.establecerModoVista(validModes[widgetId]);
+    } else {
+      const widgetTabMap: Record<string, DashboardViewMode> = {
+        'kpi-ventas': 'resumen',
+        'kpi-pedidos': 'resumen',
+        'kpi-ticket': 'resumen',
+        'kpi-promedio': 'resumen',
+        'ventas-calendario': 'finanzas',
+        'platos-mas-vendidos': 'reportes',
+        'platos-menos-vendidos': 'reportes',
+        'insumos-vencer': 'operativo',
+        'radar-alergias': 'operativo',
+        'mozos': 'personal'
+      };
+      const targetMode = widgetTabMap[widgetId] || 'reportes';
+      this.state.establecerModoVista(targetMode);
+      setTimeout(() => {
+        this.navigation.desplazarAWidget(widgetId);
+      }, 150);
+    }
     this.menuFlotanteAbierto.set(false);
     this.mostrarGloboInfo.set(false);
   }

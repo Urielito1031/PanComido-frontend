@@ -13,7 +13,7 @@ export class DashboardNavigationService {
 
   irA(destino: DashboardDestino, extraParams?: Record<string, unknown>): void {
     if (destino === 'vencimientos') {
-      this.state.establecerModoVista('reportes');
+      this.state.establecerModoVista('operativo');
       setTimeout(() => this.desplazarAWidget('insumos-vencer', 'start'), 50);
       return;
     }
