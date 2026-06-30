@@ -658,14 +658,22 @@ export class DashboardStateService implements OnDestroy {
     return this._configuracionFavoritos().some(w => w.id === panelId);
   }
 
+  cargandoAnalisisPlato = signal<boolean>(false);
+  nombrePlatoEnAnalisis = signal<string>('');
+
   abrirDetallePlato(plato: DashboardRankingItem, index: number): void {
+    this.cargandoAnalisisPlato.set(true);
+    this.nombrePlatoEnAnalisis.set(plato.nombre);
+    this._platoSeleccionado.set(null);
     this.api.getAnalisisPlato(plato.nombre).pipe(take(1)).subscribe({
       next: (detalle) => {
         this._platoSeleccionado.set(detalle);
+        this.cargandoAnalisisPlato.set(false);
       },
       error: (err) => {
         console.error('Error al obtener el análisis del plato', err);
         this.mostrarToast('Error al cargar el diagnóstico de plato', 'info');
+        this.cargandoAnalisisPlato.set(false);
       }
     });
   }
@@ -747,6 +755,7 @@ export class DashboardStateService implements OnDestroy {
 
   cerrarDetallePlato(): void {
     this._platoSeleccionado.set(null);
+    this.cargandoAnalisisPlato.set(false);
   }
 
   resolverRecordatorio(id: number): void {

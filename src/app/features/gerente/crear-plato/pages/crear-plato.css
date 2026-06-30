@@ -87,6 +87,11 @@
   position: relative;
 }
 
+.image-preview-card.image-error {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.15) !important;
+}
+
 .dish-image-large {
   border-radius: 9px;
   height: 184px;

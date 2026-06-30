@@ -424,3 +424,50 @@
   font-size: 0.85rem;
   font-weight: 600;
 }
+
+/* === CONTAINER QUERIES FOR COMPACT LIST LAYOUT === */
+.dish-compact-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.dish-price-mobile-only {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  align-items: center;
+}
+
+.dish-pricing-columns {
+  display: none;
+}
+
+.dish-compact-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-top: 0.5rem;
+}
+
+@container (min-width: 520px) {
+  .dish-compact-content {
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+  }
+  .dish-compact-actions {
+    margin-top: 0;
+    margin-left: auto;
+  }
+}
+
+@container (min-width: 680px) {
+  .dish-pricing-columns {
+    display: flex;
+  }
+  .dish-price-mobile-only {
+    display: none;
+  }
+}

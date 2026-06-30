@@ -314,10 +314,24 @@
 
       @if (state.configuracionFavoritos().length === 0 && !state.estaEditando()) {
         <div class="empty-favorites-state" style="grid-column: 1 / -1; width: 100%;">
-          <span class="material-symbols-outlined" style="position: static !important; display: inline-block !important; margin: 0 0 0.75rem 0 !important; transform: none !important; font-size: 3rem !important; color: #cbd5e1 !important; line-height: 1 !important; height: auto !important; width: auto !important;">star_border</span>
-          <h2>Aún no tienes paneles favoritos</h2>
-          <p>Pulsa en <strong>"Personalizar"</strong> para desplegar la barra lateral y empezar a armar tu vista personalizada de favoritos.</p>
-          <button class="primary-btn" style="width: auto; padding: 0.5rem 1.5rem;" (click)="state.alternarEdicion(true)">
+          <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-bottom: 1rem;">
+            <circle cx="60" cy="60" r="50" fill="url(#premiumGrad)" opacity="0.15"/>
+            <path d="M60 25L71.5 48.5L97.5 52L78.5 70L83 96L60 83.5L37 96L41.5 70L22.5 52L48.5 48.5L60 25Z" fill="url(#goldGrad)" filter="drop-shadow(0px 8px 16px rgba(245, 158, 11, 0.3))"/>
+            <defs>
+              <linearGradient id="premiumGrad" x1="10" y1="10" x2="110" y2="110" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#1691ac"/>
+                <stop offset="1" stop-color="#22c5d7"/>
+              </linearGradient>
+              <linearGradient id="goldGrad" x1="22.5" y1="25" x2="97.5" y2="96" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#fb8c00"/>
+                <stop offset="1" stop-color="#f59e0b"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <h2>Crea tu espacio de trabajo favorito</h2>
+          <p>Organiza tus KPIs, reportes y gráficos prioritarios en un solo lugar para una gestión más rápida y personalizada.</p>
+          <button class="primary-btn" style="width: auto; padding: 0.6rem 2rem; border-radius: 20px; box-shadow: 0 4px 14px rgba(22, 145, 172, 0.3);" (click)="state.alternarEdicion(true)">
+            <span class="material-symbols-outlined" style="font-size: 1.1rem; margin-right: 6px; vertical-align: middle;">space_dashboard</span>
             Personalizar Vista
           </button>
         </div>
@@ -329,688 +343,64 @@
   <ng-template #widgetTemplate let-id="id">
     @switch (id) {
       @case ('kpi-ventas') {
-        @if (state.resumenOperativo(); as resumen) {
-          <article class="kpi-card revenue">
-            <div class="kpi-meta">
-              <span style="display: flex; align-items: center; gap: 0.5rem;">
-                Ventas totales
-                <button class="fav-icon-btn" [class.active]="state.esFavorito('kpi-ventas')" (click)="state.toggleFavorito('kpi-ventas'); $event.stopPropagation()">
-                  <span class="material-symbols-outlined">{{ state.esFavorito('kpi-ventas') ? 'star' : 'star_border' }}</span>
-                </button>
-              </span>
-              <strong [class.negative]="state.variacionVentasEsNegativa()">{{ resumen.variacionVentas }}</strong>
-            </div>
-            <div class="kpi-value">{{ resumen.totalVentas }}</div>
-            <small>En el período seleccionado</small>
-          </article>
-        }
+        <app-kpi-card type="ventas"></app-kpi-card>
       }
       @case ('kpi-pedidos') {
-        @if (state.resumenOperativo(); as resumen) {
-          <article class="kpi-card orders">
-            <div class="kpi-meta">
-              <span style="display: flex; align-items: center; gap: 0.5rem;">
-                Pedidos totales
-                <button class="fav-icon-btn" [class.active]="state.esFavorito('kpi-pedidos')" (click)="state.toggleFavorito('kpi-pedidos'); $event.stopPropagation()">
-                  <span class="material-symbols-outlined">{{ state.esFavorito('kpi-pedidos') ? 'star' : 'star_border' }}</span>
-                </button>
-              </span>
-              <strong [class.negative]="state.variacionPedidosEsNegativa()">{{ resumen.variacionPedidos }}</strong>
-            </div>
-            <div class="kpi-value">{{ resumen.totalPedidos }} u.</div>
-            <small>Promedio diario: {{ resumen.promedioDiarioPedidos }} u.</small>
-          </article>
-        }
+        <app-kpi-card type="pedidos"></app-kpi-card>
       }
       @case ('kpi-ticket') {
-        @if (state.resumenOperativo(); as resumen) {
-          <article class="kpi-card success">
-            <div class="kpi-meta">
-              <span style="display: flex; align-items: center; gap: 0.5rem;">
-                Ticket promedio
-                <button class="fav-icon-btn" [class.active]="state.esFavorito('kpi-ticket')" (click)="state.toggleFavorito('kpi-ticket'); $event.stopPropagation()">
-                  <span class="material-symbols-outlined">{{ state.esFavorito('kpi-ticket') ? 'star' : 'star_border' }}</span>
-                </button>
-              </span>
-              <strong [class.negative]="state.variacionTicketEsNegativa()">{{ resumen.ticketPromedio }}</strong>
-            </div>
-            <div class="kpi-value">{{ resumen.ticketPromedio }}</div>
-            <small>Por comanda finalizada</small>
-          </article>
-        }
+        <app-kpi-card type="ticket"></app-kpi-card>
       }
       @case ('kpi-promedio') {
-        <article class="kpi-card info">
-          <div class="kpi-meta">
-            <span style="display: flex; align-items: center; gap: 0.5rem;">
-              Promedio diario
-              <button class="fav-icon-btn" [class.active]="state.esFavorito('kpi-promedio')" (click)="state.toggleFavorito('kpi-promedio'); $event.stopPropagation()">
-                <span class="material-symbols-outlined">{{ state.esFavorito('kpi-promedio') ? 'star' : 'star_border' }}</span>
-              </button>
-            </span>
-          </div>
-          <div class="kpi-value">{{ state.promedioDiarioVentas() | arsCurrency }}</div>
-          <small>Facturación est. por día</small>
-        </article>
+        <app-kpi-card type="promedio"></app-kpi-card>
       }
       @case ('ventas-calendario') {
-        <article class="panel-card monthly-panel">
-          <div class="panel-heading">
-            <div>
-              <h2>{{ state.tituloGrafico() }}</h2>
-              <p>{{ state.subtituloGrafico() }}</p>
-            </div>
-            <div class="panel-actions" (click)="$event.stopPropagation()">
-              <span class="panel-badge revenue-badge">{{ state.resumenOperativo()?.totalVentas }}</span>
-              <button class="favorite-btn" [class.active]="state.esFavorito('ventas-calendario')" (click)="state.toggleFavorito('ventas-calendario')" title="Fijar en favoritos">
-                <span class="material-symbols-outlined">{{ state.esFavorito('ventas-calendario') ? 'star' : 'star_border' }}</span>
-              </button>
-            </div>
+        @defer (on viewport) {
+          <app-ventas-calendario></app-ventas-calendario>
+        } @placeholder {
+          <div class="panel-card" style="height: 380px; display: grid; place-items: center; background: #fff; border: 1px solid rgba(15,23,42,0.06); border-radius: 16px;">
+            <div class="skeleton-pulsing" style="width: 80%; height: 80%; border-radius: 8px;"></div>
           </div>
-
-          @if (state.esModoCalendario()) {
-            <div class="month-heatmap" aria-label="Ventas diarias del mes">
-              <div class="heatmap-weekdays" aria-hidden="true">
-                <span>Lun</span>
-                <span>Mar</span>
-                <span>Mie</span>
-                <span>Jue</span>
-                <span>Vie</span>
-                <span>Sab</span>
-                <span>Dom</span>
-              </div>
-
-              <div class="heatmap-grid">
-                @for (empty of desplazamientoCalendario(); track $index) {
-                  <div class="heatmap-day-empty" aria-hidden="true"></div>
-                }
-                @for (item of state.ventasCalendarioMes(); track item.dia) {
-                  <button
-                    type="button"
-                    class="heatmap-day"
-                    [ngClass]="nivelVentaDia(item.ventas)"
-                    [class.active]="diaSeleccionado()?.dia === item.dia"
-                    [class.best-day]="esMejorDia(item)"
-                    [class.low-day]="esDiaBajo(item)"
-                    [style.--intensity]="intensidadVentaDia(item.ventas)"
-                    [attr.aria-label]="detalleVentaDia(item.fecha, item.ventas)"
-                    (click)="seleccionarDia(item)">
-                    <span>{{ item.dia }}</span>
-                    @if (esMejorDia(item)) {
-                      <small class="day-badge top" title="Día top" aria-label="Día top">
-                        <span>Top</span>
-                      </small>
-                    } @else if (esDiaBajo(item)) {
-                      <small class="day-badge low" title="Día bajo" aria-label="Día bajo">
-                        <span>Bajo</span>
-                      </small>
-                    }
-                    <span class="day-tooltip" role="tooltip">
-                      <span class="tooltip-date">{{ item.fecha }}</span>
-                      <span class="tooltip-value">{{ item.ventas | arsCurrency }}</span>
-                      <span class="tooltip-trend">
-                        {{ variacionContraPromedio(item) > 0 ? '+' : '' }}{{ variacionContraPromedio(item) }}% vs promedio
-                      </span>
-                    </span>
-                  </button>
-                }
-              </div>
-
-              <div class="heatmap-legend" aria-hidden="true">
-                <span>Menos ventas</span>
-                <span class="legend-scale">
-                  <span class="scale-dot level-1"></span>
-                  <span class="scale-dot level-2"></span>
-                  <span class="scale-dot level-3"></span>
-                  <span class="scale-dot level-4"></span>
-                </span>
-                <span>Más ventas</span>
-              </div>
-
-              <div class="heatmap-insights">
-                <div>
-                  <small>Mejor día</small>
-                  <strong>{{ mejorDiaMes()?.fecha }}</strong>
-                  <span>{{ mejorDiaMes()?.ventas | arsCurrency }}</span>
-                </div>
-                <div>
-                  <small>Día más bajo</small>
-                  <strong>{{ peorDiaMes()?.fecha }}</strong>
-                  <span>{{ peorDiaMes()?.ventas | arsCurrency }}</span>
-                </div>
-                <div>
-                  <small>Promedio diario</small>
-                  <strong>{{ promedioDiaMes() | arsCurrency }}</strong>
-                  <span>Base de comparación</span>
-                </div>
-              </div>
-            </div>
-
-            @if (diaSeleccionado(); as dia) {
-              <div class="day-detail-panel">
-                <div class="detail-header">
-                  <span class="detail-date">{{ dia.fecha }}</span>
-                  <button type="button" class="close-detail" (click)="cerrarDetalle()" aria-label="Cerrar detalle">
-                    <span class="material-symbols-outlined" aria-hidden="true">close</span>
-                  </button>
-                </div>
-                <div class="detail-metrics">
-                  <div class="detail-metric">
-                    <small>Facturación</small>
-                    <strong>{{ dia.ventas | arsCurrency }}</strong>
-                  </div>
-                  <div class="detail-metric">
-                    <small>Pedidos est.</small>
-                    <strong>{{ calcularPedidosDia(dia.ventas) }} u.</strong>
-                  </div>
-                  <div class="detail-metric">
-                    <small>Ticket prom.</small>
-                    <strong>{{ calcularTicketPromedioDia(dia.ventas) | arsCurrency }}</strong>
-                  </div>
-                </div>
-              </div>
-            }
-          } @else {
-            <div
-              class="monthly-chart"
-              aria-label="Ventas mensuales"
-              [style.grid-template-columns]="'repeat(' + state.ventasMensuales().length + ', minmax(60px, 1fr))'">
-              @for (item of state.ventasMensuales(); track item.mes) {
-                <div class="month-column">
-                  <div class="bar-track">
-                    <span [style.height.%]="porcentajeVentaMensual(item.ventas)"></span>
-                  </div>
-                  <strong>{{ item.mes }}</strong>
-                  <small>{{ item.ventas | arsCurrency }}</small>
-                </div>
-              }
-            </div>
-          }
-        </article>
+        }
       }
       @case ('lectura-comercial') {
-        @if (state.lecturaComercial().length > 0) {
-          <section class="commercial-reading" aria-label="Lectura comercial" style="width: 100%; margin: 0; display: grid;">
-            @for (lectura of state.lecturaComercial(); track lectura.titulo; let i = $index) {
-              <article class="commercial-reading-card" [class]="lectura.tono">
-                <strong style="display: flex; align-items: center; gap: 0.5rem; justify-content: space-between;">
-                  {{ lectura.titulo }}
-                  <button class="fav-icon-btn" [class.active]="state.esFavorito('lectura-' + i)" (click)="state.toggleFavorito('lectura-' + i); $event.stopPropagation()">
-                    <span class="material-symbols-outlined" style="font-size: 1rem;">{{ state.esFavorito('lectura-' + i) ? 'star' : 'star_border' }}</span>
-                  </button>
-                </strong>
-                <span>{{ lectura.detalle }}</span>
-              </article>
-            }
-          </section>
-        }
+        <app-lectura-comercial></app-lectura-comercial>
       }
       @case ('lectura-0') {
-        @if (state.lecturaComercial().length > 0) {
-          <ng-container *ngTemplateOutlet="singleLecturaTemplate; context: { index: 0 }"></ng-container>
-        }
+        <app-lectura-comercial [index]="0"></app-lectura-comercial>
       }
       @case ('lectura-1') {
-        @if (state.lecturaComercial().length > 1) {
-          <ng-container *ngTemplateOutlet="singleLecturaTemplate; context: { index: 1 }"></ng-container>
-        }
+        <app-lectura-comercial [index]="1"></app-lectura-comercial>
       }
       @case ('lectura-2') {
-        @if (state.lecturaComercial().length > 2) {
-          <ng-container *ngTemplateOutlet="singleLecturaTemplate; context: { index: 2 }"></ng-container>
-        }
+        <app-lectura-comercial [index]="2"></app-lectura-comercial>
       }
       @case ('platos-mas-vendidos') {
-        <article class="panel-card sales-panel">
-          <div class="panel-heading">
-            <div>
-              <h2>Platos mas vendidos</h2>
-              <p>Top 5 por unidades vendidas</p>
-            </div>
-            <div class="panel-actions" (click)="$event.stopPropagation()">
-              <span class="panel-badge">Top 5</span>
-              <button class="favorite-btn" [class.active]="state.esFavorito('platos-mas-vendidos')" (click)="state.toggleFavorito('platos-mas-vendidos')" title="Fijar en favoritos">
-                <span class="material-symbols-outlined">{{ state.esFavorito('platos-mas-vendidos') ? 'star' : 'star_border' }}</span>
-              </button>
-            </div>
-          </div>
-
-          <div class="ranking-list">
-            @for (plato of state.platosMasVendidosPreview(); track plato.nombre; let index = $index) {
-              <div class="ranking-row">
-                <span class="rank">{{ index + 1 }}</span>
-                <div class="ranking-content">
-                  <div class="ranking-title">
-                    <strong>{{ plato.nombre }}</strong>
-                    <small>{{ plato.detalle }}</small>
-                  </div>
-                  <span class="ranking-value">{{ plato.valor }} u.</span>
-                  <div class="ranking-bar">
-                    <span [style.width.%]="porcentajeRanking(plato.valor)"></span>
-                  </div>
-                </div>
-              </div>
-            }
-
-            <div class="ranking-recommendation">
-              <span class="material-symbols-outlined" aria-hidden="true">local_fire_department</span>
-              <div>
-                <strong>Lectura rápida</strong>
-                <small>{{ state.recomendacionTopVentas() }}</small>
-              </div>
-            </div>
-          </div>
-        </article>
+        <app-platos-mas-vendidos></app-platos-mas-vendidos>
       }
       @case ('platos-menos-vendidos') {
-        <article class="panel-card low-sales-panel">
-          <div class="panel-heading" style="position: relative;">
-            <div>
-              <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <h2>Platos menos vendidos</h2>
-                <button type="button" class="info-icon-btn" (click)="alternarExplicacionCriterios($event)" title="Ver criterios de sugerencia" aria-label="Información de criterios">
-                  <span class="material-symbols-outlined">info</span>
-                </button>
-              </div>
-              <p>Con acción sugerida</p>
-
-              @if (mostrandoCriterios()) {
-                <div class="criterios-popover animate-fade-in" (click)="$event.stopPropagation()">
-                  <div class="popover-header">
-                    <strong>Criterios de Sugerencia</strong>
-                    <button type="button" class="close-popover-btn" (click)="mostrandoCriterios.set(false)" aria-label="Cerrar">
-                      <span class="material-symbols-outlined">close</span>
-                    </button>
-                  </div>
-                  <div class="popover-body">
-                    <ul>
-                      <li>
-                        <strong>Revisar precio o visibilidad:</strong>
-                        Se aplica a los platos con rotación intermedia/baja (puestos 1 y 2 de menos vendidos). Se sugiere revisar precio o destacarlo en carta.
-                      </li>
-                      <li>
-                        <strong>Candidato a pausar o relanzar:</strong>
-                        Se aplica a platos con rotación crítica (puestos 3 al 5). Se recomienda reformular o pausar para reducir merma.
-                      </li>
-                      <li>
-                        <strong>Análisis dinámico:</strong>
-                        Al presionar "Analizar" se evalúa el costo actual de insumos, margen de ganancia, tendencia de demanda y comparación con el plato líder.
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              }
-            </div>
-            <div class="panel-actions" (click)="$event.stopPropagation()">
-              <button class="favorite-btn" [class.active]="state.esFavorito('platos-menos-vendidos')" (click)="state.toggleFavorito('platos-menos-vendidos')" title="Fijar en favoritos">
-                <span class="material-symbols-outlined">{{ state.esFavorito('platos-menos-vendidos') ? 'star' : 'star_border' }}</span>
-              </button>
-            </div>
-          </div>
-
-          <div class="compact-list">
-            @for (plato of state.platosMenosVendidosPreview(); track plato.nombre; let index = $index) {
-              <div class="compact-row">
-                <div>
-                  <strong>{{ plato.nombre }}</strong>
-                  <small>{{ index < 2 ? 'Revisar precio o visibilidad' : 'Candidato a pausar o relanzar' }}</small>
-                </div>
-                <div class="compact-row-actions">
-                  <span>{{ plato.valor }} u.</span>
-                  <button
-                    type="button"
-                    class="low-action-btn"
-                    (click)="abrirDetallePlato(plato, index)">
-                    Analizar
-                  </button>
-                </div>
-              </div>
-            }
-          </div>
-        </article>
+        <app-platos-menos-vendidos></app-platos-menos-vendidos>
       }
       @case ('insumos-vencer') {
-        <article class="panel-card expiry-panel">
-          <div class="panel-heading">
-            <div>
-              <h2>Insumos proximos a vencer</h2>
-              <p>Priorizado por fecha, cantidad y criticidad</p>
-            </div>
-            <div class="panel-actions" (click)="$event.stopPropagation()">
-              <button class="favorite-btn" [class.active]="state.esFavorito('insumos-vencer')" (click)="state.toggleFavorito('insumos-vencer')" title="Fijar en favoritos">
-                <span class="material-symbols-outlined">{{ state.esFavorito('insumos-vencer') ? 'star' : 'star_border' }}</span>
-              </button>
-            </div>
-          </div>
-
-          <div class="expiry-recommendation-wrapper">
-            <div class="expiry-recommendation">
-              <span class="material-symbols-outlined" aria-hidden="true">tips_and_updates</span>
-              <div>
-                <strong>Sugerencia operativa</strong>
-                <small>{{ state.recomendacionOperativa() }}</small>
-              </div>
-            </div>
-          </div>
-
-          <div class="expiry-summary">
-            @for (item of state.vencimientosResumen(); track item.label) {
-              <button 
-                type="button" 
-                class="expiry-summary-item" 
-                [class]="item.tone"
-                [class.active]="filtroCriticidadVencimiento() === item.key"
-                (click)="establecerFiltroCriticidad(item.key)"
-                [attr.aria-label]="'Filtrar por ' + item.label">
-                <strong>{{ item.value }}</strong>
-                <span>{{ item.label }}</span>
-              </button>
-            }
-          </div>
-
-          <div class="expiry-list">
-            @for (insumo of insumosFiltrados(); track insumo.nombre) {
-              <div class="expiry-row" [class]="insumo.criticidad">
-                <div class="expiry-copy">
-                  <strong>{{ insumo.nombre }}</strong>
-                  <small>{{ insumo.relativo }} · {{ insumo.cantidad }}</small>
-                </div>
-                <div class="expiry-meta">
-                  <time>{{ insumo.fecha }}</time>
-                  <span>{{ insumo.criticidad | uppercase }}</span>
-                </div>
-              </div>
-            }
-          </div>
-        </article>
+        <app-insumos-vencer></app-insumos-vencer>
       }
       @case ('proximas-acciones') {
-        <article class="panel-card next-actions-panel">
-          <div class="panel-heading">
-            <div>
-              <h2>Próximas acciones</h2>
-              <p>Atajos para resolver lo urgente</p>
-            </div>
-            <div class="panel-actions" (click)="$event.stopPropagation()">
-              <button class="favorite-btn" [class.active]="state.esFavorito('proximas-acciones')" (click)="state.toggleFavorito('proximas-acciones')" title="Fijar en favoritos">
-                <span class="material-symbols-outlined">{{ state.esFavorito('proximas-acciones') ? 'star' : 'star_border' }}</span>
-              </button>
-            </div>
-          </div>
-
-          <div class="next-actions-list">
-            @for (item of state.acciones(); track item.titulo; let index = $index) {
-              <button type="button" class="next-action-card" [class]="item.tono" (click)="irA(item.destino)">
-                <div class="next-action-left">
-                  <span class="next-action-badge">{{ index + 1 }}</span>
-                  <div class="next-action-icon-wrapper">
-                    <span class="material-symbols-outlined">{{ obtenerIconoAccion(item.destino) }}</span>
-                  </div>
-                </div>
-                <div class="next-action-content">
-                  <div class="next-action-title-row">
-                    <strong>{{ item.titulo }}</strong>
-                    <span class="material-symbols-outlined action-arrow">arrow_forward</span>
-                  </div>
-                  <p class="next-action-desc">{{ item.detalle }}</p>
-                  <div class="next-action-meta">
-                    <span class="next-action-impact">{{ item.impacto }}</span>
-                  </div>
-                </div>
-              </button>
-            }
-          </div>
-        </article>
+        <app-proximas-acciones></app-proximas-acciones>
       }
       @case ('mozos') {
-        <article class="panel-card mozos-panel" style="width: 100%;">
-          <div class="panel-heading">
-            <div>
-              <h2>Desempeño de Mozos</h2>
-              <p>{{ state.analisisMozos() }}</p>
-            </div>
-            <div class="panel-actions" (click)="$event.stopPropagation()">
-              <button class="favorite-btn" [class.active]="state.esFavorito('mozos')" (click)="state.toggleFavorito('mozos')">
-                <span class="material-symbols-outlined">{{ state.esFavorito('mozos') ? 'star' : 'star_border' }}</span>
-              </button>
-            </div>
+        @defer (on viewport) {
+          <app-mozos></app-mozos>
+        } @placeholder {
+          <div class="panel-card" style="height: 300px; display: grid; place-items: center; background: #fff; border: 1px solid rgba(15,23,42,0.06); border-radius: 16px;">
+            <div class="skeleton-pulsing" style="width: 80%; height: 80%; border-radius: 8px;"></div>
           </div>
-
-          <div class="mozos-list">
-            @for (mozo of state.mozos(); track mozo.nombre) {
-              <div class="mozo-row" [class]="mozo.estado === 'Sobrecargado' ? 'danger' : (mozo.estado === 'Optimo' ? 'success' : 'info')">
-                <div class="mozo-header">
-                  <strong>{{ mozo.nombre }}</strong>
-                  <span class="mozo-badge">{{ mozo.estado }}</span>
-                </div>
-                <div class="mozo-metrics">
-                  <div class="metric">
-                    <small>Mesas</small>
-                    <strong>{{ mozo.mesasAtendidas }}</strong>
-                  </div>
-                  <div class="metric">
-                    <small>Facturado</small>
-                    <strong>{{ mozo.facturacionTotal | arsCurrency }}</strong>
-                  </div>
-                  <div class="metric">
-                    <small>Tiempo/Mesa</small>
-                    <strong>{{ mozo.tiempoPromedioAtencion }}</strong>
-                  </div>
-                </div>
-              </div>
-            }
-          </div>
-        </article>
+        }
       }
     }
   </ng-template>
 
-  <ng-template #singleLecturaTemplate let-index="index">
-    @if (state.lecturaComercial()[index]; as lectura) {
-      <article class="commercial-reading-card" [class]="lectura.tono" style="width: 100%; height: 100%; margin: 0; min-height: 90px; display: flex; flex-direction: column; justify-content: center;">
-        <strong style="display: flex; align-items: center; gap: 0.5rem; justify-content: space-between;">
-          {{ lectura.titulo }}
-          <button class="fav-icon-btn" [class.active]="state.esFavorito('lectura-' + index)" (click)="state.toggleFavorito('lectura-' + index); $event.stopPropagation()">
-            <span class="material-symbols-outlined" style="font-size: 1rem;">{{ state.esFavorito('lectura-' + index) ? 'star' : 'star_border' }}</span>
-          </button>
-        </strong>
-        <span>{{ lectura.detalle }}</span>
-      </article>
-    }
-  </ng-template>
-
-  @if (state.platoSeleccionado(); as detalle) {
-    <div class="side-panel-overlay" (click)="cerrarDetallePlato()">
-      <aside class="side-panel" (click)="$event.stopPropagation()">
-        <div class="side-panel-header">
-          <div class="panel-header-title-row">
-            <div class="plate-avatar-container">
-              <span class="material-symbols-outlined">restaurant_menu</span>
-            </div>
-            <div>
-              <div class="panel-header-pre">
-                <span class="criticidad-badge" [class]="detalle.alerta">
-                  {{ detalle.alerta === 'critica' ? 'Crítico' : 'Moderado' }}
-                </span>
-                <span>Análisis de plato</span>
-              </div>
-              <h2 id="analisis-plato-titulo">{{ detalle.plato.nombre }}</h2>
-            </div>
-          </div>
-          <button class="close-btn" (click)="cerrarDetallePlato()" aria-label="Cerrar">
-            <span class="material-symbols-outlined">close</span>
-          </button>
-        </div>
-        
-        <div class="side-panel-body">
-          <div class="diagnostico-box">
-            <span class="material-symbols-outlined">troubleshoot</span>
-            <div>
-              <strong>Diagnóstico del Sistema</strong>
-              <p>{{ detalle.diagnostico }}</p>
-            </div>
-          </div>
-
-          <div class="analisis-metrics-grid">
-            <div class="metric-pill-card">
-              <span class="metric-label">Ventas</span>
-              <strong class="metric-value">{{ detalle.metricas.volumen }}</strong>
-              <span class="metric-change negative">{{ detalle.metricas.volumenVar }}</span>
-            </div>
-            <div class="metric-pill-card">
-              <span class="metric-label">Participación</span>
-              <strong class="metric-value">{{ detalle.metricas.participacion }}</strong>
-              <span class="metric-subtext">Total ventas</span>
-            </div>
-            <div class="metric-pill-card">
-              <span class="metric-label">Precio</span>
-              <strong class="metric-value text-primary">{{ detalle.metricas.precio }}</strong>
-              <span class="metric-subtext">Público</span>
-            </div>
-            <div class="metric-pill-card">
-              <span class="metric-label">Costo Prep.</span>
-              <strong class="metric-value">{{ detalle.metricas.costo }}</strong>
-              <span class="metric-subtext">Margen: <strong class="margen-destaque">{{ detalle.metricas.margenPct }}</strong></span>
-            </div>
-          </div>
-          
-          <div class="analisis-chart-section">
-            <div class="chart-header">
-              <span>Tendencia de ventas (Semanas)</span>
-              <strong class="chart-summary-trend">Demanda en caída</strong>
-            </div>
-            <div class="sparkline-wrapper">
-              <svg viewBox="0 0 320 60" class="sparkline-svg" preserveAspectRatio="none">
-                <polyline 
-                  fill="none" 
-                  stroke="var(--error-color, #dc3545)" 
-                  stroke-width="2.5" 
-                  stroke-linecap="round" 
-                  stroke-linejoin="round"
-                  [attr.points]="obtenerPuntosSparkline(detalle.tendencia)">
-                </polyline>
-                @for (pt of obtenerArrayPuntosSparkline(detalle.tendencia); track pt; let last = $last) {
-                  <circle 
-                    [attr.cx]="pt.x" 
-                    [attr.cy]="pt.y" 
-                    r="4" 
-                    [attr.fill]="last ? '#dc3545' : 'var(--border-color, #e0e0e0)'" 
-                    stroke="white" 
-                    stroke-width="1.5">
-                  </circle>
-                }
-              </svg>
-            </div>
-            <div class="chart-footer-labels">
-              <span>Hace 7 semanas</span>
-              <span>Hoy ({{ detalle.plato.valor }} u.)</span>
-            </div>
-          </div>
-
-          <div class="analisis-comparativa-box">
-            <div class="comparativa-header">
-              <span class="material-symbols-outlined">compare_arrows</span>
-              <strong>Comparativa de Categoría</strong>
-            </div>
-            <div class="comparativa-grid">
-              <div class="comparativa-col">
-                <span class="comp-label">Este plato</span>
-                <span class="comp-val-name">{{ detalle.plato.nombre }}</span>
-                <span class="comp-val-metric">{{ detalle.plato.valor }} u. / {{ detalle.metricas.precio }}</span>
-              </div>
-              <div class="comparativa-divider">vs</div>
-              <div class="comparativa-col">
-                <span class="comp-label">Líder de Categoría</span>
-                <span class="comp-val-name text-success">{{ detalle.comparativa.nombre }}</span>
-                <span class="comp-val-metric">{{ detalle.comparativa.ventas }} / {{ detalle.comparativa.precio }}</span>
-              </div>
-            </div>
-            <p class="comparativa-desc">
-              Existe una brecha de precio y demanda en el menú. Se sugiere alinear ofertas o unificar insumos.
-            </p>
-          </div>
-
-          <div class="sugerencias-section-title">
-            <strong>Acciones Recomendadas</strong>
-            <span class="sub-title">Impacto en el margen del local</span>
-          </div>
-
-          <div class="sugerencias-list-premium">
-            @for (sug of detalle.sugerenciasDetalladas; track sug) {
-              <div class="sugerencia-card" [class]="sug.impacto.includes('Alto') ? 'impacto-alto' : 'impacto-medio'">
-                <div class="sug-card-header">
-                  <div class="sug-badges">
-                    <span class="sug-badge impact" [class]="sug.impacto.includes('Alto') ? 'alto' : 'medio'">
-                      {{ sug.impacto.includes('Alto') ? 'Alto Impacto' : 'Impacto Medio' }}
-                    </span>
-                    <span class="sug-badge difficulty" [class]="sug.dificultad">
-                      Dificultad: {{ sug.dificultad === 'baja' ? 'Baja' : sug.dificultad === 'media' ? 'Media' : 'Alta' }}
-                    </span>
-                  </div>
-                  @if (sug.aplicada) {
-                    <span class="sug-status-pill aplicada animate-fade-in">
-                      <span class="material-symbols-outlined">check_circle</span>
-                      Aplicado
-                    </span>
-                  }
-                </div>
-                
-                <p class="sug-description">{{ sug.accion }}</p>
-                
-                <div class="sug-card-actions">
-                  @if (!sug.aplicada) {
-                    @if (sug.tipo === 'descuento') {
-                      @if (!confirmandoDescuento()) {
-                        <button class="sug-btn primary" (click)="confirmandoDescuento.set(true)">
-                           <span class="material-symbols-outlined">percent</span>
-                           Aplicar Descuento 10%
-                        </button>
-                      } @else {
-                        <div class="sug-confirm-inline animate-fade-in">
-                          <span class="confirm-text">¿Aplicar descuento inmediato de 10%?</span>
-                          <div class="confirm-buttons-group">
-                            <button class="sug-confirm-btn confirm-yes" (click)="confirmarDescuento(detalle.plato.nombre)">
-                              Confirmar
-                            </button>
-                            <button class="sug-confirm-btn confirm-no" (click)="confirmandoDescuento.set(false)">
-                              Cancelar
-                            </button>
-                          </div>
-                        </div>
-                      }
-                    } @else {
-                      <button class="sug-btn secondary" (click)="agendarRecordatorio(detalle.plato.nombre, sug.accion)">
-                        <span class="material-symbols-outlined">alarm</span>
-                        Agendar Recordatorio
-                      </button>
-                    }
-                  } @else {
-                    <button class="sug-btn success-applied" disabled>
-                      <span class="material-symbols-outlined">done</span>
-                      ¡Acción Registrada!
-                    </button>
-                  }
-                </div>
-              </div>
-            }
-          </div>
-        </div>
-        
-        <div class="side-panel-footer" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-          <button class="primary-btn" style="flex: 1 1 auto; min-width: 120px;" (click)="irA('carta', { buscar: detalle.plato.nombre, editar: 'true' }); cerrarDetallePlato()">
-            <span class="material-symbols-outlined" style="font-size: 1.1rem; margin-right: 4px; vertical-align: middle;">edit</span>
-            Editar plato
-          </button>
-          <button class="outline-btn" style="flex: 1 1 auto; min-width: 120px;" (click)="irA('carta', { buscar: detalle.plato.nombre }); cerrarDetallePlato()">
-            <span class="material-symbols-outlined" style="font-size: 1.1rem; margin-right: 4px; vertical-align: middle;">visibility</span>
-            Ver en carta
-          </button>
-          <button class="outline-btn" style="border-color: rgba(15, 23, 42, 0.1); color: #64748b;" (click)="cerrarDetallePlato()">
-            Cerrar
-          </button>
-        </div>
-      </aside>
-    </div>
+  @defer (on idle) {
+    <app-analisis-plato-panel></app-analisis-plato-panel>
   }
 
   @if (state.toastMensaje(); as toast) {

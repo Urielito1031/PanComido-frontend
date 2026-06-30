@@ -13,8 +13,9 @@ export class CrearPlatoState {
   visible = signal<boolean>(true);
  // imagenSelected = signal<File| null>(null);
 
- archivoImagen = signal<File|null>(null);
- previsualizacionImagen = signal<string | null>(null);
+  archivoImagen = signal<File|null>(null);
+  previsualizacionImagen = signal<string | null>(null);
+  errorImagen = signal<boolean>(false);
   
   // Opciones desde el backend
   tiposPlato = signal<ItemDesplegableDto[]>([]);
@@ -90,7 +91,8 @@ export class CrearPlatoState {
 
   seleccionarImagen(archivo:File, previsializacion: string): void {
     this.archivoImagen.set(archivo); // Lo que mandamos a .NET
-    this.previsualizacionImagen.set(previsializacion); // Lo que mostramos en pantalla    this.mostrarSelectorImagen.set(false);
+    this.previsualizacionImagen.set(previsializacion); // Lo que mostramos en pantalla
+    this.errorImagen.set(false);
   }
 
   setMostrarExito(val: boolean): void {
@@ -105,12 +107,13 @@ export class CrearPlatoState {
     tipoPlatoId: number; 
     categoriaPlatoId: number; 
     descripcion: string; },
-     callback: () => void): void {
+      callback: () => void): void {
        
        if (this.#loading()) return;
 
        const archivoFisico = this.archivoImagen();
        if(!archivoFisico){
+         this.errorImagen.set(true);
          console.error('Falta seleccionar la imagen del plato');
          return;
         }

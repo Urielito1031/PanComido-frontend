@@ -1,0 +1,161 @@
+<article class="panel-card monthly-panel">
+  <div class="panel-heading">
+    <div>
+      <h2>{{ state.tituloGrafico() }}</h2>
+      <p>{{ state.subtituloGrafico() }}</p>
+    </div>
+    <div class="panel-actions" (click)="$event.stopPropagation()">
+      <span class="panel-badge revenue-badge">{{ state.resumenOperativo()?.totalVentas }}</span>
+      <button class="favorite-btn" [class.active]="state.esFavorito('ventas-calendario')" (click)="state.toggleFavorito('ventas-calendario')" title="Fijar en favoritos">
+        <span class="material-symbols-outlined">{{ state.esFavorito('ventas-calendario') ? 'star' : 'star_border' }}</span>
+      </button>
+    </div>
+  </div>
+
+  @if (state.esModoCalendario()) {
+    @if (state.ventasCalendarioMes().length === 0) {
+      <div class="empty-chart-state" style="padding: 4rem 1.5rem; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.8rem; flex: 1;">
+        <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="40" cy="40" r="32" fill="#f1f5f9"/>
+          <path d="M40 24V40L48 48" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="40" cy="40" r="32" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4 4"/>
+        </svg>
+        <h3 style="font-size: 0.95rem; font-weight: 850; color: #334155; margin: 0;">Sin registros de ventas</h3>
+        <p style="font-size: 0.8rem; color: #64748b; margin: 0; max-width: 280px; line-height: 1.4;">
+          No hay datos transaccionales para el mes seleccionado. Intenta cambiar el rango de fechas.
+        </p>
+      </div>
+    } @else {
+      <div class="month-heatmap" aria-label="Ventas diarias del mes">
+        <div class="heatmap-weekdays" aria-hidden="true">
+          <span>Lun</span>
+          <span>Mar</span>
+          <span>Mie</span>
+          <span>Jue</span>
+          <span>Vie</span>
+          <span>Sab</span>
+          <span>Dom</span>
+        </div>
+
+        <div class="heatmap-grid">
+          @for (empty of desplazamientoCalendario(); track $index) {
+            <div class="heatmap-day-empty" aria-hidden="true"></div>
+          }
+          @for (item of state.ventasCalendarioMes(); track item.dia) {
+          <button
+            type="button"
+            class="heatmap-day"
+            [ngClass]="nivelVentaDia(item.ventas)"
+            [class.active]="diaSeleccionado()?.dia === item.dia"
+            [class.best-day]="esMejorDia(item)"
+            [class.low-day]="esDiaBajo(item)"
+            [style.--intensity]="intensidadVentaDia(item.ventas)"
+            [attr.aria-label]="detalleVentaDia(item.fecha, item.ventas)"
+            (click)="seleccionarDia(item)">
+            <span>{{ item.dia }}</span>
+            @if (esMejorDia(item)) {
+              <small class="day-badge top" title="Día top" aria-label="Día top">
+                <span>Top</span>
+              </small>
+            } @else if (esDiaBajo(item)) {
+              <small class="day-badge low" title="Día bajo" aria-label="Día bajo">
+                <span>Bajo</span>
+              </small>
+            }
+            <span class="day-tooltip" role="tooltip">
+              <span class="tooltip-date">{{ item.fecha }}</span>
+              <span class="tooltip-value">{{ item.ventas | arsCurrency }}</span>
+              <span class="tooltip-trend">
+                {{ variacionContraPromedio(item) > 0 ? '+' : '' }}{{ variacionContraPromedio(item) }}% vs promedio
+              </span>
+            </span>
+          </button>
+        }
+      </div>
+
+      <div class="heatmap-legend" aria-hidden="true">
+        <span>Menos ventas</span>
+        <span class="legend-scale">
+          <span class="scale-dot level-1"></span>
+          <span class="scale-dot level-2"></span>
+          <span class="scale-dot level-3"></span>
+          <span class="scale-dot level-4"></span>
+        </span>
+        <span>Más ventas</span>
+      </div>
+
+      <div class="heatmap-insights">
+        <div>
+          <small>Mejor día</small>
+          <strong>{{ mejorDiaMes()?.fecha }}</strong>
+          <span>{{ mejorDiaMes()?.ventas | arsCurrency }}</span>
+        </div>
+        <div>
+          <small>Día más bajo</small>
+          <strong>{{ peorDiaMes()?.fecha }}</strong>
+          <span>{{ peorDiaMes()?.ventas | arsCurrency }}</span>
+        </div>
+        <div>
+          <small>Promedio diario</small>
+          <strong>{{ promedioDiaMes() | arsCurrency }}</strong>
+          <span>Base de comparación</span>
+        </div>
+    </div>
+    </div>
+  }
+
+  @if (diaSeleccionado(); as dia) {
+    <div class="day-detail-panel">
+      <div class="detail-header">
+        <span class="detail-date">{{ dia.fecha }}</span>
+        <button type="button" class="close-detail" (click)="cerrarDetalle()" aria-label="Cerrar">
+          <span class="material-symbols-outlined" aria-hidden="true">close</span>
+        </button>
+      </div>
+      <div class="detail-metrics">
+        <div class="detail-metric">
+          <small>Facturación</small>
+          <strong>{{ dia.ventas | arsCurrency }}</strong>
+        </div>
+        <div class="detail-metric">
+          <small>Pedidos est.</small>
+          <strong>{{ calcularPedidosDia(dia.ventas) }} u.</strong>
+        </div>
+        <div class="detail-metric">
+          <small>Ticket prom.</small>
+          <strong>{{ calcularTicketPromedioDia(dia.ventas) | arsCurrency }}</strong>
+        </div>
+      </div>
+    </div>
+  }
+} @else {
+    @if (state.ventasMensuales().length === 0) {
+      <div class="empty-chart-state" style="padding: 4rem 1.5rem; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.8rem; flex: 1;">
+        <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="40" cy="40" r="32" fill="#f1f5f9"/>
+          <path d="M40 24V40L48 48" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="40" cy="40" r="32" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4 4"/>
+        </svg>
+        <h3 style="font-size: 0.95rem; font-weight: 850; color: #334155; margin: 0;">Sin registros de ventas</h3>
+        <p style="font-size: 0.8rem; color: #64748b; margin: 0; max-width: 280px; line-height: 1.4;">
+          No hay datos transaccionales para el período seleccionado. Intenta cambiar el rango de fechas.
+        </p>
+      </div>
+    } @else {
+      <div
+        class="monthly-chart"
+        aria-label="Ventas mensuales"
+        [style.grid-template-columns]="'repeat(' + state.ventasMensuales().length + ', minmax(60px, 1fr))'">
+        @for (item of state.ventasMensuales(); track item.mes) {
+          <div class="month-column">
+            <div class="bar-track">
+              <span [style.height.%]="porcentajeVentaMensual(item.ventas)"></span>
+            </div>
+            <strong>{{ item.mes }}</strong>
+            <small>{{ item.ventas | arsCurrency }}</small>
+          </div>
+        }
+      </div>
+    }
+  }
+</article>

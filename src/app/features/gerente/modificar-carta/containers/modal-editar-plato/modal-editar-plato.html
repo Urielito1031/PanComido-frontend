@@ -95,6 +95,77 @@
         </div>
       </div>
 
+      <!-- TIEMPO DE PREPARACION -->
+      <div class="mb-4">
+        <label class="form-label soft-label">Tiempo de preparación</label>
+        <div class="input-group soft-input-group">
+          <span class="input-group-text">
+            <span class="material-symbols-outlined fs-5">schedule</span>
+          </span>
+          <input 
+            type="number" 
+            class="form-control soft-input" 
+            placeholder="Minutos"
+            [ngModel]="tiempoPreparacion()" 
+            (ngModelChange)="tiempoPreparacion.set(+$event)">
+          <span class="input-group-text bg-white text-muted">minutos</span>
+        </div>
+      </div>
+
+      <!-- TIPO Y CATEGORIA -->
+      <div class="row g-3 mb-4">
+        <div class="col-6">
+          <label class="form-label soft-label">Tipo de plato</label>
+          <select 
+            class="form-select soft-input" 
+            [ngModel]="tipoPlatoId()" 
+            (ngModelChange)="tipoPlatoId.set($event ? +$event : null)">
+            <option [value]="null" disabled>Seleccione tipo...</option>
+            @for (tipo of tiposPlato(); track tipo.id) {
+              <option [value]="tipo.id">{{ tipo.descripcion }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="col-6">
+          <label class="form-label soft-label">Categoría</label>
+          <select 
+            class="form-select soft-input" 
+            [ngModel]="categoriaPlatoId()" 
+            (ngModelChange)="categoriaPlatoId.set($event ? +$event : null)">
+            <option [value]="null" disabled>Seleccione categoría...</option>
+            @for (categoria of categoriasPlato(); track categoria.id) {
+              <option [value]="categoria.id">{{ categoria.descripcion }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <!-- DESCRIPCION -->
+      <div class="mb-4">
+        <label class="form-label soft-label">Descripción</label>
+        <textarea 
+          class="form-control soft-input custom-textarea" 
+          rows="3" 
+          placeholder="Descripción del plato..."
+          [ngModel]="descripcion()" 
+          (ngModelChange)="descripcion.set($event)">
+        </textarea>
+      </div>
+
+      <!-- DIET TAGS -->
+      <div class="d-flex flex-wrap gap-2 justify-content-start mb-4">
+        <button type="button" class="diet-tag-btn" [class.active]="vegano()" (click)="onToggleTag('vegano')">
+          VEGANO
+        </button>
+        <button type="button" class="diet-tag-btn" [class.active]="vegetariano()" (click)="onToggleTag('vegetariano')">
+          VEGETARIANO
+        </button>
+        <button type="button" class="diet-tag-btn" [class.active]="celiaco()" (click)="onToggleTag('celiaco')">
+          CELÍACO
+        </button>
+      </div>
+
       <!-- RECIPE EDITOR -->
       <div class="mt-2 flex-grow-1 d-flex flex-column">
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -232,7 +303,7 @@
         tamanio="md" 
         (clicked)="onSave()"
         class="save-btn shadow-sm"
-        [disabled]="!nombre().trim() || precioVenta() === null || precioVenta()! <= 0 || costo() === null || costo()! <= 0">
+        [disabled]="!nombre().trim() || precioVenta() === null || precioVenta()! <= 0 || costo() === null || costo()! <= 0 || !tipoPlatoId() || !categoriaPlatoId()">
       </app-boton>
     </div>
 

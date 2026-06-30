@@ -1,0 +1,38 @@
+<article class="panel-card mozos-panel" style="width: 100%;">
+  <div class="panel-heading">
+    <div>
+      <h2>Desempeño de Mozos</h2>
+      <p>{{ state.analisisMozos() }}</p>
+    </div>
+    <div class="panel-actions" (click)="$event.stopPropagation()">
+      <button class="favorite-btn" [class.active]="state.esFavorito('mozos')" (click)="state.toggleFavorito('mozos')">
+        <span class="material-symbols-outlined">{{ state.esFavorito('mozos') ? 'star' : 'star_border' }}</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="mozos-list">
+    @for (mozo of state.mozos(); track mozo.nombre) {
+      <div class="mozo-row" [class]="mozo.estado === 'Sobrecargado' ? 'danger' : (mozo.estado === 'Optimo' ? 'success' : 'info')">
+        <div class="mozo-header">
+          <strong>{{ mozo.nombre }}</strong>
+          <span class="mozo-badge">{{ mozo.estado }}</span>
+        </div>
+        <div class="mozo-metrics">
+          <div class="metric">
+            <small>Mesas</small>
+            <strong>{{ mozo.mesasAtendidas }}</strong>
+          </div>
+          <div class="metric">
+            <small>Facturado</small>
+            <strong>{{ mozo.facturacionTotal | arsCurrency }}</strong>
+          </div>
+          <div class="metric">
+            <small>Tiempo/Mesa</small>
+            <strong>{{ mozo.tiempoPromedioAtencion }}</strong>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</article>

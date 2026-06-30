@@ -13,7 +13,7 @@
 
   <div class="create-layout">
     <aside class="media-panel">
-      <div class="image-preview-card">
+      <div class="image-preview-card" [class.image-error]="errorImagen()">
             <input type="file" id="dishFileInput" accept="image/*" style="display:none" (change)="onFileSelected($event)">
             <label for="dishFileInput" class="edit-photo-icon" 
             title="Subir foto" 
@@ -31,6 +31,9 @@
             </label>
           }
         </div>
+        @if (errorImagen()) {
+          <span class="error-text text-center mt-1">La imagen del plato es obligatoria.</span>
+        }
         <p class="photo-guidance"> 
             Para que se vea bien en carta, usá una foto horizontal, luminosa y
             enfocada en el plato completo.

@@ -44,6 +44,7 @@ export class CrearPlatoPage {
   celiaco = this.state.celiaco;
   loading = this.state.loading;
   nombresExistentes = this.state.nombresExistentes;
+  errorImagen = this.state.errorImagen;
 
 
   constructor() {

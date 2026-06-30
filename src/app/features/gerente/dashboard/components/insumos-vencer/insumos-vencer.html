@@ -1,0 +1,53 @@
+<article class="panel-card expiry-panel">
+  <div class="panel-heading">
+    <div>
+      <h2>Insumos proximos a vencer</h2>
+      <p>Priorizado por fecha, cantidad y criticidad</p>
+    </div>
+    <div class="panel-actions" (click)="$event.stopPropagation()">
+      <button class="favorite-btn" [class.active]="state.esFavorito('insumos-vencer')" (click)="state.toggleFavorito('insumos-vencer')" title="Fijar en favoritos">
+        <span class="material-symbols-outlined">{{ state.esFavorito('insumos-vencer') ? 'star' : 'star_border' }}</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="expiry-recommendation-wrapper">
+    <div class="expiry-recommendation">
+      <span class="material-symbols-outlined" aria-hidden="true">tips_and_updates</span>
+      <div>
+        <strong>Sugerencia operativa</strong>
+        <small>{{ state.recomendacionOperativa() }}</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="expiry-summary">
+    @for (item of state.vencimientosResumen(); track item.label) {
+      <button 
+        type="button" 
+        class="expiry-summary-item" 
+        [class]="item.tone"
+        [class.active]="filtroCriticidadVencimiento() === item.key"
+        (click)="establecerFiltroCriticidad(item.key)"
+        [attr.aria-label]="'Filtrar por ' + item.label">
+        <strong>{{ item.value }}</strong>
+        <span>{{ item.label }}</span>
+      </button>
+    }
+  </div>
+
+  <div class="expiry-list">
+    @for (insumo of insumosFiltrados(); track insumo.nombre) {
+      <div class="expiry-row" [class]="insumo.criticidad">
+        <div class="expiry-copy">
+          <strong>{{ insumo.nombre }}</strong>
+          <small>{{ insumo.relativo }} · {{ insumo.cantidad }}</small>
+        </div>
+        <div class="expiry-meta">
+          <time>{{ insumo.fecha }}</time>
+          <span>{{ insumo.criticidad | uppercase }}</span>
+        </div>
+      </div>
+    }
+  </div>
+</article>

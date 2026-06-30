@@ -1,0 +1,36 @@
+<article class="panel-card next-actions-panel">
+  <div class="panel-heading">
+    <div>
+      <h2>Próximas acciones</h2>
+      <p>Atajos para resolver lo urgente</p>
+    </div>
+    <div class="panel-actions" (click)="$event.stopPropagation()">
+      <button class="favorite-btn" [class.active]="state.esFavorito('proximas-acciones')" (click)="state.toggleFavorito('proximas-acciones')" title="Fijar en favoritos">
+        <span class="material-symbols-outlined">{{ state.esFavorito('proximas-acciones') ? 'star' : 'star_border' }}</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="next-actions-list">
+    @for (item of state.acciones(); track item.titulo; let index = $index) {
+      <button type="button" class="next-action-card" [class]="item.tono" (click)="irA(item.destino)">
+        <div class="next-action-left">
+          <span class="next-action-badge">{{ index + 1 }}</span>
+          <div class="next-action-icon-wrapper">
+            <span class="material-symbols-outlined">{{ obtenerIconoAccion(item.destino) }}</span>
+          </div>
+        </div>
+        <div class="next-action-content">
+          <div class="next-action-title-row">
+            <strong>{{ item.titulo }}</strong>
+            <span class="material-symbols-outlined action-arrow">arrow_forward</span>
+          </div>
+          <p class="next-action-desc">{{ item.detalle }}</p>
+          <div class="next-action-meta">
+            <span class="next-action-impact">{{ item.impacto }}</span>
+          </div>
+        </div>
+      </button>
+    }
+  </div>
+</article>
