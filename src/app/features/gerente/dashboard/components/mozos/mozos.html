@@ -1,11 +1,11 @@
-<article class="panel-card mozos-panel" style="width: 100%;">
+<article class="panel-card mozos-panel">
   <div class="panel-heading">
     <div>
       <h2>Desempeño de Mozos</h2>
       <p>{{ state.analisisMozos() }}</p>
     </div>
     <div class="panel-actions" (click)="$event.stopPropagation()">
-      <button class="favorite-btn" [class.active]="state.esFavorito('mozos')" (click)="state.toggleFavorito('mozos')">
+      <button type="button" class="favorite-btn" [class.active]="state.esFavorito('mozos')" (click)="state.toggleFavorito('mozos')" aria-label="Fijar desempeño de mozos en favoritos">
         <span class="material-symbols-outlined">{{ state.esFavorito('mozos') ? 'star' : 'star_border' }}</span>
       </button>
     </div>

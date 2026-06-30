@@ -37,11 +37,11 @@ export class VentasCalendarioComponent {
 
   readonly mayorVentaMensual = this.state.maxVentasMensuales;
 
-  readonly mejorDiaMes = computed(() => {
+  readonly mejorDiaMes = computed<DashboardVentaDia | null>(() => {
     return [...this.state.ventasCalendarioMes()].sort((a, b) => b.ventas - a.ventas)[0] ?? null;
   });
 
-  readonly peorDiaMes = computed(() => {
+  readonly peorDiaMes = computed<DashboardVentaDia | null>(() => {
     return [...this.state.ventasCalendarioMes()].sort((a, b) => a.ventas - b.ventas)[0] ?? null;
   });
 
@@ -119,6 +119,8 @@ export class VentasCalendarioComponent {
   }
 
   porcentajeVentaMensual(valor: number): number {
-    return Math.max(10, Math.round((valor / this.mayorVentaMensual()) * 100));
+    const mayor = this.mayorVentaMensual();
+    if (!mayor) return 0;
+    return Math.max(10, Math.round((valor / mayor) * 100));
   }
 }

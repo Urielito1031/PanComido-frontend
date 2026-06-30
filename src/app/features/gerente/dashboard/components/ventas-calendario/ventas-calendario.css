@@ -1,29 +1,98 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
 .monthly-panel {
   display: flex;
   flex-direction: column;
+  height: 100%;
+}
+
+.empty-chart-state {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  padding: 4rem 1.5rem;
+  text-align: center;
+}
+
+.empty-chart-state h3 {
+  margin: 0;
+  color: #334155;
+  font-size: 0.95rem;
+  font-weight: 850;
+}
+
+.empty-chart-state p {
+  max-width: 280px;
+  margin: 0;
+  color: #64748b;
+  font-size: 0.8rem;
+  line-height: 1.4;
 }
 
 .monthly-chart {
   display: grid;
   gap: 1rem;
   padding: 1.25rem;
-  flex: 1;
+  flex: 1 1 auto;
+  align-items: stretch;
 }
 
 .month-column {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 0.35rem;
   min-width: 0;
   text-align: center;
+  height: 100%;
 }
 
 .bar-track {
   display: flex;
   align-items: flex-end;
-  height: 210px;
+  height: 180px;
   border-radius: 11px;
   background: #f1f5f9;
   overflow: hidden;
+  flex: 1 1 auto;
+}
+
+:host-context(.col-span-6) .monthly-chart {
+  gap: 0.65rem;
+  padding: 1rem;
+}
+
+:host-context(.col-span-6) .bar-track {
+  height: auto;
+  min-height: 120px;
+}
+
+:host-context(.col-span-6) .month-column small {
+  white-space: normal;
+}
+
+:host-context(.col-span-6) .month-heatmap {
+  padding: 1rem;
+}
+
+:host-context(.col-span-6) .heatmap-day {
+  min-height: 38px;
+  border-radius: 9px;
+  font-size: 0.68rem;
+}
+
+:host-context(.col-span-6) .heatmap-day-empty {
+  min-height: 38px;
+  border-radius: 9px;
+}
+
+:host-context(.col-span-6) .heatmap-insights {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .bar-track span {
@@ -417,7 +486,7 @@
   font-size: 0.7rem !important;
 }
 :host-context(.col-width-50) .heatmap-insights {
-  grid-template-columns: 1fr !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
   gap: 0.4rem !important;
 }
 

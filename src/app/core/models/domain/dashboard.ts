@@ -60,7 +60,7 @@ export interface DashboardVentaDia {
   fecha: string;
   ventas: number;
 }
-export type DashboardViewMode = 'favoritos' | 'reportes' | 'finanzas' | 'personal' | 'operativo';
+export type DashboardViewMode = 'resumen' | 'favoritos' | 'reportes' | 'finanzas' | 'personal' | 'operativo';
 
 export interface PlatoSugerencia {
   accion: string;
@@ -99,4 +99,14 @@ export interface EstadisticaMozo {
   facturacionTotal: number;
   tiempoPromedioAtencion: string;
   estado: 'Sobrecargado' | 'Optimo' | 'Baja carga';
+}
+
+export interface IngredienteExcluidoStat {
+  ingredienteId: number;
+  nombreIngrediente: string;
+  cantidadExclusiones: number;
+  platoMasExcluido: string;
+  exclusionesEnPlatoMasExcluido: number;
+  totalPedidosPlatoMasExcluido: number;
+  tasaExclusionPlatoMasExcluido: string;
 }

@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
 import { DashboardStateService } from '../../services/dashboard.state';
+import { DashboardNavigationService } from '../../services/dashboard-navigation.service';
 import { DashboardDestino } from '../../../../../core/models/domain/dashboard';
 
 @Component({
@@ -13,7 +13,7 @@ import { DashboardDestino } from '../../../../../core/models/domain/dashboard';
 })
 export class AnalisisPlatoPanelComponent {
   readonly state = inject(DashboardStateService);
-  private readonly router = inject(Router);
+  private readonly navigation = inject(DashboardNavigationService);
   readonly confirmandoDescuento = signal<boolean>(false);
 
   cerrarDetallePlato(): void {
@@ -67,19 +67,6 @@ export class AnalisisPlatoPanelComponent {
   }
 
   irA(destino: DashboardDestino, extraParams?: any): void {
-    if (destino === 'carta') {
-      this.router.navigate(['/staff', 'gerente', 'modificar-carta'], { queryParams: extraParams });
-      return;
-    }
-    const routes: Record<DashboardDestino, string[]> = {
-      stock: ['/staff', 'gerente', 'stock-mercaderia'],
-      carta: ['/staff', 'gerente', 'modificar-carta'],
-      proveedores: ['/staff', 'gerente', 'ver-proveedores'],
-      pedido: ['/staff', 'gerente', 'realizar-pedido-sugerido'],
-      vencimientos: []
-    };
-    if (routes[destino]) {
-      this.router.navigate(routes[destino], { queryParams: extraParams });
-    }
+    this.navigation.irA(destino, extraParams);
   }
 }

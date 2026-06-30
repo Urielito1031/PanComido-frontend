@@ -1,26 +1,36 @@
 @if (index() === null) {
   @if (state.lecturaComercial().length > 0) {
-    <section class="commercial-reading" aria-label="Lectura comercial">
-      @for (lectura of state.lecturaComercial(); track lectura.titulo; let i = $index) {
-        <article class="commercial-reading-card" [class]="lectura.tono">
-          <strong style="display: flex; align-items: center; gap: 0.5rem; justify-content: space-between;">
-            {{ lectura.titulo }}
-            <button class="fav-icon-btn" [class.active]="state.esFavorito('lectura-' + i)" (click)="state.toggleFavorito('lectura-' + i); $event.stopPropagation()">
-              <span class="material-symbols-outlined" style="font-size: 1rem;">{{ state.esFavorito('lectura-' + i) ? 'star' : 'star_border' }}</span>
+    <section class="commercial-reading-panel" aria-label="Lectura comercial">
+      <div class="commercial-reading-panel-heading">
+        <div>
+          <span class="commercial-reading-eyebrow">Lectura comercial</span>
+          <h2>Señales del menú</h2>
+        </div>
+        <span class="commercial-reading-count">{{ state.lecturaComercial().length }} señales</span>
+      </div>
+
+      <div class="commercial-reading-list">
+        @for (lectura of state.lecturaComercial(); track lectura.titulo; let i = $index) {
+          <article class="commercial-reading-row" [class]="lectura.tono">
+            <div>
+              <strong>{{ lectura.titulo }}</strong>
+              <span>{{ lectura.detalle }}</span>
+            </div>
+            <button type="button" class="fav-icon-btn" [class.active]="state.esFavorito('lectura-' + i)" (click)="state.toggleFavorito('lectura-' + i); $event.stopPropagation()" [attr.aria-label]="'Fijar insight ' + (i + 1) + ' en favoritos'">
+              <span class="material-symbols-outlined commercial-reading-favorite-icon">{{ state.esFavorito('lectura-' + i) ? 'star' : 'star_border' }}</span>
             </button>
-          </strong>
-          <span>{{ lectura.detalle }}</span>
-        </article>
-      }
+          </article>
+        }
+      </div>
     </section>
   }
 } @else {
   @if (state.lecturaComercial()[index()!]; as lectura) {
-    <article class="commercial-reading-card" [class]="lectura.tono" style="width: 100%; height: 100%; margin: 0; min-height: 90px; display: flex; flex-direction: column; justify-content: center;">
-      <strong style="display: flex; align-items: center; gap: 0.5rem; justify-content: space-between;">
+    <article class="commercial-reading-card commercial-reading-card-single" [class]="lectura.tono">
+      <strong class="commercial-reading-title-row">
         {{ lectura.titulo }}
-        <button class="fav-icon-btn" [class.active]="state.esFavorito('lectura-' + index())" (click)="state.toggleFavorito('lectura-' + index()!); $event.stopPropagation()">
-          <span class="material-symbols-outlined" style="font-size: 1rem;">{{ state.esFavorito('lectura-' + index()!) ? 'star' : 'star_border' }}</span>
+        <button type="button" class="fav-icon-btn" [class.active]="state.esFavorito('lectura-' + index())" (click)="state.toggleFavorito('lectura-' + index()!); $event.stopPropagation()" [attr.aria-label]="'Fijar insight ' + (index()! + 1) + ' en favoritos'">
+          <span class="material-symbols-outlined commercial-reading-favorite-icon">{{ state.esFavorito('lectura-' + index()!) ? 'star' : 'star_border' }}</span>
         </button>
       </strong>
       <span>{{ lectura.detalle }}</span>

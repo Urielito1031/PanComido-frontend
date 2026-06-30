@@ -1,11 +1,11 @@
 <article class="panel-card expiry-panel">
   <div class="panel-heading">
     <div>
-      <h2>Insumos proximos a vencer</h2>
+      <h2>Insumos próximos a vencer</h2>
       <p>Priorizado por fecha, cantidad y criticidad</p>
     </div>
     <div class="panel-actions" (click)="$event.stopPropagation()">
-      <button class="favorite-btn" [class.active]="state.esFavorito('insumos-vencer')" (click)="state.toggleFavorito('insumos-vencer')" title="Fijar en favoritos">
+      <button type="button" class="favorite-btn" [class.active]="state.esFavorito('insumos-vencer')" (click)="state.toggleFavorito('insumos-vencer')" title="Fijar en favoritos" aria-label="Fijar insumos próximos a vencer en favoritos">
         <span class="material-symbols-outlined">{{ state.esFavorito('insumos-vencer') ? 'star' : 'star_border' }}</span>
       </button>
     </div>
@@ -37,7 +37,7 @@
   </div>
 
   <div class="expiry-list">
-    @for (insumo of insumosFiltrados(); track insumo.nombre) {
+    @for (insumo of insumosPaginados(); track insumo.nombre) {
       <div class="expiry-row" [class]="insumo.criticidad">
         <div class="expiry-copy">
           <strong>{{ insumo.nombre }}</strong>
@@ -50,4 +50,22 @@
       </div>
     }
   </div>
+
+  @if (insumosFiltrados().length > itemsPorPagina) {
+    <div class="expiry-pagination" aria-label="Paginación de insumos próximos a vencer">
+      <span>
+        Mostrando {{ primerItemVisible() }}-{{ ultimoItemVisible() }}
+        de {{ insumosFiltrados().length }}
+      </span>
+      <div class="expiry-pagination-actions">
+        <button type="button" class="pagination-btn" [disabled]="paginaActual() === 1" (click)="irAPagina(paginaActual() - 1)" aria-label="Página anterior">
+          <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+        </button>
+        <strong>{{ paginaActual() }} / {{ totalPaginas() }}</strong>
+        <button type="button" class="pagination-btn" [disabled]="paginaActual() === totalPaginas()" (click)="irAPagina(paginaActual() + 1)" aria-label="Página siguiente">
+          <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+        </button>
+      </div>
+    </div>
+  }
 </article>

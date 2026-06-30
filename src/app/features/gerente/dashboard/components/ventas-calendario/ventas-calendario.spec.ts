@@ -14,7 +14,7 @@ describe('VentasCalendarioComponent', () => {
     mockState = {
       esModoCalendario: signal(false),
       tituloGrafico: signal('Tendencia de ventas'),
-      subtituloGrafico: signal('Evolucion del periodo'),
+      subtituloGrafico: signal('Evolución del periodo'),
       ventasMensuales: signal([]),
       ventasCalendarioMes: signal([]),
       maxVentasMensuales: signal(100),

@@ -1,12 +1,12 @@
 <article class="panel-card sales-panel">
   <div class="panel-heading">
     <div>
-      <h2>Platos mas vendidos</h2>
+      <h2>Platos más vendidos</h2>
       <p>Top 5 por unidades vendidas</p>
     </div>
     <div class="panel-actions" (click)="$event.stopPropagation()">
       <span class="panel-badge">Top 5</span>
-      <button class="favorite-btn" [class.active]="state.esFavorito('platos-mas-vendidos')" (click)="state.toggleFavorito('platos-mas-vendidos')" title="Fijar en favoritos">
+      <button type="button" class="favorite-btn" [class.active]="state.esFavorito('platos-mas-vendidos')" (click)="state.toggleFavorito('platos-mas-vendidos')" title="Fijar en favoritos" aria-label="Fijar platos más vendidos en favoritos">
         <span class="material-symbols-outlined">{{ state.esFavorito('platos-mas-vendidos') ? 'star' : 'star_border' }}</span>
       </button>
     </div>

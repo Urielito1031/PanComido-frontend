@@ -7,6 +7,108 @@
   box-sizing: border-box;
 }
 
+.commercial-reading-panel {
+  display: grid;
+  gap: 0.8rem;
+  min-height: 230px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 16px;
+  padding: 1.1rem;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.035);
+  box-sizing: border-box;
+}
+
+.commercial-reading-panel-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.commercial-reading-eyebrow {
+  color: #1691ac;
+  font-size: 0.7rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.commercial-reading-panel-heading h2 {
+  margin: 0.2rem 0 0;
+  color: #0f172a;
+  font-size: 1.1rem;
+  font-weight: 850;
+}
+
+.commercial-reading-count {
+  border: 1px solid rgba(22, 145, 172, 0.16);
+  border-radius: 999px;
+  padding: 0.18rem 0.55rem;
+  background: rgba(22, 145, 172, 0.06);
+  color: #64748b;
+  font-size: 0.68rem;
+  font-weight: 850;
+}
+
+.commercial-reading-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.commercial-reading-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.55rem;
+  align-items: center;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 11px;
+  padding: 0.62rem 0.7rem;
+  background: #ffffff;
+}
+
+.commercial-reading-row::before {
+  content: "";
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+}
+
+.commercial-reading-row.success::before { background: #10b981; }
+.commercial-reading-row.info::before { background: #1691ac; }
+.commercial-reading-row.warning::before { background: #f59e0b; }
+
+.commercial-reading-row strong {
+  display: block;
+  overflow: hidden;
+  color: #0f172a;
+  font-size: 0.82rem;
+  font-weight: 850;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.commercial-reading-row span {
+  display: block;
+  overflow: hidden;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .commercial-reading-panel-heading {
+    flex-direction: column;
+  }
+  .commercial-reading-row {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .commercial-reading-row .fav-icon-btn {
+    display: none;
+  }
+}
+
 .commercial-reading-card {
   display: flex;
   flex-direction: column;
@@ -96,4 +198,24 @@
 .fav-icon-btn .material-symbols-outlined,
 .favorite-btn .material-symbols-outlined {
   font-size: 1.2rem;
+}
+.commercial-reading-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.commercial-reading-favorite-icon {
+  font-size: 1rem;
+}
+
+.commercial-reading-card-single {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 90px;
+  margin: 0;
 }

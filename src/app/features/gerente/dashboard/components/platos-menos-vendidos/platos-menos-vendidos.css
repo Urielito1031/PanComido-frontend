@@ -1,12 +1,30 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
 .low-sales-panel {
   display: flex;
   flex-direction: column;
-  max-height: 452px;
-  min-height: 0;
+  min-height: 452px;
+  height: 100%;
   box-sizing: border-box;
 }
 
+:host-context(.mode-reportes-grid) {
+  display: block;
+  height: 100%;
+}
+
+:host-context(.mode-reportes-grid) .low-sales-panel {
+  height: 100%;
+  min-height: 100%;
+  max-height: none;
+}
+
 .low-sales-panel .compact-list {
+  display: flex;
+  flex-direction: column;
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
@@ -24,28 +42,51 @@
 }
 
 .compact-list {
-  display: grid;
-  gap: 0.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
   padding: 1rem;
   box-sizing: border-box;
 }
 
 .compact-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(150px, 1fr) auto auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.72rem;
+  justify-content: start;
+  gap: 0.75rem;
+  min-height: 74px;
+  padding: 0.75rem;
   border: 1px solid rgba(15, 23, 42, 0.06);
   border-radius: 11px;
   background: #ffffff;
   box-sizing: border-box;
+  flex: 1 1 auto;
+}
+
+.low-rank {
+  display: grid;
+  place-items: center;
+  width: 1.65rem;
+  height: 1.65rem;
+  border-radius: 10px;
+  background: rgba(245, 158, 11, 0.12);
+  color: #b45309;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.compact-row-copy {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
 }
 
 .compact-row strong {
   display: block;
   color: #0f172a;
   font-size: 0.88rem;
+  line-height: 1.25;
 }
 
 .compact-row small {
@@ -54,11 +95,30 @@
   font-size: 0.72rem;
 }
 
+.low-sales-reason {
+  justify-self: start;
+  border-radius: 999px;
+  padding: 0.28rem 0.55rem;
+  background: rgba(245, 158, 11, 0.08);
+  color: #92400e;
+  font-size: 0.68rem;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
 .compact-row-actions {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.4rem;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.55rem;
+  justify-self: start;
+  white-space: nowrap;
+}
+
+.compact-row-actions span {
+  color: #0f172a;
+  font-size: 0.78rem;
+  font-weight: 800;
 }
 
 .low-action-btn {
@@ -72,6 +132,15 @@
   cursor: pointer;
   transition: background 0.2s, transform 0.1s;
   box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
+}
+
+:host-context(.mode-reportes-grid) .compact-list {
+  gap: 0.78rem;
+}
+
+:host-context(.mode-reportes-grid) .compact-row {
+  min-height: 82px;
+  padding: 0.85rem;
 }
 
 .low-action-btn:hover {
@@ -211,4 +280,70 @@
 .fav-icon-btn .material-symbols-outlined,
 .favorite-btn .material-symbols-outlined {
   font-size: 1.2rem;
+}
+.low-sales-heading {
+  position: relative;
+}
+
+.low-sales-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@media (max-width: 760px) {
+  .compact-row {
+    grid-template-columns: auto 1fr;
+  }
+
+  .low-sales-reason,
+  .compact-row-actions {
+    grid-column: 2;
+  }
+
+  .compact-row-actions {
+    flex-wrap: wrap;
+  }
+}
+
+.compact-list.large-rows {
+  gap: 1.25rem;
+}
+
+.large-rows .compact-row {
+  min-height: 110px;
+  padding: 1.25rem;
+  gap: 1.25rem;
+  border-radius: 14px;
+}
+
+.large-rows .low-rank {
+  width: 2.6rem;
+  height: 2.6rem;
+  font-size: 1.2rem;
+  border-radius: 12px;
+}
+
+.large-rows .compact-row strong {
+  font-size: 1.15rem;
+  margin-bottom: 0.25rem;
+}
+
+.large-rows .compact-row small {
+  font-size: 0.84rem;
+}
+
+.large-rows .low-sales-reason {
+  font-size: 0.82rem;
+  padding: 0.38rem 0.8rem;
+}
+
+.large-rows .low-action-btn {
+  padding: 0.75rem 1.6rem;
+  font-size: 1.05rem;
+  border-radius: 10px;
+}
+
+.large-rows .compact-row-actions span {
+  font-size: 1.05rem;
 }

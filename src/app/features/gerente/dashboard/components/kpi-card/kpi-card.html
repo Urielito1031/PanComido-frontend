@@ -2,66 +2,92 @@
   @case ('ventas') {
     @if (state.resumenOperativo(); as resumen) {
       <article class="kpi-card revenue">
+        <div class="kpi-card-top">
+          <span class="kpi-icon material-symbols-outlined" aria-hidden="true">payments</span>
+          <strong class="kpi-change" [class.negative]="state.variacionVentasEsNegativa()">{{ resumen.variacionVentas }}</strong>
+        </div>
         <div class="kpi-meta">
-          <span style="display: flex; align-items: center; gap: 0.5rem;">
+          <span class="kpi-title-row">
             Ventas totales
-            <button class="fav-icon-btn" [class.active]="state.esFavorito('kpi-ventas')" (click)="state.toggleFavorito('kpi-ventas'); $event.stopPropagation()">
+            <button type="button" class="fav-icon-btn" [class.active]="state.esFavorito('kpi-ventas')" (click)="state.toggleFavorito('kpi-ventas'); $event.stopPropagation()" aria-label="Fijar ventas totales en favoritos">
               <span class="material-symbols-outlined">{{ state.esFavorito('kpi-ventas') ? 'star' : 'star_border' }}</span>
             </button>
           </span>
-          <strong [class.negative]="state.variacionVentasEsNegativa()">{{ resumen.variacionVentas }}</strong>
         </div>
         <div class="kpi-value">{{ resumen.totalVentas }}</div>
         <small>En el período seleccionado</small>
+        <div class="kpi-mini-track"><span></span></div>
       </article>
     }
   }
   @case ('pedidos') {
     @if (state.resumenOperativo(); as resumen) {
       <article class="kpi-card orders">
+        <div class="kpi-card-top">
+          <span class="kpi-icon material-symbols-outlined" aria-hidden="true">shopping_bag</span>
+          <strong class="kpi-change" [class.negative]="state.variacionPedidosEsNegativa()">{{ resumen.variacionPedidos }}</strong>
+        </div>
         <div class="kpi-meta">
-          <span style="display: flex; align-items: center; gap: 0.5rem;">
+          <span class="kpi-title-row">
             Pedidos totales
-            <button class="fav-icon-btn" [class.active]="state.esFavorito('kpi-pedidos')" (click)="state.toggleFavorito('kpi-pedidos'); $event.stopPropagation()">
+            <button type="button" class="fav-icon-btn" [class.active]="state.esFavorito('kpi-pedidos')" (click)="state.toggleFavorito('kpi-pedidos'); $event.stopPropagation()" aria-label="Fijar pedidos totales en favoritos">
               <span class="material-symbols-outlined">{{ state.esFavorito('kpi-pedidos') ? 'star' : 'star_border' }}</span>
             </button>
           </span>
-          <strong [class.negative]="state.variacionPedidosEsNegativa()">{{ resumen.variacionPedidos }}</strong>
         </div>
-        <div class="kpi-value">{{ resumen.totalPedidos }} u.</div>
-        <small>Promedio diario: {{ resumen.promedioDiarioPedidos }} u.</small>
+        <div class="orders-card-body">
+          <div>
+            <div class="kpi-value">{{ resumen.totalPedidos }}</div>
+            <small>Pedidos del período</small>
+          </div>
+          <div class="orders-card-detail">
+            <span>
+              <small>Ritmo</small>
+              <strong>{{ state.variacionPedidosEsNegativa() ? 'Bajo' : 'Estable' }}</strong>
+            </span>
+          </div>
+        </div>
       </article>
     }
   }
   @case ('ticket') {
     @if (state.resumenOperativo(); as resumen) {
       <article class="kpi-card success">
+        <div class="kpi-card-top">
+          <span class="kpi-icon material-symbols-outlined" aria-hidden="true">receipt_long</span>
+          <strong class="kpi-change" [class.negative]="state.variacionTicketEsNegativa()">{{ resumen.variacionTicket }}</strong>
+        </div>
         <div class="kpi-meta">
-          <span style="display: flex; align-items: center; gap: 0.5rem;">
+          <span class="kpi-title-row">
             Ticket promedio
-            <button class="fav-icon-btn" [class.active]="state.esFavorito('kpi-ticket')" (click)="state.toggleFavorito('kpi-ticket'); $event.stopPropagation()">
+            <button type="button" class="fav-icon-btn" [class.active]="state.esFavorito('kpi-ticket')" (click)="state.toggleFavorito('kpi-ticket'); $event.stopPropagation()" aria-label="Fijar ticket promedio en favoritos">
               <span class="material-symbols-outlined">{{ state.esFavorito('kpi-ticket') ? 'star' : 'star_border' }}</span>
             </button>
           </span>
-          <strong [class.negative]="state.variacionTicketEsNegativa()">{{ resumen.ticketPromedio }}</strong>
         </div>
         <div class="kpi-value">{{ resumen.ticketPromedio }}</div>
         <small>Por comanda finalizada</small>
+        <div class="kpi-mini-track"><span></span></div>
       </article>
     }
   }
   @case ('promedio') {
     <article class="kpi-card info">
+      <div class="kpi-card-top">
+        <span class="kpi-icon material-symbols-outlined" aria-hidden="true">analytics</span>
+        <strong class="kpi-change neutral">Estimado</strong>
+      </div>
       <div class="kpi-meta">
-        <span style="display: flex; align-items: center; gap: 0.5rem;">
+        <span class="kpi-title-row">
           Promedio diario
-          <button class="fav-icon-btn" [class.active]="state.esFavorito('kpi-promedio')" (click)="state.toggleFavorito('kpi-promedio'); $event.stopPropagation()">
+          <button type="button" class="fav-icon-btn" [class.active]="state.esFavorito('kpi-promedio')" (click)="state.toggleFavorito('kpi-promedio'); $event.stopPropagation()" aria-label="Fijar promedio diario en favoritos">
             <span class="material-symbols-outlined">{{ state.esFavorito('kpi-promedio') ? 'star' : 'star_border' }}</span>
           </button>
         </span>
       </div>
       <div class="kpi-value">{{ state.promedioDiarioVentas() | arsCurrency }}</div>
       <small>Facturación est. por día</small>
+      <div class="kpi-mini-track"><span></span></div>
     </article>
   }
 }

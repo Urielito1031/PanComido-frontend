@@ -40,6 +40,19 @@
   align-items: center;
 }
 
+.panel-title-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.skeleton-panel-title {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
 .plate-avatar-container {
   display: grid;
   place-items: center;
@@ -153,6 +166,74 @@
   color: #475569;
   font-size: 0.84rem;
   line-height: 1.45;
+}
+
+.skeleton-diagnostico-box {
+  position: relative;
+}
+
+.skeleton-insight-icon {
+  margin-top: 0.1rem;
+  color: #f59e0b;
+}
+
+.skeleton-copy-block {
+  flex: 1;
+}
+
+.skeleton-diagnostico-title {
+  color: #b45309;
+}
+
+.skeleton-diagnostico-copy {
+  margin-top: 0.2rem;
+  color: #64748b;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.skeleton-muted-label {
+  opacity: 0.6;
+}
+
+.skeleton-line-full {
+  width: 100%;
+}
+
+.skeleton-line-metric {
+  width: 70%;
+  height: 1.25rem;
+}
+
+.skeleton-chart-line {
+  width: 100%;
+  height: 60px;
+  border-radius: 8px;
+}
+
+.skeleton-comparativa-box {
+  border-color: rgba(245, 158, 11, 0.1);
+  background: #fffdf5;
+}
+
+.skeleton-comparativa-header {
+  color: #b45309;
+  opacity: 0.7;
+}
+
+.skeleton-line-wide {
+  width: 90%;
+}
+
+.skeleton-line-medium {
+  width: 60%;
+}
+
+.skeleton-footer-button {
+  width: 100%;
+  height: 40px;
+  border-radius: 10px;
+  opacity: 0.7;
 }
 
 .analisis-metrics-grid {
@@ -578,6 +659,28 @@
   flex-direction: column;
   gap: 0.5rem;
   box-sizing: border-box;
+}
+
+.side-panel-footer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.side-panel-action-btn {
+  flex: 1 1 auto;
+  min-width: 120px;
+}
+
+.side-panel-action-icon {
+  margin-right: 4px;
+  font-size: 1.1rem;
+  vertical-align: middle;
+}
+
+.side-panel-close-action {
+  border-color: rgba(15, 23, 42, 0.1);
+  color: #64748b;
 }
 
 .primary-btn {

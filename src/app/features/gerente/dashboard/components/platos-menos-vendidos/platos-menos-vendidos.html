@@ -1,7 +1,7 @@
 <article class="panel-card low-sales-panel">
-  <div class="panel-heading" style="position: relative;">
+  <div class="panel-heading low-sales-heading">
     <div>
-      <div style="display: flex; align-items: center; gap: 0.5rem;">
+      <div class="low-sales-title-row">
         <h2>Platos menos vendidos</h2>
         <button type="button" class="info-icon-btn" (click)="alternarExplicacionCriterios($event)" title="Ver criterios de sugerencia" aria-label="Información de criterios">
           <span class="material-symbols-outlined">info</span>
@@ -37,27 +37,29 @@
       }
     </div>
     <div class="panel-actions" (click)="$event.stopPropagation()">
-      <button class="favorite-btn" [class.active]="state.esFavorito('platos-menos-vendidos')" (click)="state.toggleFavorito('platos-menos-vendidos')" title="Fijar en favoritos">
+      <button type="button" class="favorite-btn" [class.active]="state.esFavorito('platos-menos-vendidos')" (click)="state.toggleFavorito('platos-menos-vendidos')" title="Fijar en favoritos" aria-label="Fijar platos menos vendidos en favoritos">
         <span class="material-symbols-outlined">{{ state.esFavorito('platos-menos-vendidos') ? 'star' : 'star_border' }}</span>
       </button>
     </div>
   </div>
 
-  <div class="compact-list">
+  <div class="compact-list" [class.large-rows]="state.esModoCalendario()">
     @for (plato of state.platosMenosVendidosPreview(); track plato.nombre; let index = $index) {
       <div class="compact-row">
-        <div>
+        <span class="low-rank">{{ index + 1 }}</span>
+        <div class="compact-row-copy">
           <strong>{{ plato.nombre }}</strong>
           <small>{{ index < 2 ? 'Revisar precio o visibilidad' : 'Candidato a pausar o relanzar' }}</small>
         </div>
+        <span class="low-sales-reason">{{ index < 2 ? 'Ajuste comercial' : 'Rotación crítica' }}</span>
         <div class="compact-row-actions">
-          <span>{{ plato.valor }} u.</span>
           <button
             type="button"
             class="low-action-btn"
             (click)="abrirDetallePlato(plato, index)">
             Analizar
           </button>
+          <span>{{ plato.valor }} u.</span>
         </div>
       </div>
     }

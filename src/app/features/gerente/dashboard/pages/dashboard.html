@@ -3,87 +3,99 @@
     <div>
       <p class="eyebrow">Gerencia</p>
       <h1>Dashboard</h1>
-      <p class="subtitle">Resumen operativo para {{ state.periodoLabel() }}</p>
+      <p class="subtitle">{{ obtenerDescripcionVistaActiva() }}</p>
     </div>
 
-    <!-- Burbuja de Notificaciones en la esquina superior derecha -->
-    <div class="notifications-container" 
-         (mouseenter)="hoverNotificaciones.set(true)" 
-         (mouseleave)="hoverNotificaciones.set(false)"
-         (click)="$event.stopPropagation()">
-         
-      <button type="button" 
-              class="notifications-bubble-btn" 
-              [class.has-unread]="state.recordatoriosAdicionales().length > 0"
-              (click)="alternarNotificaciones($event)"
-              title="Recordatorios de Tareas Programadas">
-        <span class="material-symbols-outlined">notifications</span>
-        @if (state.recordatoriosAdicionales().length > 0) {
-          <span class="notifications-badge">{{ state.recordatoriosAdicionales().length }}</span>
-        }
-      </button>
-      
-      <!-- Dropdown flotante que se abre al pasar el mouse o hacer click -->
-      @if (mostrarNotificaciones() || hoverNotificaciones()) {
-        <div class="notifications-dropdown shadow border" (click)="$event.stopPropagation()">
-          <div class="notifications-dropdown-header">
-            <h3>Tareas Programadas ({{ state.recordatoriosAdicionales().length }})</h3>
-          </div>
-          <div class="notifications-dropdown-body">
-            @if (state.recordatoriosAdicionales().length === 0) {
-              <div class="no-notifications">
-                <span class="material-symbols-outlined">notifications_off</span>
-                <p>No hay tareas programadas pendientes</p>
-              </div>
-            } @else {
-              @for (rec of state.recordatoriosAdicionales(); track rec.titulo) {
-                <div class="notification-dropdown-item" [class]="rec.tono">
-                  <div class="notification-item-header">
-                    <strong>{{ rec.titulo }}</strong>
-                    <button type="button" class="dismiss-btn" (click)="state.resolverRecordatorio(rec.id!); $event.stopPropagation()" title="Resolver">
-                      <span class="material-symbols-outlined">close</span>
-                    </button>
-                  </div>
-                  <p class="notification-detail">{{ rec.detalle }}</p>
-                  <div class="notification-item-actions">
-                    <span class="impact-badge">{{ rec.impacto }}</span>
-                    <button type="button" class="manage-btn" (click)="gestionarRecordatorio(rec); cerrarDropdowns(); $event.stopPropagation()">
-                      Gestionar <span class="material-symbols-outlined">arrow_forward</span>
-                    </button>
-                  </div>
+    <div class="header-status-actions">
+      <div class="refresh-indicator-container">
+        <span class="refresh-time">Actualizado {{ state.ultimoRefresco() | date: 'HH:mm' }}</span>
+        <button type="button" class="refresh-btn" [class.spinning]="state.cargando()" (click)="refrescarManual()" title="Refrescar datos ahora">
+          <span class="material-symbols-outlined">refresh</span>
+        </button>
+      </div>
+
+      <!-- Burbuja de Notificaciones en la esquina superior derecha -->
+      <div class="notifications-container"
+           (mouseenter)="hoverNotificaciones.set(true)"
+           (mouseleave)="hoverNotificaciones.set(false)"
+           (click)="$event.stopPropagation()">
+
+        <button type="button"
+                class="notifications-bubble-btn"
+                [class.has-unread]="state.recordatoriosAdicionales().length > 0"
+                (click)="alternarNotificaciones($event)"
+                title="Recordatorios de Tareas Programadas">
+          <span class="material-symbols-outlined">notifications</span>
+          @if (state.recordatoriosAdicionales().length > 0) {
+            <span class="notifications-badge">{{ state.recordatoriosAdicionales().length }}</span>
+          }
+        </button>
+
+        <!-- Dropdown flotante que se abre al pasar el mouse o hacer click -->
+        @if (mostrarNotificaciones() || hoverNotificaciones()) {
+          <div class="notifications-dropdown shadow border" (click)="$event.stopPropagation()">
+            <div class="notifications-dropdown-header">
+              <h3>Tareas Programadas ({{ state.recordatoriosAdicionales().length }})</h3>
+            </div>
+            <div class="notifications-dropdown-body">
+              @if (state.recordatoriosAdicionales().length === 0) {
+                <div class="no-notifications">
+                  <span class="material-symbols-outlined">notifications_off</span>
+                  <p>No hay tareas programadas pendientes</p>
                 </div>
+              } @else {
+                @for (rec of state.recordatoriosAdicionales(); track rec.titulo) {
+                  <div class="notification-dropdown-item" [class]="rec.tono">
+                    <div class="notification-item-header">
+                      <strong>{{ rec.titulo }}</strong>
+                      <button type="button" class="dismiss-btn" (click)="state.resolverRecordatorio(rec.id!); $event.stopPropagation()" title="Resolver">
+                        <span class="material-symbols-outlined">close</span>
+                      </button>
+                    </div>
+                    <p class="notification-detail">{{ rec.detalle }}</p>
+                    <div class="notification-item-actions">
+                      <span class="impact-badge">{{ rec.impacto }}</span>
+                      <button type="button" class="manage-btn" (click)="gestionarRecordatorio(rec); cerrarDropdowns(); $event.stopPropagation()">
+                        Gestionar <span class="material-symbols-outlined">arrow_forward</span>
+                      </button>
+                    </div>
+                  </div>
+                }
               }
-            }
+            </div>
           </div>
-        </div>
-      }
+        }
+      </div>
     </div>
   </header>
 
   <section class="dashboard-toolbar" aria-label="Filtros del dashboard">
     <div class="dashboard-toolbar-row-top">
       <div class="view-tabs" [class.mobile-expanded]="tabsMovilExpandido()" role="tablist">
-        <button role="tab" class="view-tabs-mobile-trigger" (click)="toggleTabsMovil($event)">
+        <button type="button" role="tab" class="view-tabs-mobile-trigger" (click)="toggleTabsMovil($event)" [attr.aria-expanded]="tabsMovilExpandido()" aria-label="Seleccionar vista del dashboard">
           <span class="material-symbols-outlined" aria-hidden="true">{{ obtenerIconoVistaActiva() }}</span>
           <span class="trigger-label">{{ obtenerLabelVistaActiva() }}</span>
           <span class="material-symbols-outlined chevron-icon">keyboard_arrow_down</span>
         </button>
 
         <div class="view-tabs-list-wrapper">
-          <button role="tab" [class.active]="state.modoVista() === 'favoritos'" (click)="seleccionarTabMovil('favoritos', $event)">
+          <button type="button" role="tab" [attr.aria-selected]="state.modoVista() === 'resumen'" [class.active]="state.modoVista() === 'resumen'" (click)="seleccionarTabMovil('resumen', $event)">
+            <span class="material-symbols-outlined" aria-hidden="true">space_dashboard</span> Resumen
+          </button>
+          <button type="button" role="tab" [attr.aria-selected]="state.modoVista() === 'favoritos'" [class.active]="state.modoVista() === 'favoritos'" (click)="seleccionarTabMovil('favoritos', $event)">
             <span class="material-symbols-outlined" aria-hidden="true">star</span> Favoritos
           </button>
-          <button role="tab" [class.active]="state.modoVista() === 'reportes'" (click)="seleccionarTabMovil('reportes', $event)">
-            <span class="material-symbols-outlined" aria-hidden="true">dashboard</span> Todos los Reportes
+          <button type="button" role="tab" [attr.aria-selected]="state.modoVista() === 'reportes'" [class.active]="state.modoVista() === 'reportes'" (click)="seleccionarTabMovil('reportes', $event)">
+            <span class="material-symbols-outlined" aria-hidden="true">analytics</span> Análisis completo
           </button>
-          <button role="tab" [class.active]="state.modoVista() === 'finanzas'" (click)="seleccionarTabMovil('finanzas', $event)">
+          <button type="button" role="tab" [attr.aria-selected]="state.modoVista() === 'finanzas'" [class.active]="state.modoVista() === 'finanzas'" (click)="seleccionarTabMovil('finanzas', $event)">
             <span class="material-symbols-outlined" aria-hidden="true">payments</span> Finanzas
           </button>
-          <button role="tab" [class.active]="state.modoVista() === 'personal'" (click)="seleccionarTabMovil('personal', $event)">
+          <button type="button" role="tab" [attr.aria-selected]="state.modoVista() === 'personal'" [class.active]="state.modoVista() === 'personal'" (click)="seleccionarTabMovil('personal', $event)">
             <span class="material-symbols-outlined" aria-hidden="true">groups</span> Personal
           </button>
-          <button role="tab" [class.active]="state.modoVista() === 'operativo'" (click)="seleccionarTabMovil('operativo', $event)">
-            <span class="material-symbols-outlined" aria-hidden="true">settings</span> Operativo
+          <button type="button" role="tab" [attr.aria-selected]="state.modoVista() === 'operativo'" [class.active]="state.modoVista() === 'operativo'" (click)="seleccionarTabMovil('operativo', $event)">
+            <span class="material-symbols-outlined" aria-hidden="true">task_alt</span> Hoy
           </button>
         </div>
       </div>
@@ -94,16 +106,15 @@
             {{ state.estaEditando() ? 'Listo' : 'Personalizar' }}
           </button>
         }
-        <div class="refresh-indicator-container">
-          <span class="refresh-time">Act: {{ state.ultimoRefresco() | date: 'HH:mm:ss' }}</span>
-          <button type="button" class="refresh-btn" [class.spinning]="state.cargando()" (click)="refrescarManual()" title="Refrescar datos ahora">
-            <span class="material-symbols-outlined">refresh</span>
-          </button>
-        </div>
       </div>
     </div>
 
     <div class="dashboard-toolbar-row-bottom">
+      <div class="period-context" aria-label="Periodo seleccionado">
+        <span class="material-symbols-outlined" aria-hidden="true">date_range</span>
+        <span>Periodo: <strong>{{ state.periodoLabel() }}</strong></span>
+      </div>
+
       <div class="period-filter" role="group" aria-label="Periodo del dashboard">
         @for (periodo of periodos; track periodo.value) {
           <button
@@ -114,9 +125,18 @@
             {{ periodo.label }}
           </button>
         }
+        <button
+          type="button"
+          class="period-button custom-period"
+          [class.active]="state.periodo() === 'custom'"
+          (click)="establecerPeriodo('custom')">
+          <span class="material-symbols-outlined" aria-hidden="true">edit_calendar</span>
+          Rango
+        </button>
       </div>
 
-      <div class="date-filter" [class.active]="state.periodo() === 'custom'">
+      @if (state.periodo() === 'custom') {
+      <div class="date-filter active">
         <label>
           Desde
           <span class="date-field">
@@ -144,6 +164,7 @@
           </span>
         </label>
       </div>
+      }
     </div>
   </section>
 
@@ -195,7 +216,8 @@
                 type="button" 
                 class="add-module-btn" 
                 (click)="state.esFavorito(widget.id) ? state.quitarFavorito(widget.id) : state.agregarFavorito(widget.id)" 
-                [title]="state.esFavorito(widget.id) ? 'Quitar de favoritos' : 'Añadir a favoritos'">
+                [title]="state.esFavorito(widget.id) ? 'Quitar de favoritos' : 'Añadir a favoritos'"
+                [attr.aria-label]="(state.esFavorito(widget.id) ? 'Quitar ' : 'Añadir ') + widget.name + (state.esFavorito(widget.id) ? ' de favoritos' : ' a favoritos')">
                 <span class="material-symbols-outlined">{{ state.esFavorito(widget.id) ? 'remove' : 'add' }}</span>
               </button>
             </div>
@@ -207,8 +229,114 @@
 
   <div class="dashboard-canvas-content">
 
-  @if (state.atencion().length > 0) {
-    <section class="attention-section" aria-label="Resumen de Atencion">
+  @if (state.modoVista() !== 'favoritos' && state.resumenOperativo(); as resumen) {
+    <section class="kpi-report-strip" aria-label="Indicadores principales del periodo">
+      <article class="kpi-report-hero">
+        <div class="kpi-hero-heading">
+          <span>Ventas totales</span>
+          <strong
+            class="kpi-hero-change"
+            [class.negative]="state.variacionVentasEsNegativa()">
+            {{ resumen.variacionVentas }}
+          </strong>
+        </div>
+        <div class="kpi-hero-main">
+          <strong class="kpi-hero-value">{{ resumen.totalVentas }}</strong>
+        </div>
+        <p class="kpi-hero-context">Facturación consolidada para {{ state.periodoLabel() }}.</p>
+        <div class="kpi-hero-rail" aria-hidden="true">
+          <span class="rail-marker rail-marker-primary">
+            {{ resumen.totalPedidos }} pedidos
+          </span>
+          <span class="rail-line">
+            <span></span>
+          </span>
+          <span class="rail-marker">
+            {{ state.promedioDiarioVentas() | arsCurrency }} diario
+          </span>
+        </div>
+      </article>
+
+      <article class="kpi-mini-card orders-card">
+        <div class="kpi-mini-heading">
+          <span>Pedidos</span>
+          <span class="material-symbols-outlined" aria-hidden="true">shopping_bag</span>
+        </div>
+        <div class="orders-kpi-main">
+          <strong>{{ resumen.totalPedidos }}</strong>
+          <span
+            class="kpi-mini-change"
+            [class.negative]="state.variacionPedidosEsNegativa()">
+            {{ resumen.variacionPedidos }}
+          </span>
+        </div>
+        <div class="orders-kpi-detail">
+          <span>
+            <small>Ritmo</small>
+            <strong>{{ state.variacionPedidosEsNegativa() ? 'Bajo' : 'Estable' }}</strong>
+          </span>
+        </div>
+      </article>
+
+      <article class="kpi-mini-card highlighted">
+        <div class="kpi-mini-heading">
+          <span>Ticket promedio</span>
+          <span class="material-symbols-outlined" aria-hidden="true">receipt_long</span>
+        </div>
+        <strong>{{ resumen.ticketPromedio }}</strong>
+        <span
+          class="kpi-mini-change"
+          [class.negative]="state.variacionTicketEsNegativa()">
+          {{ resumen.variacionTicket }}
+        </span>
+      </article>
+
+      <article class="kpi-mini-card">
+        <div class="kpi-mini-heading">
+          <span>Promedio diario</span>
+          <span class="material-symbols-outlined" aria-hidden="true">monitoring</span>
+        </div>
+        <strong>{{ state.promedioDiarioVentas() | arsCurrency }}</strong>
+        <small>{{ resumen.promedioDiarioPedidos }} pedidos por día</small>
+      </article>
+    </section>
+  }
+
+  @if (state.modoVista() === 'resumen') {
+    <section class="executive-summary" aria-label="Resumen ejecutivo del dashboard">
+      <div class="executive-summary-copy">
+        <span class="summary-eyebrow">Prioridad gerencial</span>
+        @if (state.accionPrincipal(); as accion) {
+          <h2>{{ accion.titulo }}</h2>
+          <p>{{ accion.detalle }}. {{ accion.impacto }}.</p>
+          <button type="button" class="summary-action-btn" (click)="irA(accion.destino)">
+            Resolver ahora
+            <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+          </button>
+        } @else {
+          <h2>Operación estable</h2>
+          <p>No hay acciones urgentes para el período seleccionado. Revisá ventas y stock para anticipar próximos movimientos.</p>
+        }
+      </div>
+      <div class="executive-summary-metrics">
+        <div>
+          <small>Insumos críticos</small>
+          <strong>{{ state.vencimientosResumen()[1]?.value ?? 0 }}</strong>
+        </div>
+        <div>
+          <small>Platos a revisar</small>
+          <strong>{{ state.platosMenosVendidosPreview().length }}</strong>
+        </div>
+        <div>
+          <small>Tareas programadas</small>
+          <strong>{{ state.recordatoriosAdicionales().length }}</strong>
+        </div>
+      </div>
+    </section>
+  }
+
+  @if (state.atencion().length > 0 && state.modoVista() !== 'resumen') {
+    <section class="attention-section" aria-label="Resumen de atención">
       <div class="attention-grid">
         @for (item of state.atencion(); track item.titulo; let i = $index) {
           <article class="attention-card" [class]="item.tono">
@@ -227,7 +355,7 @@
   }
 
   @if (state.modoVista() !== 'favoritos') {
-    <div class="dashboard-grid-container">
+    <div class="dashboard-grid-container" [class.mode-reportes-grid]="state.modoVista() === 'reportes'">
       @for (widget of widgetsParaVista(); track widget.id) {
         @if (deberiaMostrarModulo(widget)) {
           <div
@@ -313,8 +441,8 @@
       }
 
       @if (state.configuracionFavoritos().length === 0 && !state.estaEditando()) {
-        <div class="empty-favorites-state" style="grid-column: 1 / -1; width: 100%;">
-          <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-bottom: 1rem;">
+        <div class="empty-favorites-state empty-favorites-state-full">
+          <svg class="empty-favorites-icon" width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="60" cy="60" r="50" fill="url(#premiumGrad)" opacity="0.15"/>
             <path d="M60 25L71.5 48.5L97.5 52L78.5 70L83 96L60 83.5L37 96L41.5 70L22.5 52L48.5 48.5L60 25Z" fill="url(#goldGrad)" filter="drop-shadow(0px 8px 16px rgba(245, 158, 11, 0.3))"/>
             <defs>
@@ -330,8 +458,8 @@
           </svg>
           <h2>Crea tu espacio de trabajo favorito</h2>
           <p>Organiza tus KPIs, reportes y gráficos prioritarios en un solo lugar para una gestión más rápida y personalizada.</p>
-          <button class="primary-btn" style="width: auto; padding: 0.6rem 2rem; border-radius: 20px; box-shadow: 0 4px 14px rgba(22, 145, 172, 0.3);" (click)="state.alternarEdicion(true)">
-            <span class="material-symbols-outlined" style="font-size: 1.1rem; margin-right: 6px; vertical-align: middle;">space_dashboard</span>
+          <button type="button" class="primary-btn empty-favorites-action" (click)="state.alternarEdicion(true)">
+            <span class="material-symbols-outlined empty-favorites-action-icon">space_dashboard</span>
             Personalizar Vista
           </button>
         </div>
@@ -358,22 +486,10 @@
         @defer (on viewport) {
           <app-ventas-calendario></app-ventas-calendario>
         } @placeholder {
-          <div class="panel-card" style="height: 380px; display: grid; place-items: center; background: #fff; border: 1px solid rgba(15,23,42,0.06); border-radius: 16px;">
-            <div class="skeleton-pulsing" style="width: 80%; height: 80%; border-radius: 8px;"></div>
+          <div class="panel-card deferred-placeholder deferred-placeholder-large">
+            <div class="skeleton-pulsing deferred-placeholder-block"></div>
           </div>
         }
-      }
-      @case ('lectura-comercial') {
-        <app-lectura-comercial></app-lectura-comercial>
-      }
-      @case ('lectura-0') {
-        <app-lectura-comercial [index]="0"></app-lectura-comercial>
-      }
-      @case ('lectura-1') {
-        <app-lectura-comercial [index]="1"></app-lectura-comercial>
-      }
-      @case ('lectura-2') {
-        <app-lectura-comercial [index]="2"></app-lectura-comercial>
       }
       @case ('platos-mas-vendidos') {
         <app-platos-mas-vendidos></app-platos-mas-vendidos>
@@ -384,15 +500,15 @@
       @case ('insumos-vencer') {
         <app-insumos-vencer></app-insumos-vencer>
       }
-      @case ('proximas-acciones') {
-        <app-proximas-acciones></app-proximas-acciones>
+      @case ('radar-alergias') {
+        <app-radar-alergias></app-radar-alergias>
       }
       @case ('mozos') {
         @defer (on viewport) {
           <app-mozos></app-mozos>
         } @placeholder {
-          <div class="panel-card" style="height: 300px; display: grid; place-items: center; background: #fff; border: 1px solid rgba(15,23,42,0.06); border-radius: 16px;">
-            <div class="skeleton-pulsing" style="width: 80%; height: 80%; border-radius: 8px;"></div>
+          <div class="panel-card deferred-placeholder deferred-placeholder-medium">
+            <div class="skeleton-pulsing deferred-placeholder-block"></div>
           </div>
         }
       }
@@ -414,7 +530,7 @@
   </div>
 
   <footer class="dashboard-footer">
-    <button type="button" class="back-to-top-btn" (click)="desplazarAlPrincipio()">
+    <button type="button" class="back-to-top-btn" (click)="desplazarAlPrincipio()" aria-label="Volver al principio del dashboard">
       <span class="material-symbols-outlined">arrow_upward</span> Volver al principio
     </button>
   </footer>
@@ -464,6 +580,7 @@
           type="button" 
           class="floating-back-to-top" 
           (click)="desplazarAlPrincipio()"
+          aria-label="Volver arriba"
           title="Volver arriba">
           <span class="material-symbols-outlined">arrow_upward</span>
         </button>
@@ -472,7 +589,9 @@
           class="floating-menu-trigger" 
           [class.active]="menuFlotanteAbierto()"
           (click)="menuFlotanteAbierto.set(!menuFlotanteAbierto()); mostrarGloboInfo.set(false)"
-          title="Navegar secciones del dashboard">
+          title="Navegar secciones del dashboard"
+          [attr.aria-expanded]="menuFlotanteAbierto()"
+          aria-label="Navegar secciones del dashboard">
           <span class="material-symbols-outlined">{{ menuFlotanteAbierto() ? 'close' : 'explore' }}</span>
         </button>
       </div>

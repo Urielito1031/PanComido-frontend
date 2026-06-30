@@ -7,69 +7,69 @@
             <div class="plate-avatar-container skeleton-pulsing-avatar">
               <span class="material-symbols-outlined rotating-spinner">autorenew</span>
             </div>
-            <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+            <div class="panel-title-stack">
               <div class="panel-header-pre">
                 <span class="criticidad-badge moderada skeleton-badge-pulse">IA Analizando</span>
                 <span>Análisis de plato</span>
               </div>
-              <h2 id="analisis-plato-titulo" style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0;">
+              <h2 id="analisis-plato-titulo" class="skeleton-panel-title">
                 {{ state.nombrePlatoEnAnalisis() }}
               </h2>
             </div>
           </div>
-          <button class="close-btn" (click)="cerrarDetallePlato()" aria-label="Cerrar">
+          <button type="button" class="close-btn" (click)="cerrarDetallePlato()" aria-label="Cerrar">
             <span class="material-symbols-outlined">close</span>
           </button>
         </div>
         
         <div class="side-panel-body">
-          <div class="diagnostico-box skeleton-box" style="position: relative;">
-            <span class="material-symbols-outlined rotating-spinner" style="color: #f59e0b; margin-top: 0.1rem;">insights</span>
-            <div style="flex: 1;">
-              <strong style="color: #b45309;">Generando diagnóstico con IA...</strong>
-              <p style="font-size: 0.8rem; line-height: 1.4; color: #64748b; margin-top: 0.2rem;">
+          <div class="diagnostico-box skeleton-box skeleton-diagnostico-box">
+            <span class="material-symbols-outlined rotating-spinner skeleton-insight-icon">insights</span>
+            <div class="skeleton-copy-block">
+              <strong class="skeleton-diagnostico-title">Generando diagnóstico con IA...</strong>
+              <p class="skeleton-diagnostico-copy">
                 Por favor, aguarda un momento mientras calculamos los costos, márgenes de ganancia e historial de ventas...
               </p>
-              <div class="skeleton-line lg skeleton-pulsing mt-2" style="width: 100%;"></div>
+              <div class="skeleton-line lg skeleton-pulsing mt-2 skeleton-line-full"></div>
             </div>
           </div>
 
           <div class="analisis-metrics-grid">
             <div class="metric-pill-card skeleton-metric">
-              <span class="metric-label" style="opacity: 0.6;">Ventas</span>
-              <div class="skeleton-line md skeleton-pulsing mt-1" style="width: 70%; height: 1.25rem;"></div>
+              <span class="metric-label skeleton-muted-label">Ventas</span>
+              <div class="skeleton-line md skeleton-pulsing mt-1 skeleton-line-metric"></div>
             </div>
             <div class="metric-pill-card skeleton-metric">
-              <span class="metric-label" style="opacity: 0.6;">Participación</span>
-              <div class="skeleton-line md skeleton-pulsing mt-1" style="width: 70%; height: 1.25rem;"></div>
+              <span class="metric-label skeleton-muted-label">Participación</span>
+              <div class="skeleton-line md skeleton-pulsing mt-1 skeleton-line-metric"></div>
             </div>
             <div class="metric-pill-card skeleton-metric">
-              <span class="metric-label" style="opacity: 0.6;">Precio</span>
-              <div class="skeleton-line md skeleton-pulsing mt-1" style="width: 70%; height: 1.25rem;"></div>
+              <span class="metric-label skeleton-muted-label">Precio</span>
+              <div class="skeleton-line md skeleton-pulsing mt-1 skeleton-line-metric"></div>
             </div>
             <div class="metric-pill-card skeleton-metric">
-              <span class="metric-label" style="opacity: 0.6;">Costo Prep.</span>
-              <div class="skeleton-line md skeleton-pulsing mt-1" style="width: 70%; height: 1.25rem;"></div>
+              <span class="metric-label skeleton-muted-label">Costo Prep.</span>
+              <div class="skeleton-line md skeleton-pulsing mt-1 skeleton-line-metric"></div>
             </div>
           </div>
 
           <div class="analisis-chart-section">
-            <span class="metric-label" style="opacity: 0.6;">Tendencia de ventas (Semanas)</span>
-            <div class="skeleton-chart skeleton-pulsing mt-2" style="height: 60px; width: 100%; border-radius: 8px;"></div>
+            <span class="metric-label skeleton-muted-label">Tendencia de ventas (Semanas)</span>
+            <div class="skeleton-chart skeleton-pulsing mt-2 skeleton-chart-line"></div>
           </div>
 
-          <div class="analisis-comparativa-box skeleton-box" style="background: #fffdf5; border-color: rgba(245, 158, 11, 0.1);">
-            <div class="comparativa-header" style="color: #b45309; opacity: 0.7;">
+          <div class="analisis-comparativa-box skeleton-box skeleton-comparativa-box">
+            <div class="comparativa-header skeleton-comparativa-header">
               <span class="material-symbols-outlined">compare_arrows</span>
               <strong>Comparativa de Categoría</strong>
             </div>
-            <div class="skeleton-line lg skeleton-pulsing mb-2" style="width: 90%;"></div>
-            <div class="skeleton-line lg skeleton-pulsing" style="width: 60%;"></div>
+            <div class="skeleton-line lg skeleton-pulsing mb-2 skeleton-line-wide"></div>
+            <div class="skeleton-line lg skeleton-pulsing skeleton-line-medium"></div>
           </div>
         </div>
 
         <div class="side-panel-footer">
-          <div class="skeleton-btn-full skeleton-pulsing" style="height: 40px; border-radius: 10px; width: 100%; opacity: 0.7;"></div>
+          <div class="skeleton-btn-full skeleton-pulsing skeleton-footer-button"></div>
         </div>
       } @else {
         @if (state.platoSeleccionado(); as detalle) {
@@ -88,7 +88,7 @@
                 <h2 id="analisis-plato-titulo">{{ detalle.plato.nombre }}</h2>
               </div>
             </div>
-            <button class="close-btn" (click)="cerrarDetallePlato()" aria-label="Cerrar">
+            <button type="button" class="close-btn" (click)="cerrarDetallePlato()" aria-label="Cerrar">
               <span class="material-symbols-outlined">close</span>
             </button>
           </div>
@@ -212,7 +212,7 @@
                     @if (!sug.aplicada) {
                       @if (sug.tipo === 'descuento') {
                         @if (!confirmandoDescuento()) {
-                          <button class="sug-btn primary" (click)="confirmandoDescuento.set(true)">
+                          <button type="button" class="sug-btn primary" (click)="confirmandoDescuento.set(true)">
                              <span class="material-symbols-outlined">percent</span>
                              Aplicar Descuento 10%
                           </button>
@@ -220,23 +220,23 @@
                           <div class="sug-confirm-inline animate-fade-in">
                             <span class="confirm-text">¿Aplicar descuento inmediato de 10%?</span>
                             <div class="confirm-buttons-group">
-                              <button class="sug-confirm-btn confirm-yes" (click)="confirmarDescuento(detalle.plato.nombre)">
+                              <button type="button" class="sug-confirm-btn confirm-yes" (click)="confirmarDescuento(detalle.plato.nombre)">
                                 Confirmar
                               </button>
-                              <button class="sug-confirm-btn confirm-no" (click)="confirmandoDescuento.set(false)">
+                              <button type="button" class="sug-confirm-btn confirm-no" (click)="confirmandoDescuento.set(false)">
                                 Cancelar
                               </button>
                             </div>
                           </div>
                         }
                       } @else {
-                        <button class="sug-btn secondary" (click)="agendarRecordatorio(detalle.plato.nombre, sug.accion)">
+                        <button type="button" class="sug-btn secondary" (click)="agendarRecordatorio(detalle.plato.nombre, sug.accion)">
                           <span class="material-symbols-outlined">alarm</span>
                           Agendar Recordatorio
                         </button>
                       }
                     } @else {
-                      <button class="sug-btn success-applied" disabled>
+                      <button type="button" class="sug-btn success-applied" disabled>
                         <span class="material-symbols-outlined">done</span>
                         ¡Acción Registrada!
                       </button>
@@ -247,16 +247,16 @@
             </div>
           </div>
           
-          <div class="side-panel-footer" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-            <button class="primary-btn" style="flex: 1 1 auto; min-width: 120px;" (click)="irA('carta', { buscar: detalle.plato.nombre, editar: 'true' }); cerrarDetallePlato()">
-              <span class="material-symbols-outlined" style="font-size: 1.1rem; margin-right: 4px; vertical-align: middle;">edit</span>
+          <div class="side-panel-footer side-panel-footer-actions">
+            <button type="button" class="primary-btn side-panel-action-btn" (click)="irA('carta', { buscar: detalle.plato.nombre, editar: 'true' }); cerrarDetallePlato()">
+              <span class="material-symbols-outlined side-panel-action-icon">edit</span>
               Editar plato
             </button>
-            <button class="outline-btn" style="flex: 1 1 auto; min-width: 120px;" (click)="irA('carta', { buscar: detalle.plato.nombre }); cerrarDetallePlato()">
-              <span class="material-symbols-outlined" style="font-size: 1.1rem; margin-right: 4px; vertical-align: middle;">visibility</span>
+            <button type="button" class="outline-btn side-panel-action-btn" (click)="irA('carta', { buscar: detalle.plato.nombre }); cerrarDetallePlato()">
+              <span class="material-symbols-outlined side-panel-action-icon">visibility</span>
               Ver en carta
             </button>
-            <button class="outline-btn" style="border-color: rgba(15, 23, 42, 0.1); color: #64748b;" (click)="cerrarDetallePlato()">
+            <button type="button" class="outline-btn side-panel-close-action" (click)="cerrarDetallePlato()">
               Cerrar
             </button>
           </div>

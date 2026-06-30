@@ -6,7 +6,7 @@
     </div>
     <div class="panel-actions" (click)="$event.stopPropagation()">
       <span class="panel-badge revenue-badge">{{ state.resumenOperativo()?.totalVentas }}</span>
-      <button class="favorite-btn" [class.active]="state.esFavorito('ventas-calendario')" (click)="state.toggleFavorito('ventas-calendario')" title="Fijar en favoritos">
+      <button type="button" class="favorite-btn" [class.active]="state.esFavorito('ventas-calendario')" (click)="state.toggleFavorito('ventas-calendario')" title="Fijar en favoritos" aria-label="Fijar tendencia de ventas en favoritos">
         <span class="material-symbols-outlined">{{ state.esFavorito('ventas-calendario') ? 'star' : 'star_border' }}</span>
       </button>
     </div>
@@ -14,14 +14,14 @@
 
   @if (state.esModoCalendario()) {
     @if (state.ventasCalendarioMes().length === 0) {
-      <div class="empty-chart-state" style="padding: 4rem 1.5rem; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.8rem; flex: 1;">
+      <div class="empty-chart-state">
         <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="40" cy="40" r="32" fill="#f1f5f9"/>
           <path d="M40 24V40L48 48" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
           <circle cx="40" cy="40" r="32" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4 4"/>
         </svg>
-        <h3 style="font-size: 0.95rem; font-weight: 850; color: #334155; margin: 0;">Sin registros de ventas</h3>
-        <p style="font-size: 0.8rem; color: #64748b; margin: 0; max-width: 280px; line-height: 1.4;">
+        <h3>Sin registros de ventas</h3>
+        <p>
           No hay datos transaccionales para el mes seleccionado. Intenta cambiar el rango de fechas.
         </p>
       </div>
@@ -130,14 +130,14 @@
   }
 } @else {
     @if (state.ventasMensuales().length === 0) {
-      <div class="empty-chart-state" style="padding: 4rem 1.5rem; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.8rem; flex: 1;">
+      <div class="empty-chart-state">
         <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="40" cy="40" r="32" fill="#f1f5f9"/>
           <path d="M40 24V40L48 48" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
           <circle cx="40" cy="40" r="32" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4 4"/>
         </svg>
-        <h3 style="font-size: 0.95rem; font-weight: 850; color: #334155; margin: 0;">Sin registros de ventas</h3>
-        <p style="font-size: 0.8rem; color: #64748b; margin: 0; max-width: 280px; line-height: 1.4;">
+        <h3>Sin registros de ventas</h3>
+        <p>
           No hay datos transaccionales para el período seleccionado. Intenta cambiar el rango de fechas.
         </p>
       </div>
