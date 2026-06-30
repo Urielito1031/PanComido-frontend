@@ -23,7 +23,7 @@ describe('DashboardPage', () => {
   let mockState: any;
 
   beforeEach(async () => {
-    const _viewMode = signal('reportes');
+    const _viewMode = signal('resumen');
     const _favoritesConfig = signal([]);
     const _isEditing = signal(false);
     const _insightMozos = signal('');
@@ -56,7 +56,7 @@ describe('DashboardPage', () => {
       resumenOperativo: signal(null),
       esModoCalendario: signal(false),
       tituloGrafico: signal('Tendencia de ventas'),
-      subtituloGrafico: signal('Evolucion del periodo'),
+      subtituloGrafico: signal('Evolución del periodo'),
       ventasMensuales: signal([]),
       ventasCalendarioMes: signal([]),
       platosMasVendidos: signal([]),
@@ -68,10 +68,11 @@ describe('DashboardPage', () => {
       vencimientosResumen: signal([]),
       recomendacionOperativa: signal(''),
       acciones: signal([]),
+      accionPrincipal: signal(null),
       promedioDiarioVentas: signal(0),
       maxVentasMensuales: signal(100),
       maxVentasCalendarioMes: signal(100),
-      periodoLabel: signal('Ultima semana'),
+      periodoLabel: signal('Última semana'),
       variacionVentasEsNegativa: signal(false),
       variacionPedidosEsNegativa: signal(false),
       variacionTicketEsNegativa: signal(false),
@@ -80,6 +81,7 @@ describe('DashboardPage', () => {
       insumosPorVencer: signal([]),
       lecturaCanales: signal([]),
       platoSeleccionado: signal(null),
+      cargandoAnalisisPlato: signal(false),
       mozos: signal([]),
       insightMozos: _insightMozos,
       analisisMozos: _insightMozos,
@@ -116,15 +118,18 @@ describe('DashboardPage', () => {
     expect(mockState.cargarDatos).toHaveBeenCalled();
   });
 
-  it('should render header and period label', () => {
-    mockState.periodoLabel.set('Ultima semana');
+  it('should render header description and period label in toolbar', () => {
+    mockState.periodoLabel.set('Última semana');
     fixture.detectChanges();
     
     const subtitle = fixture.debugElement.query(By.css('.subtitle')).nativeElement;
-    expect(subtitle.textContent).toContain('Ultima semana');
+    expect(subtitle.textContent).toContain('Priorizá decisiones');
+
+    const periodContext = fixture.debugElement.query(By.css('.period-context')).nativeElement;
+    expect(periodContext.textContent).toContain('Última semana');
   });
 
-  it('should render KPI grid if resumenOperativo is present', () => {
+  it('should render KPI report strip if resumenOperativo is present', () => {
     mockState.resumenOperativo.set({
       totalVentas: '$ 5,000',
       totalPedidos: 20,
@@ -139,9 +144,11 @@ describe('DashboardPage', () => {
     const gridContainer = fixture.debugElement.query(By.css('.dashboard-grid-container'));
     expect(gridContainer).toBeTruthy();
     
-    const values = fixture.debugElement.queryAll(By.css('.kpi-value'));
-    expect(values.length).toBeGreaterThan(0);
-    expect(values[0].nativeElement.textContent).toContain('$ 5,000');
+    const heroValue = fixture.debugElement.query(By.css('.kpi-hero-value'));
+    expect(heroValue.nativeElement.textContent).toContain('$ 5,000');
+
+    const miniCards = fixture.debugElement.queryAll(By.css('.kpi-mini-card'));
+    expect(miniCards.length).toBe(3);
   });
 
   it('should set period and update state when clicking period buttons', () => {
@@ -158,53 +165,5 @@ describe('DashboardPage', () => {
     fixture.detectChanges();
     component.establecerFechaDesde('2026-06-01');
     expect(mockState.setPeriodo).toHaveBeenCalledWith('custom');
-  });
-
-  it('should render monthly chart when not in calendar mode', () => {
-    mockState.esModoCalendario.set(false);
-    mockState.ventasMensuales.set([
-      { mes: 'Enero', ventas: 1000 },
-      { mes: 'Febrero', ventas: 2000 }
-    ]);
-    fixture.detectChanges();
-
-    const monthlyChart = fixture.debugElement.query(By.css('.monthly-chart'));
-    expect(monthlyChart).toBeTruthy();
-    
-    const columns = fixture.debugElement.queryAll(By.css('.month-column'));
-    expect(columns.length).toBe(2);
-    expect(columns[0].nativeElement.textContent).toContain('Enero');
-  });
-
-  it('should render heatmap when in calendar mode', () => {
-    mockState.esModoCalendario.set(true);
-    mockState.ventasCalendarioMes.set([
-      { dia: '1', fecha: '01/01/2023', ventas: 100 }
-    ]);
-    fixture.detectChanges();
-
-    const heatmap = fixture.debugElement.query(By.css('.month-heatmap'));
-    expect(heatmap).toBeTruthy();
-    
-    const days = fixture.debugElement.queryAll(By.css('.heatmap-day'));
-    expect(days.length).toBe(1);
-    expect(days[0].nativeElement.textContent).toContain('1');
-  });
-
-  it('should select day and open day-detail-panel in calendar mode', () => {
-    mockState.esModoCalendario.set(true);
-    const mockDia = { dia: '1', fecha: '01/01/2023', ventas: 100 };
-    mockState.ventasCalendarioMes.set([mockDia]);
-    fixture.detectChanges();
-
-    const dayButton = fixture.debugElement.query(By.css('.heatmap-day'));
-    dayButton.triggerEventHandler('click', null);
-    fixture.detectChanges();
-
-    expect(component.diaSeleccionado()).toEqual(mockDia);
-
-    const detailPanel = fixture.debugElement.query(By.css('.day-detail-panel'));
-    expect(detailPanel).toBeTruthy();
-    expect(detailPanel.nativeElement.textContent).toContain('01/01/2023');
   });
 });

@@ -1,14 +1,26 @@
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, HostListener, OnDestroy, OnInit, computed, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import flatpickr from 'flatpickr';
 import { Instance } from 'flatpickr/dist/types/instance';
 import { CustomLocale } from 'flatpickr/dist/types/locale';
-import { ArsCurrencyPipe } from '../../../../shared/pipes/ars-currency.pipe';
+
 import { DashboardStateService, DISEÑO_POR_DEFECTO } from '../services/dashboard.state';
-import { DashboardDestino, DashboardPeriodo, DashboardVentaDia, WidgetLayout, FavoriteWidgetConfig, DashboardAccionItem } from '../../../../core/models/domain/dashboard';
+import { DashboardNavigationService } from '../services/dashboard-navigation.service';
+import { DashboardDestino, DashboardPeriodo, WidgetLayout, FavoriteWidgetConfig, DashboardAccionItem, DashboardViewMode } from '../../../../core/models/domain/dashboard';
+import { ArsCurrencyPipe } from '../../../../shared/pipes/ars-currency.pipe';
+
+// Import modular components
+import { KpiCardComponent } from '../components/kpi-card/kpi-card';
+import { VentasCalendarioComponent } from '../components/ventas-calendario/ventas-calendario';
+import { PlatosMasVendidosComponent } from '../components/platos-mas-vendidos/platos-mas-vendidos';
+import { PlatosMenosVendidosComponent } from '../components/platos-menos-vendidos/platos-menos-vendidos';
+import { InsumosVencerComponent } from '../components/insumos-vencer/insumos-vencer';
+import { RadarAlergiasComponent } from '../components/radar-alergias/radar-alergias';
+import { MozosComponent } from '../components/mozos/mozos';
+import { AnalisisPlatoPanelComponent } from '../components/analisis-plato-panel/analisis-plato-panel';
 
 export interface ModuloDisponible {
   id: string;
@@ -20,18 +32,15 @@ export interface ModuloDisponible {
 }
 
 export const MODULOS_DISPONIBLES: ModuloDisponible[] = [
-  { id: 'kpi-ventas', name: 'Ventas Totales', description: 'Facturación total y variación porcentual', icon: 'payments', category: 'Finanzas', allowedWidths: ['25', '50', '100'] },
+  { id: 'kpi-ventas', name: 'Ventas Totales', description: 'Facturación total and variación porcentual', icon: 'payments', category: 'Finanzas', allowedWidths: ['25', '50', '100'] },
   { id: 'kpi-pedidos', name: 'Pedidos Totales', description: 'Contador de órdenes y promedio por día', icon: 'shopping_bag', category: 'Ventas', allowedWidths: ['25', '50', '100'] },
   { id: 'kpi-ticket', name: 'Ticket Promedio', description: 'Gasto medio por comanda finalizada', icon: 'receipt_long', category: 'Finanzas', allowedWidths: ['25', '50', '100'] },
   { id: 'kpi-promedio', name: 'Promedio Diario', description: 'Estimado de facturación por día', icon: 'analytics', category: 'Finanzas', allowedWidths: ['25', '50', '100'] },
   { id: 'ventas-calendario', name: 'Tendencia de Ventas', description: 'Mapa de calor mensual o evolutivo', icon: 'calendar_month', category: 'Ventas', allowedWidths: ['50', '100'] },
-  { id: 'lectura-0', name: 'Insight: Líder de Ventas', description: 'Detalle de platos más populares', icon: 'insights', category: 'Ventas', allowedWidths: ['25', '50', '100'] },
-  { id: 'lectura-1', name: 'Insight: Tracción de Ventas', description: 'Ingresos estimados del top 5', icon: 'insights', category: 'Ventas', allowedWidths: ['25', '50', '100'] },
-  { id: 'lectura-2', name: 'Insight: Platos a Revisar', description: 'Alertas de platos con baja rotación', icon: 'insights', category: 'Ventas', allowedWidths: ['25', '50', '100'] },
   { id: 'platos-mas-vendidos', name: 'Platos más vendidos', description: 'Ranking de los 5 platos favoritos', icon: 'trending_up', category: 'Ventas', allowedWidths: ['50', '100'] },
   { id: 'platos-menos-vendidos', name: 'Platos menos vendidos', description: 'Ranking de los 5 platos de menor rotación', icon: 'trending_down', category: 'Ventas', allowedWidths: ['50', '100'] },
   { id: 'insumos-vencer', name: 'Insumos por vencer', description: 'Materia prima próxima a caducar', icon: 'warning', category: 'Inventario', allowedWidths: ['50', '100'] },
-  { id: 'proximas-acciones', name: 'Próximas acciones', description: 'Recomendaciones automáticas urgentes', icon: 'task_alt', category: 'Inventario', allowedWidths: ['25', '50', '100'] },
+  { id: 'radar-alergias', name: 'Radar de Alergias', description: 'Ingredientes excluidos frecuentemente', icon: 'health_and_safety', category: 'Ventas', allowedWidths: ['25', '50', '100'] },
   { id: 'mozos', name: 'Desempeño de Mozos', description: 'Eficiencia y carga del personal de salón', icon: 'groups', category: 'Personal', allowedWidths: ['100'] }
 ];
 
@@ -53,14 +62,26 @@ const LOCALIZACION_ESPANOLA: CustomLocale = {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, ArsCurrencyPipe],
+  imports: [
+    CommonModule,
+    FormsModule,
+    KpiCardComponent,
+    VentasCalendarioComponent,
+    PlatosMasVendidosComponent,
+    PlatosMenosVendidosComponent,
+    InsumosVencerComponent,
+    RadarAlergiasComponent,
+    MozosComponent,
+    AnalisisPlatoPanelComponent,
+    ArsCurrencyPipe
+  ],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
   readonly state = inject(DashboardStateService);
-  private readonly router = inject(Router);
+  private readonly navigation = inject(DashboardNavigationService);
   private readonly route = inject(ActivatedRoute);
   private readonly documento = inject(DOCUMENT);
   private readonly fechaDesdeInput = viewChild<ElementRef<HTMLInputElement>>('fechaDesdeInput');
@@ -91,22 +112,58 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     const modo = this.state.modoVista();
     let base = this.disenoActual().map(w => ({ ...w }));
     
-    if (modo === 'personal') {
-      // Mover 'proximas-acciones' al final
-      const idxAcciones = base.findIndex(w => w.id === 'proximas-acciones');
+    if (modo === 'resumen') {
+      base = base
+        .filter(w => w.id !== 'ventas-calendario' && w.id !== 'platos-mas-vendidos' && w.id !== 'mozos')
+        .map(w => {
+          if (w.id === 'platos-menos-vendidos' || w.id === 'radar-alergias') {
+            return { ...w, colSpan: 6 };
+          }
+          return w;
+        });
+      const idxAcciones = base.findIndex(w => w.id === 'radar-alergias');
+      const idxPlatosBajos = base.findIndex(w => w.id === 'platos-menos-vendidos');
+      if (idxAcciones !== -1 && idxPlatosBajos !== -1 && idxAcciones !== idxPlatosBajos + 1) {
+        const [acciones] = base.splice(idxAcciones, 1);
+        base.splice(idxPlatosBajos + 1, 0, acciones);
+      }
+    } else if (modo === 'reportes') {
+      const idxVentas = base.findIndex(w => w.id === 'ventas-calendario');
+      const idxPlatosBajos = base.findIndex(w => w.id === 'platos-menos-vendidos');
+      if (idxVentas !== -1 && idxPlatosBajos !== -1 && idxPlatosBajos !== idxVentas + 1) {
+        const [platosBajos] = base.splice(idxPlatosBajos, 1);
+        const updatedIdxVentas = base.findIndex(w => w.id === 'ventas-calendario');
+        base.splice(updatedIdxVentas + 1, 0, platosBajos);
+      }
+      const idxAcciones = base.findIndex(w => w.id === 'radar-alergias');
+      const idxMozos = base.findIndex(w => w.id === 'mozos');
+      if (idxAcciones !== -1 && idxMozos !== -1 && idxMozos !== idxAcciones + 1) {
+        const [mozos] = base.splice(idxMozos, 1);
+        const updatedIdxAcciones = base.findIndex(w => w.id === 'radar-alergias');
+        base.splice(updatedIdxAcciones + 1, 0, mozos);
+      }
+      base = base.map(w => {
+        if (w.id === 'ventas-calendario' || w.id === 'platos-menos-vendidos') {
+          return { ...w, colSpan: 6 };
+        }
+        if (w.id === 'radar-alergias' || w.id === 'mozos') {
+          return { ...w, colSpan: 6 };
+        }
+        return w;
+      });
+    } else if (modo === 'personal') {
+      const idxAcciones = base.findIndex(w => w.id === 'radar-alergias');
       if (idxAcciones !== -1) {
         const [acciones] = base.splice(idxAcciones, 1);
         base.push(acciones);
       }
-      // Redimensionar las 2 KPIs (kpi-ticket, kpi-pedidos) para que ocupen colSpan 6
       base = base.map(w => {
-        if (w.id === 'kpi-ticket' || w.id === 'kpi-pedidos') {
+        if (w.id === 'kpi-ticket' || w.id === 'kpi-pedidos' || w.id === 'mozos' || w.id === 'radar-alergias') {
           return { ...w, colSpan: 6 };
         }
         return w;
       });
     } else if (modo === 'operativo') {
-      // Redimensionar las 2 KPIs (kpi-pedidos, kpi-promedio) a colSpan 6
       base = base.map(w => {
         if (w.id === 'kpi-pedidos' || w.id === 'kpi-promedio') {
           return { ...w, colSpan: 6 };
@@ -117,7 +174,6 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     return base;
   });
 
-  readonly diaSeleccionado = signal<DashboardVentaDia | null>(null);
   readonly modulosDisponibles = MODULOS_DISPONIBLES;
   readonly menuConfiguracionModuloActivo = signal<string | null>(null);
   readonly indiceArrastrado = signal<number | null>(null);
@@ -213,7 +269,14 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
 
   seleccionarTabMovil(tab: any, event: Event): void {
     event.stopPropagation();
-    this.state.establecerModoVista(tab);
+    const doc = this.documento as any;
+    if (doc.startViewTransition) {
+      doc.startViewTransition(() => {
+        this.state.establecerModoVista(tab);
+      });
+    } else {
+      this.state.establecerModoVista(tab);
+    }
     this.tabsMovilExpandido.set(false);
   }
 
@@ -221,11 +284,12 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     const modo = this.state.modoVista();
     switch (modo) {
       case 'favoritos': return 'star';
-      case 'reportes': return 'dashboard';
+      case 'resumen': return 'space_dashboard';
+      case 'reportes': return 'analytics';
       case 'finanzas': return 'payments';
       case 'personal': return 'groups';
-      case 'operativo': return 'settings';
-      default: return 'dashboard';
+      case 'operativo': return 'task_alt';
+      default: return 'space_dashboard';
     }
   }
 
@@ -233,11 +297,32 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     const modo = this.state.modoVista();
     switch (modo) {
       case 'favoritos': return 'Favoritos';
-      case 'reportes': return 'Todos los Reportes';
+      case 'resumen': return 'Resumen';
+      case 'reportes': return 'Análisis completo';
       case 'finanzas': return 'Finanzas';
       case 'personal': return 'Personal';
-      case 'operativo': return 'Operativo';
-      default: return 'Todos los Reportes';
+      case 'operativo': return 'Hoy';
+      default: return 'Resumen';
+    }
+  }
+
+  obtenerDescripcionVistaActiva(): string {
+    const modo = this.state.modoVista();
+    switch (modo) {
+      case 'resumen':
+        return 'Priorizá decisiones del día: urgencias, KPIs esenciales y acciones inmediatas.';
+      case 'favoritos':
+        return 'Tu espacio personalizado con los módulos que querés seguir de cerca.';
+      case 'reportes':
+        return 'Explorá todos los reportes disponibles para análisis profundo del local.';
+      case 'finanzas':
+        return 'Seguimiento de ventas, pedidos, ticket promedio y tendencia comercial.';
+      case 'personal':
+        return 'Lectura del desempeño del equipo de salón y distribución de carga.';
+      case 'operativo':
+        return 'Foco en vencimientos, tareas y movimientos que requieren resolución hoy.';
+      default:
+        return 'Lectura operativa del local.';
     }
   }
 
@@ -326,133 +411,6 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     this.state.cargarDatos();
   }
 
-  obtenerPuntosSparkline(tendencia: number[]): string {
-    if (!tendencia || tendencia.length === 0) return '';
-    const minVal = Math.min(...tendencia);
-    const maxVal = Math.max(...tendencia);
-    const range = maxVal - minVal || 1;
-
-    const svgW = 320;
-    const svgH = 60;
-    const padding = 6;
-    const chartH = svgH - padding * 2;
-
-    return tendencia.map((val, idx) => {
-      const x = padding + (idx * (svgW - padding * 2)) / (tendencia.length - 1);
-      const y = padding + chartH - ((val - minVal) / range) * chartH;
-      return `${x},${y}`;
-    }).join(' ');
-  }
-
-  obtenerArrayPuntosSparkline(tendencia: number[]): { x: number; y: number }[] {
-    if (!tendencia || tendencia.length === 0) return [];
-    const minVal = Math.min(...tendencia);
-    const maxVal = Math.max(...tendencia);
-    const range = maxVal - minVal || 1;
-
-    const svgW = 320;
-    const svgH = 60;
-    const padding = 6;
-    const chartH = svgH - padding * 2;
-
-    return tendencia.map((val, idx) => {
-      const x = padding + (idx * (svgW - padding * 2)) / (tendencia.length - 1);
-      const y = padding + chartH - ((val - minVal) / range) * chartH;
-      return { x, y };
-    });
-  }
-
-  readonly confirmandoDescuento = signal<boolean>(false);
-
-  abrirDetallePlato(plato: any, index: number): void {
-    this.confirmandoDescuento.set(false);
-    this.state.abrirDetallePlato(plato, index);
-  }
-
-  cerrarDetallePlato(): void {
-    this.confirmandoDescuento.set(false);
-    this.state.cerrarDetallePlato();
-  }
-
-  confirmarDescuento(platoNombre: string): void {
-    this.state.aplicarDescuentoDirecto(platoNombre);
-    this.confirmandoDescuento.set(false);
-  }
-
-  agendarRecordatorio(platoNombre: string, accionTitulo: string): void {
-    this.state.agendarRecordatorioDirecto(platoNombre, accionTitulo);
-  }
-
-  deberiaMostrarModulo(widget: WidgetLayout): boolean {
-    const modo = this.state.modoVista();
-    if (modo === 'reportes') return true;
-
-    if (modo === 'finanzas') {
-      return widget.id === 'kpi-ventas' || 
-             widget.id === 'kpi-pedidos' || 
-             widget.id === 'kpi-ticket' || 
-             widget.id === 'kpi-promedio' || 
-             widget.id === 'ventas-calendario';
-    }
-
-    if (modo === 'operativo') {
-      return widget.id === 'insumos-vencer' || 
-             widget.id === 'proximas-acciones' || 
-             widget.id === 'kpi-pedidos' || 
-             widget.id === 'kpi-promedio';
-    }
-
-    if (modo === 'personal') {
-      return widget.id === 'mozos' || 
-             widget.id === 'kpi-ticket' || 
-             widget.id === 'kpi-pedidos' || 
-             widget.id === 'proximas-acciones';
-    }
-
-    if (widget.id === 'lectura-comercial') {
-      return this.state.esFavorito('lectura-0') || 
-             this.state.esFavorito('lectura-1') || 
-             this.state.esFavorito('lectura-2');
-    }
-    return this.state.esFavorito(widget.id);
-  }
-
-  readonly desplazamientoCalendario = computed(() => {
-    const dias = this.state.ventasCalendarioMes();
-    if (dias.length === 0) return [];
-
-    const primeraFechaStr = dias[0].fecha;
-    const partes = primeraFechaStr.split('/');
-    if (partes.length !== 3) return [];
-    const [dia, mes, anio] = partes.map(Number);
-    const fecha = new Date(anio, mes - 1, dia);
-
-    const dayOfWeek = fecha.getDay();
-    const offset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-
-    return Array.from({ length: offset });
-  });
-
-  readonly mayorVenta = computed(() => {
-    return Math.max(...this.state.platosMasVendidos().map(item => item.valor));
-  });
-
-  readonly mayorVentaMensual = this.state.maxVentasMensuales;
-
-  readonly mejorDiaMes = computed(() => {
-    return [...this.state.ventasCalendarioMes()].sort((a, b) => b.ventas - a.ventas)[0] ?? null;
-  });
-
-  readonly peorDiaMes = computed(() => {
-    return [...this.state.ventasCalendarioMes()].sort((a, b) => a.ventas - b.ventas)[0] ?? null;
-  });
-
-  readonly promedioDiaMes = computed(() => {
-    const dias = this.state.ventasCalendarioMes();
-    if (dias.length === 0) return 0;
-    return Math.round(dias.reduce((total, dia) => total + dia.ventas, 0) / dias.length);
-  });
-
   readonly periodos: { label: string; value: DashboardPeriodo }[] = [
     { label: '1 día', value: '1d' },
     { label: '3 días', value: '3d' },
@@ -464,16 +422,24 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.state.cargarDatos();
 
-    // Escuchar navegación por fragment desde el sidebar
     this.fragmentSub = this.route.fragment.subscribe(fragment => {
       if (fragment) {
-        this.state.establecerModoVista('reportes');
-        setTimeout(() => this.desplazarASeccion(fragment), 150);
+        this.desplazarASeccion(fragment);
       }
     });
   }
 
   ngAfterViewInit(): void {
+    this.inicializarCalendarios();
+  }
+
+  ngOnDestroy(): void {
+    this.calendarioDesde?.destroy();
+    this.calendarioHasta?.destroy();
+    this.fragmentSub?.unsubscribe();
+  }
+
+  private inicializarCalendarios(): void {
     const baseOptions = {
       locale: LOCALIZACION_ESPANOLA,
       dateFormat: 'd/m/Y',
@@ -490,14 +456,14 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     const desde = this.fechaDesdeInput()?.nativeElement;
     const hasta = this.fechaHastaInput()?.nativeElement;
 
-    if (desde) {
+    if (desde && !this.calendarioDesde) {
       this.calendarioDesde = flatpickr(desde, {
         ...baseOptions,
         onChange: (_dates, value) => this.establecerFechaDesde(value)
       });
     }
 
-    if (hasta) {
+    if (hasta && !this.calendarioHasta) {
       this.calendarioHasta = flatpickr(hasta, {
         ...baseOptions,
         onChange: (_dates, value) => this.establecerFechaHasta(value)
@@ -505,17 +471,17 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
-    this.calendarioDesde?.destroy();
-    this.calendarioHasta?.destroy();
-    this.fragmentSub?.unsubscribe();
-  }
-
   establecerPeriodo(periodo: DashboardPeriodo): void {
     this.state.setPeriodo(periodo);
-    if (periodo !== 'custom') {
+    if (periodo === 'custom') {
+      setTimeout(() => this.inicializarCalendarios());
+    } else {
       this.calendarioDesde?.clear(false);
       this.calendarioHasta?.clear(false);
+      this.calendarioDesde?.destroy();
+      this.calendarioHasta?.destroy();
+      this.calendarioDesde = null;
+      this.calendarioHasta = null;
     }
   }
 
@@ -529,108 +495,67 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     this.state.setFechaHasta(fecha);
   }
 
-  porcentajeRanking(valor: number): number {
-    const max = Math.max(...this.state.platosMasVendidos().map(item => item.valor));
-    if (max === 0) return 0;
-    return Math.max(8, Math.round((valor / max) * 100));
-  }
-
-  porcentajeVentaMensual(valor: number): number {
-    return Math.max(10, Math.round((valor / this.mayorVentaMensual()) * 100));
-  }
-
-  intensidadVentaDia(valor: number): number {
-    const max = this.state.maxVentasCalendarioMes();
-    const min = this.peorDiaMes()?.ventas ?? 0;
-    if (max <= min) return 0.5;
-    return Math.max(0.08, Math.min(1, (valor - min) / (max - min)));
-  }
-
-  nivelVentaDia(valor: number): string {
-    const intensidad = this.intensidadVentaDia(valor);
-    if (intensidad < 0.2) return 'heat-level-1';
-    if (intensidad < 0.4) return 'heat-level-2';
-    if (intensidad < 0.6) return 'heat-level-3';
-    if (intensidad < 0.8) return 'heat-level-4';
-    return 'heat-level-5';
-  }
-
-  detalleVentaDia(fecha: string, ventas: number): string {
-    return `${fecha}: ${new Intl.NumberFormat('es-AR', {
-      style: 'currency',
-      currency: 'ARS',
-      maximumFractionDigits: 0
-    }).format(ventas)}`;
-  }
-
-  seleccionarDia(item: DashboardVentaDia): void {
-    if (this.diaSeleccionado()?.dia === item.dia) {
-      this.diaSeleccionado.set(null);
-    } else {
-      this.diaSeleccionado.set(item);
+  deberiaMostrarModulo(widget: WidgetLayout): boolean {
+    const modo = this.state.modoVista();
+    if (modo !== 'favoritos' && widget.id.startsWith('kpi-')) {
+      return false;
     }
-  }
 
-  cerrarDetalle(): void {
-    this.diaSeleccionado.set(null);
-  }
-
-  private obtenerPrecioPromedioTicket(): number {
-    const ticketStr = this.state.resumenOperativo()?.ticketPromedio ?? '';
-    const numeric = Number(ticketStr.replace(/[^0-9]/g, '')) || 0;
-    return numeric > 0 ? numeric : 4160;
-  }
-
-  calcularPedidosDia(ventas: number): number {
-    const avgTicket = this.obtenerPrecioPromedioTicket();
-    return Math.max(1, Math.round(ventas / avgTicket));
-  }
-
-  calcularTicketPromedioDia(ventas: number): number {
-    const avgTicket = this.obtenerPrecioPromedioTicket();
-    const shift = (ventas % 15) - 7;
-    return avgTicket + shift * 10;
-  }
-
-  esMejorDia(item: DashboardVentaDia): boolean {
-    return this.mejorDiaMes()?.dia === item.dia;
-  }
-
-  esDiaBajo(item: DashboardVentaDia): boolean {
-    return item.ventas < this.promedioDiaMes() * 0.78;
-  }
-
-  variacionContraPromedio(item: DashboardVentaDia): number {
-    const promedio = this.promedioDiaMes();
-    if (!promedio) return 0;
-    return Math.round(((item.ventas - promedio) / promedio) * 100);
-  }
-
-  readonly mostrandoCriterios = signal<boolean>(false);
-  readonly filtroCriticidadVencimiento = signal<'todos' | 'alta' | 'media' | 'baja'>('todos');
-
-  readonly insumosFiltrados = computed(() => {
-    const todos = this.state.insumosPorVencer();
-    const filtro = this.filtroCriticidadVencimiento();
-    if (filtro === 'todos') {
-      return todos;
+    if (modo === 'resumen') {
+      return widget.id === 'radar-alergias' ||
+             widget.id === 'insumos-vencer' ||
+             widget.id === 'platos-menos-vendidos';
     }
-    return todos.filter(item => item.criticidad.toLowerCase() === filtro);
-  });
 
-  alternarExplicacionCriterios(event: Event): void {
-    event.stopPropagation();
-    this.mostrandoCriterios.update(v => !v);
-  }
+    if (modo === 'reportes') return true;
 
-  establecerFiltroCriticidad(filtro: 'todos' | 'alta' | 'media' | 'baja'): void {
-    this.filtroCriticidadVencimiento.set(filtro);
+    if (modo === 'finanzas') {
+      return widget.id === 'ventas-calendario';
+    }
+
+    if (modo === 'operativo') {
+      return widget.id === 'insumos-vencer' || 
+             widget.id === 'radar-alergias';
+    }
+
+    if (modo === 'personal') {
+      return widget.id === 'mozos' || 
+             widget.id === 'radar-alergias';
+    }
+
+    return this.state.esFavorito(widget.id);
   }
 
   desplazarASeccion(widgetId: string): void {
-    const element = this.documento.getElementById('widget-' + widgetId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const validModes: Record<string, DashboardViewMode> = {
+      resumen: 'resumen',
+      finanzas: 'finanzas',
+      reportes: 'reportes',
+      operativo: 'operativo',
+      personal: 'personal',
+      favoritos: 'favoritos'
+    };
+
+    if (validModes[widgetId]) {
+      this.state.establecerModoVista(validModes[widgetId]);
+    } else {
+      const widgetTabMap: Record<string, DashboardViewMode> = {
+        'kpi-ventas': 'resumen',
+        'kpi-pedidos': 'resumen',
+        'kpi-ticket': 'resumen',
+        'kpi-promedio': 'resumen',
+        'ventas-calendario': 'finanzas',
+        'platos-mas-vendidos': 'reportes',
+        'platos-menos-vendidos': 'reportes',
+        'insumos-vencer': 'operativo',
+        'radar-alergias': 'operativo',
+        'mozos': 'personal'
+      };
+      const targetMode = widgetTabMap[widgetId] || 'reportes';
+      this.state.establecerModoVista(targetMode);
+      setTimeout(() => {
+        this.navigation.desplazarAWidget(widgetId);
+      }, 150);
     }
     this.menuFlotanteAbierto.set(false);
     this.mostrarGloboInfo.set(false);
@@ -641,46 +566,8 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     this.mostrarGloboInfo.set(false);
   }
 
-  obtenerIconoAccion(destino: string): string {
-    switch (destino) {
-      case 'pedido': return 'local_shipping';
-      case 'stock': return 'inventory_2';
-      case 'carta': return 'restaurant_menu';
-      default: return 'task_alt';
-    }
-  }
-
   irA(destino: DashboardDestino, extraParams?: any): void {
-    if (destino === 'vencimientos') {
-      this.state.establecerModoVista('reportes');
-      setTimeout(() => {
-        const element = this.documento.getElementById('widget-insumos-vencer');
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }, 50);
-      return;
-    }
-
-    if (destino === 'stock') {
-      this.router.navigate(['/staff', 'gerente', 'stock-mercaderia'], { fragment: 'lotes' });
-      return;
-    }
-
-    if (destino === 'carta') {
-      this.router.navigate(['/staff', 'gerente', 'modificar-carta'], { queryParams: extraParams });
-      return;
-    }
-
-    const routes: Record<DashboardDestino, string[]> = {
-      stock: ['/staff', 'gerente', 'stock-mercaderia'],
-      carta: ['/staff', 'gerente', 'modificar-carta'],
-      proveedores: ['/staff', 'gerente', 'ver-proveedores'],
-      pedido: ['/staff', 'gerente', 'realizar-pedido-sugerido'],
-      vencimientos: []
-    };
-
-    this.router.navigate(routes[destino], { queryParams: extraParams });
+    this.navigation.irA(destino, extraParams);
   }
 
   gestionarRecordatorio(rec: DashboardAccionItem): void {

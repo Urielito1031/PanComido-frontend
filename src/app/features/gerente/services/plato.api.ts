@@ -81,7 +81,7 @@ export class PlatoApiService {
   platoAFormData(plato: CrearPlatoRequestDto, archivo: File):FormData {
     const formData= new FormData();
     formData.append('Nombre',plato.nombre);
-    formData.append('PrecioVentaFinal',plato.precioVentaFinal.toString());
+    formData.append('PrecioVentaFinal',plato.precioVentaFinal.toString().replace('.', ','));
     formData.append('TiempoPreparacionBase',plato.tiempoPreparacionBase.toString());
     formData.append('TipoPlatoId', plato.tipoPlatoId.toString());
     formData.append('CategoriaPlatoId',plato.categoriaPlatoId.toString());
@@ -97,7 +97,7 @@ export class PlatoApiService {
       if (plato.ingredientes && plato.ingredientes.length > 0) {
         plato.ingredientes.forEach((ingrediente, index) => {
           formData.append(`Ingredientes[${index}].InsumoId`, ingrediente.insumoId.toString());
-          formData.append(`Ingredientes[${index}].Cantidad`, ingrediente.cantidad.toString());
+          formData.append(`Ingredientes[${index}].Cantidad`, ingrediente.cantidad.toString().replace('.', ','));
           formData.append(`Ingredientes[${index}].Opcional`, ingrediente.opcional ? 'true' : 'false');
           });
         }

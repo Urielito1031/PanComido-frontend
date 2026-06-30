@@ -1,0 +1,42 @@
+<article class="panel-card radar-card">
+  <div class="panel-heading radar-header">
+    <div>
+      <h2>Radar de Alergias y Modificaciones</h2>
+      <p>Ingredientes excluidos frecuentemente por los clientes</p>
+    </div>
+    <div class="panel-actions" (click)="$event.stopPropagation()">
+      <span class="panel-badge badge-radar">Top Exclusiones</span>
+      <button type="button" class="favorite-btn" [class.active]="state.esFavorito('radar-alergias')" (click)="state.toggleFavorito('radar-alergias')" title="Fijar en favoritos" aria-label="Fijar radar de alergias en favoritos">
+        <span class="material-symbols-outlined">{{ state.esFavorito('radar-alergias') ? 'star' : 'star_border' }}</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="radar-list">
+    @for (item of state.ingredientesExcluidos(); track item.ingredienteId; let index = $index) {
+      <div class="radar-item">
+        <div class="item-meta">
+          <span class="ingredient-name">{{ item.nombreIngrediente }}</span>
+          <span class="exclusion-count">{{ item.cantidadExclusiones }} veces removido</span>
+        </div>
+        
+        <!-- Barra de progreso visual -->
+        <div class="progress-bar-container">
+          <div class="progress-bar" [style.width]="item.tasaExclusionPlatoMasExcluido"></div>
+        </div>
+
+        <div class="item-footer">
+          <span>Crítico en: <strong>{{ item.platoMasExcluido }}</strong></span>
+          <span class="tasa-badge" [ngClass]="obtenerTonoTasa(item.tasaExclusionPlatoMasExcluido)">
+            Tasa: {{ item.tasaExclusionPlatoMasExcluido }} de pedidos
+          </span>
+        </div>
+      </div>
+    } @empty {
+      <div class="empty-radar-state">
+        <span class="material-symbols-outlined">health_and_safety</span>
+        <p>No se registran exclusiones de ingredientes en este período.</p>
+      </div>
+    }
+  </div>
+</article>

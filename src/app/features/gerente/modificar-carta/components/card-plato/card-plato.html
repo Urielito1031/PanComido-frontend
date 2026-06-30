@@ -103,21 +103,21 @@
       </div>
       
       <!-- INFO & ACTIONS ALIGNED AS COLUMNS -->
-      <div class="d-flex flex-column flex-md-row align-items-md-center gap-3 gap-md-4 flex-grow-1 min-w-0">
+      <div class="dish-compact-content flex-grow-1 min-w-0">
         
         <!-- TITLE -->
-        <div class="min-w-0 pe-2" style="flex: 1; max-width: 300px;">
+        <div class="pe-2" style="flex: 1; max-width: 300px; min-width: 0;">
            <h6 class="dish-title fw-bold text-dark text-truncate mb-0" [title]="plato().nombre">
              {{ plato().nombre }}
            </h6>
            <!-- Show badges directly below title on mobile only -->
-           <div class="d-flex d-md-none flex-wrap gap-2 mt-2 align-items-center">
+           <div class="dish-price-mobile-only">
              <span class="badge-price fw-bold">{{ plato().precioVenta | arsCurrency }}</span>
            </div>
         </div>
 
         <!-- DESKTOP PRICING COLUMNS -->
-        <div class="d-none d-md-flex align-items-center gap-4 pe-3 border-end border-light">
+        <div class="dish-pricing-columns align-items-center gap-4 pe-3 border-end border-light">
            <div class="d-flex flex-column" style="min-width: 80px;">
              <span class="text-muted text-uppercase mb-1" style="font-size: 0.65rem; letter-spacing: 0.05em;">Venta</span>
              <span class="fw-bold text-success" style="font-size: 0.95rem;">{{ plato().precioVenta | arsCurrency }}</span>
@@ -142,8 +142,8 @@
            </div>
         </div>
         
-        <!-- ACTIONS & TOGGLE (Clustered to the left to avoid gaps) -->
-        <div class="d-flex align-items-center gap-2 flex-shrink-0 mt-2 mt-md-0">
+        <!-- ACTIONS & TOGGLE -->
+        <div class="dish-compact-actions gap-2">
           <div class="visibility-toggle-sm me-3">
             <app-toggle 
               [active]="plato().visible" 

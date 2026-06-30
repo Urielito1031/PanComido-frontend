@@ -326,3 +326,25 @@
 ::ng-deep .cancel-btn .btn {
   border-radius: 11px;
 }
+
+.diet-tag-btn {
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.diet-tag-btn:hover {
+  background-color: #f3f4f6;
+}
+
+.diet-tag-btn.active {
+  background-color: #22c55e;
+  color: #ffffff;
+  border-color: #22c55e;
+}

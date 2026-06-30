@@ -7,7 +7,7 @@ import { ToggleComponent } from '../../../../../shared/ui/toggle/toggle';
 import { Buscador } from '../../../../../shared/ui/buscador/buscador';
 import { calcularCostoReceta } from '../../../services/plato-cost';
 import { Insumo } from '../../../../../core/models/domain/insumo';
-import { PlatoApiService } from '../../../services/plato.api';
+import { PlatoApiService, ItemDesplegableDto } from '../../../services/plato.api';
 import { ArsCurrencyPipe } from '../../../../../shared/pipes/ars-currency.pipe';
 import { PriceNoteComponent } from '../../../../../shared/ui/price-note/price-note';
 
@@ -31,6 +31,20 @@ export class ModalEditarPlatoComponent {
   precioVenta = signal<number | null>(null);
   imagen = signal('');
   visible = signal(true);
+
+  descripcion = signal('');
+  tiempoPreparacion = signal<number>(15);
+  tipoPlatoId = signal<number | null>(null);
+  categoriaPlatoId = signal<number | null>(null);
+  restriccionesSeleccionadas = signal<number[]>([]);
+
+  tiposPlato = signal<ItemDesplegableDto[]>([]);
+  categoriasPlato = signal<ItemDesplegableDto[]>([]);
+  restricciones = signal<ItemDesplegableDto[]>([]);
+
+  vegano = computed(() => this.restriccionesSeleccionadas().includes(1));
+  vegetariano = computed(() => this.restriccionesSeleccionadas().includes(2));
+  celiaco = computed(() => this.restriccionesSeleccionadas().includes(3));
 
   receta = signal<RecetaIngrediente[]>([]);
   busqueda = signal<string>('');
@@ -61,6 +75,7 @@ export class ModalEditarPlatoComponent {
 
   constructor() {
     this.cargarInsumos();
+    this.cargarDatosFormulario();
 
     effect(() => {
       const p = this.plato();
@@ -69,6 +84,12 @@ export class ModalEditarPlatoComponent {
         this.precioVenta.set(p.precioVenta);
         this.imagen.set(p.imagen);
         this.visible.set(p.visible);
+        this.descripcion.set(p.descripcion || '');
+        this.tiempoPreparacion.set(p.tiempoPreparacion || p.tiempo || 15);
+        this.tipoPlatoId.set(p.tipoPlatoId || null);
+        this.categoriaPlatoId.set(p.categoriaPlatoId || null);
+        this.restriccionesSeleccionadas.set(p.restriccionesIds || []);
+
         const receta = p.receta ? JSON.parse(JSON.stringify(p.receta)) as RecetaIngrediente[] : [];
         this.receta.set(receta.map(ingrediente => ({
           ...ingrediente,
@@ -93,6 +114,32 @@ export class ModalEditarPlatoComponent {
         next: insumos => this.insumos.set(insumos),
         error: () => this.insumos.set([])
       });
+  }
+
+  cargarDatosFormulario(): void {
+    this.api.getDatosFormulario()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.tiposPlato.set(res.tiposPlato);
+          this.categoriasPlato.set(res.categoriasPlato);
+          this.restricciones.set(res.restricciones);
+        }
+      });
+  }
+
+  toggleRestriccion(id: number): void {
+    const current = this.restriccionesSeleccionadas();
+    if (current.includes(id)) {
+      this.restriccionesSeleccionadas.set(current.filter(x => x !== id));
+    } else {
+      this.restriccionesSeleccionadas.set([...current, id]);
+    }
+  }
+
+  onToggleTag(tag: 'vegano' | 'vegetariano' | 'celiaco'): void {
+    const ids = { vegano: 1, vegetariano: 2, celiaco: 3 } as const;
+    this.toggleRestriccion(ids[tag]);
   }
 
   agregarIngrediente(producto: Insumo) {
@@ -129,7 +176,7 @@ export class ModalEditarPlatoComponent {
   }
 
   onSave() {
-    if (!this.nombre().trim() || this.precioVenta() === null || this.precioVenta()! <= 0 || this.costo() === null || this.costo()! <= 0) {
+    if (!this.nombre().trim() || this.precioVenta() === null || this.precioVenta()! <= 0 || this.costo() === null || this.costo()! <= 0 || !this.tipoPlatoId() || !this.categoriaPlatoId()) {
       return;
     }
     this.save.emit({
@@ -138,6 +185,11 @@ export class ModalEditarPlatoComponent {
       costo: this.costo()!,
       imagen: this.imagen(),
       visible: this.visible(),
+      descripcion: this.descripcion(),
+      tiempoPreparacion: this.tiempoPreparacion(),
+      tipoPlatoId: this.tipoPlatoId()!,
+      categoriaPlatoId: this.categoriaPlatoId()!,
+      restriccionesIds: this.restriccionesSeleccionadas(),
       receta: this.receta()
     });
   }

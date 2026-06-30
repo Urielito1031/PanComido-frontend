@@ -1,0 +1,267 @@
+@if (state.platoSeleccionado() || state.cargandoAnalisisPlato()) {
+  <div class="side-panel-overlay" (click)="cerrarDetallePlato()">
+    <aside class="side-panel" (click)="$event.stopPropagation()">
+      @if (state.cargandoAnalisisPlato()) {
+        <div class="side-panel-header">
+          <div class="panel-header-title-row">
+            <div class="plate-avatar-container skeleton-pulsing-avatar">
+              <span class="material-symbols-outlined rotating-spinner">autorenew</span>
+            </div>
+            <div class="panel-title-stack">
+              <div class="panel-header-pre">
+                <span class="criticidad-badge moderada skeleton-badge-pulse">IA Analizando</span>
+                <span>Análisis de plato</span>
+              </div>
+              <h2 id="analisis-plato-titulo" class="skeleton-panel-title">
+                {{ state.nombrePlatoEnAnalisis() }}
+              </h2>
+            </div>
+          </div>
+          <button type="button" class="close-btn" (click)="cerrarDetallePlato()" aria-label="Cerrar">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        
+        <div class="side-panel-body">
+          <div class="diagnostico-box skeleton-box skeleton-diagnostico-box">
+            <span class="material-symbols-outlined rotating-spinner skeleton-insight-icon">insights</span>
+            <div class="skeleton-copy-block">
+              <strong class="skeleton-diagnostico-title">Generando diagnóstico con IA...</strong>
+              <p class="skeleton-diagnostico-copy">
+                Por favor, aguarda un momento mientras calculamos los costos, márgenes de ganancia e historial de ventas...
+              </p>
+              <div class="skeleton-line lg skeleton-pulsing mt-2 skeleton-line-full"></div>
+            </div>
+          </div>
+
+          <div class="analisis-metrics-grid">
+            <div class="metric-pill-card skeleton-metric">
+              <span class="metric-label skeleton-muted-label">Ventas</span>
+              <div class="skeleton-line md skeleton-pulsing mt-1 skeleton-line-metric"></div>
+            </div>
+            <div class="metric-pill-card skeleton-metric">
+              <span class="metric-label skeleton-muted-label">Participación</span>
+              <div class="skeleton-line md skeleton-pulsing mt-1 skeleton-line-metric"></div>
+            </div>
+            <div class="metric-pill-card skeleton-metric">
+              <span class="metric-label skeleton-muted-label">Precio</span>
+              <div class="skeleton-line md skeleton-pulsing mt-1 skeleton-line-metric"></div>
+            </div>
+            <div class="metric-pill-card skeleton-metric">
+              <span class="metric-label skeleton-muted-label">Costo Prep.</span>
+              <div class="skeleton-line md skeleton-pulsing mt-1 skeleton-line-metric"></div>
+            </div>
+          </div>
+
+          <div class="analisis-chart-section">
+            <span class="metric-label skeleton-muted-label">Tendencia de ventas (Semanas)</span>
+            <div class="skeleton-chart skeleton-pulsing mt-2 skeleton-chart-line"></div>
+          </div>
+
+          <div class="analisis-comparativa-box skeleton-box skeleton-comparativa-box">
+            <div class="comparativa-header skeleton-comparativa-header">
+              <span class="material-symbols-outlined">compare_arrows</span>
+              <strong>Comparativa de Categoría</strong>
+            </div>
+            <div class="skeleton-line lg skeleton-pulsing mb-2 skeleton-line-wide"></div>
+            <div class="skeleton-line lg skeleton-pulsing skeleton-line-medium"></div>
+          </div>
+        </div>
+
+        <div class="side-panel-footer">
+          <div class="skeleton-btn-full skeleton-pulsing skeleton-footer-button"></div>
+        </div>
+      } @else {
+        @if (state.platoSeleccionado(); as detalle) {
+          <div class="side-panel-header">
+            <div class="panel-header-title-row">
+              <div class="plate-avatar-container">
+                <span class="material-symbols-outlined">restaurant_menu</span>
+              </div>
+              <div>
+                <div class="panel-header-pre">
+                  <span class="criticidad-badge" [class]="detalle.alerta">
+                    {{ detalle.alerta === 'critica' ? 'Crítico' : 'Moderado' }}
+                  </span>
+                  <span>Análisis de plato</span>
+                </div>
+                <h2 id="analisis-plato-titulo">{{ detalle.plato.nombre }}</h2>
+              </div>
+            </div>
+            <button type="button" class="close-btn" (click)="cerrarDetallePlato()" aria-label="Cerrar">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+          
+          <div class="side-panel-body">
+            <div class="diagnostico-box">
+              <span class="material-symbols-outlined">troubleshoot</span>
+              <div>
+                <strong>Diagnóstico del Sistema</strong>
+                <p>{{ detalle.diagnostico }}</p>
+              </div>
+            </div>
+
+            <div class="analisis-metrics-grid">
+              <div class="metric-pill-card">
+                <span class="metric-label">Ventas</span>
+                <strong class="metric-value">{{ detalle.metricas.volumen }}</strong>
+                <span class="metric-change negative">{{ detalle.metricas.volumenVar }}</span>
+              </div>
+              <div class="metric-pill-card">
+                <span class="metric-label">Participación</span>
+                <strong class="metric-value">{{ detalle.metricas.participacion }}</strong>
+                <span class="metric-subtext">Total ventas</span>
+              </div>
+              <div class="metric-pill-card">
+                <span class="metric-label">Precio</span>
+                <strong class="metric-value text-primary">{{ detalle.metricas.precio }}</strong>
+                <span class="metric-subtext">Público</span>
+              </div>
+              <div class="metric-pill-card">
+                <span class="metric-label">Costo Prep.</span>
+                <strong class="metric-value">{{ detalle.metricas.costo }}</strong>
+                <span class="metric-subtext">Margen: <strong class="margen-destaque">{{ detalle.metricas.margenPct }}</strong></span>
+              </div>
+            </div>
+            
+            <div class="analisis-chart-section">
+              <div class="chart-header">
+                <span>Tendencia de ventas (Semanas)</span>
+                <strong class="chart-summary-trend">Demanda en caída</strong>
+              </div>
+              <div class="sparkline-wrapper">
+                <svg viewBox="0 0 320 60" class="sparkline-svg" preserveAspectRatio="none">
+                  <polyline 
+                    fill="none" 
+                    stroke="var(--error-color, #dc3545)" 
+                    stroke-width="2.5" 
+                    stroke-linecap="round" 
+                    stroke-linejoin="round"
+                    [attr.points]="obtenerPuntosSparkline(detalle.tendencia)">
+                  </polyline>
+                  @for (pt of obtenerArrayPuntosSparkline(detalle.tendencia); track pt; let last = $last) {
+                    <circle 
+                      [attr.cx]="pt.x" 
+                      [attr.cy]="pt.y" 
+                      r="4" 
+                      [attr.fill]="last ? '#dc3545' : 'var(--border-color, #e0e0e0)'" 
+                      stroke="white" 
+                      stroke-width="1.5">
+                    </circle>
+                  }
+                </svg>
+              </div>
+              <div class="chart-footer-labels">
+                <span>Hace 7 semanas</span>
+                <span>Hoy ({{ detalle.plato.valor }} u.)</span>
+              </div>
+            </div>
+
+            <div class="analisis-comparativa-box">
+              <div class="comparativa-header">
+                <span class="material-symbols-outlined">compare_arrows</span>
+                <strong>Comparativa de Categoría</strong>
+              </div>
+              <div class="comparativa-grid">
+                <div class="comparativa-col">
+                  <span class="comp-label">Este plato</span>
+                  <span class="comp-val-name">{{ detalle.plato.nombre }}</span>
+                  <span class="comp-val-metric">{{ detalle.plato.valor }} u. / {{ detalle.metricas.precio }}</span>
+                </div>
+                <div class="comparativa-divider">vs</div>
+                <div class="comparativa-col">
+                  <span class="comp-label">Líder de Categoría</span>
+                  <span class="comp-val-name text-success">{{ detalle.comparativa.nombre }}</span>
+                  <span class="comp-val-metric">{{ detalle.comparativa.ventas }} / {{ detalle.comparativa.precio }}</span>
+                </div>
+              </div>
+              <p class="comparativa-desc">
+                Existe una brecha de precio y demanda en el menú. Se sugiere alinear ofertas o unificar insumos.
+              </p>
+            </div>
+
+            <div class="sugerencias-section-title">
+              <strong>Acciones Recomendadas</strong>
+              <span class="sub-title">Impacto en el margen del local</span>
+            </div>
+
+            <div class="sugerencias-list-premium">
+              @for (sug of detalle.sugerenciasDetalladas; track sug) {
+                <div class="sugerencia-card" [class]="sug.impacto.includes('Alto') ? 'impacto-alto' : 'impacto-medio'">
+                  <div class="sug-card-header">
+                    <div class="sug-badges">
+                      <span class="sug-badge impact" [class]="sug.impacto.includes('Alto') ? 'alto' : 'medio'">
+                        {{ sug.impacto.includes('Alto') ? 'Alto Impacto' : 'Impacto Medio' }}
+                      </span>
+                      <span class="sug-badge difficulty" [class]="sug.dificultad">
+                        Dificultad: {{ sug.dificultad === 'baja' ? 'Baja' : sug.dificultad === 'media' ? 'Media' : 'Alta' }}
+                      </span>
+                    </div>
+                    @if (sug.aplicada) {
+                      <span class="sug-status-pill aplicada animate-fade-in">
+                        <span class="material-symbols-outlined">check_circle</span>
+                        Aplicado
+                      </span>
+                    }
+                  </div>
+                  
+                  <p class="sug-description">{{ sug.accion }}</p>
+                  
+                  <div class="sug-card-actions">
+                    @if (!sug.aplicada) {
+                      @if (sug.tipo === 'descuento') {
+                        @if (!confirmandoDescuento()) {
+                          <button type="button" class="sug-btn primary" (click)="confirmandoDescuento.set(true)">
+                             <span class="material-symbols-outlined">percent</span>
+                             Aplicar Descuento 10%
+                          </button>
+                        } @else {
+                          <div class="sug-confirm-inline animate-fade-in">
+                            <span class="confirm-text">¿Aplicar descuento inmediato de 10%?</span>
+                            <div class="confirm-buttons-group">
+                              <button type="button" class="sug-confirm-btn confirm-yes" (click)="confirmarDescuento(detalle.plato.nombre)">
+                                Confirmar
+                              </button>
+                              <button type="button" class="sug-confirm-btn confirm-no" (click)="confirmandoDescuento.set(false)">
+                                Cancelar
+                              </button>
+                            </div>
+                          </div>
+                        }
+                      } @else {
+                        <button type="button" class="sug-btn secondary" (click)="agendarRecordatorio(detalle.plato.nombre, sug.accion)">
+                          <span class="material-symbols-outlined">alarm</span>
+                          Agendar Recordatorio
+                        </button>
+                      }
+                    } @else {
+                      <button type="button" class="sug-btn success-applied" disabled>
+                        <span class="material-symbols-outlined">done</span>
+                        ¡Acción Registrada!
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+          
+          <div class="side-panel-footer side-panel-footer-actions">
+            <button type="button" class="primary-btn side-panel-action-btn" (click)="irA('carta', { buscar: detalle.plato.nombre, editar: 'true' }); cerrarDetallePlato()">
+              <span class="material-symbols-outlined side-panel-action-icon">edit</span>
+              Editar plato
+            </button>
+            <button type="button" class="outline-btn side-panel-action-btn" (click)="irA('carta', { buscar: detalle.plato.nombre }); cerrarDetallePlato()">
+              <span class="material-symbols-outlined side-panel-action-icon">visibility</span>
+              Ver en carta
+            </button>
+            <button type="button" class="outline-btn side-panel-close-action" (click)="cerrarDetallePlato()">
+              Cerrar
+            </button>
+          </div>
+        }
+      }
+    </aside>
+  </div>
+}

@@ -4,9 +4,11 @@ import {
   DashboardPeriodo, DashboardRankingItem, DashboardInsumoVencimiento, 
   DashboardLecturaComercial, DashboardAtencionItem, DashboardAccionItem, 
   DashboardDestino, DashboardVentaMensual, DashboardVentaDia,
-  DashboardViewMode, PlatoAnalisis, EstadisticaMozo, WidgetLayout, FavoriteWidgetConfig
+  DashboardViewMode, PlatoAnalisis, EstadisticaMozo, WidgetLayout, FavoriteWidgetConfig,
+  IngredienteExcluidoStat
 } from '../../../../core/models/domain/dashboard';
 import { DashboardApiService, DashboardResumenOperativoResponse } from './dashboard.api';
+import { DashboardPreferencesService } from './dashboard-preferences.service';
 import { SignalRConexionService } from '../../../../core/services/hubs/base-hub-service';
 import { AuthService } from '../../../../core/services/auth.service';
 
@@ -16,46 +18,17 @@ export const DISEÑO_POR_DEFECTO: WidgetLayout[] = [
   { id: 'kpi-ticket', colSpan: 3 },
   { id: 'kpi-promedio', colSpan: 3 },
   { id: 'ventas-calendario', colSpan: 12 },
-  { id: 'lectura-comercial', colSpan: 12 },
   { id: 'platos-mas-vendidos', colSpan: 6 },
   { id: 'platos-menos-vendidos', colSpan: 6 },
   { id: 'insumos-vencer', colSpan: 12 },
-  { id: 'proximas-acciones', colSpan: 12 },
+  { id: 'radar-alergias', colSpan: 12 },
   { id: 'mozos', colSpan: 12 }
-];
-
-export const FAVORITOS_POR_DEFECTO: FavoriteWidgetConfig[] = [
-  { id: 'kpi-ventas', width: '25' },
-  { id: 'kpi-pedidos', width: '25' },
-  { id: 'kpi-ticket', width: '25' },
-  { id: 'kpi-promedio', width: '25' },
-  { id: 'ventas-calendario', width: '100' }
-];
-
-export const PLANTILLA_FINANCIERA: FavoriteWidgetConfig[] = [
-  { id: 'kpi-ventas', width: '25' },
-  { id: 'kpi-ticket', width: '25' },
-  { id: 'kpi-promedio', width: '25' },
-  { id: 'kpi-pedidos', width: '25' },
-  { id: 'ventas-calendario', width: '100' }
-];
-
-export const PLANTILLA_OPERATIVA: FavoriteWidgetConfig[] = [
-  { id: 'insumos-vencer', width: '100' },
-  { id: 'proximas-acciones', width: '50' },
-  { id: 'kpi-pedidos', width: '25' },
-  { id: 'kpi-promedio', width: '25' }
-];
-
-export const PLANTILLA_PERSONAL: FavoriteWidgetConfig[] = [
-  { id: 'mozos', width: '100' },
-  { id: 'kpi-pedidos', width: '50' },
-  { id: 'proximas-acciones', width: '50' }
 ];
 
 @Injectable({ providedIn: 'root' })
 export class DashboardStateService implements OnDestroy {
   private api = inject(DashboardApiService);
+  private preferences = inject(DashboardPreferencesService);
   private signalR = inject(SignalRConexionService);
   private auth = inject(AuthService);
 
@@ -63,14 +36,16 @@ export class DashboardStateService implements OnDestroy {
   private _fechaDesde = signal<string>('');
   private _fechaHasta = signal<string>('');
 
-  private _modoVista = signal<DashboardViewMode>('reportes');
-  private _configuracionFavoritos = signal<FavoriteWidgetConfig[]>(this.cargarConfiguracionFavoritos());
+  private _modoVista = signal<DashboardViewMode>('resumen');
+  private _configuracionFavoritos = signal<FavoriteWidgetConfig[]>(this.preferences.cargarFavoritos());
   estaEditando = signal<boolean>(false);
   private _platoSeleccionado = signal<PlatoAnalisis | null>(null);
   private _vencimientos = signal<DashboardInsumoVencimiento[]>([]);
   private _platosMasVendidos = signal<DashboardRankingItem[]>([]);
   private _platosMenosVendidos = signal<DashboardRankingItem[]>([]);
   private _resumen = signal<DashboardResumenOperativoResponse | null>(null);
+  private _ingredientesExcluidos = signal<IngredienteExcluidoStat[]>([]);
+  ingredientesExcluidos = this._ingredientesExcluidos.asReadonly();
 
   private _ultimoRefresco = signal<Date>(new Date());
   ultimoRefresco = this._ultimoRefresco.asReadonly();
@@ -232,6 +207,10 @@ export class DashboardStateService implements OnDestroy {
     return [...items, ...this._recordatoriosAdicionales()];
   });
 
+  accionPrincipal = computed<DashboardAccionItem | null>(() => {
+    return [...this.acciones()].sort((a, b) => a.prioridad - b.prioridad)[0] ?? null;
+  });
+
   esModoCalendario = computed(() => {
     if (this._periodo() === '30d') return true;
     if (this._periodo() === 'custom' && this.diasPersonalizados() > 7 && this.diasPersonalizados() <= 40) return true;
@@ -239,7 +218,7 @@ export class DashboardStateService implements OnDestroy {
   });
 
   tituloGrafico = computed(() => this.esModoCalendario() ? 'Ventas del mes' : 'Tendencia de ventas');
-  subtituloGrafico = computed(() => this.esModoCalendario() ? 'Mapa de calor por dia' : 'Evolucion del periodo');
+  subtituloGrafico = computed(() => this.esModoCalendario() ? 'Mapa de calor por día' : 'Evolución del periodo');
 
   ventasMensuales = computed<DashboardVentaMensual[]>(() => {
     const resumen = this._resumen();
@@ -297,11 +276,13 @@ export class DashboardStateService implements OnDestroy {
   });
 
   maxVentasCalendarioMes = computed(() => {
-    return Math.max(...this.ventasCalendarioMes().map(item => item.ventas));
+    const ventas = this.ventasCalendarioMes().map(item => item.ventas);
+    return ventas.length > 0 ? Math.max(...ventas) : 0;
   });
 
   maxVentasMensuales = computed(() => {
-    return Math.max(...this.ventasMensuales().map(item => item.ventas));
+    const ventas = this.ventasMensuales().map(item => item.ventas);
+    return ventas.length > 0 ? Math.max(...ventas) : 0;
   });
 
   diasDelPeriodo = computed(() => {
@@ -323,13 +304,23 @@ export class DashboardStateService implements OnDestroy {
     return Math.round(total / Math.max(1, dias));
   });
 
+  promedioDiarioPedidosCalculado = computed(() => {
+    const resumen = this._resumen();
+    if (!resumen) return 0;
+    const total = resumen.totalPedidos;
+    const dias = this.diasDelPeriodo();
+    // Return average rounded to 1 decimal place to make it high precision and functional
+    const avg = total / Math.max(1, dias);
+    return avg % 1 === 0 ? avg : Math.round(avg * 10) / 10;
+  });
+
   periodoLabel = computed(() => {
     const labels: Record<DashboardPeriodo, string> = {
-      '1d': 'Ultimas 24 horas',
-      '3d': 'Ultimos 3 dias',
-      '7d': 'Ultima semana',
-      '30d': 'Ultimo mes',
-      '365d': 'Ultimo año',
+      '1d': 'Últimas 24 horas',
+      '3d': 'Últimos 3 días',
+      '7d': 'Última semana',
+      '30d': 'Último mes',
+      '365d': 'Último año',
       custom: this._fechaDesde() && this._fechaHasta()
         ? `${this._fechaDesde()} al ${this._fechaHasta()}`
         : 'Fecha personalizada'
@@ -356,8 +347,8 @@ export class DashboardStateService implements OnDestroy {
         tono: 'success'
       },
       {
-        titulo: 'Top 5 con traccion',
-        detalle: `Suma ${this.formatCurrency(totalTop)} de facturacion estimada.`,
+        titulo: 'Top 5 con tracción',
+        detalle: `Suma ${this.formatCurrency(totalTop)} de facturación estimada.`,
         tono: 'info'
       },
       {
@@ -372,7 +363,7 @@ export class DashboardStateService implements OnDestroy {
     const top = this.platosMasVendidosPreview();
     if (top.length === 0) return 'Sin datos de ventas suficientes.';
     const principales = top.slice(0, 2).map(item => item.nombre).join(' y ');
-    return `Usar ${principales} como base para combos o destacados del dia.`;
+    return `Usar ${principales} como base para combos o destacados del día.`;
   });
 
   accionPlatoBajo(index: number): string {
@@ -411,7 +402,7 @@ export class DashboardStateService implements OnDestroy {
     let completedCount = 0;
     const checkComplete = () => {
       completedCount++;
-      if (completedCount === 3) {
+      if (completedCount === 4) {
         this.cargando.set(false);
         this._ultimoRefresco.set(new Date());
       }
@@ -456,6 +447,17 @@ export class DashboardStateService implements OnDestroy {
       },
       error: (err) => {
         console.error('Error cargando resumen operativo', err);
+        checkComplete();
+      }
+    });
+
+    this.api.getIngredientesExcluidos(desdeIso, hastaIso).pipe(take(1)).subscribe({
+      next: (excluidos) => {
+        this._ingredientesExcluidos.set(excluidos);
+        checkComplete();
+      },
+      error: (err) => {
+        console.error('Error cargando ingredientes excluidos', err);
         checkComplete();
       }
     });
@@ -530,77 +532,41 @@ export class DashboardStateService implements OnDestroy {
   }
 
   cargarConfiguracionFavoritos(): FavoriteWidgetConfig[] {
-    try {
-      const saved = localStorage.getItem('dashboard_favorites_config');
-      if (saved) {
-        return JSON.parse(saved) as FavoriteWidgetConfig[];
-      }
-    } catch (e) {}
-    return [];
+    return this.preferences.cargarFavoritos();
   }
 
   guardarConfiguracionFavoritos(config: FavoriteWidgetConfig[]): void {
-    try {
-      localStorage.setItem('dashboard_favorites_config', JSON.stringify(config));
-    } catch (e) {}
+    this.preferences.guardarFavoritos(config);
+  }
+
+  private actualizarFavoritos(config: FavoriteWidgetConfig[]): void {
+    this._configuracionFavoritos.set(config);
+    this.guardarConfiguracionFavoritos(config);
   }
 
   agregarFavorito(id: string, width?: '25' | '50' | '100'): void {
-    if (this.esFavorito(id)) return;
-    let defaultWidth: '25' | '50' | '100' = width ?? '50';
-    if (!width) {
-      if (id.startsWith('kpi-')) {
-        defaultWidth = '25';
-      } else if (id === 'ventas-calendario' || id === 'mozos' || id === 'insumos-vencer' || id === 'lectura-comercial') {
-        defaultWidth = '100';
-      }
-    }
-    const current = [...this._configuracionFavoritos(), { id, width: defaultWidth }];
-    this._configuracionFavoritos.set(current);
-    this.guardarConfiguracionFavoritos(current);
+    const next = this.preferences.agregar(this._configuracionFavoritos(), id, width);
+    this.actualizarFavoritos(next);
   }
 
   insertarFavoritoEn(id: string, index: number, width?: '25' | '50' | '100'): void {
-    if (this.esFavorito(id)) return;
-    let defaultWidth: '25' | '50' | '100' = width ?? '50';
-    if (!width) {
-      if (id.startsWith('kpi-')) {
-        defaultWidth = '25';
-      } else if (id === 'ventas-calendario' || id === 'mozos' || id === 'insumos-vencer' || id === 'lectura-comercial') {
-        defaultWidth = '100';
-      }
-    }
-    const current = [...this._configuracionFavoritos()];
-    current.splice(index, 0, { id, width: defaultWidth });
-    this._configuracionFavoritos.set(current);
-    this.guardarConfiguracionFavoritos(current);
+    const next = this.preferences.insertarEn(this._configuracionFavoritos(), id, index, width);
+    this.actualizarFavoritos(next);
   }
 
   quitarFavorito(id: string): void {
-    const current = this._configuracionFavoritos().filter(w => w.id !== id);
-    this._configuracionFavoritos.set(current);
-    this.guardarConfiguracionFavoritos(current);
+    const next = this.preferences.quitar(this._configuracionFavoritos(), id);
+    this.actualizarFavoritos(next);
   }
 
   actualizarAnchoFavorito(id: string, width: '25' | '50' | '100'): void {
-    const current = this._configuracionFavoritos().map(w => {
-      if (w.id === id) {
-        return { ...w, width };
-      }
-      return w;
-    });
-    this._configuracionFavoritos.set(current);
-    this.guardarConfiguracionFavoritos(current);
+    const next = this.preferences.actualizarAncho(this._configuracionFavoritos(), id, width);
+    this.actualizarFavoritos(next);
   }
 
   reordenarFavoritos(fromIndex: number, toIndex: number): void {
-    const current = [...this._configuracionFavoritos()];
-    if (fromIndex >= 0 && fromIndex < current.length && toIndex >= 0 && toIndex < current.length) {
-      const [moved] = current.splice(fromIndex, 1);
-      current.splice(toIndex, 0, moved);
-      this._configuracionFavoritos.set(current);
-      this.guardarConfiguracionFavoritos(current);
-    }
+    const next = this.preferences.reordenar(this._configuracionFavoritos(), fromIndex, toIndex);
+    this.actualizarFavoritos(next);
   }
 
   moverFavorito(fromIndex: number, toIndex: number): void {
@@ -608,21 +574,11 @@ export class DashboardStateService implements OnDestroy {
   }
 
   aplicarPreset(tipo: 'financiero' | 'operativo' | 'personal'): void {
-    let preset: FavoriteWidgetConfig[] = [];
-    if (tipo === 'financiero') {
-      preset = PLANTILLA_FINANCIERA;
-    } else if (tipo === 'operativo') {
-      preset = PLANTILLA_OPERATIVA;
-    } else if (tipo === 'personal') {
-      preset = PLANTILLA_PERSONAL;
-    }
-    this._configuracionFavoritos.set(preset);
-    this.guardarConfiguracionFavoritos(preset);
+    this.actualizarFavoritos(this.preferences.aplicarPreset(tipo));
   }
 
   restablecerFavoritos(): void {
-    this._configuracionFavoritos.set(FAVORITOS_POR_DEFECTO);
-    this.guardarConfiguracionFavoritos(FAVORITOS_POR_DEFECTO);
+    this.actualizarFavoritos(this.preferences.favoritosPorDefecto());
   }
 
   alternarEdicion(val?: boolean): void {
@@ -630,21 +586,8 @@ export class DashboardStateService implements OnDestroy {
   }
 
   toggleFavorito(panelId: string): void {
-    const current = [...this._configuracionFavoritos()];
-    const idx = current.findIndex(w => w.id === panelId);
-    if (idx !== -1) {
-      current.splice(idx, 1);
-    } else {
-      let defaultWidth: '25' | '50' | '100' = '50';
-      if (panelId.startsWith('kpi-')) {
-        defaultWidth = '25';
-      } else if (panelId === 'ventas-calendario' || panelId === 'mozos' || panelId === 'insumos-vencer' || panelId === 'lectura-comercial') {
-        defaultWidth = '100';
-      }
-      current.push({ id: panelId, width: defaultWidth });
-    }
-    this._configuracionFavoritos.set(current);
-    this.guardarConfiguracionFavoritos(current);
+    const next = this.preferences.toggle(this._configuracionFavoritos(), panelId);
+    this.actualizarFavoritos(next);
   }
 
   establecerModoVista(mode: DashboardViewMode): void {
@@ -655,17 +598,25 @@ export class DashboardStateService implements OnDestroy {
   }
 
   esFavorito(panelId: string): boolean {
-    return this._configuracionFavoritos().some(w => w.id === panelId);
+    return this.preferences.esFavorito(this._configuracionFavoritos(), panelId);
   }
 
+  cargandoAnalisisPlato = signal<boolean>(false);
+  nombrePlatoEnAnalisis = signal<string>('');
+
   abrirDetallePlato(plato: DashboardRankingItem, index: number): void {
+    this.cargandoAnalisisPlato.set(true);
+    this.nombrePlatoEnAnalisis.set(plato.nombre);
+    this._platoSeleccionado.set(null);
     this.api.getAnalisisPlato(plato.nombre).pipe(take(1)).subscribe({
       next: (detalle) => {
         this._platoSeleccionado.set(detalle);
+        this.cargandoAnalisisPlato.set(false);
       },
       error: (err) => {
         console.error('Error al obtener el análisis del plato', err);
         this.mostrarToast('Error al cargar el diagnóstico de plato', 'info');
+        this.cargandoAnalisisPlato.set(false);
       }
     });
   }
@@ -747,6 +698,7 @@ export class DashboardStateService implements OnDestroy {
 
   cerrarDetallePlato(): void {
     this._platoSeleccionado.set(null);
+    this.cargandoAnalisisPlato.set(false);
   }
 
   resolverRecordatorio(id: number): void {

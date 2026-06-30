@@ -101,7 +101,8 @@ describe('DashboardStateService', () => {
 
   it('should initialize with default 7d period', () => {
     expect(service.periodo()).toBe('7d');
-    expect(service.periodoLabel()).toBe('Ultima semana');
+    expect(service.periodoLabel()).toBe('Última semana');
+    expect(service.modoVista()).toBe('resumen');
   });
 
   describe('setPeriodo', () => {
@@ -109,7 +110,7 @@ describe('DashboardStateService', () => {
       apiSpy.getResumenOperativo.mockClear();
       service.setPeriodo('30d');
       expect(service.periodo()).toBe('30d');
-      expect(service.periodoLabel()).toBe('Ultimo mes');
+      expect(service.periodoLabel()).toBe('Último mes');
       // cargarDatos triggers API calls
       expect(apiSpy.getResumenOperativo).toHaveBeenCalled();
     });

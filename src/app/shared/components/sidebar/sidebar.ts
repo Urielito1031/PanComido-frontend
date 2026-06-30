@@ -115,40 +115,40 @@ export class SidebarComponent implements OnInit, OnDestroy {
       {
         label: 'Dashboard',
         icon: 'faChartBar',
-        route: 'gerente/dashboard',
+        route: '/staff/gerente/dashboard',
         roles: ['Gerente'],
         children: [
-          { label: 'Resumen Financiero', icon: 'faReceipt', route: 'gerente/dashboard', fragment: 'kpi-ventas', roles: ['Gerente'] },
-          { label: 'Tendencia de Ventas', icon: 'faChartBar', route: 'gerente/dashboard', fragment: 'ventas-calendario', roles: ['Gerente'] },
-          { label: 'Platos y Menú', icon: 'faUtensils', route: 'gerente/dashboard', fragment: 'platos-mas-vendidos', roles: ['Gerente'] },
-          { label: 'Inventario y Mermas', icon: 'faBox', route: 'gerente/dashboard', fragment: 'insumos-vencer', roles: ['Gerente'] },
-          { label: 'Personal de Salón', icon: 'faUsers', route: 'gerente/dashboard', fragment: 'mozos', roles: ['Gerente'] },
+          { label: 'Resumen Financiero', icon: 'faReceipt', route: '/staff/gerente/dashboard', fragment: 'kpi-ventas', roles: ['Gerente'] },
+          { label: 'Tendencia de Ventas', icon: 'faChartBar', route: '/staff/gerente/dashboard', fragment: 'ventas-calendario', roles: ['Gerente'] },
+          { label: 'Platos y Menú', icon: 'faUtensils', route: '/staff/gerente/dashboard', fragment: 'platos-mas-vendidos', roles: ['Gerente'] },
+          { label: 'Inventario y Mermas', icon: 'faBox', route: '/staff/gerente/dashboard', fragment: 'insumos-vencer', roles: ['Gerente'] },
+          { label: 'Personal de Salón', icon: 'faUsers', route: '/staff/gerente/dashboard', fragment: 'mozos', roles: ['Gerente'] },
         ]
       },
       {
         label: 'Sistema de avisos',
         icon: 'faBell',
-        route: 'gerente/avisos',
+        route: '/staff/gerente/avisos',
         roles: ['Gerente'],
         children: [
-          { label: 'Sugerencias de IA', icon: 'faBrain', route: 'gerente/avisos', fragment: 'sugerencias-ia', roles: ['Gerente'] },
-          { label: 'Stock crítico', icon: 'faExclamationTriangle', route: 'gerente/avisos', fragment: 'seccion-stock', roles: ['Gerente'] },
-          { label: 'Vencimientos próximos', icon: 'faCalendarTimes', route: 'gerente/avisos', fragment: 'seccion-vencimientos', roles: ['Gerente'] }
+          { label: 'Sugerencias de IA', icon: 'faBrain', route: '/staff/gerente/avisos', fragment: 'sugerencias-ia', roles: ['Gerente'] },
+          { label: 'Stock crítico', icon: 'faExclamationTriangle', route: '/staff/gerente/avisos', fragment: 'seccion-stock', roles: ['Gerente'] },
+          { label: 'Vencimientos próximos', icon: 'faCalendarTimes', route: '/staff/gerente/avisos', fragment: 'seccion-vencimientos', roles: ['Gerente'] }
         ],
         dividerAfter: true
       },
       
-      { label: 'Mapa de mesas', icon: 'faTableCells', route: 'gerente/mapa-de-mesas', roles: ['Gerente'] },
-      { label: 'Cerrar Caja', icon: 'faReceipt', route: 'gerente/caja', roles: ['Gerente'], dividerAfter: true },
+      { label: 'Mapa de mesas', icon: 'faTableCells', route: '/staff/gerente/mapa-de-mesas', roles: ['Gerente'] },
+      { label: 'Cerrar Caja', icon: 'faReceipt', route: '/staff/gerente/caja', roles: ['Gerente'], dividerAfter: true },
       {
         label: 'Modificar Carta',
         icon: 'faClipboardList',
-        route: 'gerente/modificar-carta',
+        route: '/staff/gerente/modificar-carta',
         roles: ['Gerente'],
         children: [
-          { label: 'Destacados', icon: 'faStar', route: 'gerente/modificar-carta', fragment: 'seccion-recomendados', roles: ['Gerente'] },
-          { label: 'Platos', icon: 'faUtensils', route: 'gerente/modificar-carta', fragment: 'seccion-platos', roles: ['Gerente'] },
-          { label: 'Bebidas', icon: 'faWineGlass', route: 'gerente/modificar-carta', fragment: 'seccion-bebidas', roles: ['Gerente'] },
+          { label: 'Destacados', icon: 'faStar', route: '/staff/gerente/modificar-carta', fragment: 'seccion-recomendados', roles: ['Gerente'] },
+          { label: 'Platos', icon: 'faUtensils', route: '/staff/gerente/modificar-carta', fragment: 'seccion-platos', roles: ['Gerente'] },
+          { label: 'Bebidas', icon: 'faWineGlass', route: '/staff/gerente/modificar-carta', fragment: 'seccion-bebidas', roles: ['Gerente'] },
           { label: 'Nuevo plato', icon: 'faPlus', route: '/staff/gerente/crear-plato', roles: ['Gerente'] }
         ],
         dividerAfter: true
@@ -157,28 +157,29 @@ export class SidebarComponent implements OnInit, OnDestroy {
       {
         label: 'Stock/Mercadería',
         icon: 'faBox',
-        route: 'gerente/stock-mercaderia',
+        route: '/staff/gerente/stock-mercaderia',
         roles: ['Gerente'],
         children: [
-          { label: 'Insumos', icon: 'faList', route: 'gerente/stock-mercaderia', fragment: 'productos', roles: ['Gerente'] },
-          { label: 'Bodegas', icon: 'faWarehouse', route: 'gerente/stock-mercaderia', fragment: 'bodegas', roles: ['Gerente'] },
-          { label: 'Lotes/Vencimientos', icon: 'faCalendarAlt', route: 'gerente/stock-mercaderia', fragment: 'lotes', roles: ['Gerente'] }
+          { label: 'Insumos', icon: 'faList', route: '/staff/gerente/stock-mercaderia', fragment: 'productos', roles: ['Gerente'] },
+          { label: 'Bodegas', icon: 'faWarehouse', route: '/staff/gerente/stock-mercaderia', fragment: 'bodegas', roles: ['Gerente'] },
+          { label: 'Lotes/Vencimientos', icon: 'faCalendarAlt', route: '/staff/gerente/stock-mercaderia', fragment: 'lotes', roles: ['Gerente'] }
         ]
       },
       {
         label: 'Pedidos y Proveedor',
         icon: 'faTruck',
+        route: '/staff/gerente/ver-proveedores',
         roles: ['Gerente'],
         children: [
-          { label: 'Ver proveedores', icon: 'faUsers', route: 'gerente/ver-proveedores', roles: ['Gerente'] },
-          { label: 'Pedido sugerido', icon: 'faMagic', route: 'gerente/realizar-pedido-sugerido', roles: ['Gerente'] },
+          { label: 'Ver proveedores', icon: 'faUsers', route: '/staff/gerente/ver-proveedores', roles: ['Gerente'] },
+          { label: 'Pedido sugerido', icon: 'faMagic', route: '/staff/gerente/realizar-pedido-sugerido', roles: ['Gerente'] },
           { label: 'Nuevo proveedor', icon: 'faPlus', route: '/staff/gerente/nuevo-proveedor', roles: ['Gerente'] }
         ],
         dividerAfter: true
       },
       
-      { label: 'Usuarios', icon: 'faUsers', route: 'gerente/usuarios', roles: ['Gerente'] },
-      { label: 'Configuración', icon: 'faCog', route: 'gerente/configuracion', roles: ['Gerente'] }
+      { label: 'Usuarios', icon: 'faUsers', route: '/staff/gerente/usuarios', roles: ['Gerente'] },
+      { label: 'Configuración', icon: 'faCog', route: '/staff/gerente/configuracion', roles: ['Gerente'] }
     ],
     Mozo: [
       { label: 'Mesas', icon: 'faTableCells', route: 'mozo/mesas', roles: ['Mozo'] },

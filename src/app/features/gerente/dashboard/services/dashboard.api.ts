@@ -3,7 +3,7 @@ import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ApiService } from '../../../../core/services/api-service';
-import { DashboardInsumoVencimiento, DashboardRankingItem, PlatoAnalisis, DashboardAccionItem, EstadisticaMozo } from '../../../../core/models/domain/dashboard';
+import { DashboardInsumoVencimiento, DashboardRankingItem, PlatoAnalisis, DashboardAccionItem, EstadisticaMozo, IngredienteExcluidoStat } from '../../../../core/models/domain/dashboard';
 import { DashboardVencimientoDto } from '../../../../core/models/dtos/responses/dashboard-vencimiento.response';
 import { DashboardRendimientoResponseDto } from '../../../../core/models/dtos/responses/dashboard-rendimiento.response';
 import { mapVencimientoDtoToDomain, mapPlatoRendimientoDtoToDomain } from '../../../../infra/http/mappers/dashboard.mapper';
@@ -65,6 +65,14 @@ export class DashboardApiService {
 
   resolverRecordatorio(id: number): Observable<void> {
     return this.api.post<void>(`gerente/dashboard/notificaciones/${id}/resolver`, {});
+  }
+
+  getIngredientesExcluidos(desde: string, hasta: string): Observable<IngredienteExcluidoStat[]> {
+    const params = new HttpParams()
+      .set('desde', desde)
+      .set('hasta', hasta);
+
+    return this.api.get<IngredienteExcluidoStat[]>('gerente/dashboard/ingredientes-excluidos', params);
   }
 }
 

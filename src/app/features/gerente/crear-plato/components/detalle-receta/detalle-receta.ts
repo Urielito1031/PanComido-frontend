@@ -175,6 +175,12 @@ export class DetalleRecetaComponent implements OnInit {
     return 0.01;
   }
 
+  calcularCostoIngrediente(item: RecetaIngrediente): number {
+    const cantidad = Number(item.cantidad) || 0;
+    const costoUnitario = Number(item.costoUnitario) || 0;
+    return this.redondearCantidad(cantidad * costoUnitario);
+  }
+
   private notificarCambio() {
     this.recetaCambiada.emit(this.ingredientesSeleccionados());
   }
