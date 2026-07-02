@@ -3,10 +3,13 @@ import { of, throwError } from 'rxjs';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { CierreCajaStateService } from './cierre-caja.state';
 import { CierreCajaApiService } from './cierre-caja.api';
+import { BrowserNavigationService } from '../../../../core/services/browser-navigation.service';
+import { environment } from '../../../../../environments/environment';
 
 describe('CierreCajaStateService', () => {
   let service: CierreCajaStateService;
   let apiMock: any;
+  let browserNavigationMock: any;
 
   beforeEach(() => {
     apiMock = {
@@ -23,11 +26,15 @@ describe('CierreCajaStateService', () => {
       ])),
       postCierre: vi.fn().mockReturnValue(of({ cierreId: 10, estado: 'Cuadrada', mensaje: 'OK' }))
     };
+    browserNavigationMock = {
+      abrirEnNuevaPestana: vi.fn()
+    };
 
     TestBed.configureTestingModule({
       providers: [
         CierreCajaStateService,
-        { provide: CierreCajaApiService, useValue: apiMock }
+        { provide: CierreCajaApiService, useValue: apiMock },
+        { provide: BrowserNavigationService, useValue: browserNavigationMock }
       ]
     });
 
@@ -110,5 +117,13 @@ describe('CierreCajaStateService', () => {
     
     service.cerrarEncuestasDetalle();
     expect(service.mostrarEncuestasDetalle()).toBe(false);
+  });
+
+  it('debería abrir el reporte de cierre con navegación externa', () => {
+    service.imprimirReporte(25);
+
+    expect(browserNavigationMock.abrirEnNuevaPestana).toHaveBeenCalledWith(
+      `${environment.apiUrl}/api/cierre/25/reporte-pdf`
+    );
   });
 });

@@ -159,9 +159,9 @@
 }
 
 .icon-btn-teal {
-  background-color: rgba(188, 0, 18, 0.1);
-  color: #bc0012;
-  border-color: rgba(188, 0, 18, 0.2);
+  background-color: rgba(6, 0, 188, 0.1);
+  color: #0042bcb1;
+  border-color: rgba(0, 28, 188, 0.2);
 }
 
 .icon-btn-teal:hover {
@@ -173,9 +173,9 @@
 }
 
 .icon-btn-amber {
-  background-color: rgba(188, 0, 18, 0.08);
-  color: #bc0012;
-  border-color: rgba(188, 0, 18, 0.16);
+  background-color: #5ff21642;
+  color: #347413;
+  border-color: rgba(50, 113, 15, 0.16);
 }
 
 .icon-btn-amber:hover {

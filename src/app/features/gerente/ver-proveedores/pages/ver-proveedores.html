@@ -421,7 +421,7 @@
                 </div>
                 <app-boton
                   label="Crear pedido"
-                  variante="secondary"
+                  variante="primary"
                   tamanio="md"
                   [disabled]="pedidoItems().length === 0"
                   (clicked)="enviarPedido()">
@@ -608,7 +608,7 @@
           <span class="form-hint">Los campos marcados con * son obligatorios.</span>
           <div class="footer-buttons">
             <app-boton label="Cancelar" variante="outline" tamanio="md" (clicked)="cerrarEditarProveedor()"></app-boton>
-            <app-boton label="Guardar cambios" variante="secondary" tamanio="md" [disabled]="proveedorForm.invalid || categoriaIdsEdicion().length === 0" (clicked)="guardarEdicionProveedor()"></app-boton>
+            <app-boton label="Guardar cambios" variante="primary" tamanio="md" [disabled]="proveedorForm.invalid || categoriaIdsEdicion().length === 0" (clicked)="guardarEdicionProveedor()"></app-boton>
           </div>
         </div>
       </form>

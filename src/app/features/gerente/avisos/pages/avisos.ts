@@ -1,7 +1,8 @@
-import { Component, ChangeDetectionStrategy, OnInit, OnDestroy, inject, signal, computed, effect } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, DestroyRef, inject, signal, computed, effect } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, DatePipe, DOCUMENT } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
-import { take, Subscription } from 'rxjs';
+import { take } from 'rxjs';
 import { PlatoSugerido } from '../../../../core/models/domain/sugerencia-ia';
 // Componentes UI
 import { PageToolbar } from '../../../../shared/ui/page-toolbar/page-toolbar';
@@ -24,13 +25,14 @@ import { ArsCurrencyPipe } from '../../../../shared/pipes/ars-currency.pipe';
   styleUrls: ['./avisos.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AvisosPage implements OnInit, OnDestroy {
+export class AvisosPage implements OnInit {
 
   protected readonly state = inject(AvisosStateService);
   protected readonly pedidoState = inject(VencimientosState);
   protected readonly pedidoSugeridoState = inject(RealizarPedidoSugeridoStateService);
   protected readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly documento = inject(DOCUMENT);
 
   protected readonly isPedidoOffcanvasOpen = signal(false);
@@ -46,7 +48,6 @@ export class AvisosPage implements OnInit, OnDestroy {
 
   paginaStock = signal(1);
   paginaVencimientos = signal(1);
-  private fragmentSub?: Subscription;
 
   totalPaginasStock = computed(() => {
     return Math.max(1, Math.ceil(this.state.stockBajo().length / 6));
@@ -153,7 +154,9 @@ export class AvisosPage implements OnInit, OnDestroy {
     this.state.cargarAvisos();
     this.state.cargarSugerenciasCocina();
 
-    this.fragmentSub = this.route.fragment.subscribe(fragment => {
+    this.route.fragment
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(fragment => {
       if (fragment) {
         if (fragment === 'sugerencias-ia') {
           this.panelPreviewAbierto.set('ia');
@@ -170,10 +173,6 @@ export class AvisosPage implements OnInit, OnDestroy {
         }
       }
     });
-  }
-
-  ngOnDestroy(): void {
-    this.fragmentSub?.unsubscribe();
   }
 
   onBuscar(term: string) {
@@ -287,7 +286,6 @@ export class AvisosPage implements OnInit, OnDestroy {
     return typeof unidadMedida === 'string' ? unidadMedida : unidadMedida.nombre;
   }
 
-  // ← PEGÁ ACÁ ↓
   crearPlatoDesdeIA(plato: PlatoSugerido) {
     this.router.navigate(['/staff/gerente/crear-plato'], {
       state: {

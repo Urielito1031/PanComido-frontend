@@ -4,6 +4,7 @@ import { CierreCajaApiService } from './cierre-caja.api';
 import { CierreCajaMapper } from '../../../../infra/http/mappers/cierre-caja.mapper';
 import { CierreHistorial, CierreTurnoInfo } from '../../../../core/models/domain/cierre-caja';
 import { environment } from '../../../../../environments/environment';
+import { BrowserNavigationService } from '../../../../core/services/browser-navigation.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,6 +12,7 @@ import { environment } from '../../../../../environments/environment';
 export class CierreCajaStateService {
   private api = inject(CierreCajaApiService);
   private destroyRef = inject(DestroyRef);
+  private browserNavigation = inject(BrowserNavigationService);
 
   // Signals
   private _datosTurno = signal<CierreTurnoInfo | null>(null);
@@ -172,7 +174,7 @@ export class CierreCajaStateService {
   imprimirReporte(id?: number): void {
     const cierreId = id || this._cierreSeleccionadoId();
     if (cierreId) {
-      window.open(`${environment.apiUrl}/api/cierre/${cierreId}/reporte-pdf`, '_blank');
+      this.browserNavigation.abrirEnNuevaPestana(`${environment.apiUrl}/api/cierre/${cierreId}/reporte-pdf`);
     }
   }
 }

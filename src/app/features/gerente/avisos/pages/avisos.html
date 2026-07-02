@@ -21,7 +21,7 @@
 
   <div class="avisos-header">
     <h1>Sistema de Avisos</h1>
-    <p class="avisos-header-sub">Stock crítico, vencimientos próximos y sugerencias de IA en un solo lugar</p>
+    <p class="avisos-header-sub">Stock crítico, vencimientos próximos y sugerencias de platos con IA en un solo lugar</p>
   </div>
 
   <!-- ─── Resumen rápido ─── -->
@@ -48,46 +48,21 @@
   <div class="avisos-sections">
 
     <!-- ─── Sugerencias ─── -->
-
-    <!-- SUGERENCIAS DEL SISTEMA: comentado temporalmente, retomar en próxima iteración -->
-    <!--
-    <div class="sugerencias-grid">
-      <div class="sugerencia-card sistema">
-        <div class="sugerencia-card-header">
-          <div class="sugerencia-card-icon sistema">
-            <span class="material-symbols-outlined">auto_awesome</span>
-          </div>
-          <div>
-            <h4 class="sugerencia-card-title">Sugerencias del sistema</h4>
-            <p class="sugerencia-card-sub">Basado en stock mínimo y consumo promedio</p>
-          </div>
-        </div>
-        <p class="sugerencia-card-desc">
-          El sistema analiza los niveles de stock actuales y genera un pedido sugerido para cada proveedor automáticamente.
-        </p>
-        <app-boton variante="warning" tamanio="md" (clicked)="abrirPreviewSugerencia('sistema')">
-          <div class="d-flex align-items-center gap-2 text-dark fw-bold">
-            <span class="material-symbols-outlined" style="font-size: 1.1rem;">visibility</span>
-            Ver vista previa
-          </div>
-        </app-boton>
-      </div>
-    </div>
-    -->
-
-    <!-- Sugerencias de IA -->
     <div id="sugerencias-ia" class="sugerencia-card ia w-100">
       <div class="sugerencia-card-header">
         <div class="sugerencia-card-icon ia">
           <span class="material-symbols-outlined">psychology</span>
         </div>
         <div>
-          <h4 class="sugerencia-card-title">Sugerencias de IA</h4>
-          <p class="sugerencia-card-sub">Análisis inteligente con aprendizaje automático</p>
+          <div class="sugerencia-card-title-row">
+            <h4 class="sugerencia-card-title">Sugerencias de platos con IA</h4>
+            <span class="ai-feature-badge">IA</span>
+          </div>
+          <p class="sugerencia-card-sub">IA aplicada a vencimientos e insumos disponibles</p>
         </div>
       </div>
       <p class="sugerencia-card-desc">
-        La IA analiza los insumos con vencimiento próximo y genera sugerencias de platos para aprovecharlos antes de que venzan.
+        La IA analiza insumos con vencimiento próximo y propone platos para aprovecharlos antes de que venzan.
       </p>
       <app-boton variante="outline" tamanio="md" (clicked)="abrirPreviewSugerencia('ia')">
         <div class="d-flex align-items-center gap-2 fw-bold">
@@ -133,7 +108,7 @@
           <span class="accordion-icon material-symbols-outlined ia-result">auto_awesome</span>
           <div>
             <div class="d-flex align-items-center gap-2">
-              <span class="accordion-title">Resultados de la sugerencia</span>
+              <span class="accordion-title">Resultados de la sugerencia IA</span>
               <span class="accordion-badge badge-ia">{{ state.sugerenciasIA()!.platosSugeridos.length }} platos</span>
             </div>
             <span class="accordion-subtitle">

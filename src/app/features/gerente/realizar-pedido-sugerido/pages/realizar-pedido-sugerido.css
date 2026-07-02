@@ -884,18 +884,6 @@
   color: #ffffff;
 }
 
-::ng-deep .pedido-sugerido-page app-boton .btn-secondary {
-  background: #bc0012 !important;
-  border-color: #bc0012 !important;
-  color: #ffffff !important;
-  box-shadow: none !important;
-}
-
-::ng-deep .pedido-sugerido-page app-boton .btn-secondary:hover {
-  background: #a80010 !important;
-  border-color: #a80010 !important;
-}
-
 .modal-action-btn:disabled {
   cursor: not-allowed;
   opacity: 0.55;

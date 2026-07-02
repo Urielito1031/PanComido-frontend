@@ -88,10 +88,10 @@
 .icon-action-btn {
   width: 34px;
   height: 34px;
-  border: 1px solid rgba(188, 0, 18, 0.18);
+  border: 1px solid #b4b4ec;
   border-radius: 8px;
-  background: rgba(188, 0, 18, 0.06);
-  color: #bc0012;
+  background: #e4dbf3;
+  color: #3b6fd7;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -231,7 +231,7 @@
 
 .detail-tab.active {
   color: #ffffff;
-  background: #bc0012;
+  background: #af0e1ea7;
   box-shadow: 0 3px 8px rgba(188, 0, 18, 0.22);
 }
 

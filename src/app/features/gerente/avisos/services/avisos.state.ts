@@ -6,6 +6,7 @@ import { Plato } from '../../../../core/models/domain/plato';
 import { AvisosApiService } from './avisos.api';
 import { Sugerencia, PlatoSugerido } from '../../../../core/models/domain/sugerencia-ia';
 import { mapAvisosResponseToDomain } from '../../../../infra/http/mappers/aviso.mapper';
+import { crearPlatoSugeridoRequest, filtrarAvisos, filtrarSugerenciasCocina } from './avisos.rules';
 @Injectable({ providedIn: 'root' })
 export class AvisosStateService {
   private api = inject(AvisosApiService);
@@ -37,35 +38,15 @@ export class AvisosStateService {
   platoIACreado = this.#platoIACreado.asReadonly();
 
   vencimientos = computed(() => {
-    const term = this.#searchTerm().toLowerCase();
-    return this.#vencimientos().filter(a =>
-      (a.titulo || '').toLowerCase().includes(term) ||
-      (a.subtitulo && a.subtitulo.toLowerCase().includes(term)) ||
-      (a.info && a.info.toLowerCase().includes(term))
-    );
+    return filtrarAvisos(this.#vencimientos(), this.#searchTerm());
   });
 
   stockBajo = computed(() => {
-    const term = this.#searchTerm().toLowerCase();
-    return this.#stockBajo().filter(a =>
-      (a.titulo || '').toLowerCase().includes(term) ||
-      (a.subtitulo && a.subtitulo.toLowerCase().includes(term)) ||
-      (a.info && a.info.toLowerCase().includes(term))
-    );
+    return filtrarAvisos(this.#stockBajo(), this.#searchTerm());
   });
 
   sugerencias = computed(() => {
-    const term = this.#searchTerm().toLowerCase();
-    const ignoradas = this.#sugerenciasIgnoradas();
-
-    return this.#sugerenciasCocina().filter(plato =>
-      !plato.visible &&
-      !ignoradas.includes(plato.id) &&
-      (
-        (plato.nombre || '').toLowerCase().includes(term) ||
-        (plato.categoria ?? '').toLowerCase().includes(term)
-      )
-    );
+    return filtrarSugerenciasCocina(this.#sugerenciasCocina(), this.#sugerenciasIgnoradas(), this.#searchTerm());
   });
 
   cargarAvisos(): void {
@@ -184,21 +165,7 @@ export class AvisosStateService {
   crearPlatoDesdeIA(plato: PlatoSugerido): void {
   this.#creandoPlato.set(plato.id);
 
-  const request = {
-    nombre: plato.nombre,
-    descripcion: plato.descripcion,
-    precioVentaFinal: 0,
-    tiempoPreparacionBase: plato.tiempoPreparacion,
-    tipoPlatoId: 2,
-    categoriaPlatoId: 2,
-    urlImagen: '',
-    restriccionesIds: [],
-    ingredientes: plato.ingredientesSugeridos.map(ing => ({
-      insumoId: ing.insumoId,
-      cantidad: ing.cantidad,
-      opcional: false
-    }))
-  };
+  const request = crearPlatoSugeridoRequest(plato);
 
   this.api.crearPlatoDesdeIA(request)
     .pipe(takeUntilDestroyed(this.destroyRef))

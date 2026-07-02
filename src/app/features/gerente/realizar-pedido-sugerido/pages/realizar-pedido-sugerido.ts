@@ -35,9 +35,9 @@ export class RealizarPedidoSugeridoComponent implements OnInit {
   loading = this.state.loading;
 
   montoEstimado = this.state.montoEstimado;
-proveedoresFiltrados = this.state.proveedoresFiltrados;
+  proveedoresFiltrados = this.state.proveedoresFiltrados;
 
-  // TODO REFACTOR: panel "Agregar ingredientes" duplicado de historial-proveedor (03/06/2026)
+  // Panel auxiliar de agregado manual expuesto desde el estado.
   proveedorAgregarIngredienteId = this.state.proveedorAgregarIngredienteId;
   busquedaIngrediente = this.state.busquedaIngrediente;
   productoExtraSeleccionadoId = this.state.productoExtraSeleccionadoId;
@@ -401,7 +401,6 @@ proveedoresFiltrados = this.state.proveedoresFiltrados;
     });
   }
 
-  // TODO REFACTOR: panel "Agregar ingredientes" duplicado de historial-proveedor (03/06/2026)
   abrirAgregarIngrediente(proveedorId: number | string): void {
     this.state.abrirAgregarIngrediente(proveedorId);
   }

@@ -8,9 +8,11 @@
   --glass-border: rgba(255, 255, 255, 0.48);
   --stock-tint: #bc00136b;
   --expiry-tint: #ffdf0d65;
-  --ai-color: #67cd34;
-  --ai-tint: #005d7449;
-  --ai-tint-strong: #005d7479;
+  --ai-accent: #bc0012;
+  --ai-surface: rgba(255, 255, 255, 0.92);
+  --ai-surface-strong: #ffffff;
+  --ai-border: rgba(15, 23, 42, 0.12);
+  --ai-soft: rgba(188, 0, 18, 0.035);
 }
 
 .avisos-toast {
@@ -94,7 +96,7 @@
 
 .resumen-pill.resumen-stock .material-symbols-outlined { color: #a8041a; }
 .resumen-pill.resumen-vencimiento .material-symbols-outlined { color: #b8860b; }
-.resumen-pill.resumen-ia .material-symbols-outlined { color: #2f7a12; }
+.resumen-pill.resumen-ia .material-symbols-outlined { color: var(--ai-accent); }
 
 /* ─── Sections ─── */
 .avisos-sections {
@@ -390,22 +392,29 @@
 
 /* ─── Accordion IA ─── */
 .accordion-header.header-ia {
-  background: var(--ai-tint);
-  transition: background 0.2s ease;
+  background:
+    linear-gradient(90deg, rgba(188, 0, 18, 0.035), rgba(255, 255, 255, 0.94)),
+    var(--ai-surface);
+  border-left: 3px solid rgba(188, 0, 18, 0.42);
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .accordion-header.header-ia:hover {
-  background: rgba(103, 205, 52, 0.45);
+  background:
+    linear-gradient(90deg, rgba(188, 0, 18, 0.055), rgba(255, 255, 255, 0.98)),
+    var(--ai-surface-strong);
 }
 
 .accordion-icon.ia-result {
-  background: var(--ai-tint-strong);
-  color: #ffffff;
+  background: #ffffff;
+  border: 1px solid rgba(188, 0, 18, 0.16);
+  color: var(--ai-accent);
 }
 
 .badge-ia {
-  background: rgba(255, 255, 255, 0.882);
-  color: #005d74;
+  background: #ffffff;
+  color: var(--ai-accent);
+  border: 1px solid rgba(188, 0, 18, 0.16);
 }
 
 /* ─── Accordion header colors ─── */
@@ -467,8 +476,10 @@
 }
 
 .sugerencia-card-icon.ia {
-  background: var(--ai-tint-strong);
-  color: #ffffff;
+  background: #ffffff;
+  border: 1px solid rgba(188, 0, 18, 0.16);
+  color: var(--ai-accent);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.07);
 }
 
 .sugerencia-card-title {
@@ -476,6 +487,28 @@
   font-size: 1.15rem;
   font-weight: 800;
   color: #000000;
+}
+
+.sugerencia-card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.ai-feature-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0 0.55rem;
+  border-radius: 6px;
+  border: 1px solid rgba(188, 0, 18, 0.18);
+  background: #ffffff;
+  color: var(--ai-accent);
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .sugerencia-card-sub {
@@ -494,17 +527,28 @@
 }
 
 .sugerencia-card.ia {
-  background: var(--ai-tint) !important;
+  background:
+    linear-gradient(90deg, rgba(188, 0, 18, 0.55) 0, rgba(188, 0, 18, 0.55) 3px, transparent 3px),
+    repeating-linear-gradient(135deg, rgba(15, 23, 42, 0.025) 0 1px, transparent 1px 16px),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.94)) !important;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(103, 205, 52, 0.26) !important;
-  box-shadow: 0 8px 32px 0 rgba(47, 122, 18, 0.05) !important;
+  border: 1px solid var(--ai-border) !important;
+  box-shadow: 0 16px 38px rgba(15, 23, 42, 0.08) !important;
   position: relative;
   overflow: hidden;
 }
 
 .sugerencia-card.ia::before {
-  content: none;
+  content: "IA";
+  position: absolute;
+  right: 24px;
+  top: 18px;
+  color: rgba(15, 23, 42, 0.035);
+  font-size: 5rem;
+  font-weight: 900;
+  line-height: 1;
+  pointer-events: none;
 }
 
 .sugerencia-card.ia > * {

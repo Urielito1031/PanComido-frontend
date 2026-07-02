@@ -284,11 +284,7 @@ onCantidadCambiada(proveedorId: string | number, item: SugerenciaPedidoItem, val
     return item.cantidadSugerida;
   }
 
-// ============================================================
-  // TODO REFACTOR: bloque duplicado del panel "Agregar ingredientes"
-  // copiado de historial-proveedor.ts para la demo del 03/06/2026.
-  // Extraer a un componente compartido en shared/ui/ después de la entrega.
-  // ============================================================
+  // Panel auxiliar de agregado manual. Mantiene el contrato actual de la vista.
   productosDisponiblesPedido = signal<SugerenciaPedidoItem[]>([]);
   proveedorAgregarIngredienteId = signal<number | string | null>(null);
   busquedaIngrediente = signal('');
@@ -411,10 +407,6 @@ seleccionarIngredienteExtra(productoId: string): void {
     this.cantidadIngrediente.set(1);
     this.precioIngrediente.set(null);
   }
-  // ============================================================
-  // FIN TODO REFACTOR
-  // ============================================================
-
   enviarPedido(proveedor: Proveedor, onSuccess: () => void): void {
     this.mensajeError.set(null);
     const pedidoItems = this.obtenerItemsProveedor(proveedor.id);
