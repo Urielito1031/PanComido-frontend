@@ -8,7 +8,6 @@ import { PageToolbar } from '../../../../shared/ui/page-toolbar/page-toolbar';
 import { Dropdown } from '../../../../shared/ui/dropdown/dropdown';
 import { ModalEditarPlatoComponent } from '../containers/modal-editar-plato/modal-editar-plato';
 import { ModalEliminarPlatoComponent } from '../components/modal-eliminar-plato/modal-eliminar-plato';
-import { ModalRestaurarPlatoComponent } from '../components/modal-restaurar-plato/modal-restaurar-plato';
 import { ModificarCartaStateService } from '../services/modificar-carta.state';
 
 @Component({
@@ -20,8 +19,7 @@ import { ModificarCartaStateService } from '../services/modificar-carta.state';
     Dropdown, 
     PageToolbar,
     ModalEditarPlatoComponent,
-    ModalEliminarPlatoComponent,
-    ModalRestaurarPlatoComponent
+    ModalEliminarPlatoComponent
   ],
   templateUrl: './modificar-carta.html',
   styleUrls: ['./modificar-carta.css'],
@@ -34,6 +32,8 @@ export class ModificarCartaComponent implements OnInit {
   readonly state = inject(ModificarCartaStateService);
 
   layoutMode = signal<'grid' | 'list'>('grid');
+  isFloatingMenuOpen = signal(false);
+  private scrollPosition = 0;
 
   // Exponer señales del State Service para que la plantilla HTML y los tests sigan funcionando sin cambios
   platos = this.state.platos;
@@ -75,22 +75,25 @@ export class ModificarCartaComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       const buscar = params['buscar'];
       const editar = params['editar'] === 'true';
-      if (buscar) {
-        this.state.setSearchTerm(buscar);
-        if (editar) {
-          const checkAndEdit = () => {
-            const list = this.state.platos();
-            if (list.length > 0) {
-              const plato = list.find(p => p.nombre.toLowerCase() === buscar.toLowerCase());
-              if (plato) {
-                this.state.setPlatoAEditar(plato);
-              }
-            } else {
-              setTimeout(checkAndEdit, 100);
+      if (!buscar) {
+        this.state.setSearchTerm('');
+        return;
+      }
+
+      this.state.setSearchTerm(buscar);
+      if (editar) {
+        const checkAndEdit = () => {
+          const list = this.state.platos();
+          if (list.length > 0) {
+            const plato = list.find(p => p.nombre.toLowerCase() === buscar.toLowerCase());
+            if (plato) {
+              this.state.setPlatoAEditar(plato);
             }
-          };
-          checkAndEdit();
-        }
+          } else {
+            setTimeout(checkAndEdit, 100);
+          }
+        };
+        checkAndEdit();
       }
     });
 
@@ -133,10 +136,12 @@ export class ModificarCartaComponent implements OnInit {
   }
 
   onEditPlato(plato: Plato) {
+    this.scrollPosition = window.scrollY;
     this.state.setPlatoAEditar(plato);
   }
 
   onDeletePlato(plato: Plato) {
+    this.scrollPosition = window.scrollY;
     this.state.setPlatoAEliminar(plato);
   }
 
@@ -150,6 +155,7 @@ export class ModificarCartaComponent implements OnInit {
 
   onCloseModals() {
     this.state.closeModals();
+    setTimeout(() => window.scrollTo(0, this.scrollPosition), 50);
   }
 
   onCategoriaSeleccionada(categoria: string | null) {
@@ -175,17 +181,5 @@ export class ModificarCartaComponent implements OnInit {
 
   setLayoutMode(mode: 'grid' | 'list') {
     this.layoutMode.set(mode);
-  }
-
-  abrirRestaurarPlatos() {
-    this.state.abrirModalRestaurar();
-  }
-
-  onCloseRestaurar() {
-    this.state.cerrarModalRestaurar();
-  }
-
-  onRestaurarPlato(plato: Plato) {
-    this.state.restaurarPlato(plato);
   }
 }

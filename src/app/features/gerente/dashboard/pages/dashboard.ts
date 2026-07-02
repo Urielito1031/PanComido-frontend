@@ -130,7 +130,7 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     } else if (modo === 'reportes') {
       const idxVentas = base.findIndex(w => w.id === 'ventas-calendario');
       const idxPlatosBajos = base.findIndex(w => w.id === 'platos-menos-vendidos');
-      if (idxVentas !== -1 && idxPlatosBajos !== -1 && idxPlatosBajos !== idxVentas + 1) {
+      if (!this.state.esModoCalendario() && idxVentas !== -1 && idxPlatosBajos !== -1 && idxPlatosBajos !== idxVentas + 1) {
         const [platosBajos] = base.splice(idxPlatosBajos, 1);
         const updatedIdxVentas = base.findIndex(w => w.id === 'ventas-calendario');
         base.splice(updatedIdxVentas + 1, 0, platosBajos);
@@ -143,6 +143,9 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
         base.splice(updatedIdxAcciones + 1, 0, mozos);
       }
       base = base.map(w => {
+        if (this.state.esModoCalendario() && (w.id === 'ventas-calendario' || w.id === 'platos-mas-vendidos' || w.id === 'platos-menos-vendidos')) {
+          return { ...w, colSpan: 6 };
+        }
         if (w.id === 'ventas-calendario' || w.id === 'platos-menos-vendidos') {
           return { ...w, colSpan: 6 };
         }

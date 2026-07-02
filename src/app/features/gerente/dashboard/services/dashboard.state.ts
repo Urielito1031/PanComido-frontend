@@ -304,6 +304,21 @@ export class DashboardStateService implements OnDestroy {
     return Math.round(total / Math.max(1, dias));
   });
 
+  totalVentasNumero = computed(() => {
+    const resumen = this._resumen();
+    return resumen ? this.extraerImporte(resumen.totalVentas) : 0;
+  });
+
+  ticketPromedioNumero = computed(() => {
+    const resumen = this._resumen();
+    return resumen ? this.extraerImporte(resumen.ticketPromedio) : 0;
+  });
+
+  tieneVentasRegistradas = computed(() => this.totalVentasNumero() > 0);
+  tienePedidosRegistrados = computed(() => (this._resumen()?.totalPedidos ?? 0) > 0);
+  tieneTicketPromedio = computed(() => this.ticketPromedioNumero() > 0);
+  porcentajeRailVentas = computed(() => this.tieneVentasRegistradas() ? 62 : 0);
+
   promedioDiarioPedidosCalculado = computed(() => {
     const resumen = this._resumen();
     if (!resumen) return 0;

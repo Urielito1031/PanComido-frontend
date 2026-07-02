@@ -5,9 +5,9 @@
         <span class="material-symbols-outlined">arrow_back</span>
       </button>
       <div>
-        <p class="detail-kicker mb-1">Automatizacion</p>
+        <p class="detail-kicker mb-1">Reposicion de inventario</p>
         <h1 class="page-title mb-1">Pedido sugerido</h1>
-        <p class="page-subtitle mb-0">Revisa las sugerencias, ajusta cantidades y crea pedidos por proveedor.</p>
+        <p class="page-subtitle mb-0">Revisa insumos con stock bajo o critico antes de confirmar el pedido.</p>
       </div>
     </div>
 
@@ -45,11 +45,17 @@
   } @else {
     <section class="review-summary">
       <div class="summary-copy">
-        <span class="summary-icon material-symbols-outlined">auto_awesome</span>
+        <span class="summary-icon material-symbols-outlined">inventory_2</span>
         <div>
-          <h2>Bandeja de revision</h2>
-          <p>Los pedidos ya estan armados. Ajusta solo lo necesario antes de confirmar.</p>
+          <h2>Reposicion sugerida</h2>
+          <p>El sistema encontro {{ totalItems() }} insumos para {{ proveedoresFiltrados().length }} proveedores segun stock, estado e historial de compras.</p>
         </div>
+      </div>
+
+      <div class="review-steps" aria-label="Flujo de revision">
+        <span><strong>1</strong> Revisar</span>
+        <span><strong>2</strong> Ajustar</span>
+        <span><strong>3</strong> Confirmar</span>
       </div>
 
       <div class="summary-metrics">
@@ -68,6 +74,10 @@
         <article class="summary-metric ready">
           <span>Listos</span>
           <strong>{{ pedidosListos() }}</strong>
+        </article>
+        <article class="summary-metric priority">
+          <span>Prioridad alta</span>
+          <strong>{{ proveedoresAltaPrioridad() }}</strong>
         </article>
       </div>
     </section>
@@ -98,10 +108,23 @@
             </div>
 
             <div class="provider-header-side">
+              <span
+                class="provider-priority-badge"
+                [class.danger]="prioridadProveedor(prov.id).tone === 'danger'"
+                [class.warning]="prioridadProveedor(prov.id).tone === 'warning'"
+                [class.success]="prioridadProveedor(prov.id).tone === 'success'">
+                {{ prioridadProveedor(prov.id).label }}
+              </span>
               <span class="counter-pill">{{ itemsProveedor(prov.id).length }} items</span>
               <strong>$ {{ montoProveedor(prov.id) | number:'1.0-0' }}</strong>
             </div>
           </header>
+
+          <div class="provider-inventory-note">
+            <span class="material-symbols-outlined">rule</span>
+            <span>{{ resumenProveedorInventario(prov.id) }}</span>
+            <strong>{{ prioridadProveedor(prov.id).detail }}</strong>
+          </div>
 
           <div class="suggested-items">
             @for (item of itemsProveedor(prov.id); track item.productoId) {
@@ -110,9 +133,29 @@
                   <strong>{{ item.nombre }}</strong>
                   <span>{{ item.stockActual }} {{ nombreUnidad(item.unidadMedida) }} disponibles</span>
                   <span class="stock-pill">{{ item.estadoStock || 'A reponer' }}</span>
+                  <div class="item-rule-context">
+                    @for (motivo of motivosItemInventario(prov.id, item); track motivo.label) {
+                      <span
+                        class="rule-reason-chip"
+                        [class.danger]="motivo.tone === 'danger'"
+                        [class.warning]="motivo.tone === 'warning'"
+                        [class.success]="motivo.tone === 'success'"
+                        [class.neutral]="motivo.tone === 'neutral'">
+                        {{ motivo.label }}
+                      </span>
+                    }
+                  </div>
                 </div>
 
                 <div class="smart-qty">
+                  <div class="quantity-comparison">
+                    <span>Sugerido <strong>{{ cantidadOriginalDisplay(prov.id, item) }}</strong></span>
+                    @if (itemAgregadoManual(prov.id, item)) {
+                      <small class="manual-chip">Agregado manualmente</small>
+                    } @else if (itemFueAjustado(prov.id, item)) {
+                      <small class="adjusted-chip">Ajustado</small>
+                    }
+                  </div>
                   <span>Cantidad en {{ unidadDisplayCompleta(item) }}</span>
                   <div class="quantity-stepper">
                     <button type="button" class="step-btn" (click)="ajustarCantidadDisplay(prov.id, item, -cantidadPasoDisplay(item))">-</button>
@@ -120,11 +163,15 @@
                       type="number"
                       class="form-control step-input"
                       [min]="cantidadMinimaDisplay(item)"
+                      [max]="cantidadMaximaDisplay(item)"
                       [step]="cantidadPasoDisplay(item)"
                       [ngModel]="cantidadDisplay(item)"
                       (ngModelChange)="setCantidadDisplay(prov.id, item, $event)">
                     <button type="button" class="step-btn" (click)="ajustarCantidadDisplay(prov.id, item, cantidadPasoDisplay(item))">+</button>
                   </div>
+                  @if (cantidadEnMaximo(item)) {
+                    <small class="quantity-limit-warning">{{ mensajeCantidadMaxima(item) }}</small>
+                  }
                   <div class="quantity-tools-row">
                     <button type="button" class="quantity-clear-btn" (click)="limpiarCantidadDisplay(prov.id, item)">Limpiar</button>
                   </div>
@@ -166,7 +213,7 @@
 
                 <div class="suggested-subtotal">
                   <span>Subtotal</span>
-                  <strong>$ {{ (item.precioUnitario * item.cantidadSugerida) | number:'1.0-0' }}</strong>
+                  <strong>$ {{ subtotalItem(item) | number:'1.0-0' }}</strong>
                 </div>
 
                 <button class="btn-delete" type="button" (click)="eliminarItem(prov.id, item.productoId)" aria-label="Quitar insumo">

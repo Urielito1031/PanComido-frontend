@@ -241,15 +241,21 @@
           </strong>
         </div>
         <div class="kpi-hero-main">
-          <strong class="kpi-hero-value">{{ resumen.totalVentas }}</strong>
+          @if (state.tieneVentasRegistradas()) {
+            <strong class="kpi-hero-value">{{ resumen.totalVentas }}</strong>
+          } @else {
+            <strong class="kpi-hero-empty">No hay ventas registradas</strong>
+          }
         </div>
-        <p class="kpi-hero-context">Facturación consolidada para {{ state.periodoLabel() }}.</p>
+        <p class="kpi-hero-context">
+          {{ state.tieneVentasRegistradas() ? 'Facturación consolidada para ' + state.periodoLabel() + '.' : 'Esperando actividad comercial para ' + state.periodoLabel() + '.' }}
+        </p>
         <div class="kpi-hero-rail" aria-hidden="true">
           <span class="rail-marker rail-marker-primary">
             {{ resumen.totalPedidos }} pedidos
           </span>
-          <span class="rail-line">
-            <span></span>
+          <span class="rail-line" [class.is-empty]="!state.tieneVentasRegistradas()">
+            <span [style.width.%]="state.porcentajeRailVentas()"></span>
           </span>
           <span class="rail-marker">
             {{ state.promedioDiarioVentas() | arsCurrency }} diario
@@ -263,17 +269,21 @@
           <span class="material-symbols-outlined" aria-hidden="true">shopping_bag</span>
         </div>
         <div class="orders-kpi-main">
-          <strong>{{ resumen.totalPedidos }}</strong>
-          <span
-            class="kpi-mini-change"
-            [class.negative]="state.variacionPedidosEsNegativa()">
-            {{ resumen.variacionPedidos }}
-          </span>
+          @if (state.tienePedidosRegistrados()) {
+            <strong>{{ resumen.totalPedidos }}</strong>
+            <span
+              class="kpi-mini-change"
+              [class.negative]="state.variacionPedidosEsNegativa()">
+              {{ resumen.variacionPedidos }}
+            </span>
+          } @else {
+            <span class="kpi-empty-state">Sin pedidos registrados</span>
+          }
         </div>
         <div class="orders-kpi-detail">
           <span>
             <small>Ritmo</small>
-            <strong>{{ state.variacionPedidosEsNegativa() ? 'Bajo' : 'Estable' }}</strong>
+            <strong>{{ state.tienePedidosRegistrados() ? (state.variacionPedidosEsNegativa() ? 'Bajo' : 'Estable') : 'Sin actividad' }}</strong>
           </span>
         </div>
       </article>
@@ -283,12 +293,16 @@
           <span>Ticket promedio</span>
           <span class="material-symbols-outlined" aria-hidden="true">receipt_long</span>
         </div>
-        <strong>{{ resumen.ticketPromedio }}</strong>
-        <span
-          class="kpi-mini-change"
-          [class.negative]="state.variacionTicketEsNegativa()">
-          {{ resumen.variacionTicket }}
-        </span>
+        @if (state.tieneTicketPromedio()) {
+          <strong>{{ resumen.ticketPromedio }}</strong>
+          <span
+            class="kpi-mini-change"
+            [class.negative]="state.variacionTicketEsNegativa()">
+            {{ resumen.variacionTicket }}
+          </span>
+        } @else {
+          <span class="kpi-empty-state">Sin tickets cerrados</span>
+        }
       </article>
 
       <article class="kpi-mini-card">
@@ -296,42 +310,52 @@
           <span>Promedio diario</span>
           <span class="material-symbols-outlined" aria-hidden="true">monitoring</span>
         </div>
-        <strong>{{ state.promedioDiarioVentas() | arsCurrency }}</strong>
-        <small>{{ resumen.promedioDiarioPedidos }} pedidos por día</small>
+        @if (state.promedioDiarioVentas() > 0) {
+          <strong>{{ state.promedioDiarioVentas() | arsCurrency }}</strong>
+          <small>{{ resumen.promedioDiarioPedidos }} pedidos por día</small>
+        } @else {
+          <span class="kpi-empty-state">Sin ventas diarias</span>
+          <small>No hay pedidos para promediar</small>
+        }
       </article>
     </section>
   }
 
   @if (state.modoVista() === 'resumen') {
     <section class="executive-summary" aria-label="Resumen ejecutivo del dashboard">
-      <div class="executive-summary-copy">
-        <span class="summary-eyebrow">Prioridad gerencial</span>
-        @if (state.accionPrincipal(); as accion) {
-          <h2>{{ accion.titulo }}</h2>
-          <p>{{ accion.detalle }}. {{ accion.impacto }}.</p>
-          <button type="button" class="summary-action-btn" (click)="irA(accion.destino)">
-            Resolver ahora
-            <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-          </button>
-        } @else {
-          <h2>Operación estable</h2>
-          <p>No hay acciones urgentes para el período seleccionado. Revisá ventas y stock para anticipar próximos movimientos.</p>
-        }
-      </div>
-      <div class="executive-summary-metrics">
-        <div>
-          <small>Insumos críticos</small>
-          <strong>{{ state.vencimientosResumen()[1]?.value ?? 0 }}</strong>
+      <article class="executive-summary-card">
+        <div class="executive-summary-copy">
+          <span class="summary-eyebrow">Prioridad gerencial</span>
+          @if (state.accionPrincipal(); as accion) {
+            <h2>{{ accion.titulo }}</h2>
+            <p>{{ accion.detalle }}. {{ accion.impacto }}.</p>
+            <button type="button" class="summary-action-btn" (click)="irA(accion.destino)">
+              Resolver ahora
+              <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+            </button>
+          } @else {
+            <h2>Operación estable</h2>
+            <p>No hay acciones urgentes para el período seleccionado. Revisá ventas y stock para anticipar próximos movimientos.</p>
+          }
         </div>
-        <div>
-          <small>Platos a revisar</small>
-          <strong>{{ state.platosMenosVendidosPreview().length }}</strong>
+        <div class="executive-summary-metrics">
+          <div class="summary-metric-card danger">
+            <small>Insumos críticos</small>
+            <strong>{{ state.vencimientosResumen()[1]?.value ?? 0 }}</strong>
+            <span>Alta prioridad</span>
+          </div>
+          <div class="summary-metric-card warning">
+            <small>Platos a revisar</small>
+            <strong>{{ state.platosMenosVendidosPreview().length }}</strong>
+            <span>Demanda baja</span>
+          </div>
+          <div class="summary-metric-card neutral">
+            <small>Tareas programadas</small>
+            <strong>{{ state.recordatoriosAdicionales().length }}</strong>
+            <span>Pendientes</span>
+          </div>
         </div>
-        <div>
-          <small>Tareas programadas</small>
-          <strong>{{ state.recordatoriosAdicionales().length }}</strong>
-        </div>
-      </div>
+      </article>
     </section>
   }
 
@@ -355,7 +379,10 @@
   }
 
   @if (state.modoVista() !== 'favoritos') {
-    <div class="dashboard-grid-container" [class.mode-reportes-grid]="state.modoVista() === 'reportes'">
+    <div
+      class="dashboard-grid-container"
+      [class.mode-reportes-grid]="state.modoVista() === 'reportes'"
+      [class.mode-calendar-grid]="state.modoVista() === 'reportes' && state.esModoCalendario()">
       @for (widget of widgetsParaVista(); track widget.id) {
         @if (deberiaMostrarModulo(widget)) {
           <div
@@ -443,18 +470,8 @@
       @if (state.configuracionFavoritos().length === 0 && !state.estaEditando()) {
         <div class="empty-favorites-state empty-favorites-state-full">
           <svg class="empty-favorites-icon" width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="60" cy="60" r="50" fill="url(#premiumGrad)" opacity="0.15"/>
-            <path d="M60 25L71.5 48.5L97.5 52L78.5 70L83 96L60 83.5L37 96L41.5 70L22.5 52L48.5 48.5L60 25Z" fill="url(#goldGrad)" filter="drop-shadow(0px 8px 16px rgba(245, 158, 11, 0.3))"/>
-            <defs>
-              <linearGradient id="premiumGrad" x1="10" y1="10" x2="110" y2="110" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#1691ac"/>
-                <stop offset="1" stop-color="#22c5d7"/>
-              </linearGradient>
-              <linearGradient id="goldGrad" x1="22.5" y1="25" x2="97.5" y2="96" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#fb8c00"/>
-                <stop offset="1" stop-color="#f59e0b"/>
-              </linearGradient>
-            </defs>
+            <circle cx="60" cy="60" r="50" fill="#d8081c" opacity="0.08"/>
+            <path d="M60 25L71.5 48.5L97.5 52L78.5 70L83 96L60 83.5L37 96L41.5 70L22.5 52L48.5 48.5L60 25Z" fill="#d8081c" filter="drop-shadow(0px 8px 16px rgba(216, 8, 28, 0.16))"/>
           </svg>
           <h2>Crea tu espacio de trabajo favorito</h2>
           <p>Organiza tus KPIs, reportes y gráficos prioritarios en un solo lugar para una gestión más rápida y personalizada.</p>

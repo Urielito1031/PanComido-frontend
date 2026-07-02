@@ -13,10 +13,10 @@
 
   <div class="mozos-list">
     @for (mozo of state.mozos(); track mozo.nombre) {
-      <div class="mozo-row" [class]="mozo.estado === 'Sobrecargado' ? 'danger' : (mozo.estado === 'Optimo' ? 'success' : 'info')">
+      <div class="mozo-row">
         <div class="mozo-header">
           <strong>{{ mozo.nombre }}</strong>
-          <span class="mozo-badge">{{ mozo.estado }}</span>
+          <span class="mozo-badge" [ngClass]="mozo.estado === 'Sobrecargado' ? 'danger' : (mozo.estado === 'Optimo' ? 'success' : 'warning')">{{ mozo.estado }}</span>
         </div>
         <div class="mozo-metrics">
           <div class="metric">

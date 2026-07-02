@@ -40,6 +40,7 @@ describe('ModificarCartaComponent', () => {
       selectedTipoComida: signal<string | null>(null),
       totalComidasCount: signal(0),
       sortOrder: signal<'default' | 'ventas-desc' | 'ventas-asc'>('default'),
+      searchTerm: signal(''),
       mostrarModalRestaurar: signal(false),
       mostrarModalImportar: signal(false),
 
@@ -64,7 +65,8 @@ describe('ModificarCartaComponent', () => {
     };
 
     activatedRouteMock = {
-      queryParams: of({})
+      queryParams: of({}),
+      fragment: of(null)
     };
 
     // 3. Configurar TestBed
@@ -114,6 +116,10 @@ describe('ModificarCartaComponent', () => {
   it('debería delegar onSearch al state', () => {
     component.onSearch('Milanesa');
     expect(stateServiceMock.setSearchTerm).toHaveBeenCalledWith('Milanesa');
+  });
+
+  it('debería limpiar la búsqueda al entrar a carta sin query buscar', () => {
+    expect(stateServiceMock.setSearchTerm).toHaveBeenCalledWith('');
   });
 
   it('debería delegar toggleVisibility al state', () => {

@@ -38,9 +38,11 @@ export class AvisosPage implements OnInit, OnDestroy {
   protected readonly stockAvisoSeleccionado = signal<Aviso | null>(null);
   protected readonly vencimientoSeleccionado = signal<Aviso | null>(null);
   panelPreviewAbierto = signal<'sistema' | 'ia' | null>(null);
+  isFloatingMenuOpen = signal(false);
 
   isStockExpanded = signal(true);
   isVencimientosExpanded = signal(true);
+  isResultadoIAExpanded = signal(false);
 
   paginaStock = signal(1);
   paginaVencimientos = signal(1);
@@ -101,6 +103,8 @@ export class AvisosPage implements OnInit, OnDestroy {
       this.isStockExpanded.set(true);
     } else if (id === 'seccion-vencimientos') {
       this.isVencimientosExpanded.set(true);
+    } else if (id === 'sugerencias-ia-resultados') {
+      this.isResultadoIAExpanded.set(true);
     }
     setTimeout(() => {
       const element = this.documento.getElementById(id);
@@ -136,6 +140,7 @@ export class AvisosPage implements OnInit, OnDestroy {
     }
 
     if (tipo === 'ia') {
+      this.isResultadoIAExpanded.set(false);
       this.state.generarSugerenciasIA();
     }
   }
@@ -152,6 +157,7 @@ export class AvisosPage implements OnInit, OnDestroy {
       if (fragment) {
         if (fragment === 'sugerencias-ia') {
           this.panelPreviewAbierto.set('ia');
+          this.isResultadoIAExpanded.set(false);
           this.state.generarSugerenciasIA();
           setTimeout(() => {
             const element = this.documento.getElementById('sugerencias-ia');
@@ -172,6 +178,10 @@ export class AvisosPage implements OnInit, OnDestroy {
 
   onBuscar(term: string) {
     this.state.setSearchTerm(term);
+  }
+
+  toggleResultadoIA(): void {
+    this.isResultadoIAExpanded.update(value => !value);
   }
 
   abrirAviso(aviso: Aviso) {

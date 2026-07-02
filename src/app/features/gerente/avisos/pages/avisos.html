@@ -19,6 +19,32 @@
   </div>
   }
 
+  <div class="avisos-header">
+    <h1>Sistema de Avisos</h1>
+    <p class="avisos-header-sub">Stock crítico, vencimientos próximos y sugerencias de IA en un solo lugar</p>
+  </div>
+
+  <!-- ─── Resumen rápido ─── -->
+  <div class="avisos-resumen">
+    <button type="button" class="resumen-pill resumen-stock" (click)="desplazarASeccion('seccion-stock')">
+      <span class="material-symbols-outlined">inventory_2</span>
+      <strong>{{ state.stockBajo().length }}</strong>
+      <span>Stock crítico</span>
+    </button>
+    <button type="button" class="resumen-pill resumen-vencimiento" (click)="desplazarASeccion('seccion-vencimientos')">
+      <span class="material-symbols-outlined">event_busy</span>
+      <strong>{{ state.vencimientos().length }}</strong>
+      <span>Vencimientos</span>
+    </button>
+    @if (state.sugerenciasIA()) {
+    <button type="button" class="resumen-pill resumen-ia" (click)="desplazarASeccion('sugerencias-ia-resultados')">
+      <span class="material-symbols-outlined">auto_awesome</span>
+      <strong>{{ state.sugerenciasIA()!.platosSugeridos.length }}</strong>
+      <span>Platos sugeridos</span>
+    </button>
+    }
+  </div>
+
   <div class="avisos-sections">
 
     <!-- ─── Sugerencias ─── -->
@@ -61,8 +87,7 @@
         </div>
       </div>
       <p class="sugerencia-card-desc">
-        La IA analiza los insumos con vencimiento próximo y genera sugerencias de platos para aprovecharlos antes de que
-        venzan.
+        La IA analiza los insumos con vencimiento próximo y genera sugerencias de platos para aprovecharlos antes de que venzan.
       </p>
       <app-boton variante="outline" tamanio="md" (clicked)="abrirPreviewSugerencia('ia')">
         <div class="d-flex align-items-center gap-2 fw-bold">
@@ -72,150 +97,98 @@
       </app-boton>
     </div>
 
-    <!-- ─── Panel Vista Previa ─── -->
-    @if (panelPreviewAbierto()) {
-    <div class="sugerencia-preview-panel mt-4 p-4 bg-white border rounded-4 shadow-sm">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="fw-bold m-0 text-dark">
-          <span class="material-symbols-outlined fs-5 align-middle me-1">preview</span>
-          Sugerencias de IA
-        </h4>
-        <button class="btn-close" (click)="panelPreviewAbierto.set(null)"></button>
-      </div>
-
-      <!-- PANEL SUGERENCIAS DEL SISTEMA: comentado temporalmente, retomar en próxima iteración -->
-      <!--
-        @if (panelPreviewAbierto() === 'sistema') {
-          @if (pedidoSugeridoState.loading()) {
-            <div class="text-center p-4 text-muted">
-              <div class="spinner-border text-secondary" role="status"></div>
-              <p class="mt-2 mb-0">Cargando sugerencias...</p>
+    <!-- ─── Resultados de la sugerencia IA ─── -->
+    @if (state.loadingIA()) {
+    <div class="accordion-section">
+      <div class="accordion-body">
+        <div class="row row-cols-1 row-cols-md-2 g-3">
+          <div class="col">
+            <div class="skeleton-card">
+              <div class="skeleton skeleton-title"></div>
+              <div class="skeleton skeleton-text"></div>
+              <div class="skeleton skeleton-text short"></div>
+              <div class="skeleton skeleton-text" style="height: 32px; margin-top: 16px;"></div>
             </div>
-          } @else {
-            @if (pedidoSugeridoState.proveedores().length > 0) {
-              <div class="alert alert-info border-0 rounded-3 mb-4 d-flex align-items-center gap-2">
-                <span class="material-symbols-outlined text-info">info</span>
-                Se detectaron insumos por debajo del punto mínimo. Se han armado borradores de pedidos para los siguientes proveedores:
-              </div>
-              <div class="row row-cols-1 row-cols-md-2 g-3 mb-4">
-                @for (prov of pedidoSugeridoState.proveedores(); track prov.id) {
-                  <div class="col">
-                    <div class="border rounded-3 p-3 bg-light d-flex flex-column h-100">
-                      <div class="d-flex justify-content-between align-items-start mb-2">
-                        <div>
-                          <div class="fw-bold fs-6">{{ prov.nombre }}</div>
-                          <div class="small text-muted">{{ prov.categorias?.join(', ') || 'Sin categoría' }}</div>
-                        </div>
-                        <span class="badge bg-primary rounded-pill px-3 py-2">
-                          {{ pedidoSugeridoState.pedidosPorProveedor()[prov.id]?.length || 0 }} ítems
-                        </span>
-                      </div>
-                      <div class="d-flex flex-wrap gap-1 mt-auto pt-2 border-top">
-                        @for (item of pedidoSugeridoState.pedidosPorProveedor()[prov.id]; track item.productoId) {
-                          <span class="badge bg-white text-secondary border fw-normal border-secondary-subtle px-2 py-1" style="font-size: 0.75rem;">
-                            {{ item.nombre }}
-                          </span>
-                        }
-                      </div>
-                    </div>
-                  </div>
-                }
-              </div>
-              <div class="d-flex justify-content-end gap-2 border-top pt-3 mt-2">
-                <app-boton variante="outline" tamanio="md" (clicked)="panelPreviewAbierto.set(null)">Cancelar</app-boton>
-                <app-boton variante="warning" tamanio="md" (clicked)="irASugerenciasSistemaFull()">
+          </div>
+          <div class="col">
+            <div class="skeleton-card">
+              <div class="skeleton skeleton-title" style="width: 50%"></div>
+              <div class="skeleton skeleton-text"></div>
+              <div class="skeleton skeleton-text short"></div>
+              <div class="skeleton skeleton-text" style="height: 32px; margin-top: 16px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    } @else if (state.errorIA()) {
+    <div class="alert alert-danger border-0 rounded-3 d-flex align-items-center gap-2">
+      <span class="material-symbols-outlined">error</span>
+      {{ state.errorIA() }}
+    </div>
+    } @else if (state.sugerenciasIA()) {
+    <div id="sugerencias-ia-resultados" class="accordion-section" [class.expanded]="isResultadoIAExpanded()">
+      <button class="accordion-header header-ia" (click)="toggleResultadoIA()" type="button">
+        <div class="accordion-header-left">
+          <span class="accordion-icon material-symbols-outlined ia-result">auto_awesome</span>
+          <div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="accordion-title">Resultados de la sugerencia</span>
+              <span class="accordion-badge badge-ia">{{ state.sugerenciasIA()!.platosSugeridos.length }} platos</span>
+            </div>
+            <span class="accordion-subtitle">
+              Generado el {{ state.sugerenciasIA()!.fechaSugerencia | date:'dd/MM/yyyy HH:mm' }}
+            </span>
+          </div>
+        </div>
+        <span class="accordion-chevron material-symbols-outlined">
+          {{ isResultadoIAExpanded() ? 'expand_less' : 'expand_more' }}
+        </span>
+      </button>
+
+      @if (isResultadoIAExpanded()) {
+        <div class="accordion-body">
+          <div class="row row-cols-1 row-cols-md-2 g-3">
+            @for (plato of state.sugerenciasIA()!.platosSugeridos; track plato.id) {
+            <div class="col">
+              <div class="ia-suggestion-result-card border rounded-3 p-3 bg-light d-flex flex-column h-100">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <div class="fw-bold fs-6 text-dark">{{ plato.nombre }}</div>
+                  <span class="badge bg-white text-secondary border ms-2" style="font-size: 0.75rem; white-space: nowrap;">
+                    <span class="material-symbols-outlined align-middle" style="font-size: 0.85rem;">timer</span>
+                    {{ plato.tiempoPreparacion }} min
+                  </span>
+                </div>
+                <p class="text-muted small mb-2" style="line-height: 1.4;">{{ plato.descripcion }}</p>
+                <div class="small text-muted mb-2">
+                  <span class="material-symbols-outlined align-middle" style="font-size: 0.9rem;">restaurant</span>
+                  {{ plato.porcionesPosibles }} porciones posibles
+                </div>
+                <div class="d-flex flex-wrap gap-1 pt-2 border-top mb-3">
+                  @for (ing of plato.ingredientesSugeridos; track ing.insumoId) {
+                  <span class="badge bg-white text-secondary border fw-normal border-secondary-subtle px-2 py-1"
+                    style="font-size: 0.75rem;">
+                    {{ ing.nombre }} ({{ ing.cantidad }})
+                  </span>
+                  }
+                </div>
+                <app-boton variante="warning" tamanio="sm" (clicked)="crearPlatoDesdeIA(plato)">
                   <div class="d-flex align-items-center gap-1 text-dark fw-bold">
-                    <span class="material-symbols-outlined fs-5">edit_document</span>
-                    <span>Continuar a revisión detallada</span>
+                    <span class="material-symbols-outlined" style="font-size: 1rem;">add_circle</span>
+                    <span>Crear plato</span>
                   </div>
                 </app-boton>
               </div>
-            } @else {
-              <div class="alert alert-success border-0 rounded-3 text-center py-4">
-                <span class="material-symbols-outlined fs-1 text-success mb-2">check_circle</span>
-                <h5 class="mb-0">No hay insumos con stock crítico para reponer en este momento.</h5>
-              </div>
+            </div>
             }
-          }
-        } @else {
-        -->
-
-      @if (state.loadingIA()) {
-      <div class="row row-cols-1 row-cols-md-2 g-3 mt-2">
-        <div class="col">
-          <div class="skeleton-card">
-            <div class="skeleton skeleton-title"></div>
-            <div class="skeleton skeleton-text"></div>
-            <div class="skeleton skeleton-text short"></div>
-            <div class="skeleton skeleton-text" style="height: 32px; margin-top: 16px;"></div>
           </div>
         </div>
-        <div class="col">
-          <div class="skeleton-card">
-            <div class="skeleton skeleton-title" style="width: 50%"></div>
-            <div class="skeleton skeleton-text"></div>
-            <div class="skeleton skeleton-text short"></div>
-            <div class="skeleton skeleton-text" style="height: 32px; margin-top: 16px;"></div>
-          </div>
-        </div>
-      </div>
-      } @else if (state.errorIA()) {
-      <div class="alert alert-danger border-0 rounded-3 d-flex align-items-center gap-2">
-        <span class="material-symbols-outlined">error</span>
-        {{ state.errorIA() }}
-      </div>
-      } @else if (state.sugerenciasIA()) {
-      <div class="mb-3 text-muted small">
-        <span class="material-symbols-outlined align-middle me-1" style="font-size: 1rem;">calendar_today</span>
-        Generado el {{ state.sugerenciasIA()!.fechaSugerencia | date:'dd/MM/yyyy HH:mm' }}
-      </div>
-      <div class="row row-cols-1 row-cols-md-2 g-3">
-        @for (plato of state.sugerenciasIA()!.platosSugeridos; track plato.id) {
-        <div class="col">
-          <div class="border rounded-3 p-3 bg-light d-flex flex-column h-100">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-              <div class="fw-bold fs-6 text-dark">{{ plato.nombre }}</div>
-              <span class="badge bg-white text-secondary border ms-2" style="font-size: 0.75rem; white-space: nowrap;">
-                <span class="material-symbols-outlined align-middle" style="font-size: 0.85rem;">timer</span>
-                {{ plato.tiempoPreparacion }} min
-              </span>
-            </div>
-            <p class="text-muted small mb-2" style="line-height: 1.4;">{{ plato.descripcion }}</p>
-            <div class="small text-muted mb-2">
-              <span class="material-symbols-outlined align-middle" style="font-size: 0.9rem;">restaurant</span>
-              {{ plato.porcionesPosibles }} porciones posibles
-            </div>
-            <div class="d-flex flex-wrap gap-1 pt-2 border-top mb-3">
-              @for (ing of plato.ingredientesSugeridos; track ing.insumoId) {
-              <span class="badge bg-white text-secondary border fw-normal border-secondary-subtle px-2 py-1"
-                style="font-size: 0.75rem;">
-                {{ ing.nombre }} ({{ ing.cantidad }})
-              </span>
-              }
-            </div>
-            <app-boton variante="warning" tamanio="sm" (clicked)="crearPlatoDesdeIA(plato)">
-              <div class="d-flex align-items-center gap-1 text-dark fw-bold">
-                <span class="material-symbols-outlined" style="font-size: 1rem;">add_circle</span>
-                <span>Crear plato</span>
-              </div>
-            </app-boton>
-          </div>
-        </div>
-        }
-      </div>
-      } @else {
-      <div class="alert alert-secondary border-0 rounded-3 text-center py-5">
-        <span class="material-symbols-outlined fs-1 text-muted mb-3">psychology</span>
-        <h5 class="mb-1 text-dark">Generando sugerencias...</h5>
-        <p class="text-muted mb-0">Aguardá un momento mientras la IA analiza los insumos.</p>
-      </div>
       }
-
-      <!-- } -->
-      <!-- fin bloque sistema comentado -->
-
     </div>
     }
+
+    <div class="avisos-divider"></div>
+
     <!-- ─── Stock Crítico ─── -->
     <div id="seccion-stock" class="accordion-section" [class.expanded]="isStockExpanded()">
       <button class="accordion-header header-stock" (click)="toggleStock()" type="button">
@@ -231,67 +204,75 @@
             <span class="accordion-subtitle">Insumos por debajo del mínimo</span>
           </div>
         </div>
-        <div class="d-flex align-items-center gap-2">
-          @if (isStockExpanded() && totalPaginasStock() > 1) {
-            <div class="paginacion-header" (click)="$event.stopPropagation()">
-              <button 
-                type="button" 
-                class="btn-paginacion-flecha" 
-                [disabled]="paginaStock() === 1" 
-                (click)="cambiarPaginaStock(-1, $event)" 
-                aria-label="Página anterior">
-                <span class="material-symbols-outlined">keyboard_arrow_left</span>
-              </button>
-              <span class="paginacion-texto">{{ paginaStock() }} / {{ totalPaginasStock() }}</span>
-              <button 
-                type="button" 
-                class="btn-paginacion-flecha" 
-                [disabled]="paginaStock() === totalPaginasStock()" 
-                (click)="cambiarPaginaStock(1, $event)" 
-                aria-label="Página siguiente">
-                <span class="material-symbols-outlined">keyboard_arrow_right</span>
-              </button>
-            </div>
-          }
-          <span class="accordion-chevron material-symbols-outlined">
-            {{ isStockExpanded() ? 'expand_less' : 'expand_more' }}
-          </span>
-        </div>
+        <span class="accordion-chevron material-symbols-outlined">
+          {{ isStockExpanded() ? 'expand_less' : 'expand_more' }}
+        </span>
       </button>
 
       @if (isStockExpanded()) {
       <div class="accordion-body">
         @if (state.stockBajo().length === 0) {
         <div class="accordion-empty">
-          <span class="material-symbols-outlined">check_circle</span>
-          <span>No hay insumos con stock crítico</span>
+          <span class="material-symbols-outlined accordion-empty-icon">check_circle</span>
+          <div>
+            <strong>Todo en orden</strong>
+            <small>No hay insumos con stock crítico en este momento</small>
+          </div>
         </div>
         } @else {
         <div class="avisos-list">
           @for (a of insumosStockPaginados(); track a.id) {
-          <div class="aviso-item">
-            <div class="aviso-item-icon tipo-stock">
-              <span class="material-symbols-outlined">inventory_2</span>
-            </div>
-            <div class="aviso-item-content">
-              <span class="aviso-item-title">{{ a.titulo }}</span>
-              <span class="aviso-item-sub">{{ a.subtitulo }}</span>
-              <span class="aviso-item-info">{{ a.info }}</span>
-              @if (a.payloadStock?.precioVentaFinal) {
-                <span class="aviso-item-info">Precio venta: {{ a.payloadStock!.precioVentaFinal | arsCurrency }}</span>
-              }
-            </div>
-            <div class="aviso-item-actions">
-              <app-boton variante="warning" tamanio="sm" (clicked)="abrirPedidoStock(a)">
-                <div class="d-flex align-items-center gap-1 text-dark">
-                  <span class="material-symbols-outlined" style="font-size: 1rem;">shopping_cart</span>
-                  <span class="fw-bold">Pedir</span>
+          <div class="aviso-item aviso-stock">
+            <div class="aviso-item-header">
+              <div class="aviso-item-left">
+                <div class="aviso-item-icon tipo-stock">
+                  <span class="material-symbols-outlined">inventory_2</span>
                 </div>
-              </app-boton>
+                <div class="aviso-item-content">
+                  <span class="aviso-item-title">{{ a.titulo }}</span>
+                  <span class="aviso-item-sub">{{ a.subtitulo }}</span>
+                  <span class="aviso-item-info">{{ a.info }}</span>
+                  @if (a.payloadStock?.precioVentaFinal) {
+                    <span class="aviso-item-info">Precio venta: {{ a.payloadStock!.precioVentaFinal | arsCurrency }}</span>
+                  }
+                </div>
+              </div>
+              <div class="aviso-item-actions">
+                <app-boton variante="warning" tamanio="sm" (clicked)="abrirPedidoStock(a)">
+                  <div class="d-flex align-items-center gap-1 text-dark">
+                    <span class="material-symbols-outlined" style="font-size: 1rem;">shopping_cart</span>
+                    <span class="fw-bold">Pedir</span>
+                  </div>
+                </app-boton>
+              </div>
             </div>
           </div>
           }
         </div>
+
+        @if (totalPaginasStock() > 1) {
+        <div class="accordion-footer-pagination">
+          <div class="paginacion-actions">
+            <button
+              type="button"
+              class="btn-paginacion-flecha"
+              [disabled]="paginaStock() === 1"
+              (click)="cambiarPaginaStock(-1, $event)"
+              aria-label="Página anterior">
+              <span class="material-symbols-outlined">keyboard_arrow_left</span>
+            </button>
+            <strong>{{ paginaStock() }} / {{ totalPaginasStock() }}</strong>
+            <button
+              type="button"
+              class="btn-paginacion-flecha"
+              [disabled]="paginaStock() === totalPaginasStock()"
+              (click)="cambiarPaginaStock(1, $event)"
+              aria-label="Página siguiente">
+              <span class="material-symbols-outlined">keyboard_arrow_right</span>
+            </button>
+          </div>
+        </div>
+        }
         }
       </div>
       }
@@ -312,67 +293,75 @@
             <span class="accordion-subtitle">Insumos con fecha de vencimiento cercana</span>
           </div>
         </div>
-        <div class="d-flex align-items-center gap-2">
-          @if (isVencimientosExpanded() && totalPaginasVencimientos() > 1) {
-            <div class="paginacion-header" (click)="$event.stopPropagation()">
-              <button 
-                type="button" 
-                class="btn-paginacion-flecha" 
-                [disabled]="paginaVencimientos() === 1" 
-                (click)="cambiarPaginaVencimientos(-1, $event)" 
-                aria-label="Página anterior">
-                <span class="material-symbols-outlined">keyboard_arrow_left</span>
-              </button>
-              <span class="paginacion-texto">{{ paginaVencimientos() }} / {{ totalPaginasVencimientos() }}</span>
-              <button 
-                type="button" 
-                class="btn-paginacion-flecha" 
-                [disabled]="paginaVencimientos() === totalPaginasVencimientos()" 
-                (click)="cambiarPaginaVencimientos(1, $event)" 
-                aria-label="Página siguiente">
-                <span class="material-symbols-outlined">keyboard_arrow_right</span>
-              </button>
-            </div>
-          }
-          <span class="accordion-chevron material-symbols-outlined">
-            {{ isVencimientosExpanded() ? 'expand_less' : 'expand_more' }}
-          </span>
-        </div>
+        <span class="accordion-chevron material-symbols-outlined">
+          {{ isVencimientosExpanded() ? 'expand_less' : 'expand_more' }}
+        </span>
       </button>
 
       @if (isVencimientosExpanded()) {
       <div class="accordion-body">
         @if (state.vencimientos().length === 0) {
         <div class="accordion-empty">
-          <span class="material-symbols-outlined">check_circle</span>
-          <span>No hay vencimientos próximos</span>
+          <span class="material-symbols-outlined accordion-empty-icon">check_circle</span>
+          <div>
+            <strong>Sin vencimientos próximos</strong>
+            <small>Todos los insumos tienen fecha de vencimiento lejana</small>
+          </div>
         </div>
         } @else {
         <div class="avisos-list">
           @for (a of vencimientosPaginados(); track a.id) {
-          <div class="aviso-item" (click)="abrirAviso(a)" style="cursor: pointer;">
-            <div class="aviso-item-icon tipo-vencimiento">
-              <span class="material-symbols-outlined">event_busy</span>
-            </div>
-            <div class="aviso-item-content">
-              <span class="aviso-item-title">{{ a.titulo }}</span>
-              <span class="aviso-item-sub">{{ a.subtitulo }}</span>
-              <span class="aviso-item-info">{{ a.info }}</span>
-              @if (a.payloadVencimiento?.precioVentaFinal) {
-                <span class="aviso-item-info">Precio venta: {{ a.payloadVencimiento!.precioVentaFinal | arsCurrency }}</span>
-              }
-            </div>
-            <div class="aviso-item-actions">
-              <app-boton variante="success" tamanio="sm" (clicked)="$event.stopPropagation(); state.avisarCocina(a.id)">
-                <div class="d-flex align-items-center gap-1 text-white">
-                  <span class="material-symbols-outlined" style="font-size: 1rem;">send</span>
-                  <span class="fw-bold">Avisar a cocina</span>
+          <div class="aviso-item aviso-vencimiento" (click)="abrirAviso(a)" style="cursor: pointer;">
+            <div class="aviso-item-header">
+              <div class="aviso-item-left">
+                <div class="aviso-item-icon tipo-vencimiento">
+                  <span class="material-symbols-outlined">event_busy</span>
                 </div>
-              </app-boton>
+                <div class="aviso-item-content">
+                  <span class="aviso-item-title">{{ a.titulo }}</span>
+                  <span class="aviso-item-sub">{{ a.subtitulo }}</span>
+                  <span class="aviso-item-info">{{ a.info }}</span>
+                  @if (a.payloadVencimiento?.precioVentaFinal) {
+                    <span class="aviso-item-info">Precio venta: {{ a.payloadVencimiento!.precioVentaFinal | arsCurrency }}</span>
+                  }
+                </div>
+              </div>
+              <div class="aviso-item-actions">
+                <app-boton variante="success" tamanio="sm" (clicked)="$event.stopPropagation(); state.avisarCocina(a.id)">
+                  <div class="d-flex align-items-center gap-1 text-white">
+                    <span class="material-symbols-outlined" style="font-size: 1rem;">send</span>
+                    <span class="fw-bold">Avisar a cocina</span>
+                  </div>
+                </app-boton>
+              </div>
             </div>
           </div>
           }
         </div>
+
+        @if (totalPaginasVencimientos() > 1) {
+        <div class="accordion-footer-pagination">
+          <div class="paginacion-actions">
+            <button
+              type="button"
+              class="btn-paginacion-flecha"
+              [disabled]="paginaVencimientos() === 1"
+              (click)="cambiarPaginaVencimientos(-1, $event)"
+              aria-label="Página anterior">
+              <span class="material-symbols-outlined">keyboard_arrow_left</span>
+            </button>
+            <strong>{{ paginaVencimientos() }} / {{ totalPaginasVencimientos() }}</strong>
+            <button
+              type="button"
+              class="btn-paginacion-flecha"
+              [disabled]="paginaVencimientos() === totalPaginasVencimientos()"
+              (click)="cambiarPaginaVencimientos(1, $event)"
+              aria-label="Página siguiente">
+              <span class="material-symbols-outlined">keyboard_arrow_right</span>
+            </button>
+          </div>
+        </div>
+        }
         }
       </div>
       }
@@ -511,31 +500,40 @@
   </div>
   }
 
-  <div class="floating-navegacion-avisos">
-    <button 
-      type="button" 
-      class="btn-flotante stock" 
-      (click)="desplazarASeccion('seccion-stock')"
+  <div class="floating-navegacion-avisos" [class.expanded]="isFloatingMenuOpen()">
+    <button
+      type="button"
+      class="btn-flotante btn-flotante-toggle"
+      (click)="isFloatingMenuOpen.update(v => !v)"
+      title="Navegación">
+      <span class="material-symbols-outlined">{{ isFloatingMenuOpen() ? 'close' : 'tune' }}</span>
+    </button>
+    @if (isFloatingMenuOpen()) {
+    <button
+      type="button"
+      class="btn-flotante stock"
+      (click)="desplazarASeccion('seccion-stock'); isFloatingMenuOpen.set(false)"
       title="Ir a Stock Crítico">
       <span class="material-symbols-outlined">inventory_2</span>
       <span class="tooltip-flotante">Stock Crítico</span>
     </button>
-    <button 
-      type="button" 
-      class="btn-flotante vencimiento" 
-      (click)="desplazarASeccion('seccion-vencimientos')"
+    <button
+      type="button"
+      class="btn-flotante vencimiento"
+      (click)="desplazarASeccion('seccion-vencimientos'); isFloatingMenuOpen.set(false)"
       title="Ir a Vencimientos Próximos">
       <span class="material-symbols-outlined">event_busy</span>
       <span class="tooltip-flotante">Vencimientos</span>
     </button>
-    <button 
-      type="button" 
-      class="btn-flotante arriba" 
-      (click)="desplazarAlPrincipio()"
+    <button
+      type="button"
+      class="btn-flotante arriba"
+      (click)="desplazarAlPrincipio(); isFloatingMenuOpen.set(false)"
       title="Volver arriba">
       <span class="material-symbols-outlined">arrow_upward</span>
       <span class="tooltip-flotante">Volver arriba</span>
     </button>
+    }
   </div>
 
 </div>

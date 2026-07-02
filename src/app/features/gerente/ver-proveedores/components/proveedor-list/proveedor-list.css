@@ -5,7 +5,7 @@
   gap: 8px;
 }
 
-/* ── Fila de proveedor (efecto tinted como avisos) ── */
+/* ── Fila de proveedor ── */
 .proveedor-row {
   position: relative;
   display: flex;
@@ -21,16 +21,16 @@
 }
 
 .proveedor-row:hover {
-  background: rgba(245, 158, 11, 0.04);
-  border-color: rgba(245, 158, 11, 0.2);
+  background: rgba(188, 0, 18, 0.035);
+  border-color: rgba(188, 0, 18, 0.16);
   transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(15, 23, 42, 0.07);
 }
 
 .proveedor-row.selected {
-  background: rgba(245, 158, 11, 0.08);
-  border-color: rgba(245, 158, 11, 0.35);
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.12);
+  background: rgba(188, 0, 18, 0.07);
+  border-color: rgba(188, 0, 18, 0.26);
+  box-shadow: 0 4px 12px rgba(188, 0, 18, 0.08);
 }
 
 .proveedor-row.selected::before {
@@ -41,11 +41,11 @@
   bottom: 10px;
   width: 4px;
   border-radius: 999px;
-  background: #f59e0b;
+  background: #bc0012;
 }
 
 .proveedor-row.selected .proveedor-nombre {
-  color: #92400e;
+  color: #bc0012;
 }
 
 /* ── Dot de estado ── */
@@ -85,7 +85,7 @@
 }
 
 .proveedor-contacto .material-symbols-outlined {
-  color: #1691ac;
+  color: #bc0012;
   font-size: 0.92rem;
 }
 
@@ -159,31 +159,31 @@
 }
 
 .icon-btn-teal {
-  background-color: rgba(22, 145, 172, 0.1);
-  color: #1691ac;
-  border-color: rgba(22, 145, 172, 0.2);
+  background-color: rgba(188, 0, 18, 0.1);
+  color: #bc0012;
+  border-color: rgba(188, 0, 18, 0.2);
 }
 
 .icon-btn-teal:hover {
-  background-color: #1691ac;
+  background-color: #bc0012;
   color: #ffffff;
-  border-color: #1691ac;
+  border-color: #bc0012;
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(22, 145, 172, 0.25);
+  box-shadow: 0 4px 8px rgba(188, 0, 18, 0.25);
 }
 
 .icon-btn-amber {
-  background-color: rgba(245, 158, 11, 0.1);
-  color: #d97706;
-  border-color: rgba(245, 158, 11, 0.2);
+  background-color: rgba(188, 0, 18, 0.08);
+  color: #bc0012;
+  border-color: rgba(188, 0, 18, 0.16);
 }
 
 .icon-btn-amber:hover {
-  background-color: #d97706;
+  background-color: #bc0012;
   color: #ffffff;
-  border-color: #d97706;
+  border-color: #bc0012;
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(217, 119, 6, 0.25);
+  box-shadow: 0 4px 8px rgba(188, 0, 18, 0.18);
 }
 
 .icon-btn-outline {

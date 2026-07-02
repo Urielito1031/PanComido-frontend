@@ -1,4 +1,9 @@
 <section class="stock-page">
+  <div class="stock-header">
+    <h1>Stock de Mercadería</h1>
+    <p class="stock-header-sub">Controlá niveles, lotes y vencimientos de tu inventario</p>
+  </div>
+
   <app-page-toolbar>
     <app-buscador
       buscador
@@ -10,10 +15,92 @@
       acciones
       class="btn-premium-primary d-flex align-items-center gap-2"
       (click)="abrirModalCrear(modalFormulario)">
-      <span class="material-symbols-outlined fs-5">add</span>
+      <span class="material-symbols-outlined">add</span>
       <span class="fw-semibold">Nuevo producto</span>
     </button>
   </app-page-toolbar>
+
+  <!-- ─── Métricas de estado ─── -->
+  <div class="stock-metrics-strip">
+    <button
+      class="metric neutral"
+      type="button"
+      [class.active]="estadoFiltro() === 'todos'"
+      (click)="seleccionarEstado('todos')">
+      <strong>{{ totalProductos() }}</strong> Total
+    </button>
+    <button
+      class="metric danger"
+      type="button"
+      [class.active]="estadoFiltro() === 'criticos'"
+      (click)="seleccionarEstado('criticos')">
+      <strong>{{ productosCriticos() }}</strong> Críticos
+    </button>
+    <button
+      class="metric warning"
+      type="button"
+      [class.active]="estadoFiltro() === 'bajos'"
+      (click)="seleccionarEstado('bajos')">
+      <strong>{{ productosBajos() }}</strong> Bajos
+    </button>
+    <button
+      class="metric success"
+      type="button"
+      [class.active]="estadoFiltro() === 'ok'"
+      (click)="seleccionarEstado('ok')">
+      <strong>{{ productosOk() }}</strong> Ok
+    </button>
+  </div>
+
+  <!-- ─── Resumen ejecutivo ─── -->
+  @if (productosCriticos() > 0 || productosBajos() > 0) {
+    <div class="stock-executive-summary" [class.has-criticos]="productosCriticos() > 0">
+      <span class="material-symbols-outlined">{{ productosCriticos() > 0 ? 'priority_high' : 'info' }}</span>
+      <div>
+        <strong>{{ productosCriticos() > 0 ? 'Atención requerida' : 'Stock bajo detectado' }}</strong>
+        <small>
+          @if (productosCriticos() > 0 && productosBajos() > 0) {
+            {{ productosCriticos() }} producto{{ productosCriticos() !== 1 ? 's' : '' }} por debajo del mínimo y {{ productosBajos() }} cerca del límite.
+          } @else if (productosCriticos() > 0) {
+            {{ productosCriticos() }} producto{{ productosCriticos() !== 1 ? 's' : '' }} por debajo del mínimo. Considerá reponer pronto.
+          } @else {
+            {{ productosBajos() }} producto{{ productosBajos() !== 1 ? 's' : '' }} cerca del stock mínimo.
+          }
+        </small>
+      </div>
+    </div>
+  } @else if (totalProductos() > 0) {
+    <div class="stock-executive-summary summary-ok">
+      <span class="material-symbols-outlined">check_circle</span>
+      <div>
+        <strong>Todo en orden</strong>
+        <small>Todos los productos tienen stock suficiente.</small>
+      </div>
+    </div>
+  }
+
+  <!-- ─── Breadcrumb de contexto ─── -->
+  @if (filtrosActivos() > 0) {
+    <div class="stock-breadcrumb">
+      <button class="stock-breadcrumb-item" [class.active]="!categoria() && estadoFiltro() === 'todos'" (click)="limpiarFiltros()">
+        Todos
+      </button>
+      @if (categoria()) {
+        <span class="stock-breadcrumb-sep">/</span>
+        <button class="stock-breadcrumb-item active" (click)="limpiarCategoria()">
+          {{ categoria() }}
+          <span class="material-symbols-outlined breadcrumb-close">close</span>
+        </button>
+      }
+      @if (estadoFiltro() !== 'todos') {
+        <span class="stock-breadcrumb-sep">/</span>
+        <button class="stock-breadcrumb-item active" (click)="seleccionarEstado('todos')">
+          {{ contextoListado() }}
+          <span class="material-symbols-outlined breadcrumb-close">close</span>
+        </button>
+      }
+    </div>
+  }
 
   <!-- Barra de filtro por categorías -->
   @if (categoriasConInfo().length > 0) {
@@ -52,7 +139,7 @@
               [class.alerta-critico]="cat.alerta === 'critico'"
               [class.alerta-bajo]="cat.alerta === 'bajo'"
               (click)="seleccionarCategoria(cat.nombre)">
-              <span class="pill-alerta-dot" [class.critico]="cat.alerta === 'critico'" [class.bajo]="cat.alerta === 'bajo'" [class.ok]="cat.alerta === 'ok'"></span>
+              <span class="pill-alerta-dot" [class.critico]="cat.alerta === 'critico'" [class.bajo]="cat.alerta === 'bajo'" [class.ok]="cat.alerta === 'ok'" [class.pulse]="cat.alerta === 'critico'"></span>
               <span class="pill-label">{{ cat.nombre }}</span>
               <span class="pill-count">{{ cat.total }}</span>
               @if (categoria() === cat.nombre) {
@@ -66,49 +153,10 @@
   }
 
   <section class="stock-panel">
-    <div class="stock-topline">
-      <div>
-        <span class="stock-kicker">Stock</span>
-        <h2>Mercadería</h2>
-      </div>
-
-      <div class="stock-metrics">
-        <button
-          class="metric neutral"
-          type="button"
-          [class.active]="estadoFiltro() === 'todos'"
-          (click)="seleccionarEstado('todos')">
-          <strong>{{ totalProductos() }}</strong> Total
-        </button>
-        <button
-          class="metric danger"
-          type="button"
-          [class.active]="estadoFiltro() === 'criticos'"
-          (click)="seleccionarEstado('criticos')">
-          <strong>{{ productosCriticos() }}</strong> Críticos
-        </button>
-        <button
-          class="metric warning"
-          type="button"
-          [class.active]="estadoFiltro() === 'bajos'"
-          (click)="seleccionarEstado('bajos')">
-          <strong>{{ productosBajos() }}</strong> Bajos
-        </button>
-        <button
-          class="metric success"
-          type="button"
-          [class.active]="estadoFiltro() === 'ok'"
-          (click)="seleccionarEstado('ok')">
-          <strong>{{ productosOk() }}</strong> Ok
-        </button>
-      </div>
-    </div>
-
     <div class="stock-list-header">
       <div>
         <span class="stock-kicker">Vista actual</span>
         <h3>{{ contextoListado() }}</h3>
-        <app-price-note text="Precio venta: valor configurado para venta directa del insumo. No es el precio de compra del proveedor." />
       </div>
 
       <div class="d-flex align-items-center gap-3">
@@ -180,6 +228,9 @@
         (click)="seleccionarLotes()">
         <span class="material-symbols-outlined">event_repeat</span>
         Lotes
+        @if (lotesCriticos() > 0) {
+          <span class="stock-tab-badge">{{ lotesCriticos() }}</span>
+        }
       </button>
     </div>
 
@@ -237,6 +288,18 @@
         <span class="material-symbols-outlined">warehouse</span>
         <strong>Elegí una bodega para ver su stock</strong>
         <p>Esto evita mezclar existencias de distintos depósitos.</p>
+      </div>
+    } @else if (productosFiltrados().length === 0) {
+      <div class="stock-empty-state">
+        <span class="material-symbols-outlined">{{ filtrosActivos() > 0 ? 'search_off' : 'inventory_2' }}</span>
+        <strong>{{ filtrosActivos() > 0 ? 'Sin resultados' : 'No hay productos aún' }}</strong>
+        <p>{{ filtrosActivos() > 0 ? 'Probá cambiar los filtros o la búsqueda.' : 'Creá tu primer producto para empezar a controlar el stock.' }}</p>
+        @if (filtrosActivos() === 0) {
+          <button class="btn-premium-primary stock-empty-cta" (click)="abrirModalCrear(modalFormulario)">
+            <span class="material-symbols-outlined">add</span>
+            <span>Crear producto</span>
+          </button>
+        }
       </div>
     } @else {
       <app-insumo-list
