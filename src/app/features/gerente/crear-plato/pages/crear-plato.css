@@ -73,7 +73,7 @@
   border-radius: 11px;
   background-color: #f7f7f7 !important;
   background: #f7f7f7 !important;
-  border: 1px solid rgba(255, 144, 4, 0.24);
+  border: 1px solid rgba(15, 23, 42, 0.08);
   box-shadow: 0 8px 22px rgba(15, 23, 42, 0.045);
 }
 
@@ -103,14 +103,14 @@
   height: 184px;
   background-color: #f8fafc;
   border-radius: 9px;
-  border: 2px dashed rgba(255, 144, 4, 0.32);
+  border: 2px dashed rgba(148, 163, 184, 0.42);
   color: #64748b;
   transition: all 0.2s ease;
 }
 
 .image-placeholder:hover {
-  background-color: rgba(255, 144, 4, 0.06);
-  border-color: rgba(255, 144, 4, 0.5);
+  background-color: rgba(216, 8, 28, 0.04);
+  border-color: rgba(216, 8, 28, 0.36);
 }
 
 .placeholder-icon {
@@ -131,17 +131,17 @@
   place-items: center;
   width: 34px;
   height: 34px;
-  border: 1px solid rgba(255, 144, 4, 0.24);
+  border: 1px solid rgba(216, 8, 28, 0.16);
   border-radius: 11px;
   background: rgba(255, 255, 255, 0.88);
-  color: #9a3412;
+  color: var(--primary-red, #d8081c);
   box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
   cursor: pointer;
   transition: transform 0.16s ease, background 0.16s ease;
 }
 
 .edit-photo-icon:hover {
-  background: rgba(255, 144, 4, 0.1);
+  background: rgba(216, 8, 28, 0.08);
   transform: translateY(-1px);
 }
 
@@ -151,11 +151,11 @@
 
 .photo-guidance {
   margin: -0.25rem 0 0;
-  border: 1px solid rgba(255, 144, 4, 0.38);
+  border: 1px solid rgba(15, 23, 42, 0.08);
   border-radius: 11px;
   padding: 0.75rem 0.85rem;
-  background: rgba(255, 144, 4, 0.16);
-  color: #7c2d12;
+  background: #ffffff;
+  color: #475569;
   font-size: 0.82rem;
   font-style: italic;
   line-height: 1.35;
@@ -175,7 +175,7 @@
   border-radius: 16px;
   background-color: #f7f7f7 !important;
   background: #f7f7f7 !important;
-  border: 1px solid rgba(255, 144, 4, 0.22);
+  border: 1px solid rgba(15, 23, 42, 0.08);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
 }
 
@@ -205,8 +205,8 @@
 
 .custom-input:focus {
   background-color: #ffffff;
-  border-color: #0ea5e9;
-  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+  border-color: rgba(216, 8, 28, 0.42);
+  box-shadow: 0 0 0 4px rgba(216, 8, 28, 0.08);
   outline: none;
 }
 
@@ -246,14 +246,14 @@
 }
 
 .diet-tag-btn.active {
-  background-color: #10b981; /* Esmeralda premium */
+  background-color: var(--primary-red, #d8081c);
   color: #ffffff;
-  box-shadow: 0 2px 5px rgba(16, 185, 129, 0.25);
+  box-shadow: 0 2px 5px rgba(216, 8, 28, 0.22);
 }
 
 /* === FOOTER BUTTONS === */
 ::ng-deep .save-btn .btn {
-  background-color: #1691ac !important; /* Mismo color principal de la app */
+  background-color: var(--primary-red, #d8081c) !important;
   color: #ffffff !important;
   font-weight: 700;
   font-size: 1rem;
@@ -261,13 +261,13 @@
   border-radius: 12px;
   border: none;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 10px rgba(22, 145, 172, 0.2);
+  box-shadow: 0 4px 10px rgba(216, 8, 28, 0.18);
 }
 
 ::ng-deep .save-btn .btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(22, 145, 172, 0.3);
-  background-color: #13829b !important;
+  box-shadow: 0 6px 15px rgba(216, 8, 28, 0.26);
+  background-color: #bc0012 !important;
 }
 
 ::ng-deep .cancel-btn .btn {
@@ -354,7 +354,7 @@
 
 .success-icon {
   font-size: 64px;
-  color: #3cd000;
+  color: var(--status-success, #6abf3f);
 }
 
 .modal-title {
@@ -407,7 +407,11 @@
 }
 
 .image-option:hover {
-  border-color: #3cd000 !important;
+  border-color: var(--primary-red, #d8081c) !important;
   transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+::ng-deep .visibility-toggle-wrapper app-toggle .custom-toggle.active {
+  background-color: var(--primary-red, #d8081c) !important;
 }
