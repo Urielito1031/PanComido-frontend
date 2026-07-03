@@ -41,8 +41,4 @@ export class MesaService {
   getComandaActivaPorMesa(mesaId: number): Observable<any> {
     return this.api.get<any>(`comanda/mesa/${mesaId}/activa`);
   }
-
-  confirmarPagoEfectivo(comandaId: number): Observable<void> {
-    return this.api.post<void>(`pago/confirmar-pago-efectivo/${comandaId}`, {});
-  }
 }

@@ -124,15 +124,11 @@
             [textColor]="configuracionVisualState.colorSecundario()"
             [tieneBorde]="true"
             [disabled]="metodoCargando() !== null"
-            (clicked)="pagarTransferencia()">
-            @if (metodoCargando() === 'transferencia') {
-              <div class="spinner-border spinner-border-sm" role="status"></div>
-            } @else {
-              <div class="d-flex align-items-center justify-content-center gap-2 fw-bold">
-                <span class="material-symbols-outlined" style="font-size:1.3rem">swap_horiz</span>
-                <span>Transferencia</span>
-              </div>
-            }
+            (clicked)="pagarTransferencia(modalTransferencia)">
+            <div class="d-flex align-items-center justify-content-center gap-2 fw-bold">
+              <span class="material-symbols-outlined" style="font-size:1.3rem">swap_horiz</span>
+              <span>Transferencia</span>
+            </div>
           </app-boton-comensal>
         }
 
@@ -162,3 +158,77 @@
   }
 
 </div>
+
+<app-modal #modalTransferencia titulo="Datos para transferencia" [maxWidth]="420">
+  @if (cargandoDatosTransferencia()) {
+    <div class="text-center py-4">
+      <div class="spinner-border text-primary" role="status"></div>
+    </div>
+  } @else if (datosTransferencia(); as datos) {
+    <div class="d-flex flex-column gap-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <div class="text-muted" style="font-size:0.8rem">Alias</div>
+          <div class="fw-bold">{{ datos.alias }}</div>
+        </div>
+        <button type="button" class="btn btn-sm"
+          [style.color]="configuracionVisualState.colorSecundario()"
+          [style.border]="'1.5px solid ' + configuracionVisualState.colorSecundario()"
+          (click)="copiarAlPortapapeles(datos.alias, 'alias')">
+          {{ campoCopiado() === 'alias' ? 'Copiado' : 'Copiar' }}
+        </button>
+      </div>
+
+      @if (datos.cbu) {
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="text-muted" style="font-size:0.8rem">CBU</div>
+            <div class="fw-bold">{{ datos.cbu }}</div>
+          </div>
+          <button type="button" class="btn btn-sm"
+            [style.color]="configuracionVisualState.colorSecundario()"
+            [style.border]="'1.5px solid ' + configuracionVisualState.colorSecundario()"
+            (click)="copiarAlPortapapeles(datos.cbu, 'cbu')">
+            {{ campoCopiado() === 'cbu' ? 'Copiado' : 'Copiar' }}
+          </button>
+        </div>
+      }
+
+      <div>
+        <div class="text-muted" style="font-size:0.8rem">Número de cuenta</div>
+        <div class="fw-bold">{{ datos.numeroCuenta }}</div>
+      </div>
+
+      <div>
+        <div class="text-muted" style="font-size:0.8rem">Titular</div>
+        <div class="fw-bold">{{ datos.titularCuenta }}</div>
+      </div>
+
+      @if (errorTransferencia(); as msg) {
+        <p class="text-danger mb-0">{{ msg }}</p>
+      }
+
+      <app-boton-comensal class="mt-2"
+        [backgroundColor]="configuracionVisualState.colorPrimario()"
+        textColor="#FFFFFF"
+        [disabled]="confirmandoTransferencia()"
+        (clicked)="confirmarTransferencia(modalTransferencia)">
+        @if (confirmandoTransferencia()) {
+          <span class="spinner-border spinner-border-sm" role="status"></span>
+        } @else {
+          Ya transferí
+        }
+      </app-boton-comensal>
+    </div>
+  } @else {
+    <div class="text-center py-3">
+      <p class="text-muted mb-3">Este restaurante no tiene la transferencia configurada. Elegí otro método de pago.</p>
+      <app-boton-comensal backgroundColor="#ffffff"
+        [textColor]="configuracionVisualState.colorSecundario()"
+        [tieneBorde]="true"
+        (clicked)="cerrarModalTransferencia(modalTransferencia)">
+        Cerrar
+      </app-boton-comensal>
+    </div>
+  }
+</app-modal>

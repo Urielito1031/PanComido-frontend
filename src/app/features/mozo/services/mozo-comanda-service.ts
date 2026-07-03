@@ -17,8 +17,4 @@ export class MozoComandaService {
    entregarItems(comandaId: number, articuloComandaIds: number[]): Observable<Comanda>{
     return this.api.put<Comanda>(`comanda/${comandaId}/entregar-items`, articuloComandaIds)
    }
-
-   confirmarPagoEfectivo(comandaId: number): Observable<void> {
-    return this.api.post<void>(`pago/confirmar-pago-efectivo/${comandaId}`, {});
-   }
 }

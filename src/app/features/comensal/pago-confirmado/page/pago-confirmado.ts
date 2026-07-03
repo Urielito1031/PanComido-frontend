@@ -40,7 +40,6 @@ export class PagoConfirmado {
     }
   }
 
-
   volverInicio(): void {
     this.comandaState.limpiarEstado();
     this.router.navigate(['/comensal/escanear-mesa']);

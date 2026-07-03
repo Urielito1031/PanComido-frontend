@@ -1,10 +1,12 @@
 import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Boton } from '../../ui/botones/boton/boton';
+import { MetodoPagoId } from '../../../core/models/domain/metodo-pago';
 
 @Component({
   selector: 'app-comanda-detalle-ui',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, Boton],
   template: `
     <div class="comanda-contenedor">
       <div class="d-flex justify-content-between mb-3 align-items-center">
@@ -48,7 +50,12 @@ import { CommonModule } from '@angular/common';
       </div>
 
       <div class="d-flex flex-column gap-2 mt-auto">
-        <button type="button" class="btn btn-outline-info w-100 py-2 rounded" (click)="cobrar.emit()">Cobrar pedido</button>
+        <span class="text-muted fw-medium" style="font-size: 0.85rem;">Cobrar pedido con:</span>
+        <div class="d-flex gap-2">
+          <app-boton label="Efectivo" variante="success" tamanio="sm" class="flex-fill" (clicked)="cobrar.emit(metodoPagoId.Efectivo)" />
+          <app-boton label="Tarjeta" variante="primary" tamanio="sm" class="flex-fill" (clicked)="cobrar.emit(metodoPagoId.Tarjeta)" />
+          <app-boton label="Transferencia" variante="teal" tamanio="sm" class="flex-fill" (clicked)="cobrar.emit(metodoPagoId.Transferencia)" />
+        </div>
         <button type="button" class="btn btn-outline-info w-100 py-2 rounded" (click)="cerrarMesa.emit()">Cerrar mesa</button>
       </div>
     </div>
@@ -85,7 +92,9 @@ export class ComandaDetalleUiComponent {
   items = input.required<any[]>();
   total = input.required<number>();
 
+  readonly metodoPagoId = MetodoPagoId;
+
   cerrar = output<void>();
-  cobrar = output<void>();
+  cobrar = output<MetodoPagoId>();
   cerrarMesa = output<void>();
 }

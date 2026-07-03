@@ -23,7 +23,14 @@ export interface PorcentajeItemRequest{
   id:number;
   porcentaje: number;
 }
-export interface ActualizarPorcentajeGananciaRequest{ 
+export interface ActualizarPorcentajeGananciaRequest{
   platos: PorcentajeItemRequest[];
   bebidas: PorcentajeItemRequest[];
+}
+
+export interface ActualizarDatosTransferenciaRequest {
+  alias: string;
+  cbu: string | null;
+  numeroCuenta: string;
+  titularCuenta: string;
 }

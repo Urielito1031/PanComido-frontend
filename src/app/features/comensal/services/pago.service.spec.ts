@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { PagoService } from './pago.service';
 import { ApiService } from '../../../core/services/api-service';
+import { MetodoPagoId } from '../../../core/models/domain/metodo-pago';
 
 describe('PagoService', () => {
   let service: PagoService;
@@ -29,16 +30,16 @@ describe('PagoService', () => {
     configurarTest();
   });
 
-  describe('solicitarPagoEfectivo', () => {
-    it('deberia llamar a api.post con la URL correcta y body vacio', () => {
+  describe('solicitarPago', () => {
+    it('deberia llamar a api.post con la URL correcta y el metodoPago en el body', () => {
       const mockResponse = { id: 1, resuelto: false } as any;
       postMock.mockReturnValue(of(mockResponse));
 
-      const result = service.solicitarPagoEfectivo(10, 5);
+      const result = service.solicitarPago(10, 5, MetodoPagoId.Efectivo);
 
       expect(apiMock.post).toHaveBeenCalledWith(
-        'pago/solicitar-efectivo/10/comensal/5',
-        {},
+        'pago/solicitar-pago/10/comensal/5',
+        { metodoPago: MetodoPagoId.Efectivo },
       );
       result.subscribe(res => {
         expect(res).toEqual(mockResponse);

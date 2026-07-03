@@ -1,0 +1,47 @@
+<div class="row g-3">
+  <div class="col-12 col-md-6">
+    <label class="form-label-custom">Alias</label>
+    <input type="text" class="form-control custom-text-input" [class.is-invalid]="aliasInvalido()"
+      [value]="datosTransferencia().alias"
+      (input)="emitirTexto('alias', $any($event.target).value)" />
+    @if (aliasInvalido()) {
+      <small class="text-danger">El alias es obligatorio</small>
+    }
+  </div>
+
+  <div class="col-12 col-md-6">
+    <label class="form-label-custom">CBU</label>
+    <input type="text" class="form-control custom-text-input" [class.is-invalid]="cbuInvalido()"
+      [value]="datosTransferencia().cbu ?? ''"
+      (input)="emitirCbu($any($event.target).value)" />
+    @if (cbuInvalido()) {
+      <small class="text-danger">El CBU debe tener exactamente 22 caracteres</small>
+    }
+  </div>
+
+  <div class="col-12 col-md-6">
+    <label class="form-label-custom">Número de cuenta</label>
+    <input type="text" class="form-control custom-text-input" [class.is-invalid]="numeroCuentaInvalido()"
+      [value]="datosTransferencia().numeroCuenta"
+      (input)="emitirTexto('numeroCuenta', $any($event.target).value)" />
+    @if (numeroCuentaInvalido()) {
+      <small class="text-danger">El número de cuenta es obligatorio</small>
+    }
+  </div>
+
+  <div class="col-12 col-md-6">
+    <label class="form-label-custom">Titular de la cuenta</label>
+    <input type="text" class="form-control custom-text-input" [class.is-invalid]="titularInvalido()"
+      [value]="datosTransferencia().titularCuenta"
+      (input)="emitirTexto('titularCuenta', $any($event.target).value)" />
+    @if (titularInvalido()) {
+      <small class="text-danger">El titular es obligatorio</small>
+    }
+  </div>
+</div>
+
+@if (hayCambiosIncompletos()) {
+  <div class="alert alert-warning mt-3 py-2" role="alert">
+    Completá alias, número de cuenta y titular (y un CBU válido de 22 caracteres si lo cargás) para que se guarden los datos de transferencia.
+  </div>
+}

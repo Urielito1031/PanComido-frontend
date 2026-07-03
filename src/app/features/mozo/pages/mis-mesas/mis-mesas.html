@@ -49,7 +49,7 @@
             [items]="comandaCargada().items"
             [total]="calcularTotalComanda(comandaCargada().items)"
             (cerrar)="cerrarModalComanda()"
-            (cobrar)="cobrarPedido()"
+            (cobrar)="cobrarPedido($event)"
             (cerrarMesa)="cerrarMesaComanda()"
           ></app-comanda-detalle-ui>
         }

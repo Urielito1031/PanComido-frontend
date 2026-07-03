@@ -3,11 +3,12 @@ import { ConfiguracionService } from './configuracion-service';
 import { DatosLocal } from '../../../../core/models/domain/datos-local';
 import { MetodoPago } from '../../../../core/models/domain/metodo-pago';
 import { TurnoLaboral } from '../../../../core/models/domain/turno-laboral';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FamiliaTipografica } from '../../../../core/models/domain/familia-tipografica';
 import { FilaVirtual } from '../../../../core/models/domain/fila-virtual';
 import { PorcentajesGanancia } from '../../../../core/models/domain/porcentajes-ganancia';
+import { DatosTransferencia } from '../../../../core/models/domain/datos-transferencia';
 
 @Injectable({
   providedIn: 'root',
@@ -24,6 +25,10 @@ export class ConfiguracionState {
   readonly #porcentajes = signal<PorcentajesGanancia| null>(null);
   readonly #familiasTipograficas = signal<FamiliaTipografica[]>([]);
   readonly #archivoLogoPendiente = signal<File | null> (null);
+  readonly #datosTransferencia = signal<DatosTransferencia | null>(null);
+  readonly #datosTransferenciaComensal = signal<DatosTransferencia | null>(null);
+  readonly #datosTransferenciaComensalCargando = signal(false);
+  readonly #datosTransferenciaComensalCargada = signal(false);
  
   readonly #loading = signal(false);
   readonly #guardando = signal(false);
@@ -37,6 +42,10 @@ export class ConfiguracionState {
   readonly filaVirtual = this.#filaVirtual.asReadonly();
   readonly porcentajes = this.#porcentajes.asReadonly();
   readonly familiasTipograficas = this.#familiasTipograficas.asReadonly();
+  readonly datosTransferencia = this.#datosTransferencia.asReadonly();
+  readonly datosTransferenciaComensal = this.#datosTransferenciaComensal.asReadonly();
+  readonly datosTransferenciaComensalCargando = this.#datosTransferenciaComensalCargando.asReadonly();
+  readonly datosTransferenciaComensalCargada = this.#datosTransferenciaComensalCargada.asReadonly();
   readonly loading = this.#loading.asReadonly();
   readonly guardando = this.#guardando.asReadonly();
   readonly error = this.#error.asReadonly();
@@ -52,6 +61,25 @@ export class ConfiguracionState {
       });
   }
 
+  cargarDatosTransferenciaComensal(restauranteId: number): void {
+    if (this.#datosTransferenciaComensalCargada()) return;
+    this.#datosTransferenciaComensalCargando.set(true);
+    this.api.obtenerDatosTransferenciaComensal(restauranteId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (datos) => {
+          this.#datosTransferenciaComensal.set(datos);
+          this.#datosTransferenciaComensalCargando.set(false);
+          this.#datosTransferenciaComensalCargada.set(true);
+        },
+        error: () => {
+          this.#datosTransferenciaComensal.set(null);
+          this.#datosTransferenciaComensalCargando.set(false);
+          this.#datosTransferenciaComensalCargada.set(true);
+        }
+      });
+  }
+
   cargarDatos():void{
     this.#loading.set(true);
     this.#error.set(null);
@@ -64,18 +92,20 @@ export class ConfiguracionState {
       fTipograficas: this.api.obtenerFamiliasTipograficas(),
       filaVirtual: this.api.obtenerFilaVirtual(),
       porcentajes: this.api.obtenerPorcentajes(),
+      datosTransferencia: this.api.obtenerDatosTransferencia(),
     })
     .pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe({
-      next: ({datosLocal, metodosPago, turnos, fTipograficas, filaVirtual,porcentajes}) => {
+      next: ({datosLocal, metodosPago, turnos, fTipograficas, filaVirtual,porcentajes, datosTransferencia}) => {
         this.#datosLocal.set(datosLocal);
         this.#metodosPago.set(metodosPago);
         this.#turnos.set(turnos);
         this.#filaVirtual.set(filaVirtual);
         this.#porcentajes.set(porcentajes);
-        this.#familiasTipograficas.set(fTipograficas);  
+        this.#familiasTipograficas.set(fTipograficas);
+        this.#datosTransferencia.set(datosTransferencia);
         this.#loading.set(false);
-        
+
       },
       error:() => { 
         this.#loading.set(false);
@@ -118,11 +148,21 @@ export class ConfiguracionState {
 
       this.#porcentajes.update((actual => {
         if(!actual) return null;
-        const items = actual[tipo].map((item) => 
+        const items = actual[tipo].map((item) =>
           item.id === id? {...item,porcentaje}:item
         );
         return {...actual,[tipo]:items};
       }))
+    }
+
+    actualizarDatosTransferencia(cambios: Partial<DatosTransferencia>): void {
+      this.#datosTransferencia.update((actual) => ({
+        alias: actual?.alias ?? '',
+        cbu: actual?.cbu ?? null,
+        numeroCuenta: actual?.numeroCuenta ?? '',
+        titularCuenta: actual?.titularCuenta ?? '',
+        ...cambios,
+      }));
     }
 
   guardarTodo(): void{
@@ -132,6 +172,7 @@ export class ConfiguracionState {
     const turnos = this.#turnos();
     const filaVirtual =this.#filaVirtual();
     const porcentajes = this.#porcentajes();
+    const datosTransferencia = this.#datosTransferencia();
     if(!datosLocal || !filaVirtual || !porcentajes){
       this.#error.set('No hay datos para guardar. Cargá la página nuevamente');
       return;
@@ -147,12 +188,16 @@ export class ConfiguracionState {
       turnos: this.api.actualizarTurnos(turnos),
       filaVirtual: this.api.actualizarFilaVirtual(filaVirtual),
       porcentajes: this.api.actualizarPorcentajes(porcentajes),
+      datosTransferencia: datosTransferencia ? this.api.actualizarDatosTransferencia(datosTransferencia) : of(null),
 
     }).pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe({
       next: (resultado) => {
         if(resultado.datosLocal){
           this.#datosLocal.set(resultado.datosLocal);
+        }
+        if(resultado.datosTransferencia){
+          this.#datosTransferencia.set(resultado.datosTransferencia);
         }
         this.#guardando.set(false);
         this.#exito.set('Configuración guardada correctamente');

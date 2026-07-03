@@ -1,0 +1,29 @@
+.form-label-custom {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.custom-text-input {
+  border: 1.5px solid #d1d5db;
+  border-radius: 6px;
+  height: 42px;
+  box-shadow: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.custom-text-input:focus {
+  border-color: var(--primary-orange);
+  box-shadow: 0 0 0 3px rgba(240, 143, 26, 0.12);
+}
+.custom-text-input.is-invalid {
+  border-color: #dc3545;
+}
+
+:host {
+  display: block;
+  flex: 1;
+}
