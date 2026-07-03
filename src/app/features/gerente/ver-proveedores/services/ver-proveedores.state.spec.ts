@@ -5,10 +5,12 @@ import { VerProveedoresState } from './ver-proveedores.state';
 import { ProveedorApiService } from '../../services/proveedor.api';
 import { Proveedor, PedidoProveedor } from '../../../../core/models/domain/proveedor';
 import { Insumo } from '../../../../core/models/domain/insumo';
+import { BrowserNavigationService } from '../../../../core/services/browser-navigation.service';
 
 describe('VerProveedoresState', () => {
   let service: VerProveedoresState;
   let apiServiceMock: any;
+  let browserNavigationMock: any;
 
   const mockProveedores: Proveedor[] = [
     {
@@ -50,6 +52,21 @@ describe('VerProveedoresState', () => {
       getHistorialPedidos: vi.fn().mockReturnValue(of([])),
       getInsumosProveedor: vi.fn().mockReturnValue(of([...mockProductos])),
       getCategoriasInsumo: vi.fn().mockReturnValue(of([])),
+      confirmarPedido: vi.fn().mockImplementation((pedido: PedidoProveedor) => of({
+        pedido: { ...pedido, estado: 'Enviado' },
+        linkWpp: 'https://wa.me/5491112345678'
+      })),
+      previsualizarConfirmacion: vi.fn().mockReturnValue(of([
+        {
+          insumoId: 1,
+          nombreInsumo: 'Ajo',
+          cantidad: 2,
+          nombreLote: 'Lote A',
+          bodegaId: 1,
+          fechaVencimiento: '2026-08-01'
+        }
+      ])),
+      recibirPedido: vi.fn().mockReturnValue(of({})),
       crearPedidoProveedor: vi.fn().mockImplementation((id, pedido) => {
         const prov = mockProveedores.find(p => p.id === id);
         if (!prov) throw new Error('Not Found');
@@ -64,11 +81,15 @@ describe('VerProveedoresState', () => {
         });
       })
     };
+    browserNavigationMock = {
+      abrirEnNuevaPestana: vi.fn()
+    };
 
     TestBed.configureTestingModule({
       providers: [
         VerProveedoresState,
-        { provide: ProveedorApiService, useValue: apiServiceMock }
+        { provide: ProveedorApiService, useValue: apiServiceMock },
+        { provide: BrowserNavigationService, useValue: browserNavigationMock }
       ]
     });
 
@@ -161,8 +182,6 @@ describe('VerProveedoresState', () => {
   });
 
   it('debería enviar el pedido correctamente', () => {
-    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
-
     service.cargarDatos();
     service.seleccionarProducto(mockProductos[0]);
     service.cantidadProducto.set(10);
@@ -175,7 +194,57 @@ describe('VerProveedoresState', () => {
     expect(apiServiceMock.crearPedidoProveedor).toHaveBeenCalled();
     expect(service.pedidoItems()).toHaveLength(0);
     expect(service.mensajeAccion()).toContain('correctamente');
+  });
 
-    openSpy.mockRestore();
+  it('debería confirmar un pedido pendiente y abrir el link por navegación externa', () => {
+    const pedido: PedidoProveedor = {
+      id: 10,
+      fecha: '2026-07-02T10:00:00.000Z',
+      concepto: 'Pedido de insumos',
+      monto: 1200,
+      estado: 'Pendiente',
+      observacion: '',
+      items: []
+    };
+
+    service.cargarDatos();
+    service.abrirDetallePedido(pedido);
+    service.confirmarPedido(pedido);
+
+    expect(apiServiceMock.confirmarPedido).toHaveBeenCalledWith(pedido);
+    expect(service.pedidoHistorialSeleccionado()?.estado).toBe('Enviado');
+    expect(browserNavigationMock.abrirEnNuevaPestana).toHaveBeenCalledWith('https://wa.me/5491112345678');
+  });
+
+  it('debería previsualizar, editar y recibir un pedido enviado', () => {
+    const pedido: PedidoProveedor = {
+      id: 20,
+      fecha: '2026-07-02T10:00:00.000Z',
+      concepto: 'Pedido de insumos',
+      monto: 2400,
+      estado: 'Enviado',
+      observacion: '',
+      items: [{ id: 1, nombre: 'Ajo', cantidad: 2, unidadMedida: { id: 1, nombre: 'Kg' }, precioUnitario: 1200 }]
+    };
+
+    service.cargarDatos();
+    service.abrirDetallePedido(pedido);
+    service.previsualizarRecepcion(pedido);
+
+    expect(apiServiceMock.previsualizarConfirmacion).toHaveBeenCalledWith(20);
+    expect(service.recepcionPedido()).toEqual(pedido);
+    expect(service.recepcionItems()[0].cantidad).toBe(2);
+
+    service.actualizarRecepcionItem(1, { cantidad: 3 });
+    expect(service.recepcionItems()[0].cantidad).toBe(3);
+
+    service.recibirPedido();
+
+    expect(apiServiceMock.recibirPedido).toHaveBeenCalledWith(20, expect.arrayContaining([
+      expect.objectContaining({ insumoId: 1, cantidad: 3 })
+    ]));
+    expect(service.pedidoHistorialSeleccionado()?.estado).toBe('Recibido');
+    expect(service.recepcionPedido()).toBeNull();
+    expect(service.mensajeAccion()).toContain('se recibió');
   });
 });

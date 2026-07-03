@@ -59,8 +59,8 @@
   width: 2.8rem;
   height: 2.8rem;
   border-radius: 50%;
-  background: rgba(22, 145, 172, 0.08);
-  color: #1691ac;
+  background: rgba(216, 8, 28, 0.08);
+  color: #d8081c;
   flex-shrink: 0;
 }
 
@@ -137,9 +137,9 @@
 }
 
 .diagnostico-box {
-  background: rgba(22, 145, 172, 0.035);
-  border: 1px solid rgba(22, 145, 172, 0.12);
-  border-radius: 12px;
+  background: rgba(216, 8, 28, 0.035);
+  border: 1px solid rgba(216, 8, 28, 0.12);
+  border-radius: 8px;
   padding: 0.9rem 1rem;
   display: flex;
   gap: 0.75rem;
@@ -148,7 +148,7 @@
 }
 
 .diagnostico-box .material-symbols-outlined {
-  color: #1691ac;
+  color: #d8081c;
   font-size: 1.35rem;
   margin-top: 0.1rem;
 }
@@ -174,7 +174,7 @@
 
 .skeleton-insight-icon {
   margin-top: 0.1rem;
-  color: #f59e0b;
+  color: #d8081c;
 }
 
 .skeleton-copy-block {
@@ -182,7 +182,7 @@
 }
 
 .skeleton-diagnostico-title {
-  color: #b45309;
+  color: #a8041a;
 }
 
 .skeleton-diagnostico-copy {
@@ -212,12 +212,12 @@
 }
 
 .skeleton-comparativa-box {
-  border-color: rgba(245, 158, 11, 0.1);
+  border-color: rgba(216, 8, 28, 0.1);
   background: #fffdf5;
 }
 
 .skeleton-comparativa-header {
-  color: #b45309;
+  color: #a8041a;
   opacity: 0.7;
 }
 
@@ -244,7 +244,7 @@
 
 .metric-pill-card {
   border: 1px solid rgba(15, 23, 42, 0.06);
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 0.75rem 0.85rem;
   background: #ffffff;
   display: flex;
@@ -296,7 +296,7 @@
 
 .analisis-chart-section {
   border: 1px solid rgba(15, 23, 42, 0.06);
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 0.9rem 1rem;
   background: #ffffff;
   display: flex;
@@ -344,8 +344,8 @@
 
 .analisis-comparativa-box {
   background: #fffbeb;
-  border: 1px solid rgba(245, 158, 11, 0.15);
-  border-radius: 12px;
+  border: 1px solid rgba(216, 8, 28, 0.15);
+  border-radius: 8px;
   padding: 0.9rem 1rem;
   display: flex;
   flex-direction: column;
@@ -357,7 +357,7 @@
   display: flex;
   align-items: center;
   gap: 0.45rem;
-  color: #b45309;
+  color: #a8041a;
   font-size: 0.8rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -384,7 +384,7 @@
 .comparativa-divider {
   font-size: 0.72rem;
   font-weight: 800;
-  color: #d97706;
+  color: #d8081c;
   padding: 0 0.5rem;
 }
 
@@ -443,7 +443,7 @@
 }
 
 .sugerencia-card {
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 0.95rem 1rem;
   display: flex;
   flex-direction: column;
@@ -468,12 +468,12 @@
 }
 
 .sugerencia-card.impacto-medio {
-  background: rgba(22, 145, 172, 0.035);
-  border: 1px solid rgba(22, 145, 172, 0.12);
+  background: rgba(216, 8, 28, 0.035);
+  border: 1px solid rgba(216, 8, 28, 0.12);
 }
 
 .sugerencia-card.impacto-medio:hover {
-  border-color: rgba(22, 145, 172, 0.24);
+  border-color: rgba(216, 8, 28, 0.24);
 }
 
 .sug-card-header {
@@ -504,7 +504,7 @@
 
 .sug-badge.impact.medio {
   background: #ccfbf1;
-  color: #0f766e;
+  color: #a8041a;
   border: 1px solid rgba(15, 118, 110, 0.12);
 }
 
@@ -569,25 +569,25 @@
 }
 
 .sug-btn.primary {
-  background: #1691ac;
+  background: #d8081c;
   color: #ffffff;
-  box-shadow: 0 2px 4px rgba(22, 145, 172, 0.12);
+  box-shadow: 0 2px 4px rgba(216, 8, 28, 0.12);
 }
 
 .sug-btn.primary:hover {
-  background: #0f766e;
-  box-shadow: 0 4px 8px rgba(22, 145, 172, 0.2);
+  background: #a8041a;
+  box-shadow: 0 4px 8px rgba(216, 8, 28, 0.2);
 }
 
 .sug-btn.secondary {
   background: #ffffff;
-  color: #1691ac;
-  border: 1px solid rgba(22, 145, 172, 0.25);
+  color: #d8081c;
+  border: 1px solid rgba(216, 8, 28, 0.25);
 }
 
 .sug-btn.secondary:hover {
-  background: rgba(22, 145, 172, 0.04);
-  border-color: #1691ac;
+  background: rgba(216, 8, 28, 0.04);
+  border-color: #d8081c;
 }
 
 .sug-btn.success-applied {
@@ -685,7 +685,7 @@
 
 .primary-btn {
   width: 100%;
-  background: #1691ac;
+  background: #d8081c;
   color: #fff;
   border: none;
   border-radius: 10px;
@@ -698,7 +698,7 @@
 }
 
 .primary-btn:hover {
-  background: #0f766e;
+  background: #a8041a;
 }
 
 .outline-btn {
@@ -723,7 +723,7 @@
 
 /* SKELETON LOADERS FOR SIDE PANEL */
 .skeleton-pulsing {
-  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background: #e2e8f0;
   background-size: 200% 100%;
   animation: skeleton-animation 1.5s infinite linear;
 }
@@ -766,13 +766,13 @@
 }
 
 .skeleton-chart {
-  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background: #e2e8f0;
   background-size: 200% 100%;
   animation: skeleton-animation 1.5s infinite linear;
 }
 
 .skeleton-btn-full {
-  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background: #e2e8f0;
   background-size: 200% 100%;
   animation: skeleton-animation 1.5s infinite linear;
 }
@@ -791,8 +791,8 @@
   background: #f1f5f9;
   display: grid;
   place-items: center;
-  border: 1px dashed rgba(22, 145, 172, 0.25);
-  color: #1691ac;
+  border: 1px dashed rgba(216, 8, 28, 0.25);
+  color: #d8081c;
 }
 
 .skeleton-badge-pulse {

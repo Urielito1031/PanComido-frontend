@@ -3,6 +3,15 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PlatoApiService } from '../../services/plato.api';
 import { Plato } from '../../../../core/models/domain/plato';
 import { environment } from '../../../../../environments/environment';
+import {
+  CartaSortOrder,
+  esBebida,
+  ordenarPlatosCarta,
+  ordenarPorVisibilidad,
+  tipoBebida,
+  tipoComida,
+  tiposDisponibles
+} from './modificar-carta.rules';
 
 @Injectable({ providedIn: 'root' })
 export class ModificarCartaStateService {
@@ -19,7 +28,7 @@ export class ModificarCartaStateService {
   private _loading = signal<boolean>(false);
   private _selectedTipoBebida = signal<string | null>(null);
   private _selectedTipoComida = signal<string | null>(null);
-  private _sortOrder = signal<'default' | 'ventas-desc' | 'ventas-asc' | 'precio-desc' | 'precio-asc'>('default');
+  private _sortOrder = signal<CartaSortOrder>('default');
 
   private _platosEliminados = signal<Plato[]>([]);
   private _mostrarModalRestaurar = signal<boolean>(false);
@@ -43,38 +52,11 @@ export class ModificarCartaStateService {
 
   // 3. Variables Derivadas (Computed)
   tiposBebidaDisponibles = computed(() => {
-    const bebidas = this._platos().filter(plato => {
-      return (plato.categoria?.toLowerCase() || '').includes('bebida') || 
-             (plato.tipo?.toLowerCase() || '').includes('bebida') || 
-             !!plato.bebida;
-    });
-    const tiposMap = new Map<string, number>();
-    bebidas.forEach(b => {
-      let tipoFinal = 'Otros';
-      const tipo = b.tipo?.trim();
-      if (tipo && tipo.toLowerCase() !== 'bebida' && tipo.toLowerCase() !== 'bebidas') {
-        tipoFinal = tipo;
-      } else {
-        const nombreLower = b.nombre.toLowerCase();
-        if (nombreLower.includes('cerveza')) tipoFinal = 'Cerveza';
-        else if (nombreLower.includes('vino')) tipoFinal = 'Vino';
-        else if (nombreLower.includes('agua')) tipoFinal = 'Agua';
-        else if (nombreLower.includes('jugo') || nombreLower.includes('exprimido')) tipoFinal = 'Jugo';
-        else if (nombreLower.includes('coca-cola') || nombreLower.includes('sprite') || nombreLower.includes('fanta') || nombreLower.includes('pepsi') || nombreLower.includes('gaseosa')) tipoFinal = 'Gaseosa';
-      }
-      tiposMap.set(tipoFinal, (tiposMap.get(tipoFinal) || 0) + 1);
-    });
-    return Array.from(tiposMap.entries())
-      .map(([tipo, count]) => ({ tipo, count }))
-      .sort((a, b) => a.tipo.localeCompare(b.tipo));
+    return tiposDisponibles(this._platos().filter(esBebida), tipoBebida);
   });
 
   totalBebidasCount = computed(() => {
-    return this._platos().filter(plato => {
-      return (plato.categoria?.toLowerCase() || '').includes('bebida') || 
-             (plato.tipo?.toLowerCase() || '').includes('bebida') || 
-             !!plato.bebida;
-    }).length;
+    return this._platos().filter(esBebida).length;
   });
 
   categoriasDisponibles = computed(() => {
@@ -83,10 +65,7 @@ export class ModificarCartaStateService {
   });
 
   filteredPlatos = computed(() => {
-    const sorted = [...this._platos()].sort((a, b) => {
-      if (a.visible === b.visible) return 0;
-      return a.visible ? -1 : 1;
-    });
+    const sorted = ordenarPorVisibilidad(this._platos());
 
     const lowerTerm = this._searchTerm().toLowerCase().trim();
     const selectedCat = this._selectedCategoria();
@@ -116,126 +95,37 @@ export class ModificarCartaStateService {
   });
 
   tiposComidaDisponibles = computed(() => {
-    const comidas = this._platos().filter(plato => {
-      const isBebida = (plato.categoria?.toLowerCase() || '').includes('bebida') || 
-                       (plato.tipo?.toLowerCase() || '').includes('bebida') || 
-                       !!plato.bebida;
-      return !isBebida;
-    });
-    
-    const tiposMap = new Map<string, number>();
-    comidas.forEach(c => {
-      let tipoFinal = c.categoria?.trim() || c.tipo?.trim() || 'Otros';
-      if (tipoFinal.toLowerCase() === 'plato principal') tipoFinal = 'Principal';
-      tiposMap.set(tipoFinal, (tiposMap.get(tipoFinal) || 0) + 1);
-    });
-    
-    return Array.from(tiposMap.entries())
-      .map(([tipo, count]) => ({ tipo, count }))
-      .sort((a, b) => a.tipo.localeCompare(b.tipo));
+    return tiposDisponibles(this._platos().filter(plato => !esBebida(plato)), tipoComida);
   });
 
   totalComidasCount = computed(() => {
-    return this._platos().filter(plato => {
-      const isBebida = (plato.categoria?.toLowerCase() || '').includes('bebida') || 
-                       (plato.tipo?.toLowerCase() || '').includes('bebida') || 
-                       !!plato.bebida;
-      return !isBebida;
-    }).length;
+    return this._platos().filter(plato => !esBebida(plato)).length;
   });
 
   platosComidas = computed(() => {
     const selectedTipo = this._selectedTipoComida();
     const normal = this.filteredPlatos().filter(plato => {
-      const isBebida = (plato.categoria?.toLowerCase() || '').includes('bebida') || 
-                       (plato.tipo?.toLowerCase() || '').includes('bebida') || 
-                       !!plato.bebida;
-      if (isBebida || (plato.recomendado && plato.visible)) return false;
+      if (esBebida(plato) || (plato.recomendado && plato.visible)) return false;
       
       if (selectedTipo) {
-        let tipoFinal = plato.categoria?.trim() || plato.tipo?.trim() || 'Otros';
-        if (tipoFinal.toLowerCase() === 'plato principal') tipoFinal = 'Principal';
-        return tipoFinal === selectedTipo;
+        return tipoComida(plato) === selectedTipo;
       }
       return true;
     });
-    return [...normal].sort((a, b) => {
-      const currentSort = this._sortOrder();
-      
-      if (currentSort === 'ventas-desc') {
-        return (b.ventas ?? 0) - (a.ventas ?? 0);
-      } else if (currentSort === 'ventas-asc') {
-        return (a.ventas ?? 0) - (b.ventas ?? 0);
-      } else if (currentSort === 'precio-desc') {
-        return (b.precioVenta ?? 0) - (a.precioVenta ?? 0);
-      } else if (currentSort === 'precio-asc') {
-        return (a.precioVenta ?? 0) - (b.precioVenta ?? 0);
-      }
-      
-      const aVisible = a.visible ?? true;
-      const bVisible = b.visible ?? true;
-      if (aVisible !== bVisible) {
-        return aVisible ? -1 : 1;
-      }
-      if (!aVisible) {
-        const aRec = !!a.recomendado;
-        const bRec = !!b.recomendado;
-        if (aRec && !bRec) return 1;
-        if (!aRec && bRec) return -1;
-      }
-      return 0;
-    });
+    return ordenarPlatosCarta(normal, this._sortOrder());
   });
 
   platosBebidas = computed(() => {
     const selectedTipo = this._selectedTipoBebida();
     const normal = this.filteredPlatos().filter(plato => {
-      const isBebida = (plato.categoria?.toLowerCase() || '').includes('bebida') || 
-                       (plato.tipo?.toLowerCase() || '').includes('bebida') || 
-                       !!plato.bebida;
-      if (!isBebida || (plato.recomendado && plato.visible)) return false;
+      if (!esBebida(plato) || (plato.recomendado && plato.visible)) return false;
       
       if (selectedTipo) {
-        let tipoPlato = plato.tipo?.trim();
-        if (!tipoPlato || tipoPlato.toLowerCase() === 'bebida' || tipoPlato.toLowerCase() === 'bebidas') {
-          const nombreLower = plato.nombre.toLowerCase();
-          if (nombreLower.includes('cerveza')) tipoPlato = 'Cerveza';
-          else if (nombreLower.includes('vino')) tipoPlato = 'Vino';
-          else if (nombreLower.includes('agua')) tipoPlato = 'Agua';
-          else if (nombreLower.includes('jugo') || nombreLower.includes('exprimido')) tipoPlato = 'Jugo';
-          else if (nombreLower.includes('coca-cola') || nombreLower.includes('sprite') || nombreLower.includes('fanta') || nombreLower.includes('pepsi') || nombreLower.includes('gaseosa')) tipoPlato = 'Gaseosa';
-          else tipoPlato = 'Otros';
-        }
-        return tipoPlato === selectedTipo || plato.categoria === selectedTipo;
+        return tipoBebida(plato) === selectedTipo || plato.categoria === selectedTipo;
       }
       return true;
     });
-    return [...normal].sort((a, b) => {
-      const currentSort = this._sortOrder();
-      
-      if (currentSort === 'ventas-desc') {
-        return (b.ventas ?? 0) - (a.ventas ?? 0);
-      } else if (currentSort === 'ventas-asc') {
-        return (a.ventas ?? 0) - (b.ventas ?? 0);
-      } else if (currentSort === 'precio-desc') {
-        return (b.precioVenta ?? 0) - (a.precioVenta ?? 0);
-      } else if (currentSort === 'precio-asc') {
-        return (a.precioVenta ?? 0) - (b.precioVenta ?? 0);
-      }
-      
-      const aVisible = a.visible ?? true;
-      const bVisible = b.visible ?? true;
-      if (aVisible !== bVisible) {
-        return aVisible ? -1 : 1;
-      }
-      if (!aVisible) {
-        const aRec = !!a.recomendado;
-        const bRec = !!b.recomendado;
-        if (aRec && !bRec) return 1;
-        if (!aRec && bRec) return -1;
-      }
-      return 0;
-    });
+    return ordenarPlatosCarta(normal, this._sortOrder());
   });
 
   // 4. Métodos de Negocio (UseCases)
@@ -247,7 +137,7 @@ export class ModificarCartaStateService {
     this._selectedTipoComida.set(tipo);
   }
 
-  setSortOrder(order: 'default' | 'ventas-desc' | 'ventas-asc' | 'precio-desc' | 'precio-asc'): void {
+  setSortOrder(order: CartaSortOrder): void {
     this._sortOrder.set(order);
   }
 

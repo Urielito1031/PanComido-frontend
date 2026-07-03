@@ -1,204 +1,119 @@
 <div class="container-fluid p-2 p-sm-3 p-lg-4 bg-light min-vh-100">
-  
+
+  <div class="carta-header">
+    <h1>Modificar Carta</h1>
+    <p class="carta-header-sub">Gestioná platos, bebidas y destacados de tu menú</p>
+  </div>
+
   <app-page-toolbar>
     
     <app-buscador 
       buscador 
       placeholder="Buscar plato" 
+      [valor]="state.searchTerm()"
       (busquedaCambiada)="onSearch($event)">
     </app-buscador>
-   @if(false) {
-     <app-dropdown filtros #filtroDropdown>
-       <button 
-         trigger
-         class="btn-soft-filter d-flex align-items-center gap-2">
-         <span class="material-symbols-outlined fs-5">filter_list</span>
-         {{ selectedCategoria() ? selectedCategoria() : 'Categorías' }}
-       </button>
-       <div menu>
-         <ul>
-           <li (click)="onCategoriaSeleccionada(null); filtroDropdown.cerrar()">Todas</li>
-           @for (cat of categoriasDisponibles(); track cat) {
-             <li (click)="onCategoriaSeleccionada(cat); filtroDropdown.cerrar()">{{ cat }}</li>
-           }
-         </ul>
-       </div>
-     </app-dropdown>
-   }
 
-   <div filtros class="d-flex align-items-center gap-2 gap-sm-3">
+    <div filtros class="carta-toolbar-filtros">
+      <!-- Dropdown de Ordenamiento -->
+      <div class="d-flex align-items-center gap-2">
+        <app-dropdown #ordenDropdown>
+          <button
+            trigger
+            type="button"
+            class="btn-sort-trigger"
+            [class.activo]="sortOrder() !== 'default'">
+            <span class="material-symbols-outlined sort-trigger-icon">{{ ordenActivo().icono }}</span>
+            <span class="sort-trigger-label">{{ ordenActivo().etiqueta }}</span>
+            <span class="material-symbols-outlined sort-trigger-chevron">expand_more</span>
+          </button>
+          <div menu class="sort-menu">
+            @for (opcion of opcionesOrden; track opcion.valor) {
+              <button
+                type="button"
+                class="sort-menu-item"
+                [class.seleccionado]="sortOrder() === opcion.valor"
+                (click)="setOrden(opcion.valor, ordenDropdown)">
+                <span class="material-symbols-outlined sort-item-icon">{{ opcion.icono }}</span>
+                <span>{{ opcion.etiqueta }}</span>
+                @if (sortOrder() === opcion.valor) {
+                  <span class="material-symbols-outlined sort-item-check">check</span>
+                }
+              </button>
+            }
+          </div>
+        </app-dropdown>
 
-     <!-- Dropdown de Ordenamiento -->
-     <div class="d-flex align-items-center gap-2">
-       <app-dropdown #ordenDropdown>
-         <button
-           trigger
-           type="button"
-           class="btn-sort-trigger"
-           [class.activo]="sortOrder() !== 'default'">
-           <span class="material-symbols-outlined sort-trigger-icon">{{ ordenActivo().icono }}</span>
-           <span class="sort-trigger-label">{{ ordenActivo().etiqueta }}</span>
-           <span class="material-symbols-outlined sort-trigger-chevron">expand_more</span>
-         </button>
-         <div menu class="sort-menu">
-           @for (opcion of opcionesOrden; track opcion.valor) {
-             <button
-               type="button"
-               class="sort-menu-item"
-               [class.seleccionado]="sortOrder() === opcion.valor"
-               (click)="setOrden(opcion.valor, ordenDropdown)">
-               <span class="material-symbols-outlined sort-item-icon">{{ opcion.icono }}</span>
-               <span>{{ opcion.etiqueta }}</span>
-               @if (sortOrder() === opcion.valor) {
-                 <span class="material-symbols-outlined sort-item-check">check</span>
-               }
-             </button>
-           }
-         </div>
-       </app-dropdown>
+        @if (sortOrder() !== 'default') {
+          <button
+            type="button"
+            class="btn-limpiar-orden"
+            (click)="resetOrden($event)"
+            title="Quitar ordenamiento">
+            <span class="material-symbols-outlined btn-limpiar-icon">close</span>
+            <span>Limpiar</span>
+          </button>
+        }
+      </div>
 
-       @if (sortOrder() !== 'default') {
-         <button
-           type="button"
-           class="btn-limpiar-orden"
-           (click)="resetOrden($event)"
-           title="Quitar ordenamiento">
-           <span class="material-symbols-outlined" style="font-size: 0.85rem;">close</span>
-           <span>Limpiar</span>
-         </button>
-       }
-     </div>
-
-     <div class="segmented-control">
-       <button 
-         class="segmented-btn" 
-         [class.active]="layoutMode() === 'grid'" 
-         (click)="setLayoutMode('grid')"
-         title="Vista en cuadrícula">
-         <span class="material-symbols-outlined fs-5">grid_view</span>
-       </button>
-       <button 
-         class="segmented-btn" 
-         [class.active]="layoutMode() === 'list'" 
-         (click)="setLayoutMode('list')"
-         title="Vista en lista">
-         <span class="material-symbols-outlined fs-5">view_list</span>
-       </button>
-     </div>
-   </div>
-   
-   <div acciones class="d-flex gap-2">
-     <button 
-       class="btn-premium-secondary d-flex align-items-center gap-2"
-       style="background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(15, 23, 42, 0.1); color: #475569; border-radius: 12px; padding: 0.5rem 1rem; transition: all 0.2s;"
-       onmouseover="this.style.background='rgba(255, 255, 255, 0.9)'; this.style.borderColor='rgba(15, 23, 42, 0.2)';"
-       onmouseout="this.style.background='rgba(255, 255, 255, 0.7)'; this.style.borderColor='rgba(15, 23, 42, 0.1)';"
-       (click)="abrirRestaurarPlatos()"
-       title="Restaurar platos eliminados">
-       <span class="material-symbols-outlined fs-5">settings_backup_restore</span>
-       <span class="fw-semibold">Restaurar</span>
-     </button>
-
-     <button 
-       class="btn-premium-primary d-flex align-items-center gap-2"
-       (click)="irACrearPlato()">
-       <span class="material-symbols-outlined fs-5">add</span>
-       <span class="fw-semibold">Nuevo plato</span>
-     </button>
-   </div>
-
+      <div class="segmented-control">
+        <button 
+          class="segmented-btn" 
+          [class.active]="layoutMode() === 'grid'" 
+          (click)="setLayoutMode('grid')"
+          title="Vista en cuadrícula">
+          <span class="material-symbols-outlined">grid_view</span>
+        </button>
+        <button 
+          class="segmented-btn" 
+          [class.active]="layoutMode() === 'list'" 
+          (click)="setLayoutMode('list')"
+          title="Vista en lista">
+          <span class="material-symbols-outlined">view_list</span>
+        </button>
+      </div>
+    </div>
+    
+    <div acciones class="d-flex gap-2">
+      <button 
+        class="btn-premium-primary d-flex align-items-center gap-2"
+        (click)="irACrearPlato()">
+        <span class="material-symbols-outlined">add</span>
+        <span class="fw-semibold">Nuevo plato</span>
+      </button>
+    </div>
 
   </app-page-toolbar>
 
   @if (loading()) {
-    <div class="mb-5">
-      @if (layoutMode() === 'grid') {
-        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
-          @for (i of [1, 2, 3, 4]; track i) {
-            <div class="col mb-4">
-              <div class="skeleton-card-container h-100">
-                <div class="dish-card-wrapper h-100 skeleton-card">
-                  <div class="dish-grid-container h-100">
-                    
-                    <div class="dish-content-box flex-grow-1">
-                      <div class="dish-image-wrapper flex-shrink-0">
-                        <div class="skeleton-image rounded-3"></div>
-                      </div>
-                      <div class="dish-info flex-grow-1 min-w-0">
-                        <!-- SKELETON VERTICAL -->
-                        <div class="vertical-layout-info w-100">
-                          <div class="d-flex justify-content-between align-items-center w-100 mb-2">
-                            <div class="skeleton-title" style="width: 40%; height: 1.45rem;"></div>
-                            <div class="skeleton-text" style="width: 25%; height: 1.2rem; border-radius: 9999px;"></div>
-                          </div>
-                          <div class="skeleton-title mb-2" style="width: 70%; height: 1.15rem;"></div>
-                          <div class="d-flex justify-content-between align-items-center w-100 mt-2">
-                            <div class="skeleton-text" style="width: 30%;"></div>
-                            <div class="skeleton-toggle"></div>
-                          </div>
-                        </div>
-
-                        <!-- SKELETON HORIZONTAL -->
-                        <div class="horizontal-layout-info w-100">
-                          <div class="skeleton-title mb-2" style="width: 60%;"></div>
-                          <div class="skeleton-text mb-1" style="width: 45%;"></div>
-                          <div class="skeleton-text mb-1" style="width: 35%;"></div>
-                          <div class="skeleton-text mb-2" style="width: 40%;"></div>
-                          <div class="skeleton-toggle"></div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="dish-actions-box flex-shrink-0">
-                      <div class="skeleton-btn"></div>
-                      <div class="skeleton-btn"></div>
-                      <div class="skeleton-btn"></div>
-                    </div>
-
-                  </div>
-                </div>
-              </div>
-            </div>
-          }
-        </div>
-      } @else {
-        <div class="d-flex flex-column gap-3">
-          @for (i of [1, 2, 3, 4]; track i) {
-            <div class="card border-0 shadow-sm p-3 dish-card list-layout skeleton-card">
-              <div class="d-flex flex-column flex-sm-row align-items-center gap-3 w-100 justify-content-between">
-                <div class="d-flex align-items-center gap-3 w-100 flex-grow-1">
-                  <div class="flex-shrink-0">
-                    <div class="skeleton-image-compact rounded-2"></div>
-                  </div>
-                  <div class="flex-grow-1">
-                    <div class="skeleton-title mb-1" style="width: 50%;"></div>
-                    <div class="skeleton-text mb-1" style="width: 35%;"></div>
-                    <div class="skeleton-toggle"></div>
-                  </div>
-                </div>
-                <div class="d-flex flex-row gap-2 mt-2 mt-sm-0">
-                  <div class="skeleton-btn-sm"></div>
-                  <div class="skeleton-btn-sm"></div>
-                  <div class="skeleton-btn-sm"></div>
-                </div>
-              </div>
-            </div>
-          }
+    <div class="carta-skeleton-grid">
+      @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+        <div class="carta-skeleton-card">
+          <div class="carta-skeleton-img"></div>
+          <div class="carta-skeleton-body">
+            <div class="skeleton skeleton-title"></div>
+            <div class="skeleton skeleton-text short"></div>
+            <div class="skeleton skeleton-text shorter"></div>
+          </div>
         </div>
       }
     </div>
   } @else {
+
+    <!-- Contador de resultados -->
+    <div class="carta-results-count">
+      <span>Encontrados:{{ filteredPlatos().length }} plato{{ filteredPlatos().length !== 1 ? 's' : '' }} {{ sortOrder() !== 'default' ? '· Ordenado por ' + ordenActivo().etiqueta.toLowerCase() : '' }}</span>
+    </div>
+
     @if (platosRecomendados().length > 0) {
-      <div id="seccion-recomendados" class="mb-5" style="margin-top: 5px;">
-        <div class="d-flex align-items-start gap-2 mb-3">
-          <div class="section-star-icon mt-1">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-            </svg>
-          </div>
-          <div>
-            <h4 class="fw-bold mb-0 text-dark" style="line-height: 1.2;">Platos Recomendados</h4>
-            <p class="text-muted small mb-0" style="font-weight: 300; font-size: 0.88rem; letter-spacing: 0.01em;">Ordenados por ventas</p>
+      <div id="seccion-recomendados" class="carta-section">
+        <div class="carta-section-header">
+          <div class="d-flex align-items-center gap-2">
+            <span class="material-symbols-outlined carta-section-icon carta-section-icon-star">star</span>
+            <div>
+              <h4 class="carta-section-title">Platos Recomendados</h4>
+              <p class="carta-section-sub">Ordenados por ventas</p>
+            </div>
           </div>
         </div>
         <app-lista-platos 
@@ -214,23 +129,25 @@
     }
 
     @if (platosComidas().length > 0 || selectedTipoComida()) {
-      <div id="seccion-platos" class="mb-4">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 gap-3">
-          <h4 class="fw-bold mb-0 text-dark d-flex align-items-center gap-2">
-            <span class="material-symbols-outlined text-secondary" style="font-size: 1.8rem; vertical-align: middle;">restaurant_menu</span>
-            Platos
-          </h4>
+      <div id="seccion-platos" class="carta-section">
+        <div class="carta-section-header">
+          <div class="d-flex align-items-center gap-2">
+            <span class="material-symbols-outlined carta-section-icon">restaurant_menu</span>
+            <div>
+              <h4 class="carta-section-title">Platos</h4>
+              <p class="carta-section-sub">{{ platosComidas().length }} en la carta</p>
+            </div>
+          </div>
           
-          <!-- Filtros de Comida Inline -->
           @if (tiposComidaDisponibles().length > 0) {
-            <div class="d-flex gap-2 flex-wrap">
+            <div class="carta-pills-scroll">
               <button class="btn-pill-filter" [class.active]="!selectedTipoComida()" (click)="onTipoComidaSeleccionado(null)">
                 <span>Todos</span>
                 <span class="filter-badge">{{ totalComidasCount() }}</span>
               </button>
               @for (item of tiposComidaDisponibles(); track item.tipo) {
                 <button class="btn-pill-filter" [class.active]="selectedTipoComida() === item.tipo" (click)="onTipoComidaSeleccionado(item.tipo)">
-                  <span class="material-symbols-outlined" style="font-size: 16px;">restaurant</span>
+                  <span class="material-symbols-outlined btn-pill-icon">restaurant</span>
                   <span>{{ item.tipo }}</span>
                   <span class="filter-badge">{{ item.count }}</span>
                 </button>
@@ -238,36 +155,61 @@
             </div>
           }
         </div>
-        <app-lista-platos 
-          [platos]="platosComidas()" 
-          [layoutMode]="layoutMode()"
-          [explodingId]="explodingPlatoId()"
-          (toggleVisible)="toggleVisibility($event)"
-          (editPlato)="onEditPlato($event)"
-          (deletePlato)="onDeletePlato($event)"
-          (toggleRecomendado)="toggleRecomendado($event)">
-        </app-lista-platos>
+
+        @if (platosComidas().length === 0) {
+          <div class="carta-empty-state">
+            <span class="material-symbols-outlined carta-empty-icon">restaurant</span>
+            <strong>No hay platos en esta categoría</strong>
+            <small>Probá con otro filtro o creá un plato nuevo</small>
+            <button class="btn-premium-primary carta-empty-cta" (click)="irACrearPlato()">
+              <span class="material-symbols-outlined">add</span>
+              <span>Crear plato</span>
+            </button>
+          </div>
+        } @else {
+          <app-lista-platos 
+            [platos]="platosComidas()" 
+            [layoutMode]="layoutMode()"
+            [explodingId]="explodingPlatoId()"
+            (toggleVisible)="toggleVisibility($event)"
+            (editPlato)="onEditPlato($event)"
+            (deletePlato)="onDeletePlato($event)"
+            (toggleRecomendado)="toggleRecomendado($event)">
+          </app-lista-platos>
+        }
+      </div>
+    } @else {
+      <div class="carta-empty-state">
+        <span class="material-symbols-outlined carta-empty-icon">restaurant_menu</span>
+        <strong>Todavía no hay platos</strong>
+        <small>Creá tu primer plato para empezar a armar la carta</small>
+        <button class="btn-premium-primary carta-empty-cta" (click)="irACrearPlato()">
+          <span class="material-symbols-outlined">add</span>
+          <span>Crear plato</span>
+        </button>
       </div>
     }
 
     @if (platosBebidas().length > 0 || selectedTipoBebida()) {
-      <div id="seccion-bebidas" class="mb-4">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 gap-3">
-          <h4 class="fw-bold mb-0 text-dark d-flex align-items-center gap-2">
-            <span class="material-symbols-outlined text-secondary" style="font-size: 1.8rem; vertical-align: middle;">local_bar</span>
-            Bebidas
-          </h4>
+      <div id="seccion-bebidas" class="carta-section">
+        <div class="carta-section-header">
+          <div class="d-flex align-items-center gap-2">
+            <span class="material-symbols-outlined carta-section-icon">local_bar</span>
+            <div>
+              <h4 class="carta-section-title">Bebidas</h4>
+              <p class="carta-section-sub">{{ platosBebidas().length }} en la carta</p>
+            </div>
+          </div>
           
-          <!-- Filtros de Bebida Inline -->
           @if (tiposBebidaDisponibles().length > 0) {
-            <div class="d-flex gap-2 flex-wrap">
+            <div class="carta-pills-scroll">
               <button class="btn-pill-filter" [class.active]="!selectedTipoBebida()" (click)="onTipoBebidaSeleccionado(null)">
                 <span>Todas</span>
                 <span class="filter-badge">{{ totalBebidasCount() }}</span>
               </button>
               @for (item of tiposBebidaDisponibles(); track item.tipo) {
                 <button class="btn-pill-filter" [class.active]="selectedTipoBebida() === item.tipo" (click)="onTipoBebidaSeleccionado(item.tipo)">
-                  <span class="material-symbols-outlined" style="font-size: 16px;">local_drink</span>
+                  <span class="material-symbols-outlined btn-pill-icon">local_drink</span>
                   <span>{{ item.tipo }}</span>
                   <span class="filter-badge">{{ item.count }}</span>
                 </button>
@@ -275,15 +217,38 @@
             </div>
           }
         </div>
-        <app-lista-platos 
-          [platos]="platosBebidas()" 
-          [layoutMode]="layoutMode()"
-          [explodingId]="explodingPlatoId()"
-          (toggleVisible)="toggleVisibility($event)"
-          (editPlato)="onEditPlato($event)"
-          (deletePlato)="onDeletePlato($event)"
-          (toggleRecomendado)="toggleRecomendado($event)">
-        </app-lista-platos>
+
+        @if (platosBebidas().length === 0) {
+          <div class="carta-empty-state">
+            <span class="material-symbols-outlined carta-empty-icon">local_bar</span>
+            <strong>No hay bebidas en esta categoría</strong>
+            <small>Probá con otro filtro o creá una bebida nueva</small>
+            <button class="btn-premium-primary carta-empty-cta" (click)="irACrearPlato()">
+              <span class="material-symbols-outlined">add</span>
+              <span>Crear bebida</span>
+            </button>
+          </div>
+        } @else {
+          <app-lista-platos 
+            [platos]="platosBebidas()" 
+            [layoutMode]="layoutMode()"
+            [explodingId]="explodingPlatoId()"
+            (toggleVisible)="toggleVisibility($event)"
+            (editPlato)="onEditPlato($event)"
+            (deletePlato)="onDeletePlato($event)"
+            (toggleRecomendado)="toggleRecomendado($event)">
+          </app-lista-platos>
+        }
+      </div>
+    } @else {
+      <div class="carta-empty-state">
+        <span class="material-symbols-outlined carta-empty-icon">local_bar</span>
+        <strong>Todavía no hay bebidas</strong>
+        <small>Creá tu primera bebida para sumarla a la carta</small>
+        <button class="btn-premium-primary carta-empty-cta" (click)="irACrearPlato()">
+          <span class="material-symbols-outlined">add</span>
+          <span>Crear bebida</span>
+        </button>
       </div>
     }
   }
@@ -308,52 +273,50 @@
     }
   }
 
-  @if (state.mostrarModalRestaurar()) {
-    @defer (on idle) {
-      <app-modal-restaurar-plato
-        [platos]="state.platosEliminados()"
-        [loading]="state.loadingRestaurar()"
-        (restaurar)="onRestaurarPlato($event)"
-        (close)="onCloseRestaurar()">
-      </app-modal-restaurar-plato>
-    }
-  }
-
   <!-- Navegación Flotante -->
-  <div class="floating-navegacion-carta">
+  <div class="floating-navegacion-carta" [class.expanded]="isFloatingMenuOpen()">
+    <button
+      type="button"
+      class="btn-flotante btn-flotante-toggle"
+      (click)="isFloatingMenuOpen.update(v => !v)"
+      title="Navegación">
+      <span class="material-symbols-outlined">{{ isFloatingMenuOpen() ? 'close' : 'tune' }}</span>
+    </button>
+    @if (isFloatingMenuOpen()) {
     @if (platosRecomendados().length > 0) {
-      <button 
-        type="button" 
-        class="btn-flotante recomendados" 
-        (click)="desplazarASeccion('seccion-recomendados')"
+      <button
+        type="button"
+        class="btn-flotante recomendados"
+        (click)="desplazarASeccion('seccion-recomendados'); isFloatingMenuOpen.set(false)"
         title="Ir a Recomendados">
         <span class="material-symbols-outlined">star</span>
         <span class="tooltip-flotante">Destacados</span>
       </button>
     }
-    <button 
-      type="button" 
-      class="btn-flotante platos" 
-      (click)="desplazarASeccion('seccion-platos')"
+    <button
+      type="button"
+      class="btn-flotante platos"
+      (click)="desplazarASeccion('seccion-platos'); isFloatingMenuOpen.set(false)"
       title="Ir a Platos">
       <span class="material-symbols-outlined">restaurant_menu</span>
       <span class="tooltip-flotante">Platos</span>
     </button>
-    <button 
-      type="button" 
-      class="btn-flotante bebidas" 
-      (click)="desplazarASeccion('seccion-bebidas')"
+    <button
+      type="button"
+      class="btn-flotante bebidas"
+      (click)="desplazarASeccion('seccion-bebidas'); isFloatingMenuOpen.set(false)"
       title="Ir a Bebidas">
       <span class="material-symbols-outlined">local_bar</span>
       <span class="tooltip-flotante">Bebidas</span>
     </button>
-    <button 
-      type="button" 
-      class="btn-flotante arriba" 
-      (click)="desplazarAlPrincipio()"
+    <button
+      type="button"
+      class="btn-flotante arriba"
+      (click)="desplazarAlPrincipio(); isFloatingMenuOpen.set(false)"
       title="Volver arriba">
       <span class="material-symbols-outlined">arrow_upward</span>
       <span class="tooltip-flotante">Volver arriba</span>
     </button>
+    }
   </div>
 </div>

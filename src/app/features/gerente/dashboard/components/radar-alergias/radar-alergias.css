@@ -12,10 +12,10 @@
 }
 
 .badge-radar {
-  background: rgba(22, 145, 172, 0.08);
-  color: #1691ac;
+  background: rgba(168, 4, 26, 0.06);
+  color: #d8081c;
   padding: 4px 10px;
-  border-radius: 9999px;
+  border-radius: 999px;
   font-size: 0.68rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -35,7 +35,7 @@
 .radar-item {
   background: rgba(255, 255, 255, 0.5);
   border: 1px solid rgba(226, 232, 240, 0.8);
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 0.85rem;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   box-sizing: border-box;
@@ -65,22 +65,22 @@
 
 .exclusion-count {
   font-size: 0.78rem;
-  color: #b45309;
+  color: #a8041a;
   font-weight: 800;
 }
 
 .progress-bar-container {
   background: #f1f5f9;
-  border-radius: 9999px;
+  border-radius: 999px;
   height: 8px;
   overflow: hidden;
   margin-bottom: 0.45rem;
 }
 
 .progress-bar {
-  background: linear-gradient(90deg, #f59e0b, #ef4444);
+  background: #dd2b3d;
   height: 100%;
-  border-radius: 9999px;
+  border-radius: 999px;
   transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -110,7 +110,7 @@
 
 .tasa-badge-medium {
   background: #fef3c7;
-  color: #92400e;
+  color: #a8041a;
 }
 
 .tasa-badge-low {
@@ -149,7 +149,7 @@
 .large-rows .radar-item {
   min-height: 110px;
   padding: 1.25rem;
-  border-radius: 14px;
+  border-radius: 8px;
 }
 
 .large-rows .ingredient-name {
@@ -172,5 +172,5 @@
 .large-rows .tasa-badge {
   font-size: 0.82rem;
   padding: 0.38rem 0.8rem;
-  border-radius: 6px;
+  border-radius: 8px;
 }

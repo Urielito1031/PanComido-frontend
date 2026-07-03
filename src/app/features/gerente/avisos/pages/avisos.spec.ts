@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { signal } from '@angular/core';
 import { of } from 'rxjs';
 import { AvisosPage } from './avisos';
@@ -17,6 +17,7 @@ describe('AvisosPage', () => {
   let pedidoStateMock: any;
   let pedidoSugeridoStateMock: any;
   let routerMock: any;
+  let routeMock: any;
 
   const mockAvisoStock: Aviso = {
     id: '1',
@@ -71,13 +72,18 @@ describe('AvisosPage', () => {
       navigate: vi.fn()
     };
 
+    routeMock = {
+      fragment: of(null)
+    };
+
     await TestBed.configureTestingModule({
       imports: [AvisosPage],
       providers: [
         { provide: AvisosStateService, useValue: stateMock },
         { provide: VencimientosState, useValue: pedidoStateMock },
         { provide: RealizarPedidoSugeridoStateService, useValue: pedidoSugeridoStateMock },
-        { provide: Router, useValue: routerMock }
+        { provide: Router, useValue: routerMock },
+        { provide: ActivatedRoute, useValue: routeMock }
       ]
     })
     .overrideComponent(AvisosPage, {
@@ -145,9 +151,17 @@ describe('AvisosPage', () => {
   });
 
   it('debería alternar panel preview IA', () => {
+    component.isResultadoIAExpanded.set(true);
     component.abrirPreviewSugerencia('ia');
     expect(component.panelPreviewAbierto()).toBe('ia');
+    expect(component.isResultadoIAExpanded()).toBe(false);
     expect(stateMock.generarSugerenciasIA).toHaveBeenCalled();
+  });
+
+  it('debería alternar acordeón de resultado IA', () => {
+    expect(component.isResultadoIAExpanded()).toBe(false);
+    component.toggleResultadoIA();
+    expect(component.isResultadoIAExpanded()).toBe(true);
   });
 
   it('debería navegar a crear plato al crearPlatoDesdeIA', () => {

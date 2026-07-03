@@ -56,7 +56,7 @@
   display: flex;
   align-items: flex-end;
   height: 180px;
-  border-radius: 11px;
+  border-radius: 8px;
   background: #f1f5f9;
   overflow: hidden;
   flex: 1 1 auto;
@@ -99,8 +99,8 @@
   display: block;
   width: 100%;
   min-height: 12px;
-  border-radius: 11px 11px 0 0;
-  background: linear-gradient(180deg, #f08f1a, #f59e0b);
+  border-radius: 8px 8px 0 0;
+  background: #a61c29;
 }
 
 .month-column strong {
@@ -148,8 +148,8 @@
   aspect-ratio: 1 / 0.58;
   min-height: 44px;
   border: 1px solid transparent;
-  border-radius: 11px;
-  background: #ffd54f;
+  border-radius: 8px;
+  background: #ffd9dd;
   color: #0f172a;
   font-size: 0.75rem;
   font-weight: 800;
@@ -161,16 +161,16 @@
 }
 
 .heatmap-day:hover {
-  border-color: rgba(251, 140, 0, 0.44);
+  border-color: rgba(168, 4, 26, 0.22);
   box-shadow: 0 3px 8px rgba(15, 23, 42, 0.12);
   transform: translateY(-2px);
 }
 
 .heatmap-day.active {
-  outline: 2px solid #1691ac;
+  outline: 2px solid #d8081c;
   outline-offset: 2px;
   transform: translateY(-1px);
-  box-shadow: 0 0 0 4px rgba(22, 145, 172, 0.15);
+  box-shadow: 0 0 0 4px rgba(216, 8, 28, 0.15);
 }
 
 .heatmap-day.best-day {
@@ -182,23 +182,23 @@
 }
 
 .heatmap-day.heat-level-1 {
-  background: #ffe082;
+  background: #fff0f2;
 }
 
 .heatmap-day.heat-level-2 {
-  background: #ffd54f;
+  background: #ffd9dd;
 }
 
 .heatmap-day.heat-level-3 {
-  background: #ffca28;
+  background: #f5a3ab;
 }
 
 .heatmap-day.heat-level-4 {
-  background: #ffb300;
+  background: #ef6f7c;
 }
 
 .heatmap-day.heat-level-5 {
-  background: #fb8c00;
+  background: #c9182b;
   color: #ffffff;
 }
 
@@ -207,7 +207,7 @@
   aspect-ratio: 1 / 0.58;
   background: rgba(15, 23, 42, 0.015);
   border: 1px dashed rgba(15, 23, 42, 0.05);
-  border-radius: 11px;
+  border-radius: 8px;
   pointer-events: none;
 }
 
@@ -240,7 +240,7 @@
 }
 
 .heatmap-day:focus-visible {
-  outline: 3px solid rgba(22, 145, 172, 0.24);
+  outline: 3px solid rgba(216, 8, 28, 0.24);
   outline-offset: 2px;
 }
 
@@ -290,12 +290,12 @@
 .day-tooltip .tooltip-value {
   font-size: 0.8rem;
   font-weight: 800;
-  color: #0f766e;
+  color: #a8041a;
   white-space: nowrap;
 }
 
 .day-tooltip .tooltip-trend {
-  color: #b45309;
+  color: #a8041a;
   font-size: 0.68rem;
   font-weight: 750;
   white-space: nowrap;
@@ -334,7 +334,7 @@
   gap: 0.12rem;
   min-width: 0;
   border: 1px solid rgba(15, 23, 42, 0.07);
-  border-radius: 11px;
+  border-radius: 8px;
   padding: 0.75rem;
   background: rgba(255, 255, 255, 0.74);
   box-sizing: border-box;
@@ -372,32 +372,32 @@
 }
 
 .scale-dot.level-1 {
-  background: #ffe082;
-  border: 1px solid rgba(251, 140, 0, 0.18);
+  background: #fff0f2;
+  border: 1px solid rgba(168, 4, 26, 0.12);
 }
 
 .scale-dot.level-2 {
-  background: #ffd54f;
-  border: 1px solid rgba(251, 140, 0, 0.22);
+  background: #ffd9dd;
+  border: 1px solid rgba(168, 4, 26, 0.16);
 }
 
 .scale-dot.level-3 {
-  background: #ffca28;
-  border: 1px solid rgba(251, 140, 0, 0.28);
+  background: #f5a3ab;
+  border: 1px solid rgba(168, 4, 26, 0.2);
 }
 
 .scale-dot.level-4 {
-  background: #fb8c00;
-  border: 1px solid rgba(230, 81, 0, 0.32);
+  background: #c9182b;
+  border: 1px solid rgba(168, 4, 26, 0.26);
 }
 
 .day-detail-panel {
   margin: 0 1rem 1.25rem;
   padding: 0.95rem;
-  border-radius: 11px;
-  background: linear-gradient(135deg, rgba(22, 145, 172, 0.05), rgba(255, 255, 255, 0.9));
-  border: 1px solid rgba(22, 145, 172, 0.16);
-  box-shadow: 0 6px 20px rgba(22, 145, 172, 0.04);
+  border-radius: 8px;
+  background: #fff8f9;
+  border: 1px solid rgba(168, 4, 26, 0.12);
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.035);
   animation: slideDown 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   box-sizing: border-box;
 }
@@ -423,7 +423,7 @@
 .detail-date {
   font-size: 0.82rem;
   font-weight: 850;
-  color: #0f766e;
+  color: #a8041a;
   text-transform: capitalize;
 }
 
@@ -506,12 +506,12 @@
 
 .fav-icon-btn:hover,
 .favorite-btn:hover {
-  color: #f59e0b;
+  color: #d8081c;
 }
 
 .fav-icon-btn.active,
 .favorite-btn.active {
-  color: #f59e0b;
+  color: #d8081c;
   animation: favorite-pop 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 

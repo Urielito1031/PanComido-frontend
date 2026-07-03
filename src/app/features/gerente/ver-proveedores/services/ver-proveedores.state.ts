@@ -7,11 +7,24 @@ import { Insumo } from '../../../../core/models/domain/insumo';
 import { UnidadMedida } from '../../../../core/models/domain/unidad-medida';
 import { Bodega } from '../../../../core/models/domain/bodega';
 import { CategoriaInsumo } from '../../../../core/models/domain/categoria-insumo';
+import { BrowserNavigationService } from '../../../../core/services/browser-navigation.service';
+import {
+  actualizarItemsRecepcion,
+  actualizarPedidoEnHistorial,
+  agregarItemPedidoALista,
+  agregarProductoAPedidoHistorial,
+  calcularMontoPedido,
+  getCantidadConfiguracion,
+  getCantidadInicial,
+  productosParaAgregar,
+  ultimoPrecioDeInsumo
+} from './ver-proveedores.rules';
 
 @Injectable({ providedIn: 'root' })
 export class VerProveedoresState {
   private api = inject(ProveedorApiService);
   private destroyRef = inject(DestroyRef);
+  private browserNavigation = inject(BrowserNavigationService);
 
   /*private readonly preciosMock: Record<string, number> = {
     '1': 1200, '2': 900, '3': 1500, '4': 600, '5': 1100,
@@ -111,11 +124,8 @@ export class VerProveedoresState {
     return this.#historialProveedor().filter(pedido => pedido.estado === 'Enviado');
   });
 
- montoEstimado = computed(() => {
-    return this.pedidoItems().reduce((total, item) => {
-      const base = item.precioUnitario ?? 0;
-      return total + base * item.cantidad;
-    }, 0);
+  montoEstimado = computed(() => {
+    return calcularMontoPedido(this.pedidoItems());
   });
 
   productoSeleccionadoActual = computed(() => {
@@ -123,15 +133,15 @@ export class VerProveedoresState {
   });
 
   cantidadPasoProducto = computed(() => {
-    return this.getCantidadConfiguracion(this.productoBaseActual()?.unidadMedida ?? 'KG').step;
+    return getCantidadConfiguracion(this.productoBaseActual()?.unidadMedida ?? 'KG').step;
   });
 
   cantidadMinimaProducto = computed(() => {
-    return this.getCantidadConfiguracion(this.productoBaseActual()?.unidadMedida ?? 'KG').min;
+    return getCantidadConfiguracion(this.productoBaseActual()?.unidadMedida ?? 'KG').min;
   });
 
   cantidadPlaceholderProducto = computed(() => {
-    return this.getCantidadConfiguracion(this.productoBaseActual()?.unidadMedida ?? 'KG').placeholder;
+    return getCantidadConfiguracion(this.productoBaseActual()?.unidadMedida ?? 'KG').placeholder;
   });
 
   cargarDatos(): void {
@@ -330,24 +340,7 @@ export class VerProveedoresState {
   }
 
   productosParaAgregar(busqueda: string): Insumo[] {
-    const texto = busqueda.toLowerCase().trim();
-    const vistos = new Set<string>();
-    const productos = [...this.productos()]
-      .filter(producto => {
-        const nombre = producto.nombre?.trim();
-        const id = producto.id?.toString();
-        if (!nombre || !id || vistos.has(id)) return false;
-        vistos.add(id);
-        return !this.pedidoHistorialSeleccionado()?.items.some(item => item.id.toString() === id);
-      })
-      .sort((a, b) => {
-        const sugeridoA = this.esProductoSugerido(a) ? 0 : 1;
-        const sugeridoB = this.esProductoSugerido(b) ? 0 : 1;
-        return sugeridoA - sugeridoB || a.nombre.localeCompare(b.nombre);
-      });
-
-    if (!texto) return productos;
-    return productos.filter(producto => producto.nombre.toLowerCase().includes(texto));
+    return productosParaAgregar(this.productos(), this.pedidoHistorialSeleccionado(), busqueda);
   }
 
   confirmarPedido(pedido: PedidoProveedor): void {
@@ -358,19 +351,18 @@ export class VerProveedoresState {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: ({ pedido: pedidoConfirmado, linkWpp }) => {
-          this.#historialProveedor.update(pedidos =>
-            pedidos.map(item => item.id === pedido.id ? pedidoConfirmado : item)
-          );
+          this.#historialProveedor.update(pedidos => actualizarPedidoEnHistorial(pedidos, pedidoConfirmado));
           this.pedidoHistorialSeleccionado.update(seleccionado =>
             seleccionado?.id === pedido.id ? pedidoConfirmado : seleccionado
           );
           this.mensajeAccion.set('Pedido enviado al proveedor');
-          window.open(linkWpp, '_blank');
+          this.browserNavigation.abrirEnNuevaPestana(linkWpp);
         }
       });
   }
 
-agregarIngredienteAPedido(pedido: PedidoProveedor, productoId: number | string, cantidad: number, precio: number): void {    const proveedor = this.proveedorSeleccionado();
+  agregarIngredienteAPedido(pedido: PedidoProveedor, productoId: number | string, cantidad: number, precio: number): void {
+    const proveedor = this.proveedorSeleccionado();
     const producto = this.productos().find(item => item.id.toString() === productoId.toString());
     if (!proveedor || !producto || pedido.estado !== 'Pendiente' || cantidad <= 0) return;
 
@@ -382,48 +374,17 @@ agregarIngredienteAPedido(pedido: PedidoProveedor, productoId: number | string, 
       precioUnitario: precio
     };
 
-    const pedidos = this.#historialProveedor().map(itemPedido => {
-      if (itemPedido.id !== pedido.id) return itemPedido;
-
-      const existe = itemPedido.items.some(pedidoItem => pedidoItem.id.toString() === item.id.toString());
-      const items = existe
-        ? itemPedido.items.map(pedidoItem => pedidoItem.id.toString() === item.id.toString()
-          ? { ...pedidoItem, cantidad: pedidoItem.cantidad + item.cantidad, precioUnitario: item.precioUnitario }
-          : pedidoItem)
-        : [...itemPedido.items, item];
-      const monto = items.reduce((total, pedidoItem) => total + (pedidoItem.precioUnitario ?? 0) * pedidoItem.cantidad, 0);
-
-      return { ...itemPedido, items, monto };
-    });
-
+    const pedidos = agregarProductoAPedidoHistorial(this.#historialProveedor(), pedido.id, item);
     this.#historialProveedor.set(pedidos);
     this.pedidoHistorialSeleccionado.set(pedidos.find(itemPedido => itemPedido.id === pedido.id) ?? null);
     this.mensajeAccion.set('Ingrediente agregado');
   }
 
-seleccionarProducto(producto: Insumo): void {
+  seleccionarProducto(producto: Insumo): void {
     this.productoSeleccionadoId.set(producto.id);
     this.productoTexto.set(producto.nombre);
-    this.cantidadProducto.set(this.getCantidadInicial(producto.unidadMedida));
-    this.precioProductoManual.set(this.ultimoPrecioDeInsumo(producto.id));
-  }
-
-  private ultimoPrecioDeInsumo(insumoId: number | string): number | null {
-    // Busca en el historial el último pedido (ordenado por fecha desc) que tenga este insumo
-    // y devuelve el precio de compra que se pagó en ese pedido.
-    const historial = [...this.#historialProveedor()].sort((a, b) => {
-      const fa = new Date(a.fecha).getTime();
-      const fb = new Date(b.fecha).getTime();
-      return fb - fa;
-    });
-
-    for (const pedido of historial) {
-      const item = pedido.items.find(i => i.id.toString() === insumoId.toString());
-      if (item && item.precioUnitario && item.precioUnitario > 0) {
-        return item.precioUnitario;
-      }
-    }
-    return null;
+    this.cantidadProducto.set(getCantidadInicial(producto.unidadMedida));
+    this.precioProductoManual.set(ultimoPrecioDeInsumo(this.#historialProveedor(), producto.id));
   }
 
   onProductoTextoChange(valor: string): void {
@@ -433,8 +394,8 @@ seleccionarProducto(producto: Insumo): void {
 
     if (encontrado) {
       this.productoSeleccionadoId.set(encontrado.id);
-      this.cantidadProducto.set(this.getCantidadInicial(encontrado.unidadMedida));
-      this.precioProductoManual.set(this.ultimoPrecioDeInsumo(encontrado.id));
+      this.cantidadProducto.set(getCantidadInicial(encontrado.unidadMedida));
+      this.precioProductoManual.set(ultimoPrecioDeInsumo(this.#historialProveedor(), encontrado.id));
     } else {
       this.productoSeleccionadoId.set(null);
       this.precioProductoManual.set(null);
@@ -454,13 +415,7 @@ seleccionarProducto(producto: Insumo): void {
     const unidadMedida = (producto?.unidadMedida as UnidadMedida) || 'UN';
     const itemId = producto?.id ?? `manual-${nombre.toLowerCase().replace(/\s+/g, '-')}`;
 
-    this.pedidoItems.update(items => {
-      const index = items.findIndex(item => item.id === itemId);
-      if (index > -1) {
-        return items.map(item => item.id === itemId ? { ...item, cantidad: item.cantidad + cantidad } : item);
-      }
-      return [...items, { id: itemId, nombre, cantidad, unidadMedida, precioUnitario: precio }];
-    });
+    this.pedidoItems.update(items => agregarItemPedidoALista(items, { id: itemId, nombre, cantidad, unidadMedida, precioUnitario: precio }));
 
     this.productoTexto.set('');
     this.productoSeleccionadoId.set(null);
@@ -540,9 +495,7 @@ seleccionarProducto(producto: Insumo): void {
   }
 
   actualizarRecepcionItem(insumoId: number, cambios: Partial<RecepcionPedidoItem>): void {
-    this.recepcionItems.update(items =>
-      items.map(item => item.insumoId === insumoId ? { ...item, ...cambios } : item)
-    );
+    this.recepcionItems.update(items => actualizarItemsRecepcion(items, insumoId, cambios));
   }
 
   recibirPedido(): void {
@@ -555,9 +508,7 @@ seleccionarProducto(producto: Insumo): void {
       .subscribe({
         next: () => {
           const recibido: PedidoProveedor = { ...pedido, estado: 'Recibido' };
-          this.#historialProveedor.update(pedidos =>
-            pedidos.map(item => item.id === pedido.id ? recibido : item)
-          );
+          this.#historialProveedor.update(pedidos => actualizarPedidoEnHistorial(pedidos, recibido));
           this.pedidoHistorialSeleccionado.update(seleccionado =>
             seleccionado?.id === pedido.id ? recibido : seleccionado
           );
@@ -567,40 +518,4 @@ seleccionarProducto(producto: Insumo): void {
       });
   }
 
-  private getCantidadConfiguracion(unidadMedida: UnidadMedida | string): { step: number; min: number; placeholder: string } {
-    const nombreUnidad = typeof unidadMedida === 'string' ? unidadMedida : unidadMedida.nombre;
-    switch (nombreUnidad.trim().toUpperCase()) {
-      case 'UNIDAD':
-      case 'UNIDADES':
-      case 'UN':
-      case 'PORCION':
-      case 'PORCIONES':
-        return { step: 1, min: 1, placeholder: '1' };
-      case 'GR':
-      case 'GRAMO':
-      case 'GRAMOS':
-        return { step: 10, min: 10, placeholder: '100' };
-      case 'KILO':
-      case 'KILOS':
-      case 'KG':
-        return { step: 0.1, min: 0.1, placeholder: '0.5' };
-      case 'LITRO':
-      case 'LITROS':
-      case 'L':
-      default:
-        return { step: 0.1, min: 0.1, placeholder: '0.5' };
-    }
-  }
-
-
-  private getCantidadInicial(unidadMedida: UnidadMedida | string): number {
-    return this.getCantidadConfiguracion(unidadMedida).min;
-  }
-
-  private esProductoSugerido(producto: Insumo): boolean {
-    const hoy = new Date();
-    const vencimiento = new Date(`${producto.vencimiento}T00:00:00`);
-    const dias = Math.ceil((vencimiento.getTime() - hoy.getTime()) / 86400000);
-    return producto.stockActual < producto.stockMinimo * 1.5 || dias <= 30;
-  }
 }

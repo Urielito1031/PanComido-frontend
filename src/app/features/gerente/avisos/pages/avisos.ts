@@ -1,7 +1,8 @@
-import { Component, ChangeDetectionStrategy, OnInit, OnDestroy, inject, signal, computed, effect } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, DestroyRef, inject, signal, computed, effect } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, DatePipe, DOCUMENT } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
-import { take, Subscription } from 'rxjs';
+import { take } from 'rxjs';
 import { PlatoSugerido } from '../../../../core/models/domain/sugerencia-ia';
 // Componentes UI
 import { PageToolbar } from '../../../../shared/ui/page-toolbar/page-toolbar';
@@ -24,13 +25,14 @@ import { ArsCurrencyPipe } from '../../../../shared/pipes/ars-currency.pipe';
   styleUrls: ['./avisos.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AvisosPage implements OnInit, OnDestroy {
+export class AvisosPage implements OnInit {
 
   protected readonly state = inject(AvisosStateService);
   protected readonly pedidoState = inject(VencimientosState);
   protected readonly pedidoSugeridoState = inject(RealizarPedidoSugeridoStateService);
   protected readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly documento = inject(DOCUMENT);
 
   protected readonly isPedidoOffcanvasOpen = signal(false);
@@ -38,13 +40,14 @@ export class AvisosPage implements OnInit, OnDestroy {
   protected readonly stockAvisoSeleccionado = signal<Aviso | null>(null);
   protected readonly vencimientoSeleccionado = signal<Aviso | null>(null);
   panelPreviewAbierto = signal<'sistema' | 'ia' | null>(null);
+  isFloatingMenuOpen = signal(false);
 
   isStockExpanded = signal(true);
   isVencimientosExpanded = signal(true);
+  isResultadoIAExpanded = signal(false);
 
   paginaStock = signal(1);
   paginaVencimientos = signal(1);
-  private fragmentSub?: Subscription;
 
   totalPaginasStock = computed(() => {
     return Math.max(1, Math.ceil(this.state.stockBajo().length / 6));
@@ -101,6 +104,8 @@ export class AvisosPage implements OnInit, OnDestroy {
       this.isStockExpanded.set(true);
     } else if (id === 'seccion-vencimientos') {
       this.isVencimientosExpanded.set(true);
+    } else if (id === 'sugerencias-ia-resultados') {
+      this.isResultadoIAExpanded.set(true);
     }
     setTimeout(() => {
       const element = this.documento.getElementById(id);
@@ -136,6 +141,7 @@ export class AvisosPage implements OnInit, OnDestroy {
     }
 
     if (tipo === 'ia') {
+      this.isResultadoIAExpanded.set(false);
       this.state.generarSugerenciasIA();
     }
   }
@@ -148,10 +154,13 @@ export class AvisosPage implements OnInit, OnDestroy {
     this.state.cargarAvisos();
     this.state.cargarSugerenciasCocina();
 
-    this.fragmentSub = this.route.fragment.subscribe(fragment => {
+    this.route.fragment
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(fragment => {
       if (fragment) {
         if (fragment === 'sugerencias-ia') {
           this.panelPreviewAbierto.set('ia');
+          this.isResultadoIAExpanded.set(false);
           this.state.generarSugerenciasIA();
           setTimeout(() => {
             const element = this.documento.getElementById('sugerencias-ia');
@@ -166,12 +175,12 @@ export class AvisosPage implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {
-    this.fragmentSub?.unsubscribe();
-  }
-
   onBuscar(term: string) {
     this.state.setSearchTerm(term);
+  }
+
+  toggleResultadoIA(): void {
+    this.isResultadoIAExpanded.update(value => !value);
   }
 
   abrirAviso(aviso: Aviso) {
@@ -277,7 +286,6 @@ export class AvisosPage implements OnInit, OnDestroy {
     return typeof unidadMedida === 'string' ? unidadMedida : unidadMedida.nombre;
   }
 
-  // ← PEGÁ ACÁ ↓
   crearPlatoDesdeIA(plato: PlatoSugerido) {
     this.router.navigate(['/staff/gerente/crear-plato'], {
       state: {

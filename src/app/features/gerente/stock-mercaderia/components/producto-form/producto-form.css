@@ -6,10 +6,9 @@
 
 .form-intro,
 .form-section {
-  border: 1px solid rgba(22, 163, 74, 0.14);
-  border-radius: 14px;
-  background:
-    linear-gradient(135deg, rgba(240, 253, 244, 0.84), rgba(255, 255, 255, 0.94));
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 8px;
+  background: #ffffff;
 }
 
 .form-intro {

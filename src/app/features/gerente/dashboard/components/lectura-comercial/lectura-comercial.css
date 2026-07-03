@@ -12,7 +12,7 @@
   gap: 0.8rem;
   min-height: 230px;
   border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 16px;
+  border-radius: 8px;
   padding: 1.1rem;
   background: #ffffff;
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.035);
@@ -27,7 +27,7 @@
 }
 
 .commercial-reading-eyebrow {
-  color: #1691ac;
+  color: #d8081c;
   font-size: 0.7rem;
   font-weight: 850;
   text-transform: uppercase;
@@ -41,10 +41,10 @@
 }
 
 .commercial-reading-count {
-  border: 1px solid rgba(22, 145, 172, 0.16);
+  border: 1px solid rgba(216, 8, 28, 0.16);
   border-radius: 999px;
   padding: 0.18rem 0.55rem;
-  background: rgba(22, 145, 172, 0.06);
+  background: rgba(216, 8, 28, 0.06);
   color: #64748b;
   font-size: 0.68rem;
   font-weight: 850;
@@ -61,7 +61,7 @@
   gap: 0.55rem;
   align-items: center;
   border: 1px solid rgba(15, 23, 42, 0.06);
-  border-radius: 11px;
+  border-radius: 8px;
   padding: 0.62rem 0.7rem;
   background: #ffffff;
 }
@@ -74,8 +74,8 @@
 }
 
 .commercial-reading-row.success::before { background: #10b981; }
-.commercial-reading-row.info::before { background: #1691ac; }
-.commercial-reading-row.warning::before { background: #f59e0b; }
+.commercial-reading-row.info::before { background: #d8081c; }
+.commercial-reading-row.warning::before { background: #d8081c; }
 
 .commercial-reading-row strong {
   display: block;
@@ -115,7 +115,7 @@
   gap: 0.22rem;
   min-height: 74px;
   border: 1px solid rgba(15, 23, 42, 0.06);
-  border-radius: 11px;
+  border-radius: 8px;
   padding: 0.75rem 0.85rem;
   background: #ffffff;
   box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
@@ -141,13 +141,13 @@
 }
 
 .commercial-reading-card.info {
-  border-color: rgba(22, 145, 172, 0.18);
-  background: rgba(22, 145, 172, 0.055);
+  border-color: rgba(216, 8, 28, 0.18);
+  background: rgba(216, 8, 28, 0.055);
 }
 
 .commercial-reading-card.warning {
-  border-color: rgba(245, 158, 11, 0.22);
-  background: rgba(245, 158, 11, 0.075);
+  border-color: rgba(216, 8, 28, 0.22);
+  background: rgba(216, 8, 28, 0.075);
 }
 
 /* Favorites layout overrides */
@@ -180,12 +180,12 @@
 
 .fav-icon-btn:hover,
 .favorite-btn:hover {
-  color: #f59e0b;
+  color: #d8081c;
 }
 
 .fav-icon-btn.active,
 .favorite-btn.active {
-  color: #f59e0b;
+  color: #d8081c;
   animation: favorite-pop 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 

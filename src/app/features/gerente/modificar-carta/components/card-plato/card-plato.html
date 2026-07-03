@@ -42,43 +42,54 @@
           {{ plato().nombre }}
         </h5>
         
-        <div class="d-flex flex-wrap gap-2 mt-1">
-          <span class="badge-cost fw-semibold d-inline-flex align-items-center gap-1">
-            <span class="material-symbols-outlined" style="font-size: 15px;">payments</span>
-            Costo: {{ plato().costo | arsCurrency }}
+        <div class="dish-metrics-row">
+          <span class="dish-metric"
+                [class.metric-high]="obtenerPorcentajeGanancia() >= 40"
+                [class.metric-med]="obtenerPorcentajeGanancia() >= 20 && obtenerPorcentajeGanancia() < 40"
+                [class.metric-low]="obtenerPorcentajeGanancia() < 20">
+            <span class="dish-metric-label">Mrg</span>
+            <strong>{{ obtenerPorcentajeGanancia() }}%</strong>
           </span>
-          <span class="badge-sales d-inline-flex align-items-center gap-1">
-            <span class="material-symbols-outlined" style="font-size: 15px;">trending_up</span>
-            {{ plato().ventas || 0 }} vtas
+          <span class="dish-metric dish-metric-subtle">
+            <span class="material-symbols-outlined">payments</span>
+            <span class="dish-metric-label">Costo</span>
+            <strong>{{ plato().costo | arsCurrency }}</strong>
           </span>
-          <span class="d-inline-flex align-items-center gap-1"
-                [class.badge-margin-high]="obtenerPorcentajeGanancia() >= 40"
-                [class.badge-margin-med]="obtenerPorcentajeGanancia() >= 20 && obtenerPorcentajeGanancia() < 40"
-                [class.badge-margin-low]="obtenerPorcentajeGanancia() < 20">
-            <span class="material-symbols-outlined" style="font-size: 15px;">percent</span>
-            Ganancia: {{ obtenerPorcentajeGanancia() }}%
+          <span class="dish-metric dish-metric-subtle">
+            <span class="material-symbols-outlined">trending_up</span>
+            <span class="dish-metric-label">Vtas</span>
+            <strong>{{ plato().ventas || 0 }}</strong>
           </span>
         </div>
-        <app-price-note text="Costo calculado por receta: suma de insumos x cantidad usada." [compact]="true" />
       </div>
       
       <!-- FOOTER -->
       <div class="dish-card-footer p-3 pt-2 d-flex justify-content-between align-items-center">
-        <div class="dish-price-large fw-bold text-dark fs-4">
+        <div class="dish-price-large fw-bold text-dark">
           {{ plato().precioVenta | arsCurrency }}
         </div>
         
-        <!-- ACTIONS SOFT BUTTONS -->
-        <div class="d-flex justify-content-end gap-2">
-           <button class="btn-soft btn-soft-warning" [class.active]="plato().recomendado" (click)="onToggleRecomendado()" title="Destacar">
-             <span class="material-symbols-outlined">{{ plato().recomendado ? 'star' : 'star_border' }}</span>
-           </button>
-           <button class="btn-soft btn-soft-primary" (click)="onEdit()" title="Editar plato">
-             <span class="material-symbols-outlined">edit</span>
-           </button>
-           <button class="btn-soft btn-soft-danger" (click)="onDelete()" title="Eliminar plato">
-             <span class="material-symbols-outlined">delete</span>
-           </button>
+        <!-- ACTIONS MENU -->
+        <div class="dish-actions-menu" [class.open]="isMenuOpen()">
+          <button class="btn-soft btn-soft-menu" (click)="toggleMenu($event)" title="Más acciones">
+            <span class="material-symbols-outlined">more_vert</span>
+          </button>
+          @if (isMenuOpen()) {
+            <div class="dish-actions-dropdown">
+               <button class="dish-action-item dish-action-danger" (click)="onDelete(); closeMenu()">
+                <span class="material-symbols-outlined">delete</span>
+                <span>Eliminar</span>
+              </button>
+              <button class="dish-action-item" (click)="onEdit(); closeMenu()">
+                <span class="material-symbols-outlined">edit</span>
+                <span>Editar</span>
+              </button>
+              <button class="dish-action-item" (click)="onToggleRecomendado(); closeMenu()">
+                <span class="material-symbols-outlined">{{ plato().recomendado ? 'star' : 'star' }}</span>
+                <span>{{ plato().recomendado ? 'Quitar destacado' : 'Destacar' }}</span>
+              </button>
+            </div>
+          }
         </div>
       </div>
 
@@ -143,8 +154,8 @@
         </div>
         
         <!-- ACTIONS & TOGGLE -->
-        <div class="dish-compact-actions gap-2">
-          <div class="visibility-toggle-sm me-3">
+        <div class="dish-compact-actions">
+          <div class="visibility-toggle-sm">
             <app-toggle 
               [active]="plato().visible" 
               [label]="''" 
@@ -152,15 +163,27 @@
             </app-toggle>
           </div>
           
-          <button class="btn-soft btn-soft-warning btn-sm" [class.active]="plato().recomendado" (click)="onToggleRecomendado()" title="Destacar">
-            <span class="material-symbols-outlined fs-6">{{ plato().recomendado ? 'star' : 'star_border' }}</span>
-          </button>
-          <button class="btn-soft btn-soft-primary btn-sm" (click)="onEdit()" title="Editar plato">
-            <span class="material-symbols-outlined fs-6">edit</span>
-          </button>
-          <button class="btn-soft btn-soft-danger btn-sm" (click)="onDelete()" title="Eliminar plato">
-            <span class="material-symbols-outlined fs-6">delete</span>
-          </button>
+          <div class="dish-actions-menu" [class.open]="isMenuOpen()">
+            <button class="btn-soft-menu" (click)="toggleMenu($event)" title="Más acciones">
+              <span class="material-symbols-outlined">more_vert</span>
+            </button>
+            @if (isMenuOpen()) {
+              <div class="dish-actions-dropdown dish-actions-dropdown-up">
+                <button class="dish-action-item" (click)="onToggleRecomendado(); closeMenu()">
+                  <span class="material-symbols-outlined">star</span>
+                  <span>{{ plato().recomendado ? 'Quitar destacado' : 'Destacar' }}</span>
+                </button>
+                <button class="dish-action-item" (click)="onEdit(); closeMenu()">
+                  <span class="material-symbols-outlined">edit</span>
+                  <span>Editar</span>
+                </button>
+                <button class="dish-action-item dish-action-danger" (click)="onDelete(); closeMenu()">
+                  <span class="material-symbols-outlined">delete</span>
+                  <span>Eliminar</span>
+                </button>
+              </div>
+            }
+          </div>
         </div>
         
       </div>

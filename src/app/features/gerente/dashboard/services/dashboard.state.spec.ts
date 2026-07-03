@@ -3,7 +3,7 @@ import { DashboardStateService } from './dashboard.state';
 import { DashboardApiService } from './dashboard.api';
 import { SignalRConexionService } from '../../../../core/services/hubs/base-hub-service';
 import { AuthService } from '../../../../core/services/auth.service';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { vi, expect, describe, it, beforeEach } from 'vitest';
 
 describe('DashboardStateService', () => {
@@ -27,6 +27,7 @@ describe('DashboardStateService', () => {
         grafico: [],
         recordatorios: []
       })),
+      getIngredientesExcluidos: vi.fn().mockReturnValue(of([])),
       getAnalisisPlato: vi.fn().mockImplementation((nombre: string) => of({
         platoId: 10,
         plato: { nombre, valor: 10, detalle: '$ 4.000' },
@@ -139,6 +140,33 @@ describe('DashboardStateService', () => {
     });
   });
 
+  describe('cargarDatos', () => {
+    it('debería finalizar la carga y conservar datos parciales si falla un endpoint', () => {
+      apiSpy.getVencimientos.mockReturnValue(of([
+        { nombre: 'Tomate', fecha: '2026-07-02', cantidad: '5', criticidad: 'alta', relativo: '' }
+      ]));
+      apiSpy.getRendimientoComercial.mockReturnValue(throwError(() => new Error('Rendimiento caído')));
+      apiSpy.getResumenOperativo.mockReturnValue(of({
+        totalVentas: '$ 2.000',
+        totalPedidos: 2,
+        ticketPromedio: '$ 1.000',
+        promedioDiarioPedidos: 2,
+        variacionVentas: '0%',
+        variacionPedidos: '0%',
+        variacionTicket: '0%',
+        grafico: [],
+        recordatorios: []
+      }));
+
+      service.cargarDatos();
+
+      expect(service.cargando()).toBe(false);
+      expect(service.insumosPorVencer()).toHaveLength(1);
+      expect(service.totalVentasNumero()).toBe(2000);
+      expect(service.platosMasVendidos()).toEqual([]);
+    });
+  });
+
   describe('Computed properties from ResumenOperativo', () => {
     beforeEach(() => {
       apiSpy.getResumenOperativo.mockReturnValue(of({
@@ -229,7 +257,7 @@ describe('DashboardStateService', () => {
       const config = service.favoritesConfig();
       expect(config.length).toBe(4);
       expect(config[0].id).toBe('insumos-vencer');
-      expect(config[1].id).toBe('proximas-acciones');
+      expect(config[1].id).toBe('radar-alergias');
     });
 
     it('deberia aplicar preset personal correctamente', () => {

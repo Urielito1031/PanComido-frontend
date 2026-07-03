@@ -1,10 +1,10 @@
-import { Component, computed, inject , ChangeDetectionStrategy, OnInit} from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faCheck, faXmark, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Boton } from '../../../../shared/ui/botones/boton/boton';
 import { Router } from '@angular/router';
+import { Boton } from '../../../../shared/ui/botones/boton/boton';
 import { ProveedorNuevo } from '../../../../core/models/domain/proveedor';
 import { NuevoProveedorState } from '../services/nuevo-proveedor.state';
 import { CategoriaInsumo } from '../../../../core/models/domain/categoria-insumo';
@@ -13,7 +13,7 @@ import { CategoriaInsumo } from '../../../../core/models/domain/categoria-insumo
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-nuevo-proveedor',
   standalone: true,
-  imports: [ReactiveFormsModule, FormsModule, FontAwesomeModule, Boton],
+  imports: [ReactiveFormsModule, FontAwesomeModule, Boton],
   templateUrl: './nuevo-proveedor.html',
   styleUrls: ['./nuevo-proveedor.css']
 })
@@ -22,21 +22,25 @@ export class NuevoProveedorComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly state = inject(NuevoProveedorState);
 
-  proveedorForm = this.fb.group({
-    nombre: ['', [Validators.required, Validators.minLength(3)]],
-    telefono: ['', [Validators.pattern(/^\+?[0-9\s-]{7,15}$/)]],
+  readonly proveedorForm = this.fb.nonNullable.group({
+    nombre: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(80)]],
+    telefono: ['', [Validators.pattern(/^\s*\+?[0-9\s-]{7,18}\s*$/)]],
   });
 
-  categorias = this.state.categorias;
-  categoriaIds = this.state.categoriaIds;
-  categoriasDisponibles = this.state.categoriasDisponibles;
-  errorCategorias = this.state.errorCategorias;
+  readonly categorias = this.state.categorias;
+  readonly categoriaIds = this.state.categoriaIds;
+  readonly categoriasDisponibles = this.state.categoriasDisponibles;
+  readonly cargandoCategorias = this.state.cargandoCategorias;
+  readonly guardando = this.state.guardando;
+  readonly errorCategorias = this.state.errorCategorias;
+  readonly errorGuardado = this.state.errorGuardado;
 
-  faCheck = faCheck;
-  faXmark = faXmark;
-  faTrash = faTrash;
+  readonly faTrash = faTrash;
+  readonly intentoGuardar = signal(false);
+  readonly busquedaCategoria = signal('');
 
   ngOnInit(): void {
+    this.state.resetearFormulario();
     this.state.cargarCategorias();
   }
 
@@ -44,10 +48,24 @@ export class NuevoProveedorComponent implements OnInit {
   private readonly formStatus = toSignal(this.proveedorForm.statusChanges, {
     initialValue: this.proveedorForm.status
   });
-
-  puedeGuardar = computed(() => {
-    return this.formStatus() === 'VALID' && this.categoriaIds().length > 0;
+  private readonly formValue = toSignal(this.proveedorForm.valueChanges, {
+    initialValue: this.proveedorForm.getRawValue()
   });
+
+  readonly categoriasInvalidas = computed(() => this.intentoGuardar() && this.categoriaIds().length === 0);
+  readonly puedeGuardar = computed(() => this.formStatus() === 'VALID' && this.categoriaIds().length > 0 && !this.guardando());
+  readonly nombrePreview = computed(() => this.formValue().nombre?.trim() || 'Sin nombre');
+  readonly telefonoPreview = computed(() => this.formValue().telefono?.trim() || 'Sin WhatsApp');
+  readonly categoriasFiltradas = computed(() => {
+    const query = this.busquedaCategoria().trim().toLowerCase();
+    if (!query) return this.categoriasDisponibles();
+    return this.categoriasDisponibles().filter(categoria => categoria.descripcion.toLowerCase().includes(query));
+  });
+  readonly resumenListo = computed(() => this.puedeGuardar());
+
+  onBusquedaCategoriaChange(valor: string): void {
+    this.busquedaCategoria.set(valor);
+  }
 
   toggleCategoria(categoria: CategoriaInsumo): void {
     this.state.toggleCategoria(categoria);
@@ -61,17 +79,23 @@ export class NuevoProveedorComponent implements OnInit {
     this.state.removerCategoria(id);
   }
 
+  reintentarCategorias(): void {
+    this.state.cargarCategorias();
+  }
+
   cancelar(): void {
     this.router.navigate(['/staff', 'gerente', 'ver-proveedores']);
   }
 
   guardarProveedor(): void {
+    this.intentoGuardar.set(true);
+    this.proveedorForm.markAllAsTouched();
     if (!this.puedeGuardar()) return;
     
-    const formVal = this.proveedorForm.value;
+    const formVal = this.proveedorForm.getRawValue();
     const proveedor: ProveedorNuevo = {
-      nombre: formVal.nombre!,
-      numeroTelefonoWsp: formVal.telefono ?? '',
+      nombre: formVal.nombre.trim(),
+      numeroTelefonoWsp: formVal.telefono.trim(),
       categoriaIds: this.categoriaIds()
     };
 

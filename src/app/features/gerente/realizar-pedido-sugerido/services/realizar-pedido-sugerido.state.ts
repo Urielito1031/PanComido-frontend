@@ -22,6 +22,7 @@ export class RealizarPedidoSugeridoStateService {
   busqueda = signal<string>('');
   busquedaProveedor = signal<string>('');
   pedidosPorProveedor = signal<Record<string, SugerenciaPedidoItem[]>>({});
+  cantidadesSugeridasOriginales = signal<Record<string, Record<string, number>>>({});
   historialPorProveedor = signal<Record<string, QuantityHistoryOrder[]>>({});
   observacionesPorProveedor = signal<Record<string, string>>({});
   mensajeError = signal<string | null>(null);
@@ -31,7 +32,7 @@ export class RealizarPedidoSugeridoStateService {
 
   // Variables Derivadas (Computed)
   montoEstimado = computed(() => {
-    return this.pedidoItems().reduce((total, item) => total + (item.precioUnitario * item.cantidadSugerida), 0);
+    return this.pedidoItems().reduce((total, item) => total + this.calcularSubtotalItem(item), 0);
   });
 
   proveedoresFiltrados = computed(() => {
@@ -55,6 +56,7 @@ export class RealizarPedidoSugeridoStateService {
             return of({
               proveedoresConItems: [],
               pedidosPorProveedor: {} as Record<string, SugerenciaPedidoItem[]>,
+              cantidadesSugeridasOriginales: {} as Record<string, Record<string, number>>,
               historialPorProveedor: {} as Record<string, QuantityHistoryOrder[]>
             });
           }
@@ -71,24 +73,36 @@ export class RealizarPedidoSugeridoStateService {
 
           return forkJoin(consultas).pipe(
             map(resultados => {
-              const resultadosConItems = resultados.filter(resultado => resultado.items.length > 0);
+              const resultadosConItems = resultados
+                .map(resultado => ({
+                  ...resultado,
+                  items: this.normalizarCantidadesSugeridas(resultado.items)
+                }))
+                .filter(resultado => resultado.items.length > 0);
               const proveedoresConItems = resultadosConItems.map(resultado => resultado.proveedor);
               const pedidosPorProveedor = resultadosConItems.reduce<Record<string, SugerenciaPedidoItem[]>>((acc, resultado) => {
                 acc[resultado.proveedor.id.toString()] = JSON.parse(JSON.stringify(resultado.items));
+                return acc;
+              }, {});
+              const cantidadesSugeridasOriginales = resultadosConItems.reduce<Record<string, Record<string, number>>>((acc, resultado) => {
+                acc[resultado.proveedor.id.toString()] = resultado.items.reduce<Record<string, number>>((itemsAcc, item) => {
+                  itemsAcc[item.productoId.toString()] = item.cantidadSugerida;
+                  return itemsAcc;
+                }, {});
                 return acc;
               }, {});
               const historialPorProveedor = resultados.reduce<Record<string, QuantityHistoryOrder[]>>((acc, resultado) => {
                 acc[resultado.proveedor.id.toString()] = resultado.historial;
                 return acc;
               }, {});
-              return { proveedoresConItems, pedidosPorProveedor, historialPorProveedor };
+              return { proveedoresConItems, pedidosPorProveedor, cantidadesSugeridasOriginales, historialPorProveedor };
             })
           );
         }),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: ({ proveedoresConItems, pedidosPorProveedor, historialPorProveedor }) => {
+        next: ({ proveedoresConItems, pedidosPorProveedor, cantidadesSugeridasOriginales, historialPorProveedor }) => {
           this.proveedores.set(proveedoresConItems);
           const seleccionado =
             proveedoresConItems.find(proveedor => proveedor.id.toString() === id?.toString()) ??
@@ -97,6 +111,7 @@ export class RealizarPedidoSugeridoStateService {
           this.proveedor.set(seleccionado);
           this.proveedorId.set(Number(seleccionado?.id ?? 0));
           this.pedidosPorProveedor.set(pedidosPorProveedor);
+          this.cantidadesSugeridasOriginales.set(cantidadesSugeridasOriginales);
           this.historialPorProveedor.set(historialPorProveedor);
           this.sugerencias.set(seleccionado ? pedidosPorProveedor[seleccionado.id.toString()] ?? [] : []);
           this.pedidoItems.set(seleccionado ? pedidosPorProveedor[seleccionado.id.toString()] ?? [] : []);
@@ -107,6 +122,7 @@ export class RealizarPedidoSugeridoStateService {
           this.proveedor.set(null);
           this.proveedorId.set(0);
           this.pedidosPorProveedor.set({});
+          this.cantidadesSugeridasOriginales.set({});
           this.historialPorProveedor.set({});
           this.sugerencias.set([]);
           this.pedidoItems.set([]);
@@ -134,11 +150,19 @@ export class RealizarPedidoSugeridoStateService {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: ({ items, historial }) => {
-          this.sugerencias.set(items);
-          this.pedidoItems.set(JSON.parse(JSON.stringify(items)));
+          const itemsNormalizados = this.normalizarCantidadesSugeridas(items);
+          this.sugerencias.set(itemsNormalizados);
+          this.pedidoItems.set(JSON.parse(JSON.stringify(itemsNormalizados)));
           this.pedidosPorProveedor.update(pedidos => ({
             ...pedidos,
-            [proveedor.id.toString()]: JSON.parse(JSON.stringify(items))
+            [proveedor.id.toString()]: JSON.parse(JSON.stringify(itemsNormalizados))
+          }));
+          this.cantidadesSugeridasOriginales.update(originales => ({
+            ...originales,
+            [proveedor.id.toString()]: itemsNormalizados.reduce<Record<string, number>>((acc, item) => {
+              acc[item.productoId.toString()] = item.cantidadSugerida;
+              return acc;
+            }, {})
           }));
           this.historialPorProveedor.update(historiales => ({
             ...historiales,
@@ -152,6 +176,10 @@ export class RealizarPedidoSugeridoStateService {
           this.pedidosPorProveedor.update(pedidos => ({
             ...pedidos,
             [proveedor.id.toString()]: []
+          }));
+          this.cantidadesSugeridasOriginales.update(originales => ({
+            ...originales,
+            [proveedor.id.toString()]: {}
           }));
           this.historialPorProveedor.update(historiales => ({
             ...historiales,
@@ -216,16 +244,47 @@ onCantidadCambiada(proveedorId: string | number, item: SugerenciaPedidoItem, val
     return this.historialPorProveedor()[proveedorId.toString()] ?? [];
   }
 
-  calcularMontoProveedor(proveedorId: string | number): number {
-    return this.obtenerItemsProveedor(proveedorId)
-      .reduce((total, item) => total + (item.precioUnitario * item.cantidadSugerida), 0);
+  obtenerCantidadSugeridaOriginal(proveedorId: string | number, productoId: string | number): number | null {
+    const cantidad = this.cantidadesSugeridasOriginales()[proveedorId.toString()]?.[productoId.toString()];
+    return typeof cantidad === 'number' ? cantidad : null;
   }
 
-// ============================================================
-  // TODO REFACTOR: bloque duplicado del panel "Agregar ingredientes"
-  // copiado de historial-proveedor.ts para la demo del 03/06/2026.
-  // Extraer a un componente compartido en shared/ui/ después de la entrega.
-  // ============================================================
+  calcularMontoProveedor(proveedorId: string | number): number {
+    return this.obtenerItemsProveedor(proveedorId)
+      .reduce((total, item) => total + this.calcularSubtotalItem(item), 0);
+  }
+
+  calcularSubtotalItem(item: SugerenciaPedidoItem): number {
+    return item.precioUnitario * this.cantidadParaPrecio(item);
+  }
+
+  private normalizarCantidadesSugeridas(items: SugerenciaPedidoItem[]): SugerenciaPedidoItem[] {
+    return items.map(item => {
+      const minimo = this.cantidadMinimaCompra(item);
+      if (item.cantidadSugerida <= 0 || item.cantidadSugerida >= minimo) return item;
+      return { ...item, cantidadSugerida: minimo };
+    });
+  }
+
+  private cantidadMinimaCompra(item: SugerenciaPedidoItem): number {
+    const unidad = item.unidadMedida?.nombre?.trim().toUpperCase() ?? '';
+    if (['G', 'GR', 'GRAMO', 'GRAMOS', 'ML', 'MILILITRO', 'MILILITROS'].includes(unidad)) {
+      return 100;
+    }
+
+    return 1;
+  }
+
+  private cantidadParaPrecio(item: SugerenciaPedidoItem): number {
+    const unidad = item.unidadMedida?.nombre?.trim().toUpperCase() ?? '';
+    if (['G', 'GR', 'GRAMO', 'GRAMOS', 'ML', 'MILILITRO', 'MILILITROS'].includes(unidad)) {
+      return item.cantidadSugerida / 1000;
+    }
+
+    return item.cantidadSugerida;
+  }
+
+  // Panel auxiliar de agregado manual. Mantiene el contrato actual de la vista.
   productosDisponiblesPedido = signal<SugerenciaPedidoItem[]>([]);
   proveedorAgregarIngredienteId = signal<number | string | null>(null);
   busquedaIngrediente = signal('');
@@ -348,10 +407,6 @@ seleccionarIngredienteExtra(productoId: string): void {
     this.cantidadIngrediente.set(1);
     this.precioIngrediente.set(null);
   }
-  // ============================================================
-  // FIN TODO REFACTOR
-  // ============================================================
-
   enviarPedido(proveedor: Proveedor, onSuccess: () => void): void {
     this.mensajeError.set(null);
     const pedidoItems = this.obtenerItemsProveedor(proveedor.id);

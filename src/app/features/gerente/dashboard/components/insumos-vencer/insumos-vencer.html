@@ -5,6 +5,7 @@
       <p>Priorizado por fecha, cantidad y criticidad</p>
     </div>
     <div class="panel-actions" (click)="$event.stopPropagation()">
+      <span class="panel-badge">{{ insumosFiltrados().length }} items</span>
       <button type="button" class="favorite-btn" [class.active]="state.esFavorito('insumos-vencer')" (click)="state.toggleFavorito('insumos-vencer')" title="Fijar en favoritos" aria-label="Fijar insumos próximos a vencer en favoritos">
         <span class="material-symbols-outlined">{{ state.esFavorito('insumos-vencer') ? 'star' : 'star_border' }}</span>
       </button>
@@ -21,12 +22,12 @@
     </div>
   </div>
 
-  <div class="expiry-summary">
+  <div class="expiry-filters">
     @for (item of state.vencimientosResumen(); track item.label) {
-      <button 
-        type="button" 
-        class="expiry-summary-item" 
-        [class]="item.tone"
+      <button
+        type="button"
+        class="expiry-filter-pill"
+        [ngClass]="item.tone"
         [class.active]="filtroCriticidadVencimiento() === item.key"
         (click)="establecerFiltroCriticidad(item.key)"
         [attr.aria-label]="'Filtrar por ' + item.label">
@@ -38,14 +39,17 @@
 
   <div class="expiry-list">
     @for (insumo of insumosPaginados(); track insumo.nombre) {
-      <div class="expiry-row" [class]="insumo.criticidad">
-        <div class="expiry-copy">
-          <strong>{{ insumo.nombre }}</strong>
-          <small>{{ insumo.relativo }} · {{ insumo.cantidad }}</small>
-        </div>
-        <div class="expiry-meta">
-          <time>{{ insumo.fecha }}</time>
-          <span>{{ insumo.criticidad | uppercase }}</span>
+      <div class="expiry-row" [ngClass]="insumo.criticidad">
+        <span class="expiry-indicator" [ngClass]="insumo.criticidad"></span>
+        <div class="expiry-content">
+          <div class="expiry-title">
+            <strong>{{ insumo.nombre }}</strong>
+            <small>{{ insumo.relativo }} · {{ insumo.cantidad }}</small>
+          </div>
+          <div class="expiry-meta">
+            <time>{{ insumo.fecha }}</time>
+            <span class="expiry-badge" [ngClass]="insumo.criticidad">{{ insumo.criticidad | uppercase }}</span>
+          </div>
         </div>
       </div>
     }

@@ -6,7 +6,7 @@ import { ModificarCartaStateService } from '../services/modificar-carta.state';
 import { Plato } from '../../../../core/models/domain/plato';
 import { vi } from 'vitest';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { of } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 
 describe('ModificarCartaComponent', () => {
   let component: ModificarCartaComponent;
@@ -14,12 +14,16 @@ describe('ModificarCartaComponent', () => {
   let stateServiceMock: any;
   let routerMock: any;
   let activatedRouteMock: any;
+  let queryParamsSubject: BehaviorSubject<Record<string, string>>;
+  let fragmentSubject: BehaviorSubject<string | null>;
 
   const mockPlatos: Plato[] = [
     { id: 1, nombre: 'Milanesa', precioVenta: 100, costo: 50, visible: true, receta: [], imagen: '' }
   ];
 
   beforeEach(async () => {
+    Object.defineProperty(window, 'scrollTo', { value: vi.fn(), writable: true });
+
     // 1. Mockear Signals y Métodos del State Service
     stateServiceMock = {
       platos: signal(mockPlatos),
@@ -40,6 +44,7 @@ describe('ModificarCartaComponent', () => {
       selectedTipoComida: signal<string | null>(null),
       totalComidasCount: signal(0),
       sortOrder: signal<'default' | 'ventas-desc' | 'ventas-asc'>('default'),
+      searchTerm: signal(''),
       mostrarModalRestaurar: signal(false),
       mostrarModalImportar: signal(false),
 
@@ -63,8 +68,11 @@ describe('ModificarCartaComponent', () => {
       navigate: vi.fn()
     };
 
+    queryParamsSubject = new BehaviorSubject<Record<string, string>>({});
+    fragmentSubject = new BehaviorSubject<string | null>(null);
     activatedRouteMock = {
-      queryParams: of({})
+      queryParams: queryParamsSubject.asObservable(),
+      fragment: fragmentSubject.asObservable()
     };
 
     // 3. Configurar TestBed
@@ -114,6 +122,24 @@ describe('ModificarCartaComponent', () => {
   it('debería delegar onSearch al state', () => {
     component.onSearch('Milanesa');
     expect(stateServiceMock.setSearchTerm).toHaveBeenCalledWith('Milanesa');
+  });
+
+  it('debería limpiar la búsqueda al entrar a carta sin query buscar', () => {
+    expect(stateServiceMock.setSearchTerm).toHaveBeenCalledWith('');
+  });
+
+  it('debería abrir edición cuando llega el plato buscado desde query params', () => {
+    stateServiceMock.setPlatoAEditar.mockClear();
+    stateServiceMock.platos.set([]);
+
+    queryParamsSubject.next({ buscar: 'Milanesa', editar: 'true' });
+    expect(stateServiceMock.setSearchTerm).toHaveBeenCalledWith('Milanesa');
+    expect(stateServiceMock.setPlatoAEditar).not.toHaveBeenCalled();
+
+    stateServiceMock.platos.set(mockPlatos);
+    fixture.detectChanges();
+
+    expect(stateServiceMock.setPlatoAEditar).toHaveBeenCalledWith(mockPlatos[0]);
   });
 
   it('debería delegar toggleVisibility al state', () => {

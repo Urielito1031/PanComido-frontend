@@ -35,9 +35,9 @@ export class RealizarPedidoSugeridoComponent implements OnInit {
   loading = this.state.loading;
 
   montoEstimado = this.state.montoEstimado;
-proveedoresFiltrados = this.state.proveedoresFiltrados;
+  proveedoresFiltrados = this.state.proveedoresFiltrados;
 
-  // TODO REFACTOR: panel "Agregar ingredientes" duplicado de historial-proveedor (03/06/2026)
+  // Panel auxiliar de agregado manual expuesto desde el estado.
   proveedorAgregarIngredienteId = this.state.proveedorAgregarIngredienteId;
   busquedaIngrediente = this.state.busquedaIngrediente;
   productoExtraSeleccionadoId = this.state.productoExtraSeleccionadoId;
@@ -72,6 +72,10 @@ proveedoresFiltrados = this.state.proveedoresFiltrados;
 
   montoProveedor(proveedorId: string | number): number {
     return this.state.calcularMontoProveedor(proveedorId);
+  }
+
+  subtotalItem(item: SugerenciaPedidoItem): number {
+    return this.state.calcularSubtotalItem(item);
   }
 
   observacionProveedor(proveedorId: string | number): string {
@@ -111,6 +115,104 @@ proveedoresFiltrados = this.state.proveedoresFiltrados;
     return this.proveedoresFiltrados().filter(proveedor => this.itemsProveedor(proveedor.id).length > 0).length;
   }
 
+  proveedoresAltaPrioridad(): number {
+    return this.proveedoresFiltrados().filter(proveedor => this.prioridadProveedor(proveedor.id).tone === 'danger').length;
+  }
+
+  prioridadProveedor(proveedorId: string | number): { label: string; tone: 'danger' | 'warning' | 'success'; detail: string } {
+    const items = this.itemsProveedor(proveedorId);
+    const criticos = items.filter(item => this.itemEsCritico(item)).length;
+    const ajustados = items.filter(item => this.itemFueAjustado(proveedorId, item)).length;
+
+    if (criticos > 0) {
+      return {
+        label: 'Prioridad alta',
+        tone: 'danger',
+        detail: `${criticos} insumo${criticos === 1 ? '' : 's'} con stock critico`
+      };
+    }
+
+    if (items.length >= 4 || ajustados > 0) {
+      return {
+        label: 'Revisar',
+        tone: 'warning',
+        detail: ajustados > 0 ? `${ajustados} cantidad${ajustados === 1 ? '' : 'es'} ajustada${ajustados === 1 ? '' : 's'}` : 'Pedido con varios insumos'
+      };
+    }
+
+    return {
+      label: 'Controlado',
+      tone: 'success',
+      detail: 'Listo para confirmar'
+    };
+  }
+
+  resumenProveedorInventario(proveedorId: string | number): string {
+    const items = this.itemsProveedor(proveedorId);
+    const historicos = items.filter(item => this.tieneHistorialProveedor(proveedorId, item.productoId)).length;
+    const criticos = items.filter(item => this.itemEsCritico(item)).length;
+
+    if (criticos > 0 && historicos > 0) {
+      return `Reposicion prioriza ${criticos} critico${criticos === 1 ? '' : 's'} y reconoce ${historicos} compra${historicos === 1 ? '' : 's'} habitual${historicos === 1 ? '' : 'es'}.`;
+    }
+
+    if (criticos > 0) return `Reposicion detecto ${criticos} insumo${criticos === 1 ? '' : 's'} con stock critico.`;
+    if (historicos > 0) return `Se usaron compras anteriores para sugerir cantidades en ${historicos} insumo${historicos === 1 ? '' : 's'}.`;
+    return 'Base editable generada por reglas de inventario.';
+  }
+
+  motivosItemInventario(proveedorId: string | number, item: SugerenciaPedidoItem): { label: string; tone: 'danger' | 'warning' | 'success' | 'neutral' }[] {
+    const motivos: { label: string; tone: 'danger' | 'warning' | 'success' | 'neutral' }[] = [];
+
+    if (this.itemAgregadoManual(proveedorId, item)) {
+      motivos.push({ label: 'Agregado manual', tone: 'neutral' });
+      return motivos;
+    }
+
+    if (this.itemEsCritico(item)) {
+      motivos.push({ label: 'Stock critico', tone: 'danger' });
+    } else if (this.itemBajoMinimo(item)) {
+      motivos.push({ label: 'Bajo minimo', tone: 'warning' });
+    }
+
+    if (this.tieneHistorialProveedor(proveedorId, item.productoId)) {
+      motivos.push({ label: 'Compra habitual', tone: 'success' });
+    }
+
+    if (motivos.length === 0) motivos.push({ label: 'Sugerido por stock', tone: 'neutral' });
+    return motivos;
+  }
+
+  cantidadOriginalDisplay(proveedorId: string | number, item: SugerenciaPedidoItem): string {
+    const original = this.state.obtenerCantidadSugeridaOriginal(proveedorId, item.productoId);
+    if (original === null) return 'Manual';
+    const display = this.usaUnidadMenor(item) ? Math.round(original * 1000) : original;
+    return `${display} ${this.unidadDisplay(item)}`;
+  }
+
+  itemAgregadoManual(proveedorId: string | number, item: SugerenciaPedidoItem): boolean {
+    return this.state.obtenerCantidadSugeridaOriginal(proveedorId, item.productoId) === null;
+  }
+
+  itemFueAjustado(proveedorId: string | number, item: SugerenciaPedidoItem): boolean {
+    const original = this.state.obtenerCantidadSugeridaOriginal(proveedorId, item.productoId);
+    return original !== null && Math.abs(original - item.cantidadSugerida) > 0.0001;
+  }
+
+  private itemEsCritico(item: SugerenciaPedidoItem): boolean {
+    return item.estadoStock?.toLowerCase().includes('crit') || item.stockActual <= 0;
+  }
+
+  private itemBajoMinimo(item: SugerenciaPedidoItem): boolean {
+    return item.stockActual <= item.stockMinimo;
+  }
+
+  private tieneHistorialProveedor(proveedorId: string | number, productoId: string | number): boolean {
+    return this.state.obtenerHistorialProveedor(proveedorId).some(pedido =>
+      pedido.items.some(item => item.id.toString() === productoId.toString())
+    );
+  }
+
   cantidadDisplay(item: SugerenciaPedidoItem): number {
     return this.usaUnidadMenor(item) ? Math.round(item.cantidadSugerida * 1000) : item.cantidadSugerida;
   }
@@ -127,11 +229,15 @@ proveedoresFiltrados = this.state.proveedoresFiltrados;
       return;
     }
 
-    this.onCantidadCambiada(proveedorId, item, this.usaUnidadMenor(item) ? cantidad / 1000 : cantidad);
+    const cantidadAjustada = Math.min(Math.max(cantidad, this.cantidadMinimaDisplay(item)), this.cantidadMaximaDisplay(item));
+    this.onCantidadCambiada(proveedorId, item, this.usaUnidadMenor(item) ? cantidadAjustada / 1000 : cantidadAjustada);
   }
 
   ajustarCantidadDisplay(proveedorId: string | number, item: SugerenciaPedidoItem, delta: number): void {
-    const siguiente = Math.max(this.cantidadDisplay(item) + delta, this.cantidadMinimaDisplay(item));
+    const siguiente = Math.min(
+      Math.max(this.cantidadDisplay(item) + delta, this.cantidadMinimaDisplay(item)),
+      this.cantidadMaximaDisplay(item)
+    );
     this.setCantidadDisplay(proveedorId, item, siguiente);
   }
 
@@ -162,6 +268,24 @@ proveedoresFiltrados = this.state.proveedoresFiltrados;
 
   cantidadMinimaDisplay(item: SugerenciaPedidoItem): number {
     return this.usaUnidadMenor(item) || this.esUnidadGramos(item) ? 1 : 1;
+  }
+
+  cantidadMaximaDisplay(item: SugerenciaPedidoItem): number {
+    if (this.esUnidadPeso(item) || this.esUnidadGramos(item) || this.esUnidadVolumen(item) || this.esUnidadMililitros(item)) {
+      return 100000;
+    }
+
+    return 1000;
+  }
+
+  cantidadEnMaximo(item: SugerenciaPedidoItem): boolean {
+    return this.cantidadDisplay(item) >= this.cantidadMaximaDisplay(item);
+  }
+
+  mensajeCantidadMaxima(item: SugerenciaPedidoItem): string {
+    if (this.esUnidadPeso(item) || this.esUnidadGramos(item)) return 'Maximo permitido: 100 kg. Para compras mayores, dividilo en otro pedido.';
+    if (this.esUnidadVolumen(item) || this.esUnidadMililitros(item)) return 'Maximo permitido: 100 l. Para compras mayores, dividilo en otro pedido.';
+    return 'Maximo permitido: 1.000 unidades. Para compras mayores, dividilo en otro pedido.';
   }
 
   cantidadPasoDisplay(item: SugerenciaPedidoItem): number {
@@ -277,7 +401,6 @@ proveedoresFiltrados = this.state.proveedoresFiltrados;
     });
   }
 
-  // TODO REFACTOR: panel "Agregar ingredientes" duplicado de historial-proveedor (03/06/2026)
   abrirAgregarIngrediente(proveedorId: number | string): void {
     this.state.abrirAgregarIngrediente(proveedorId);
   }

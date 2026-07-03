@@ -1,19 +1,20 @@
-import { Component, output, input, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, output, input, signal, ChangeDetectionStrategy, HostListener, ElementRef, inject } from '@angular/core';
 import { Plato } from '../../../../../core/models/domain/plato';
 import { ToggleComponent } from '../../../../../shared/ui/toggle/toggle';
 import { ArsCurrencyPipe } from '../../../../../shared/pipes/ars-currency.pipe';
-import { PriceNoteComponent } from '../../../../../shared/ui/price-note/price-note';
 
 @Component({
   selector: 'app-card-plato',
   standalone: true,
-  imports: [ToggleComponent, ArsCurrencyPipe, PriceNoteComponent],
+  imports: [ToggleComponent, ArsCurrencyPipe],
   templateUrl: './card-plato.html',
   styleUrls: ['./card-plato.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CardPlatoComponent {
   
+  private elRef = inject(ElementRef);
+
   plato = input.required<Plato>();
   layoutMode = input<'grid' | 'list'>('grid');
   isExploding = input<boolean>(false);
@@ -22,6 +23,7 @@ export class CardPlatoComponent {
   deletePlato = output<Plato>();
   toggleRecomendado = output<Plato>();
   imgError = signal(false);
+  isMenuOpen = signal(false);
   
   onToggle() {
     this.toggleVisible.emit(this.plato());
@@ -41,6 +43,22 @@ export class CardPlatoComponent {
 
   onImgError() {
     this.imgError.set(true);
+  }
+
+  toggleMenu(event: Event) {
+    event.stopPropagation();
+    this.isMenuOpen.update(v => !v);
+  }
+
+  closeMenu() {
+    this.isMenuOpen.set(false);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    if (this.isMenuOpen() && !this.elRef.nativeElement.contains(event.target)) {
+      this.closeMenu();
+    }
   }
 
   obtenerPorcentajeGanancia(): number {

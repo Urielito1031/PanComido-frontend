@@ -1,5 +1,5 @@
 import { computed, inject, Injectable, signal, OnDestroy } from '@angular/core';
-import { take } from 'rxjs';
+import { catchError, forkJoin, of, take } from 'rxjs';
 import { 
   DashboardPeriodo, DashboardRankingItem, DashboardInsumoVencimiento, 
   DashboardLecturaComercial, DashboardAtencionItem, DashboardAccionItem, 
@@ -11,6 +11,14 @@ import { DashboardApiService, DashboardResumenOperativoResponse } from './dashbo
 import { DashboardPreferencesService } from './dashboard-preferences.service';
 import { SignalRConexionService } from '../../../../core/services/hubs/base-hub-service';
 import { AuthService } from '../../../../core/services/auth.service';
+import {
+  diasDelPeriodo,
+  diasPersonalizados,
+  etiquetaGrafico,
+  extraerImporte,
+  formatCurrency,
+  obtenerRangoFechas
+} from './dashboard.rules';
 
 export const DISEÑO_POR_DEFECTO: WidgetLayout[] = [
   { id: 'kpi-ventas', colSpan: 3 },
@@ -213,7 +221,8 @@ export class DashboardStateService implements OnDestroy {
 
   esModoCalendario = computed(() => {
     if (this._periodo() === '30d') return true;
-    if (this._periodo() === 'custom' && this.diasPersonalizados() > 7 && this.diasPersonalizados() <= 40) return true;
+    const diasCustom = diasPersonalizados(this._fechaDesde(), this._fechaHasta());
+    if (this._periodo() === 'custom' && diasCustom > 7 && diasCustom <= 40) return true;
     return false;
   });
 
@@ -224,24 +233,9 @@ export class DashboardStateService implements OnDestroy {
     const resumen = this._resumen();
     if (!resumen || !resumen.grafico) return [];
     return resumen.grafico.map(g => {
-      let etiquetaFormateada = g.etiqueta;
-      const partes = g.etiqueta.split('-');
-      
-      if (partes.length === 3) {
-        const date = new Date(parseInt(partes[0], 10), parseInt(partes[1], 10) - 1, parseInt(partes[2], 10));
-        const nombresDias = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
-        etiquetaFormateada = nombresDias[date.getDay()];
-      } else if (partes.length === 2) {
-        const indexMes = parseInt(partes[1], 10) - 1;
-        const nombresMeses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-        if (indexMes >= 0 && indexMes < 12) {
-          etiquetaFormateada = nombresMeses[indexMes];
-        }
-      }
-      
       return {
-        mes: etiquetaFormateada,
-        ventas: this.extraerImporte(g.total)
+        mes: etiquetaGrafico(g.etiqueta),
+        ventas: extraerImporte(g.total)
       };
     });
   });
@@ -251,7 +245,7 @@ export class DashboardStateService implements OnDestroy {
     if (!resumen || !resumen.grafico || !this.esModoCalendario()) return [];
 
     const { desde, hasta } = this.obtenerRangoFechas();
-    const ventasPorDia = new Map(resumen.grafico.map(g => [g.etiqueta, this.extraerImporte(g.total)]));
+    const ventasPorDia = new Map(resumen.grafico.map(g => [g.etiqueta, extraerImporte(g.total)]));
     const resultado: DashboardVentaDia[] = [];
 
     let actual = new Date(desde);
@@ -286,23 +280,31 @@ export class DashboardStateService implements OnDestroy {
   });
 
   diasDelPeriodo = computed(() => {
-    switch (this._periodo()) {
-      case '1d': return 1;
-      case '3d': return 3;
-      case '7d': return 7;
-      case '30d': return 30;
-      case '365d': return 365;
-      case 'custom': return this.diasPersonalizados();
-    }
+    return diasDelPeriodo(this._periodo(), this._fechaDesde(), this._fechaHasta());
   });
 
   promedioDiarioVentas = computed(() => {
     const resumen = this._resumen();
     if (!resumen) return 0;
-    const total = this.extraerImporte(resumen.totalVentas);
+    const total = extraerImporte(resumen.totalVentas);
     const dias = this.diasDelPeriodo();
     return Math.round(total / Math.max(1, dias));
   });
+
+  totalVentasNumero = computed(() => {
+    const resumen = this._resumen();
+    return resumen ? extraerImporte(resumen.totalVentas) : 0;
+  });
+
+  ticketPromedioNumero = computed(() => {
+    const resumen = this._resumen();
+    return resumen ? extraerImporte(resumen.ticketPromedio) : 0;
+  });
+
+  tieneVentasRegistradas = computed(() => this.totalVentasNumero() > 0);
+  tienePedidosRegistrados = computed(() => (this._resumen()?.totalPedidos ?? 0) > 0);
+  tieneTicketPromedio = computed(() => this.ticketPromedioNumero() > 0);
+  porcentajeRailVentas = computed(() => this.tieneVentasRegistradas() ? 62 : 0);
 
   promedioDiarioPedidosCalculado = computed(() => {
     const resumen = this._resumen();
@@ -337,7 +339,7 @@ export class DashboardStateService implements OnDestroy {
     if (top.length === 0) return [];
 
     const lider = top[0];
-    const totalTop = top.reduce((total, item) => total + this.extraerImporte(item.detalle), 0);
+    const totalTop = top.reduce((total, item) => total + extraerImporte(item.detalle), 0);
     const revisar = bajos.filter((_, index) => index < 2).length;
 
     return [
@@ -348,7 +350,7 @@ export class DashboardStateService implements OnDestroy {
       },
       {
         titulo: 'Top 5 con tracción',
-        detalle: `Suma ${this.formatCurrency(totalTop)} de facturación estimada.`,
+        detalle: `Suma ${formatCurrency(totalTop)} de facturación estimada.`,
         tono: 'info'
       },
       {
@@ -399,116 +401,69 @@ export class DashboardStateService implements OnDestroy {
 
   cargarDatos(): void {
     this.cargando.set(true);
-    let completedCount = 0;
-    const checkComplete = () => {
-      completedCount++;
-      if (completedCount === 4) {
-        this.cargando.set(false);
-        this._ultimoRefresco.set(new Date());
-      }
-    };
-
-    this.api.getVencimientos().pipe(take(1)).subscribe({
-      next: (vencimientos) => {
-        this._vencimientos.set(vencimientos);
-        checkComplete();
-      },
-      error: (err) => {
-        console.error('Error cargando vencimientos', err);
-        checkComplete();
-      }
-    });
-
     const { desde, hasta } = this.obtenerRangoFechas();
     const desdeIso = desde.toISOString();
     const hastaIso = hasta.toISOString();
 
-    this.api.getRendimientoComercial(desdeIso, hastaIso).pipe(take(1)).subscribe({
-      next: (res) => {
-        this._platosMasVendidos.set(res.masVendidos);
-        this._platosMenosVendidos.set(res.menosVendidos);
-        checkComplete();
-      },
-      error: (err) => {
-        console.error('Error cargando rendimiento', err);
-        checkComplete();
+    forkJoin({
+      vencimientos: this.api.getVencimientos().pipe(
+        take(1),
+        catchError(err => {
+          console.error('Error cargando vencimientos', err);
+          return of(null);
+        })
+      ),
+      rendimiento: this.api.getRendimientoComercial(desdeIso, hastaIso).pipe(
+        take(1),
+        catchError(err => {
+          console.error('Error cargando rendimiento', err);
+          return of(null);
+        })
+      ),
+      resumen: this.api.getResumenOperativo(desdeIso, hastaIso).pipe(
+        take(1),
+        catchError(err => {
+          console.error('Error cargando resumen operativo', err);
+          return of(null);
+        })
+      ),
+      ingredientesExcluidos: this.api.getIngredientesExcluidos(desdeIso, hastaIso).pipe(
+        take(1),
+        catchError(err => {
+          console.error('Error cargando ingredientes excluidos', err);
+          return of(null);
+        })
+      )
+    }).subscribe(({ vencimientos, rendimiento, resumen, ingredientesExcluidos }) => {
+      if (vencimientos) {
+        this._vencimientos.set(vencimientos);
       }
-    });
 
-    this.api.getResumenOperativo(desdeIso, hastaIso).pipe(take(1)).subscribe({
-      next: (resumen) => {
+      if (rendimiento) {
+        this._platosMasVendidos.set(rendimiento.masVendidos);
+        this._platosMenosVendidos.set(rendimiento.menosVendidos);
+      }
+
+      if (resumen) {
         this._resumen.set(resumen);
         if (resumen.recordatorios) {
           this._recordatoriosAdicionales.set(resumen.recordatorios);
         } else {
           this._recordatoriosAdicionales.set([]);
         }
-        checkComplete();
-      },
-      error: (err) => {
-        console.error('Error cargando resumen operativo', err);
-        checkComplete();
       }
-    });
 
-    this.api.getIngredientesExcluidos(desdeIso, hastaIso).pipe(take(1)).subscribe({
-      next: (excluidos) => {
-        this._ingredientesExcluidos.set(excluidos);
-        checkComplete();
-      },
-      error: (err) => {
-        console.error('Error cargando ingredientes excluidos', err);
-        checkComplete();
+      if (ingredientesExcluidos) {
+        this._ingredientesExcluidos.set(ingredientesExcluidos);
       }
+
+      this.cargando.set(false);
+      this._ultimoRefresco.set(new Date());
     });
   }
 
   private obtenerRangoFechas(): { desde: Date; hasta: Date } {
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-
-    let desde = new Date(hoy);
-    let hasta = new Date(hoy);
-    hasta.setHours(23, 59, 59, 999);
-
-    switch (this._periodo()) {
-      case '1d': break;
-      case '3d': desde.setDate(desde.getDate() - 2); break;
-      case '7d': desde.setDate(desde.getDate() - 6); break;
-      case '30d': desde.setDate(desde.getDate() - 29); break;
-      case '365d': desde.setDate(desde.getDate() - 364); break;
-      case 'custom':
-        const parsedDesde = this.parseFecha(this._fechaDesde());
-        const parsedHasta = this.parseFecha(this._fechaHasta());
-        if (parsedDesde) desde = parsedDesde;
-        if (parsedHasta) {
-          hasta = new Date(parsedHasta);
-          hasta.setHours(23, 59, 59, 999);
-        }
-        break;
-    }
-    return { desde, hasta };
-  }
-
-  private parseFecha(fecha: string): Date | null {
-    if (!fecha) return null;
-    const partes = fecha.split('/');
-    if (partes.length !== 3) return null;
-    const [dia, mes, anio] = partes.map(Number);
-    if (!dia || !mes || !anio) return null;
-    return new Date(anio, mes - 1, dia);
-  }
-
-  private extraerImporte(valor: string): number {
-    return Number(valor.replace(/[^0-9]/g, '')) || 0;
-  }
-
-  private formatCurrency(value: number): string {
-    return new Intl.NumberFormat('es-AR', {
-      style: 'currency',
-      currency: 'ARS',
-      maximumFractionDigits: 0
-    }).format(value);
+    return obtenerRangoFechas(this._periodo(), this._fechaDesde(), this._fechaHasta());
   }
 
   private factorPeriodo(): number {
@@ -518,17 +473,9 @@ export class DashboardStateService implements OnDestroy {
       '7d': 1,
       '30d': 4.2,
       '365d': 48,
-      custom: Math.max(0.14, Math.min(52, this.diasPersonalizados() / 7))
+      custom: Math.max(0.14, Math.min(52, diasPersonalizados(this._fechaDesde(), this._fechaHasta()) / 7))
     };
     return factorPorPeriodo[this._periodo()];
-  }
-
-  private diasPersonalizados(): number {
-    const desde = this.parseFecha(this._fechaDesde());
-    const hasta = this.parseFecha(this._fechaHasta());
-    if (!desde || !hasta) return 7;
-    const diff = Math.abs(hasta.getTime() - desde.getTime());
-    return Math.max(1, Math.round(diff / 86400000) + 1);
   }
 
   cargarConfiguracionFavoritos(): FavoriteWidgetConfig[] {
@@ -629,7 +576,7 @@ export class DashboardStateService implements OnDestroy {
 
     this.api.aplicarDescuentoPlato(platoId, 10).pipe(take(1)).subscribe({
       next: (res) => {
-        const precioNuevoStr = this.formatCurrency(res.precioNuevo);
+        const precioNuevoStr = formatCurrency(res.precioNuevo);
         const metricasNuevas = {
           ...actual.metricas,
           precio: precioNuevoStr,

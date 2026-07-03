@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, ChangeDetectionStrategy, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, signal, computed, DestroyRef, effect } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, ActivatedRoute } from '@angular/router';
 import { DOCUMENT } from '@angular/common';
 import { Buscador } from '../../../../shared/ui/buscador/buscador';
@@ -8,7 +9,6 @@ import { PageToolbar } from '../../../../shared/ui/page-toolbar/page-toolbar';
 import { Dropdown } from '../../../../shared/ui/dropdown/dropdown';
 import { ModalEditarPlatoComponent } from '../containers/modal-editar-plato/modal-editar-plato';
 import { ModalEliminarPlatoComponent } from '../components/modal-eliminar-plato/modal-eliminar-plato';
-import { ModalRestaurarPlatoComponent } from '../components/modal-restaurar-plato/modal-restaurar-plato';
 import { ModificarCartaStateService } from '../services/modificar-carta.state';
 
 @Component({
@@ -20,8 +20,7 @@ import { ModificarCartaStateService } from '../services/modificar-carta.state';
     Dropdown, 
     PageToolbar,
     ModalEditarPlatoComponent,
-    ModalEliminarPlatoComponent,
-    ModalRestaurarPlatoComponent
+    ModalEliminarPlatoComponent
   ],
   templateUrl: './modificar-carta.html',
   styleUrls: ['./modificar-carta.css'],
@@ -30,10 +29,14 @@ import { ModificarCartaStateService } from '../services/modificar-carta.state';
 export class ModificarCartaComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private destroyRef = inject(DestroyRef);
   private readonly documento = inject(DOCUMENT);
   readonly state = inject(ModificarCartaStateService);
 
   layoutMode = signal<'grid' | 'list'>('grid');
+  isFloatingMenuOpen = signal(false);
+  private platoPendienteEdicion = signal<string | null>(null);
+  private scrollPosition = 0;
 
   // Exponer señales del State Service para que la plantilla HTML y los tests sigan funcionando sin cambios
   platos = this.state.platos;
@@ -69,32 +72,42 @@ export class ModificarCartaComponent implements OnInit {
     return this.opcionesOrden.find(o => o.valor === this.state.sortOrder()) ?? this.opcionesOrden[0];
   });
 
+  constructor() {
+    effect(() => {
+      const nombrePendiente = this.platoPendienteEdicion();
+      if (!nombrePendiente) return;
+
+      const plato = this.state.platos().find(item => item.nombre.toLowerCase() === nombrePendiente.toLowerCase());
+      if (!plato) return;
+
+      this.state.setPlatoAEditar(plato);
+      this.platoPendienteEdicion.set(null);
+    });
+  }
+
   ngOnInit() {
     this.state.cargarPlatos();
 
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
       const buscar = params['buscar'];
       const editar = params['editar'] === 'true';
-      if (buscar) {
-        this.state.setSearchTerm(buscar);
-        if (editar) {
-          const checkAndEdit = () => {
-            const list = this.state.platos();
-            if (list.length > 0) {
-              const plato = list.find(p => p.nombre.toLowerCase() === buscar.toLowerCase());
-              if (plato) {
-                this.state.setPlatoAEditar(plato);
-              }
-            } else {
-              setTimeout(checkAndEdit, 100);
-            }
-          };
-          checkAndEdit();
-        }
+      if (!buscar) {
+        this.state.setSearchTerm('');
+        this.platoPendienteEdicion.set(null);
+        return;
+      }
+
+      this.state.setSearchTerm(buscar);
+      if (editar) {
+        this.platoPendienteEdicion.set(buscar);
       }
     });
 
-    this.route.fragment.subscribe(fragment => {
+    this.route.fragment
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(fragment => {
       if (fragment) {
         setTimeout(() => this.desplazarASeccion(fragment), 150);
       }
@@ -133,10 +146,12 @@ export class ModificarCartaComponent implements OnInit {
   }
 
   onEditPlato(plato: Plato) {
+    this.scrollPosition = window.scrollY;
     this.state.setPlatoAEditar(plato);
   }
 
   onDeletePlato(plato: Plato) {
+    this.scrollPosition = window.scrollY;
     this.state.setPlatoAEliminar(plato);
   }
 
@@ -150,6 +165,7 @@ export class ModificarCartaComponent implements OnInit {
 
   onCloseModals() {
     this.state.closeModals();
+    setTimeout(() => window.scrollTo(0, this.scrollPosition), 50);
   }
 
   onCategoriaSeleccionada(categoria: string | null) {
@@ -175,17 +191,5 @@ export class ModificarCartaComponent implements OnInit {
 
   setLayoutMode(mode: 'grid' | 'list') {
     this.layoutMode.set(mode);
-  }
-
-  abrirRestaurarPlatos() {
-    this.state.abrirModalRestaurar();
-  }
-
-  onCloseRestaurar() {
-    this.state.cerrarModalRestaurar();
-  }
-
-  onRestaurarPlato(plato: Plato) {
-    this.state.restaurarPlato(plato);
   }
 }

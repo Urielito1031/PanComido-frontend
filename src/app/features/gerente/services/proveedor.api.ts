@@ -86,7 +86,7 @@ export class ProveedorApiService {
         nombre: item.nombre ?? '',
         unidadMedida: this.mapUnidadMedida(item.unidadMedida),
         stockActual: item.stockActual ?? 0,
-        stockMinimo: 0,
+        stockMinimo: item.stockMinimo ?? 0,
         estadoStock: item.estadoStock ?? '',
         cantidadSugerida: item.cantidadSugerida ?? 1,
         precioUnitario: this.normalizarPrecio(item.precioUnitario)

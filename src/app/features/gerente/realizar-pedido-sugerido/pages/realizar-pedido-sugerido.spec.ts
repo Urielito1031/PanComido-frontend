@@ -86,6 +86,73 @@ describe('RealizarPedidoSugeridoComponent', () => {
     expect(component.busquedaProveedor()).toBe('Tomate');
   });
 
+  it('debería calcular subtotal de gramos con precio por kilo', async () => {
+    await createComponent();
+    const item: SugerenciaPedidoItem = {
+      productoId: '10',
+      nombre: 'Albahaca',
+      unidadMedida: { id: 2, nombre: 'GR' },
+      stockActual: 200,
+      stockMinimo: 500,
+      cantidadSugerida: 10002,
+      precioUnitario: 900
+    };
+
+    expect(component.subtotalItem(item)).toBeCloseTo(9001.8);
+  });
+
+  it('debería elevar sugerencias en gramos al mínimo práctico de compra', async () => {
+    proveedorServiceMock.getInsumosAReponer.mockReturnValue(of([
+      {
+        productoId: '10',
+        nombre: 'Albahaca',
+        unidadMedida: { id: 2, nombre: 'GR' },
+        stockActual: 0.2,
+        stockMinimo: 1,
+        cantidadSugerida: 2,
+        precioUnitario: 900
+      }
+    ]));
+
+    await createComponent();
+
+    expect(component.itemsProveedor(mockProveedor.id)[0].cantidadSugerida).toBe(100);
+    expect(component.cantidadOriginalDisplay(mockProveedor.id, component.itemsProveedor(mockProveedor.id)[0])).toBe('100 gr');
+  });
+
+  it('debería limitar cantidades de peso a 100 kg', async () => {
+    await createComponent();
+    const item = component.itemsProveedor(mockProveedor.id)[0];
+
+    component.setCantidadDisplay(mockProveedor.id, item, 900000);
+
+    expect(component.itemsProveedor(mockProveedor.id)[0].cantidadSugerida).toBe(100);
+    expect(component.cantidadDisplay(component.itemsProveedor(mockProveedor.id)[0])).toBe(100000);
+    expect(component.cantidadEnMaximo(component.itemsProveedor(mockProveedor.id)[0])).toBe(true);
+  });
+
+  it('debería limitar cantidades unitarias a 1000', async () => {
+    proveedorServiceMock.getInsumosAReponer.mockReturnValue(of([
+      {
+        productoId: '7',
+        nombre: 'Huevos',
+        unidadMedida: { id: 4, nombre: 'UN' },
+        stockActual: 20,
+        stockMinimo: 60,
+        cantidadSugerida: 40,
+        precioUnitario: 120
+      }
+    ]));
+
+    await createComponent();
+    const item = component.itemsProveedor(mockProveedor.id)[0];
+
+    component.setCantidadDisplay(mockProveedor.id, item, 9000);
+
+    expect(component.itemsProveedor(mockProveedor.id)[0].cantidadSugerida).toBe(1000);
+    expect(component.cantidadEnMaximo(component.itemsProveedor(mockProveedor.id)[0])).toBe(true);
+  });
+
   it('debería navegar hacia atrás al llamar a volver', async () => {
     await createComponent();
     component.volver();
