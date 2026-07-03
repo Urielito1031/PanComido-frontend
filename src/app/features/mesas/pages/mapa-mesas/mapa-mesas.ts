@@ -8,6 +8,8 @@ import { MesaItem } from '../../../../shared/components/mesa-item/mesa-item';
 import { ComandaDetalleUiComponent } from '../../../../shared/components/comanda-detalle-ui/comanda-detalle-ui';
 import { AuthService } from '../../../../core/services/auth.service';
 import { MesaService } from '../../services/mesa.service';
+import { PagoConfirmacionService } from '../../../../shared/services/pago-confirmacion.service';
+import { MetodoPagoId } from '../../../../core/models/domain/metodo-pago';
 
 @Component({
   selector: 'app-mapa-mesas',
@@ -21,6 +23,7 @@ export class MapaMesas implements OnInit {
   state = inject(MesaState);
   auth = inject(AuthService);
   mesaService = inject(MesaService);
+  pagoConfirmacionService = inject(PagoConfirmacionService);
   FormaMesa = FormaMesa;
   mesaMobileSeleccionada = signal<Mesa | null>(null);
 
@@ -255,13 +258,19 @@ export class MapaMesas implements OnInit {
     return items.reduce((acc, item) => acc + ((item.articulo.precioVentaFinal || 0) * item.cantidad), 0);
   }
 
-  cobrarComanda() {
+  cobrarComanda(metodoPago: MetodoPagoId) {
     const comandaId = this.comandaCargada()?.id;
     if (!comandaId) return;
 
-    this.mesaService.confirmarPagoEfectivo(comandaId).subscribe({
+    this.pagoConfirmacionService.confirmarPago(comandaId, metodoPago).subscribe({
       next: () => this.cerrarComandaDetalle(),
-      error: () => this.state.mostrarNotificacion('Error al confirmar el pago', 'error')
+      error: (err) => {
+        if (err.status === 409) {
+          this.cerrarComandaDetalle();
+          return;
+        }
+        this.state.mostrarNotificacion(err.error?.error || 'Error al confirmar el pago', 'error');
+      }
     });
   }
 

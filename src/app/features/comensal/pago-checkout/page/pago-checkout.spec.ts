@@ -8,6 +8,7 @@ import { ComandaState } from '../../services/comanda-state';
 import { ComandaHubService } from '../../../../core/services/hubs/comanda/comanda-hub-service';
 import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
 import { EstadoPedido, Comanda } from '../../../../core/models/domain/comanda';
+import { MetodoPagoId } from '../../../../core/models/domain/metodo-pago';
 
 describe('PagoCheckout', () => {
   let component: PagoCheckout;
@@ -21,7 +22,7 @@ describe('PagoCheckout', () => {
 
   const estadoPedidoMock: EstadoPedido = {
     comandaId: 42,
-    estadoUI: 'EnPreparacion',
+    estadoUI: 'EnEspera',
     totalAPagar: 2500,
     items: [
       {
@@ -54,7 +55,7 @@ describe('PagoCheckout', () => {
     };
 
     pagoServiceMock = {
-      solicitarPagoEfectivo: vi.fn(),
+      solicitarPago: vi.fn(),
       solicitarPagoMP: vi.fn(),
     };
 
@@ -155,11 +156,11 @@ describe('PagoCheckout', () => {
   describe('pagarEfectivo', () => {
     it('deberia solicitar pago efectivo y navegar a confirmado', () => {
       configurarTest({}, estadoPedidoMock);
-      pagoServiceMock.solicitarPagoEfectivo.mockReturnValue(of({} as any));
+      pagoServiceMock.solicitarPago.mockReturnValue(of({} as any));
 
       component.pagarEfectivo();
 
-      expect(pagoServiceMock.solicitarPagoEfectivo).toHaveBeenCalledWith(42, 1);
+      expect(pagoServiceMock.solicitarPago).toHaveBeenCalledWith(42, 1, MetodoPagoId.Efectivo);
       expect(component.metodoCargando()).toBeNull();
       expect(component.pagoSolicitado()).toBe(true);
       expect(routerMock.navigate).toHaveBeenCalledWith(['/comensal/pago-confirmado']);
@@ -168,7 +169,7 @@ describe('PagoCheckout', () => {
     it('deberia mostrar error si la API falla', () => {
       configurarTest({}, estadoPedidoMock);
       const errorMsg = 'Error al procesar pago';
-      pagoServiceMock.solicitarPagoEfectivo.mockReturnValue(
+      pagoServiceMock.solicitarPago.mockReturnValue(
         throwError(() => ({ error: { error: errorMsg } })),
       );
 
@@ -180,7 +181,7 @@ describe('PagoCheckout', () => {
 
     it('deberia mostrar error generico si la API falla sin mensaje', () => {
       configurarTest({}, estadoPedidoMock);
-      pagoServiceMock.solicitarPagoEfectivo.mockReturnValue(
+      pagoServiceMock.solicitarPago.mockReturnValue(
         throwError(() => ({})),
       );
 
@@ -194,7 +195,7 @@ describe('PagoCheckout', () => {
 
       component.pagarEfectivo();
 
-      expect(pagoServiceMock.solicitarPagoEfectivo).not.toHaveBeenCalled();
+      expect(pagoServiceMock.solicitarPago).not.toHaveBeenCalled();
     });
 
     it('NO deberia hacer nada si ya se solicito pago', () => {
@@ -203,17 +204,17 @@ describe('PagoCheckout', () => {
 
       component.pagarEfectivo();
 
-      expect(pagoServiceMock.solicitarPagoEfectivo).not.toHaveBeenCalled();
+      expect(pagoServiceMock.solicitarPago).not.toHaveBeenCalled();
     });
 
     it('deberia usar restauranteId por defecto 1 si no hay', () => {
       configurarTest({}, estadoPedidoMock);
       comandaStateMock.restauranteId.set(null);
-      pagoServiceMock.solicitarPagoEfectivo.mockReturnValue(of({} as any));
+      pagoServiceMock.solicitarPago.mockReturnValue(of({} as any));
 
       component.pagarEfectivo();
 
-      expect(pagoServiceMock.solicitarPagoEfectivo).toHaveBeenCalledWith(42, 1);
+      expect(pagoServiceMock.solicitarPago).toHaveBeenCalledWith(42, 1, MetodoPagoId.Efectivo);
     });
   });
 

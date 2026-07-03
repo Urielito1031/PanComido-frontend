@@ -217,7 +217,6 @@
 .modal-botonera button:active { transform: scale(0.98); }
 
 .btn-agregar { background-color: #22c55e; }
-.btn-mover { background-color: #0ea5e9; }
 
 .seleccion-info {
   text-align: center;

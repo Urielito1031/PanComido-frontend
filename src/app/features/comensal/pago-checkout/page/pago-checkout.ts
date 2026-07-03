@@ -9,13 +9,14 @@ import { ConfiguracionVisualState } from '../../services/visual/configuracion-vi
 import { ConfiguracionState } from '../../../gerente/configuracion/services/configuracion-state';
 import { HeaderComensal } from '../../../../shared/ui/header-comensal/header-comensal';
 import { BotonComensal } from '../../../../shared/ui/botones/boton-comensal/boton-comensal';
-import { take, takeUntil } from 'rxjs';
+import { Modal } from '../../../../shared/ui/modal/modal';
+import { MetodoPagoId } from '../../../../core/models/domain/metodo-pago';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-pago-checkout',
   standalone: true,
-  imports: [HeaderComensal, DecimalPipe, BotonComensal],
+  imports: [HeaderComensal, DecimalPipe, BotonComensal, Modal],
   templateUrl: './pago-checkout.html',
   styleUrls: ['./pago-checkout.css']
 })
@@ -28,7 +29,12 @@ export class PagoCheckout implements OnInit, OnDestroy {
   private destroyRef = inject(DestroyRef);
 
   configuracionVisualState = inject(ConfiguracionVisualState);
-  private configuracionState = inject(ConfiguracionState);
+  configuracionState = inject(ConfiguracionState);
+  datosTransferencia = this.configuracionState.datosTransferenciaComensal;
+  cargandoDatosTransferencia = this.configuracionState.datosTransferenciaComensalCargando;
+  campoCopiado = signal<string | null>(null);
+  confirmandoTransferencia = signal(false);
+  errorTransferencia = signal<string | null>(null);
 
   estado = this.comandaState.estadoPedido;
   mesaId = this.comandaState.mesaId;
@@ -127,14 +133,22 @@ export class PagoCheckout implements OnInit, OnDestroy {
   }
 
   pagarEfectivo(): void {
+    this.solicitarPagoDirecto(MetodoPagoId.Efectivo, 'efectivo');
+  }
+
+  pagarTarjeta(): void {
+    this.solicitarPagoDirecto(MetodoPagoId.Tarjeta, 'tarjeta');
+  }
+
+  private solicitarPagoDirecto(metodoPago: MetodoPagoId, metodoCargandoValor: 'efectivo' | 'tarjeta'): void {
     const comandaId = this.estado()?.comandaId;
     if (!comandaId || this.pagoSolicitado() || this.metodoCargando()) return;
 
-    this.metodoCargando.set('efectivo');
+    this.metodoCargando.set(metodoCargandoValor);
     this.error.set(null);
 
     const restauranteId = this.comandaState.restauranteId() ?? 1;
-    this.pagoService.solicitarPagoEfectivo(comandaId, restauranteId)
+    this.pagoService.solicitarPago(comandaId, restauranteId, metodoPago)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
@@ -171,29 +185,45 @@ export class PagoCheckout implements OnInit, OnDestroy {
       });
   }
 
-  pagarTransferencia(): void {
-    // TODO: conectar endpoint cuando el backend esté listo
+  pagarTransferencia(modal: Modal): void {
+    if (this.pagoSolicitado() || this.metodoCargando()) return;
+    const restauranteId = this.comandaState.restauranteId() ?? 1;
+    this.errorTransferencia.set(null);
+    this.configuracionState.cargarDatosTransferenciaComensal(restauranteId);
+    modal.abrir();
   }
 
-  pagarTarjeta(): void {
+  cerrarModalTransferencia(modal: Modal): void {
+    modal.cerrar();
+  }
+
+  confirmarTransferencia(modal: Modal): void {
     const comandaId = this.estado()?.comandaId;
-    if (!comandaId || this.metodoCargando()) return;
+    if (!comandaId || this.confirmandoTransferencia()) return;
 
-    this.metodoCargando.set('tarjeta');
-    this.error.set(null);
+    this.confirmandoTransferencia.set(true);
+    this.errorTransferencia.set(null);
 
-    const restauranteId = this.comandaState.restauranteId();
-    this.pagoService.solicitarPagoMP(comandaId, restauranteId ?? 1)
+    const restauranteId = this.comandaState.restauranteId() ?? 1;
+    this.pagoService.solicitarPago(comandaId, restauranteId, MetodoPagoId.Transferencia)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (res) => {
-          this.metodoCargando.set(null);
-          window.location.href = res.initPoint;
+        next: () => {
+          this.confirmandoTransferencia.set(false);
+          this.pagoSolicitado.set(true);
+          modal.cerrar();
+          this.router.navigate(['/comensal/pago-confirmado'], { queryParams: { status: 'approved' } });
         },
         error: (err) => {
-          this.metodoCargando.set(null);
-          this.error.set(err.error?.error || 'Error al generar pago');
+          this.confirmandoTransferencia.set(false);
+          this.errorTransferencia.set(err.error?.error || 'No se pudo confirmar la transferencia');
         }
       });
+  }
+
+  copiarAlPortapapeles(valor: string, campo: string): void {
+    navigator.clipboard?.writeText(valor);
+    this.campoCopiado.set(campo);
+    setTimeout(() => this.campoCopiado.set(null), 1500);
   }
 }

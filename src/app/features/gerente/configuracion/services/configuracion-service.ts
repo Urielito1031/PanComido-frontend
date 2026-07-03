@@ -1,19 +1,21 @@
 import { inject, Injectable } from '@angular/core';
 import { ApiService } from '../../../../core/services/api-service';
-import { Observable } from 'rxjs';
+import { Observable, catchError, of, throwError } from 'rxjs';
 import { DatosLocal } from '../../../../core/models/domain/datos-local';
-import { 
+import {
    ActualizarDatosLocalRequest,
+   ActualizarDatosTransferenciaRequest,
    ActualizarFilaVirtualRequest,
-   ActualizarMetodoPagoRequest, 
-   ActualizarPorcentajeGananciaRequest, 
-   ActualizarTurnoLaboralRequest 
+   ActualizarMetodoPagoRequest,
+   ActualizarPorcentajeGananciaRequest,
+   ActualizarTurnoLaboralRequest
   } from '../../../../core/models/dtos/requests/configuracion.requests';
 import { MetodoPago } from '../../../../core/models/domain/metodo-pago';
 import { TurnoLaboral } from '../../../../core/models/domain/turno-laboral';
 import { FamiliaTipografica } from '../../../../core/models/domain/familia-tipografica';
 import { FilaVirtual } from '../../../../core/models/domain/fila-virtual';
 import { PorcentajesGanancia } from '../../../../core/models/domain/porcentajes-ganancia';
+import { DatosTransferencia } from '../../../../core/models/domain/datos-transferencia';
 
 @Injectable({
   providedIn: 'root',
@@ -69,7 +71,22 @@ export class ConfiguracionService {
   actualizarPorcentajes(data: PorcentajesGanancia):Observable<void>{
     return this.api.put<void>(`${this.endpoint}/actualizar-porcentajes`, this.#aRequestPorcentajes(data));
   }
-  
+
+  obtenerDatosTransferencia(): Observable<DatosTransferencia | null> {
+    return this.api.get<DatosTransferencia>(`${this.endpoint}/datos-transferencia`).pipe(
+      catchError((err) => err.status === 404 ? of(null) : throwError(() => err))
+    );
+  }
+  actualizarDatosTransferencia(datos: DatosTransferencia): Observable<DatosTransferencia> {
+    return this.api.put<DatosTransferencia>(`${this.endpoint}/acualizar-datos-transferencia`,
+      this.#aRequestDatosTransferencia(datos));
+  }
+  obtenerDatosTransferenciaComensal(restauranteId: number): Observable<DatosTransferencia | null> {
+    return this.api.get<DatosTransferencia>(`${this.endpoint}/datos-transferencia/${restauranteId}/comensal`).pipe(
+      catchError((err) => err.status === 404 ? of(null) : throwError(() => err))
+    );
+  }
+
   
   //MAPPERS PRIVADOS
   //viven aca porque es la unica capa quenecesitan saber cómo convertir el domain
@@ -90,6 +107,15 @@ export class ConfiguracionService {
       colorPrincipal: datos.colorPrincipal,
       colorSecundario: datos.colorSecundario,
       familiaTipograficaId: datos.familiaTipograficaId
+    };
+  }
+
+  #aRequestDatosTransferencia(datos: DatosTransferencia): ActualizarDatosTransferenciaRequest {
+    return {
+      alias: datos.alias,
+      cbu: datos.cbu,
+      numeroCuenta: datos.numeroCuenta,
+      titularCuenta: datos.titularCuenta,
     };
   }
 

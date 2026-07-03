@@ -6,6 +6,8 @@ import { MesaService } from '../../../mesas/services/mesa.service';
 import { MozoComandaService } from '../../services/mozo-comanda-service';
 import { ComandaDetalleUiComponent } from '../../../../shared/components/comanda-detalle-ui/comanda-detalle-ui';
 import { EstadoMesa } from '../../../../core/models/domain/mesa';
+import { PagoConfirmacionService } from '../../../../shared/services/pago-confirmacion.service';
+import { MetodoPagoId } from '../../../../core/models/domain/metodo-pago';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -50,6 +52,7 @@ export class MisMesasPage {
 
   private mesaService = inject(MesaService);
   private mozoComandaService = inject(MozoComandaService);
+  private pagoConfirmacionService = inject(PagoConfirmacionService);
 
   comandaCargada = signal<any>(null);
 
@@ -69,13 +72,19 @@ export class MisMesasPage {
     return items.reduce((acc, curr) => acc + ((curr.articulo?.precioVentaFinal || 0) * curr.cantidad), 0);
   }
 
-  cobrarPedido() {
+  cobrarPedido(metodoPago: MetodoPagoId) {
     const comandaId = this.comandaCargada()?.id;
     if (!comandaId) return;
 
-    this.mozoComandaService.confirmarPagoEfectivo(comandaId).subscribe({
+    this.pagoConfirmacionService.confirmarPago(comandaId, metodoPago).subscribe({
       next: () => this.cerrarModalComanda(),
-      error: () => this.mesaState.mostrarNotificacion('Error al confirmar el pago', 'error')
+      error: (err) => {
+        if (err.status === 409) {
+          this.cerrarModalComanda();
+          return;
+        }
+        this.mesaState.mostrarNotificacion(err.error?.error || 'Error al confirmar el pago', 'error');
+      }
     });
   }
 

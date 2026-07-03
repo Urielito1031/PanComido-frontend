@@ -135,6 +135,16 @@
       </div>
     </div>
 
+    <div class="row mt-4">
+      <div class="col-12">
+        <h2 class="config-section-title">Datos de transferencia</h2>
+        <app-datos-transferencia-form
+          [datosTransferencia]="datosTransferencia() ?? datosTransferenciaVacio"
+          (datosTransferenciaChange)="onDatosTransferenciaChange($event)"
+        />
+      </div>
+    </div>
+
     @if (filaVirtual(); as fv) {
       <div class="row mt-4">
         <div class="col-12">

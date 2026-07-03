@@ -273,7 +273,7 @@
         [items]="comandaCargada()!.items"
         [total]="calcularTotalComanda(comandaCargada()!.items)"
         (cerrar)="cerrarComandaDetalle()"
-        (cobrar)="cobrarComanda()"
+        (cobrar)="cobrarComanda($event)"
         (cerrarMesa)="cerrarMesaComanda()"
       ></app-comanda-detalle-ui>
     </div>
@@ -289,7 +289,7 @@
             [items]="comandaCargada()!.items"
             [total]="calcularTotalComanda(comandaCargada()!.items)"
             (cerrar)="cerrarComandaDetalle()"
-            (cobrar)="cobrarComanda()"
+            (cobrar)="cobrarComanda($event)"
             (cerrarMesa)="cerrarMesaComanda()"
           ></app-comanda-detalle-ui>
         </div>

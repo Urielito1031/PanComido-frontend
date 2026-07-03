@@ -10,7 +10,7 @@ import {
   faSpinner,
   IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
-import { Llamado } from '../../../../core/models/domain/llamado';
+import { CategoriaLlamado, Llamado } from '../../../../core/models/domain/llamado';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NgClass } from '@angular/common';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
@@ -60,8 +60,7 @@ export class LlamadoCard {
     'esta-resolviendo': this.resolviendo(),
     'esta-saliendo': this.saliendo(),
     'es-nuevo': this.nuevo(),
-    'llamado-categoria-mesa': this.llamado().categoriaLlamadoId === 3,
-    'llamado-categoria-cocina': [1, 4, 5, 6].includes(this.llamado().categoriaLlamadoId),
-    'llamado-categoria-bar': this.llamado().categoriaLlamadoId === 2,
+    'llamado-categoria-cocina': this.llamado().categoriaLlamadoId === CategoriaLlamado.Cocina,
+    'llamado-categoria-gerente': this.llamado().categoriaLlamadoId === CategoriaLlamado.Gerente,
   }));
 }
