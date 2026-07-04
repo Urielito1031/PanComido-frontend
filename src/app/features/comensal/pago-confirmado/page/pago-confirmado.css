@@ -1,141 +1,114 @@
-.success-checkmark {
-  width: 120px;
-  height: 120px;
+.pago-wrapper {
+  max-width: 600px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--gray-50, #f9fafb);
+  padding: 1rem 1rem 2rem;
+  font-family: var(--font-cuerpo, 'system-ui'), sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.pago-card {
+  background: #ffffff;
+  border-radius: var(--border-radius-lg, 1rem);
+  border: 1.5px solid var(--gray-200, #e5e7eb);
+  box-shadow: var(--shadow-sm, 0 1px 2px 0 rgba(0, 0, 0, 0.05));
+  padding: 2.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  animation: slideUp 0.4s ease-out;
+}
+
+.pago-card:hover {
+  box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06));
+  transform: translateY(-2px);
+}
+
+.pago-titulo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--gray-900, #111827);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.pago-subtitulo {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--gray-500, #6b7280);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.pago-acciones {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.check-animado, .error-animado {
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.check-animado .check-icon {
+  font-size: 5rem;
+  /* color set by inline style for primary color */
+  animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.error-animado .error-icon {
+  font-size: 5rem;
+  color: #ef4444; /* rojo moderno */
+  animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.spinner {
+  width: 3rem;
+  height: 3rem;
+  border: 3px solid var(--gray-200, #e5e7eb);
+  border-top-color: var(--color-primario, #f08f1a);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
   margin: 0 auto;
 }
-.success-checkmark .check-icon {
-  width: 120px;
-  height: 120px;
-  position: relative;
-  border-radius: 50%;
-  box-sizing: content-box;
-  background-color: #61b136; 
+
+@keyframes popIn {
+  0% { transform: scale(0); opacity: 0; }
+  80% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
 }
-.success-checkmark .check-icon::before {
-  top: 3px;
-  left: -2px;
-  width: 30px;
-  transform-origin: 100% 50%;
-  border-radius: 100px 0 0 100px;
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
-.success-checkmark .check-icon::after {
-  top: 0;
-  left: 30px;
-  width: 60px;
-  transform-origin: 0 50%;
-  border-radius: 0 100px 100px 0;
-  animation: rotate-circle 4.25s ease-in;
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
-.success-checkmark .check-icon::before, .success-checkmark .check-icon::after {
-  content: '';
-  height: 100px;
-  position: absolute;
-  background: #f8f9fa; 
-  transform: rotate(-45deg);
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-.success-checkmark .check-icon .icon-line {
-  height: 10px;
-  background-color: #fff;
-  display: block;
-  border-radius: 4px;
-  position: absolute;
-  z-index: 10;
-}
-.success-checkmark .check-icon .icon-line.line-tip {
-  top: 60px;
-  left: 28px;
-  width: 35px;
-  transform: rotate(45deg);
-  animation: icon-line-tip 0.75s;
-}
-.success-checkmark .check-icon .icon-line.line-long {
-  top: 48px;
-  right: 20px;
-  width: 65px;
-  transform: rotate(-45deg);
-  animation: icon-line-long 0.75s;
-}
-.success-checkmark .check-icon .icon-circle {
-  top: -4px;
-  left: -4px;
-  z-index: 10;
-  width: 128px;
-  height: 128px;
-  border-radius: 50%;
-  position: absolute;
-  box-sizing: content-box;
-  border: 4px solid #61b136;
-}
-.success-checkmark .check-icon .icon-fix {
-  top: 8px;
-  width: 5px;
-  left: 26px;
-  z-index: 1;
-  height: 85px;
-  position: absolute;
-  transform: rotate(-45deg);
-  background-color: #f8f9fa;
-}
-@keyframes rotate-circle {
-  0% {
-    transform: rotate(-45deg);
+
+@media (max-width: 480px) {
+  .pago-card {
+    padding: 2rem 1.25rem;
   }
-  5% {
-    transform: rotate(-45deg);
+  .pago-titulo {
+    font-size: 1.25rem;
   }
-  12% {
-    transform: rotate(-405deg);
-  }
-  100% {
-    transform: rotate(-405deg);
-  }
-}
-@keyframes icon-line-tip {
-  0% {
-    width: 0;
-    left: 1px;
-    top: 19px;
-  }
-  54% {
-    width: 0;
-    left: 1px;
-    top: 19px;
-  }
-  70% {
-    width: 50px;
-    left: -8px;
-    top: 37px;
-  }
-  84% {
-    width: 17px;
-    left: 21px;
-    top: 48px;
-  }
-  100% {
-    width: 35px;
-    left: 28px;
-    top: 60px;
-  }
-}
-@keyframes icon-line-long {
-  0% {
-    width: 0;
-    right: 46px;
-    top: 54px;
-  }
-  65% {
-    width: 0;
-    right: 46px;
-    top: 54px;
-  }
-  84% {
-    width: 55px;
-    right: 0px;
-    top: 35px;
-  }
-  100% {
-    width: 65px;
-    right: 20px;
-    top: 48px;
+  .check-animado .check-icon, .error-animado .error-icon {
+    font-size: 4rem;
   }
 }
