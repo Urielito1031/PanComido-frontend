@@ -57,6 +57,10 @@ export const COMENSAL_ROUTES: Routes = [
           import('./pago-confirmado/page/pago-confirmado').then((m) => m.PagoConfirmado),
       },
       {
+        path: 'encuesta',
+        loadComponent: () =>import('./encuesta-satisfaccion/page/encuesta').then((m) => m.Encuesta),
+      },
+      {
         path: 'mesa/:restauranteId/:mesaId',
         loadComponent: () => import('./nro-de-mesa/page/nro-de-mesa').then((m) => m.NroDeMesa),
       },

@@ -46,6 +46,8 @@ export class PagoConfirmado {
   }
 
   puntuarPlatos(): void {
-    console.warn('puntuarPlatos no implementado aún');
+    this.router.navigate(['/comensal/encuesta']);
   }
+
+  
 }
