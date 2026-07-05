@@ -9,6 +9,7 @@ import { CustomLocale } from 'flatpickr/dist/types/locale';
 
 import { DashboardStateService, DISEÑO_POR_DEFECTO } from '../services/dashboard.state';
 import { DashboardNavigationService } from '../services/dashboard-navigation.service';
+import { DashboardTourService } from '../services/dashboard-tour.service';
 import { DashboardDestino, DashboardPeriodo, WidgetLayout, FavoriteWidgetConfig, DashboardAccionItem, DashboardViewMode } from '../../../../core/models/domain/dashboard';
 import { ArsCurrencyPipe } from '../../../../shared/pipes/ars-currency.pipe';
 
@@ -82,6 +83,7 @@ const LOCALIZACION_ESPANOLA: CustomLocale = {
 export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
   readonly state = inject(DashboardStateService);
   private readonly navigation = inject(DashboardNavigationService);
+  private readonly tour = inject(DashboardTourService);
   private readonly route = inject(ActivatedRoute);
   private readonly documento = inject(DOCUMENT);
   private readonly fechaDesdeInput = viewChild<ElementRef<HTMLInputElement>>('fechaDesdeInput');
@@ -430,6 +432,12 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
         this.desplazarASeccion(fragment);
       }
     });
+
+    if (!this.tour.haVistoElTutorial()) {
+      setTimeout(() => {
+        this.tour.iniciarTour();
+      }, 1200);
+    }
   }
 
   ngAfterViewInit(): void {
@@ -582,5 +590,9 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
     if (typeof window !== 'undefined') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+  }
+
+  iniciarTutorial(): void {
+    this.tour.iniciarTour();
   }
 }

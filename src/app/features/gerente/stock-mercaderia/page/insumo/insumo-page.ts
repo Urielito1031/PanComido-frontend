@@ -8,6 +8,7 @@ import { Dropdown } from '../../../../../shared/ui/dropdown/dropdown';
 import { Modal } from "../../../../../shared/ui/modal/modal";
 import { StockMercaderiaState } from '../../services/insumos/stock-mercaderia-state';
 import { BodegaState } from '../../services/bodegas/bodega-state';
+import { StockTourService } from '../../services/stock-tour.service';
 import { ProductoForm } from "../../components/producto-form/producto-form";
 import { Insumo, LoteInsumo } from '../../../../../core/models/domain/insumo';
 import { CrearInsumo } from '../../../../../core/models/domain/insumo';
@@ -27,6 +28,7 @@ export class InsumoPage implements OnInit {
   protected state = inject(StockMercaderiaState);
   protected bodegaState = inject(BodegaState);
   private route = inject(ActivatedRoute);
+  private readonly tour = inject(StockTourService);
   
   pagina = signal<number>(1);
   itemsPorPagina = 9;
@@ -261,7 +263,7 @@ export class InsumoPage implements OnInit {
   ngOnInit() {
     this.state.cargarMercaderia();
     this.bodegaState.cargarBodegas();
-    this.state.cargarCatalogos(); 
+    this.state.cargarCatalogos();
 
     this.route.fragment.subscribe(fragment => {
       if (fragment) {
@@ -274,6 +276,16 @@ export class InsumoPage implements OnInit {
         }
       }
     });
+
+    if (!this.tour.haVistoElTutorial()) {
+      setTimeout(() => {
+        this.tour.iniciarTour();
+      }, 1200);
+    }
+  }
+
+  iniciarTutorial(): void {
+    this.tour.iniciarTour();
   }
 
   diasHastaVencimiento(lote: LoteInsumo): number {

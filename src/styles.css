@@ -1,6 +1,7 @@
  /* La NUNIIITO */
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap');
 @import 'flatpickr/dist/flatpickr.css';
+@import 'driver.js/dist/driver.css';
 
 /* VColores predeterminados de PanComido */
 :root {
@@ -211,4 +212,106 @@ span.flatpickr-weekday {
 .flatpickr-day.prevMonthDay,
 .flatpickr-day.nextMonthDay {
   color: #cbd5e1;
+}
+
+/* Custom Driver.js Styling */
+.driver-popover.driverjs-theme {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  font-family: 'Nunito', sans-serif !important;
+  border-radius: 12px !important;
+  padding: 1.25rem !important;
+  border: 1px solid rgba(15, 23, 42, 0.1) !important;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15) !important;
+}
+
+.driver-popover.driverjs-theme .driver-popover-title {
+  font-family: 'Nunito', sans-serif !important;
+  font-weight: 850 !important;
+  font-size: 1.15rem !important;
+  color: #0f172a !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.driver-popover.driverjs-theme .driver-popover-description {
+  font-family: 'Nunito', sans-serif !important;
+  font-weight: 550 !important;
+  font-size: 0.9rem !important;
+  color: #475569 !important;
+  line-height: 1.5 !important;
+}
+
+.driver-popover.driverjs-theme .driver-popover-close-btn {
+  color: #64748b !important;
+}
+
+.driver-popover.driverjs-theme .driver-popover-close-btn:hover {
+  color: #d8081c !important;
+}
+
+.driver-popover.driverjs-theme .driver-popover-next-btn {
+  background-color: #d8081c !important;
+  color: #ffffff !important;
+  border: 1px solid #d8081c !important;
+  border-radius: 8px !important;
+  font-family: 'Nunito', sans-serif !important;
+  font-weight: 700 !important;
+  padding: 0.4rem 0.8rem !important;
+  text-shadow: none !important;
+  transition: background 0.2s ease !important;
+}
+
+.driver-popover.driverjs-theme .driver-popover-next-btn:hover {
+  background-color: #a8041a !important;
+  border-color: #a8041a !important;
+}
+
+.driver-popover.driverjs-theme .driver-popover-prev-btn {
+  background-color: #ffffff !important;
+  color: #475569 !important;
+  border: 1px solid rgba(15, 23, 42, 0.15) !important;
+  border-radius: 8px !important;
+  font-family: 'Nunito', sans-serif !important;
+  font-weight: 700 !important;
+  padding: 0.4rem 0.8rem !important;
+  transition: all 0.2s ease !important;
+}
+
+.driver-popover.driverjs-theme .driver-popover-prev-btn:hover {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: rgba(15, 23, 42, 0.25) !important;
+}
+
+.driver-popover.driverjs-theme .driver-popover-progress-text {
+  font-family: 'Nunito', sans-serif !important;
+  color: #64748b !important;
+  font-weight: 700 !important;
+  font-size: 0.78rem !important;
+}
+
+.driver-popover.driverjs-theme .driver-popover-arrow {
+  border-color: #ffffff !important;
+}
+
+.tour-skip-btn:hover {
+  color: #d8081c !important;
+}
+
+.tour-trigger-btn {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  background: #ffffff;
+  color: #64748b;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tour-trigger-btn:hover {
+  border-color: rgba(15, 23, 42, 0.12);
+  color: #d8081c;
 }

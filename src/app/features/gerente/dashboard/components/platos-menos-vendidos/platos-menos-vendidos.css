@@ -407,3 +407,13 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
+.legend-note {
+  display: block;
+  font-size: 0.72rem;
+  color: #9babc1;
+  font-weight: 550;
+  font-style: italic;
+  margin-top: 0.2rem;
+  line-height: 1.35;
+}

@@ -7,6 +7,10 @@
     </div>
 
     <div class="header-status-actions">
+      <button type="button" class="tour-trigger-btn" (click)="iniciarTutorial()" title="Iniciar tutorial interactivo">
+        <span class="material-symbols-outlined">help</span>
+      </button>
+
       <div class="refresh-indicator-container">
         <span class="refresh-time">Actualizado {{ state.ultimoRefresco() | date: 'HH:mm' }}</span>
         <button type="button" class="refresh-btn" [class.spinning]="state.cargando()" (click)="refrescarManual()" title="Refrescar datos ahora">
