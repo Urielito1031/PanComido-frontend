@@ -47,7 +47,8 @@ describe('PagoConfirmado', () => {
 
     it('deberia mostrar el mensaje de exito en el template', () => {
       const texto = fixture.nativeElement.textContent;
-      expect(texto).toContain('Gracias por tu compra');
+      expect(texto).toContain('Tu pago en');
+      expect(texto).toContain('fue un éxito');
       expect(texto).toContain('Tu pago fue procesado correctamente');
     });
   });
@@ -81,8 +82,8 @@ describe('PagoConfirmado', () => {
 
     it('deberia mostrar el mensaje de efectivo en el template', () => {
       const texto = fixture.nativeElement.textContent;
-      expect(texto).toContain('Gracias por tu compra');
-      expect(texto).toContain('El mozo se acercará a la brevedad');
+      expect(texto).toContain('El mozo fue notificado');
+      expect(texto).toContain('Se acercará a la brevedad');
     });
   });
 

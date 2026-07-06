@@ -9,6 +9,7 @@ import { ComandaHubService } from '../../../../core/services/hubs/comanda/comand
 import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
 import { EstadoPedido, Comanda } from '../../../../core/models/domain/comanda';
 import { MetodoPagoId } from '../../../../core/models/domain/metodo-pago';
+import { ConfiguracionState } from '../../../gerente/configuracion/services/configuracion-state';
 
 describe('PagoCheckout', () => {
   let component: PagoCheckout;
@@ -76,6 +77,19 @@ describe('PagoCheckout', () => {
       cargar: vi.fn(),
     };
 
+    const configuracionStateMock = {
+      metodosPago: signal([
+        { id: MetodoPagoId.MercadoPago, descripcion: 'Mercado Pago', habilitado: true },
+        { id: MetodoPagoId.Tarjeta, descripcion: 'Tarjeta', habilitado: true },
+        { id: MetodoPagoId.Efectivo, descripcion: 'Efectivo', habilitado: true },
+        { id: MetodoPagoId.Transferencia, descripcion: 'Transferencia', habilitado: true },
+      ]),
+      datosTransferenciaComensal: signal(null),
+      datosTransferenciaComensalCargando: signal(false),
+      cargarMetodosPago: vi.fn(),
+      cargarDatosTransferenciaComensal: vi.fn(),
+    };
+
     TestBed.configureTestingModule({
       imports: [PagoCheckout],
       providers: [
@@ -85,6 +99,7 @@ describe('PagoCheckout', () => {
         { provide: PagoService, useValue: pagoServiceMock },
         { provide: ComandaHubService, useValue: comandaHubMock },
         { provide: ConfiguracionVisualState, useValue: configuracionVisualStateMock },
+        { provide: ConfiguracionState, useValue: configuracionStateMock },
       ],
     });
 
@@ -219,9 +234,9 @@ describe('PagoCheckout', () => {
   });
 
   describe('pagarMercadoPago', () => {
-    it('deberia solicitar MP y redirigir al initPoint', () => {
+    it('deberia solicitar MP y limpiar el estado de carga al recibir initPoint', () => {
       configurarTest({}, estadoPedidoMock);
-      const initPoint = 'https://mercadopago.com.ar/pay/abc123';
+      const initPoint = window.location.href;
       pagoServiceMock.solicitarPagoMP.mockReturnValue(of({ initPoint }));
 
       component.pagarMercadoPago();
@@ -322,7 +337,7 @@ describe('PagoCheckout', () => {
       component.error.set('Hubo un problema');
       fixture.detectChanges();
 
-      const alerta = fixture.nativeElement.querySelector('.alert-warning');
+      const alerta = fixture.nativeElement.querySelector('.checkout-error');
       expect(alerta).toBeTruthy();
       expect(alerta.textContent).toContain('Hubo un problema');
     });
@@ -338,7 +353,7 @@ describe('PagoCheckout', () => {
 
     it('deberia mostrar spinner en boton de efectivo cuando metodoCargando es true', () => {
       configurarTest({}, estadoPedidoMock);
-      component.metodoCargando.set('mp');
+      component.metodoCargando.set('efectivo');
       fixture.detectChanges();
 
       const spinner = fixture.nativeElement.querySelector('.spinner-border');

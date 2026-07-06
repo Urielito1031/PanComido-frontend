@@ -13,6 +13,7 @@ describe('EstrellasRating', () => {
 
     fixture = TestBed.createComponent(EstrellasRating);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('valor', 0);
     await fixture.whenStable();
   });
 

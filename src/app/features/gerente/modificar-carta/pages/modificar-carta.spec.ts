@@ -45,7 +45,6 @@ describe('ModificarCartaComponent', () => {
       totalComidasCount: signal(0),
       sortOrder: signal<'default' | 'ventas-desc' | 'ventas-asc'>('default'),
       searchTerm: signal(''),
-      mostrarModalRestaurar: signal(false),
       mostrarModalImportar: signal(false),
       porcentajesPlatos: signal([]),
 

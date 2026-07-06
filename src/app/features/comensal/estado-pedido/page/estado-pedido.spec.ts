@@ -73,19 +73,25 @@ describe('EstadoPedido', () => {
     ]);
   });
 
-  it('debería calcular color de estado preparación', () => {
-    expect(component.estadoColor).toBe('#ebd038');
+  it('debería consultar estado si no hay pedido cargado', () => {
+    estadoSignal.set(null);
+    component.ngOnInit();
+
+    expect(comandaStateMock.consultarEstado).toHaveBeenCalled();
   });
 
-  it('debería calcular color de estado listo', () => {
+  it('no debería consultar estado si ya hay pedido cargado', () => {
+    comandaStateMock.consultarEstado.mockClear();
     estadoSignal.set({ estadoUI: 'Listo para servir' });
+    component.ngOnInit();
 
-    expect(component.estadoColor).toBe('#6bb446');
+    expect(comandaStateMock.consultarEstado).not.toHaveBeenCalled();
   });
 
-  it('debería color gris por defecto', () => {
+  it('debería exponer las signals del estado de comanda', () => {
     estadoSignal.set({ estadoUI: 'Otro estado' });
 
-    expect(component.estadoColor).toBe('#a3a3a3');
+    expect(component.estado()).toEqual({ estadoUI: 'Otro estado' });
+    expect(component.mesaId()).toBe(10);
   });
 });

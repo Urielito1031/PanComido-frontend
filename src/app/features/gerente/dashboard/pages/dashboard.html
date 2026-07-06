@@ -454,7 +454,7 @@
                 <div class="size-selector-popover" (click)="$event.stopPropagation()">
                   <div class="popover-title">Seleccionar ancho:</div>
                   <div class="popover-options">
-                    @if (fav.id.startsWith('kpi-') || fav.id === 'proximas-acciones' || fav.id.startsWith('lectura-')) {
+                    @if (fav.id.startsWith('kpi-') || fav.id === 'proximas-acciones') {
                       <button type="button" [class.active]="fav.width === '25'" (click)="establecerAnchoModulo(fav.id, '25')">Chico (25%)</button>
                     }
                     @if (fav.id !== 'mozos') {
