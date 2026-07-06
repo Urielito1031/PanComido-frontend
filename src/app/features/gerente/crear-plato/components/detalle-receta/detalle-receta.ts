@@ -2,6 +2,7 @@ import { FormsModule } from '@angular/forms';
 import { Buscador } from '../../../../../shared/ui/buscador/buscador';
 import { RecetaIngrediente } from '../../../../../core/models/domain/plato';
 import { IngredienteDisponibleDto } from '../../../services/plato.api';
+import { factorConversionAUnidadBase } from '../../../services/plato-cost';
 import { Component, output, signal, computed, input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { UnidadMedida } from '../../../../../core/models/domain/unidad-medida';
 
@@ -46,7 +47,7 @@ export class DetalleRecetaComponent implements OnInit {
     const nuevo: RecetaIngrediente = {
       id: ingrediente.id,
       nombre: ingrediente.nombre,
-      cantidad: 1,
+      cantidad: 0,
       unidadMedida: ingrediente.unidadMedida,
       costoUnitario: ingrediente.costoUnitario,
       opcional: false
@@ -73,10 +74,13 @@ export class DetalleRecetaComponent implements OnInit {
   }
 
   onCantidadCambiada(item: RecetaIngrediente) {
-    if (item.cantidad === null || item.cantidad === undefined || item.cantidad < 0.01) {
-      item.cantidad = 0.01;
+    this.actualizarCantidad(item.id, Number(item.cantidad));
+  }
+
+  onFocusCantidad(item: RecetaIngrediente, event: FocusEvent): void {
+    if (item.cantidad === 0) {
+      (event.target as HTMLInputElement).value = '';
     }
-    this.notificarCambio();
   }
 
   presetsCantidad(item: RecetaIngrediente): RecipeQuantityPreset[] {
@@ -133,14 +137,19 @@ export class DetalleRecetaComponent implements OnInit {
     return [];
   }
 
-  sumarCantidadPreset(item: RecetaIngrediente, preset: RecipeQuantityPreset): void {
-    const actual = Number(item.cantidad) || 0;
-    item.cantidad = this.redondearCantidad(actual + preset.value);
-    this.onCantidadCambiada(item);
+  aplicarPresetCantidad(item: RecetaIngrediente, preset: RecipeQuantityPreset): void {
+    this.actualizarCantidad(item.id, preset.value);
   }
 
   limpiarCantidad(item: RecetaIngrediente): void {
-    item.cantidad = 0.01;
+    this.actualizarCantidad(item.id, 0);
+  }
+
+  private actualizarCantidad(id: string | number, cantidad: number): void {
+    const cantidadValida = Number.isFinite(cantidad) && cantidad > 0 ? this.redondearCantidad(cantidad) : 0;
+    this.ingredientesSeleccionados.update(items => items.map(item =>
+      item.id === id ? { ...item, cantidad: cantidadValida } : item
+    ));
     this.notificarCambio();
   }
 
@@ -178,7 +187,8 @@ export class DetalleRecetaComponent implements OnInit {
   calcularCostoIngrediente(item: RecetaIngrediente): number {
     const cantidad = Number(item.cantidad) || 0;
     const costoUnitario = Number(item.costoUnitario) || 0;
-    return this.redondearCantidad(cantidad * costoUnitario);
+    const factor = factorConversionAUnidadBase(this.unidadNormalizada(item.unidadMedida));
+    return this.redondearCantidad(cantidad * costoUnitario * factor);
   }
 
   private notificarCambio() {
