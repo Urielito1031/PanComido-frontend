@@ -3,6 +3,7 @@ import { Plato } from '../../../../../core/models/domain/plato';
 import { PorcentajeItem } from '../../../../../core/models/domain/porcentajes-ganancia';
 import { ToggleComponent } from '../../../../../shared/ui/toggle/toggle';
 import { ArsCurrencyPipe } from '../../../../../shared/pipes/ars-currency.pipe';
+import { calcularPrecioConGanancia } from '../../../services/plato-cost';
 
 @Component({
   selector: 'app-card-plato',
@@ -74,5 +75,10 @@ export class CardPlatoComponent {
     const categoriaId = this.plato().categoriaPlatoId;
     if (categoriaId == null) return 0;
     return this.porcentajesPlatos().find(item => item.id === categoriaId)?.porcentaje ?? 0;
+  }
+
+  obtenerPrecioSugerido(): number | null {
+    if (this.plato().categoriaPlatoId == null) return null;
+    return calcularPrecioConGanancia(this.plato().costo, this.obtenerPorcentajeGanancia());
   }
 }

@@ -80,14 +80,16 @@
         <div class="col-4">
           <div class="d-flex justify-content-between align-items-center">
             <label class="form-label soft-label mb-0">Precio Venta</label>
-            @if (precioEsManual() && precioConGanancia() !== null) {
-              <app-boton
-                label="Recalcular"
-                variante="outline"
-                tamanio="sm"
-                (clicked)="onRecalcularPrecio()">
-              </app-boton>
-            }
+            <app-boton
+              label="Recalcular"
+              variante="outline"
+              tamanio="sm"
+              [disabled]="!precioEsManual() || precioConGanancia() === null"
+              [title]="precioEsManual()
+                ? 'Volver a precio automático (costo + % de ganancia)'
+                : 'Precio ya automático'"
+              (clicked)="onRecalcularPrecio()">
+            </app-boton>
           </div>
           <div class="input-group soft-input-group">
             <span class="input-group-text fw-bold">$</span>
