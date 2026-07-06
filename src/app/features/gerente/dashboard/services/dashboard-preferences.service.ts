@@ -27,7 +27,7 @@ export const PLANTILLA_OPERATIVA: FavoriteWidgetConfig[] = [
 
 export const PLANTILLA_PERSONAL: FavoriteWidgetConfig[] = [
   { id: 'mozos', width: '100' },
-  { id: 'satisfaccion-comensal', width: '50' },
+  { id: 'satisfaccion-comensal', width: '100' },
   { id: 'kpi-pedidos', width: '50' },
   { id: 'radar-alergias', width: '50' }
 ];
@@ -108,7 +108,7 @@ export class DashboardPreferencesService {
 
   private obtenerAnchoPorDefecto(id: string): WidgetWidth {
     if (id.startsWith('kpi-')) return '25';
-    if (id === 'ventas-calendario' || id === 'mozos' || id === 'insumos-vencer') {
+    if (id === 'ventas-calendario' || id === 'mozos' || id === 'insumos-vencer' || id === 'satisfaccion-comensal') {
       return '100';
     }
     return '50';

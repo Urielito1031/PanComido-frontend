@@ -424,3 +424,55 @@
     gap: 0.5rem;
   }
 }
+
+/* Modificadores específicos para el tamaño de 50% en Favoritos */
+.satisfaction-content-split.is-half-width {
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  padding: 1rem;
+}
+
+.satisfaction-content-split.is-half-width .radar-and-metrics-section {
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.satisfaction-content-split.is-half-width .radar-chart {
+  width: min(200px, 100%);
+}
+
+.satisfaction-content-split.is-half-width .axis-list-vertical {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.satisfaction-content-split.is-half-width .axis-item-card {
+  padding: 0.5rem 0.65rem;
+}
+
+.satisfaction-content-split.is-half-width .axis-item-label span {
+  font-size: 0.75rem;
+}
+
+.satisfaction-content-split.is-half-width .google-rate-card-premium {
+  padding: 1rem;
+  gap: 0.75rem;
+}
+
+.satisfaction-content-split.is-half-width .google-value-wrapper-premium {
+  gap: 1rem;
+}
+
+.satisfaction-content-split.is-half-width .google-percentage-block strong {
+  font-size: 1.85rem;
+}
+
+.satisfaction-content-split.is-half-width .google-total-block .total-qty {
+  font-size: 1.55rem;
+}
+
+.satisfaction-content-split.is-half-width .google-divider-premium {
+  height: 28px;
+}
+

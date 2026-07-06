@@ -154,7 +154,7 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
         if (w.id === 'ventas-calendario' || w.id === 'platos-menos-vendidos') {
           return { ...w, colSpan: 6 };
         }
-        if (w.id === 'radar-alergias' || w.id === 'satisfaccion-comensal' || w.id === 'mozos') {
+        if (w.id === 'radar-alergias' || w.id === 'mozos') {
           return { ...w, colSpan: 6 };
         }
         return w;
