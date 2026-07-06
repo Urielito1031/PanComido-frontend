@@ -111,3 +111,12 @@ export interface IngredienteExcluidoStat {
   totalPedidosPlatoMasExcluido: number;
   tasaExclusionPlatoMasExcluido: string;
 }
+
+export interface DashboardSatisfaccionMetricas {
+  promedioComida: number;
+  promedioLugar: number;
+  promedioAtencion: number;
+  totalEncuestas: number;
+  totalDerivadosGoogleMaps: number;
+  porcentajeDerivados: number;
+}

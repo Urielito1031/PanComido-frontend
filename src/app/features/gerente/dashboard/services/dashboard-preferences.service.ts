@@ -27,6 +27,7 @@ export const PLANTILLA_OPERATIVA: FavoriteWidgetConfig[] = [
 
 export const PLANTILLA_PERSONAL: FavoriteWidgetConfig[] = [
   { id: 'mozos', width: '100' },
+  { id: 'satisfaccion-comensal', width: '50' },
   { id: 'kpi-pedidos', width: '50' },
   { id: 'radar-alergias', width: '50' }
 ];

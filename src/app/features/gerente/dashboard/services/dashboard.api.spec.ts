@@ -99,7 +99,8 @@ describe('DashboardApiService', () => {
         variacionVentas: '+10%',
         variacionPedidos: '+5%',
         variacionTicket: '+2%',
-        grafico: []
+        grafico: [],
+        mozos: []
       };
 
       service.getResumenOperativo('2023-01-01', '2023-01-31').subscribe(res => {
@@ -110,6 +111,31 @@ describe('DashboardApiService', () => {
         request.url === `${environment.apiUrl}/gerente/dashboard/resumen` &&
         request.params.get('desde') === '2023-01-01' &&
         request.params.get('hasta') === '2023-01-31'
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush(mockResponse);
+    });
+  });
+
+  describe('getSatisfaccionComensal', () => {
+    it('should fetch satisfaction metrics with date range params', () => {
+      const mockResponse = {
+        promedioComida: 3.71,
+        promedioLugar: 3.84,
+        promedioAtencion: 3.23,
+        totalEncuestas: 31,
+        totalDerivadosGoogleMaps: 13,
+        porcentajeDerivados: 41.9
+      };
+
+      service.getSatisfaccionComensal('2026-07-01', '2026-07-06').subscribe(res => {
+        expect(res).toEqual(mockResponse);
+      });
+
+      const req = httpMock.expectOne(request =>
+        request.url === `${environment.apiUrl}/gerente/dashboard/satisfaccion` &&
+        request.params.get('desde') === '2026-07-01' &&
+        request.params.get('hasta') === '2026-07-06'
       );
       expect(req.request.method).toBe('GET');
       req.flush(mockResponse);

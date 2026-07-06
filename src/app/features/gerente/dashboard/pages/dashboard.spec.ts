@@ -71,6 +71,7 @@ describe('DashboardPage', () => {
       platosMasVendidosPreview: signal([]),
       platosMenosVendidosPreview: signal([]),
       ingredientesExcluidos: signal([]),
+      satisfaccionComensal: signal(null),
       recomendacionTopVentas: signal(''),
       lecturaComercial: signal([]),
       vencimientosResumen: signal([]),

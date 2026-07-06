@@ -3,7 +3,7 @@ import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ApiService } from '../../../../core/services/api-service';
-import { DashboardInsumoVencimiento, DashboardRankingItem, PlatoAnalisis, DashboardAccionItem, EstadisticaMozo, IngredienteExcluidoStat } from '../../../../core/models/domain/dashboard';
+import { DashboardInsumoVencimiento, DashboardRankingItem, PlatoAnalisis, DashboardAccionItem, EstadisticaMozo, IngredienteExcluidoStat, DashboardSatisfaccionMetricas } from '../../../../core/models/domain/dashboard';
 import { DashboardVencimientoDto } from '../../../../core/models/dtos/responses/dashboard-vencimiento.response';
 import { DashboardRendimientoResponseDto } from '../../../../core/models/dtos/responses/dashboard-rendimiento.response';
 import { mapVencimientoDtoToDomain, mapPlatoRendimientoDtoToDomain } from '../../../../infra/http/mappers/dashboard.mapper';
@@ -73,6 +73,14 @@ export class DashboardApiService {
       .set('hasta', hasta);
 
     return this.api.get<IngredienteExcluidoStat[]>('gerente/dashboard/ingredientes-excluidos', params);
+  }
+
+  getSatisfaccionComensal(desde: string, hasta: string): Observable<DashboardSatisfaccionMetricas> {
+    const params = new HttpParams()
+      .set('desde', desde)
+      .set('hasta', hasta);
+
+    return this.api.get<DashboardSatisfaccionMetricas>('gerente/dashboard/satisfaccion', params);
   }
 }
 
