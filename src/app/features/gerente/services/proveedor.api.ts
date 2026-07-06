@@ -249,8 +249,9 @@ export class ProveedorApiService {
       vencimiento: this.normalizarFecha(dto.vencimiento) ?? '',
       stockMinimo: dto.stockMinimo,
       precioVentaFinal: dto.precioVentaFinal ?? 0,
-      
-      unidadMedida: { 
+      esPrecioManual: dto.esPrecioManual,
+
+      unidadMedida: {
         id: 0, 
         nombre: dto.unidadMedida ?? 'UN' 
       } as UnidadMedida,

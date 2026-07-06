@@ -30,6 +30,20 @@ describe('StockMercaderiaService', () => {
     categoriaIngrediente: { id: 0, descripcion: 'Almacen', tipoAplica: 'Ingrediente' }
   };
 
+  const mockDetalleInsumoDto = {
+    id: 1,
+    nombre: 'Harina',
+    descripcion: 'Harina 0000',
+    precioVentaFinal: 100,
+    esPrecioManual: false,
+    stockMinimo: 5,
+    stockRecomendado: 20,
+    categoriaId: 2,
+    unidadDeMedidaId: 3,
+    urlImagen: null,
+    tipo: 'Ingrediente'
+  };
+
   beforeEach(() => {
     mockApiService = {
       get: vi.fn(),
@@ -63,11 +77,14 @@ describe('StockMercaderiaService', () => {
       expect(mockApiService.get).toHaveBeenCalledWith('insumo');
     });
 
-    it('getById() debería llamar con el id correcto', () => {
-      mockApiService.get.mockReturnValue(of(mockInsumoDto));
+    it('getById() debería llamar con el id correcto y mapear el detalle', () => {
+      mockApiService.get.mockReturnValue(of(mockDetalleInsumoDto));
 
       service.getById(5).subscribe(result => {
         expect(result.id).toBe(1);
+        expect(result.categoriaId).toBe(2);
+        expect(result.unidadDeMedidaId).toBe(3);
+        expect(result.stockRecomendado).toBe(20);
       });
 
       expect(mockApiService.get).toHaveBeenCalledWith('insumo/5');
@@ -98,6 +115,29 @@ describe('StockMercaderiaService', () => {
       service.actualizar(10, mappedDomain).subscribe();
 
       expect(mockApiService.put).toHaveBeenCalledWith('insumo/10', mappedDomain);
+    });
+
+    it('actualizarInsumoConImagen() debería hacer PUT con FormData', () => {
+      mockApiService.put.mockReturnValue(of({ mensaje: 'ok' }));
+
+      service.actualizarInsumoConImagen(1, {
+        nombre: 'Gaseosa',
+        esPrecioManual: false,
+        stockMinimo: 5,
+        stockRecomendado: 20,
+        categoriaId: 4,
+        unidadDeMedidaId: 3,
+        precioVentaFinal: 500
+      }).subscribe(result => {
+        expect(result.id).toBe(1);
+        expect(result.nombre).toBe('Gaseosa');
+      });
+
+      expect(mockApiService.put).toHaveBeenCalledWith('insumo/1', expect.any(FormData));
+      const formData: FormData = mockApiService.put.mock.calls[0][1];
+      expect(formData.get('Nombre')).toBe('Gaseosa');
+      expect(formData.get('PrecioVentaFinal')).toBe('500');
+      expect(formData.get('EsPrecioManual')).toBe('false');
     });
 
     it('eliminar() debería hacer DELETE', () => {

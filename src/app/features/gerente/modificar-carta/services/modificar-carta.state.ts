@@ -2,8 +2,11 @@ import { Injectable, inject, signal, computed, DestroyRef } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PlatoApiService } from '../../services/plato.api';
 import { Plato } from '../../../../core/models/domain/plato';
+import { InsumoDetalle } from '../../../../core/models/domain/insumo';
 import { PorcentajeItem } from '../../../../core/models/domain/porcentajes-ganancia';
 import { environment } from '../../../../../environments/environment';
+import { StockMercaderiaService } from '../../stock-mercaderia/services/insumos/stock-mercaderia-service';
+import { GuardarBebidaPayload } from '../../stock-mercaderia/components/editar-bebida-form/editar-bebida-form';
 import {
   CartaSortOrder,
   esBebida,
@@ -14,9 +17,17 @@ import {
   tiposDisponibles
 } from './modificar-carta.rules';
 
+export interface BebidaAEditar {
+  id: number;
+  costo: number;
+  categoriaInsumoId: number | null;
+  detalle: InsumoDetalle | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ModificarCartaStateService {
   private api = inject(PlatoApiService);
+  private stockService = inject(StockMercaderiaService);
   private destroyRef = inject(DestroyRef);
 
   // 1. Estado PRIVADO
@@ -35,6 +46,8 @@ export class ModificarCartaStateService {
   private _mostrarModalRestaurar = signal<boolean>(false);
   private _loadingRestaurar = signal<boolean>(false);
   private _porcentajesPlatos = signal<PorcentajeItem[]>([]);
+  private _porcentajesBebidas = signal<PorcentajeItem[]>([]);
+  private _bebidaAEditar = signal<BebidaAEditar | null>(null);
 
   // 2. Estado PÚBLICO
   searchTerm = this._searchTerm.asReadonly();
@@ -52,6 +65,8 @@ export class ModificarCartaStateService {
   mostrarModalRestaurar = this._mostrarModalRestaurar.asReadonly();
   loadingRestaurar = this._loadingRestaurar.asReadonly();
   porcentajesPlatos = this._porcentajesPlatos.asReadonly();
+  porcentajesBebidas = this._porcentajesBebidas.asReadonly();
+  bebidaAEditar = this._bebidaAEditar.asReadonly();
 
   // 3. Variables Derivadas (Computed)
   tiposBebidaDisponibles = computed(() => {
@@ -161,7 +176,10 @@ export class ModificarCartaStateService {
     this.api.getDatosFormulario()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (res) => this._porcentajesPlatos.set(res.porcentajes.platos)
+        next: (res) => {
+          this._porcentajesPlatos.set(res.porcentajes.platos);
+          this._porcentajesBebidas.set(res.porcentajes.bebidas);
+        }
       });
   }
 
@@ -228,6 +246,54 @@ export class ModificarCartaStateService {
     this._platoAEliminar.set(plato);
   }
 
+  setBebidaAEditar(plato: Plato | null): void {
+    if (!plato) {
+      this._bebidaAEditar.set(null);
+      return;
+    }
+
+    this._bebidaAEditar.set({
+      id: plato.id,
+      costo: plato.costo,
+      categoriaInsumoId: plato.categoriaInsumoId ?? null,
+      detalle: null
+    });
+
+    this.stockService.getById(plato.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(detalle => {
+        // GET /insumo/{id} no siempre trae urlImagen; usamos la que ya vino de carta/obtener-articulos como respaldo.
+        const detalleConImagen = detalle.urlImagen ? detalle : { ...detalle, urlImagen: plato.imagen || null };
+        this._bebidaAEditar.update(actual => actual ? { ...actual, detalle: detalleConImagen } : actual);
+      });
+  }
+
+  saveBebida(payload: GuardarBebidaPayload): void {
+    const target = this._bebidaAEditar();
+    const detalle = target?.detalle;
+    if (!target || !detalle) return;
+
+    const request = {
+      nombre: payload.nombre,
+      descripcion: detalle.descripcion ?? undefined,
+      precioVentaFinal: payload.precioVentaFinal,
+      esPrecioManual: payload.esPrecioManual,
+      stockMinimo: detalle.stockMinimo,
+      stockRecomendado: detalle.stockRecomendado,
+      categoriaId: detalle.categoriaId,
+      unidadDeMedidaId: detalle.unidadDeMedidaId
+    };
+
+    this.stockService.actualizarInsumoConImagen(target.id, request, payload.imagen)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(actualizado => {
+        this._platos.update(platos => platos.map(p => p.id === target.id
+          ? { ...p, nombre: actualizado.nombre, precioVenta: actualizado.precioVentaFinal ?? p.precioVenta, esPrecioManual: actualizado.esPrecioManual }
+          : p));
+        this._bebidaAEditar.set(null);
+      });
+  }
+
   savePlato(updatedFields: Partial<Plato>): void {
     const target = this._platoAEditar();
     if (!target) return;
@@ -279,6 +345,7 @@ export class ModificarCartaStateService {
   closeModals(): void {
     this._platoAEditar.set(null);
     this._platoAEliminar.set(null);
+    this._bebidaAEditar.set(null);
   }
 
   toggleRecomendado(plato: Plato): void {

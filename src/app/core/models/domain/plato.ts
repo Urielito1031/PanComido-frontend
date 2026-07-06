@@ -17,6 +17,7 @@ export interface Plato {
   tiempo?: number;
   tipoPlatoId?: number;
   categoriaPlatoId?: number;
+  categoriaInsumoId?: number;
   tipo: string;
   bebida?: string;
   restriccion?: string;

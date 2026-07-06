@@ -68,6 +68,7 @@ interface PlatoArticuloBackend {
   tipoArticulo: string;
   categoria: string;
   categoriaPlatoId?: number | null;
+  categoriaInsumoId?: number | null;
   destacado?: boolean;
   esPrecioManual?: boolean;
 }
@@ -125,6 +126,7 @@ export class PlatoApiService {
         tipo: dto.tipoArticulo,
         categoria: dto.categoria,
         categoriaPlatoId: dto.categoriaPlatoId ?? undefined,
+        categoriaInsumoId: dto.categoriaInsumoId ?? undefined,
         recomendado: dto.destacado ?? false,
         esPrecioManual: dto.esPrecioManual ?? false
       })))

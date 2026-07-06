@@ -50,8 +50,8 @@ export class ProductoForm {
  private initForm(): void {
     this.form = this.fb.group({
       nombre: ['', Validators.required],
-      descripcion: [''], 
-      precioVentaFinal: [0, Validators.min(0)], 
+      descripcion: [''],
+      precioVentaFinal: [0, Validators.min(0)],
       stockMinimo: [0, [Validators.required, Validators.min(0)]],
       unidadDeMedidaId: ['', Validators.required],
       stockInicial: [0, [Validators.required, Validators.min(0)]],

@@ -123,6 +123,7 @@
         <app-lista-platos 
           [platos]="platosRecomendados()"
           [porcentajesPlatos]="porcentajesPlatos()"
+          [porcentajesBebidas]="porcentajesBebidas()"
           [layoutMode]="layoutMode()"
           [explodingId]="explodingPlatoId()"
           (toggleVisible)="toggleVisibility($event)"
@@ -175,6 +176,7 @@
           <app-lista-platos 
             [platos]="platosComidas()"
             [porcentajesPlatos]="porcentajesPlatos()"
+          [porcentajesBebidas]="porcentajesBebidas()"
             [layoutMode]="layoutMode()"
             [explodingId]="explodingPlatoId()"
             (toggleVisible)="toggleVisibility($event)"
@@ -238,6 +240,7 @@
           <app-lista-platos 
             [platos]="platosBebidas()"
             [porcentajesPlatos]="porcentajesPlatos()"
+          [porcentajesBebidas]="porcentajesBebidas()"
             [layoutMode]="layoutMode()"
             [explodingId]="explodingPlatoId()"
             (toggleVisible)="toggleVisibility($event)"
@@ -267,6 +270,17 @@
         (save)="onSavePlato($event)"
         (close)="onCloseModals()">
       </app-modal-editar-plato>
+    }
+  }
+
+  @if (bebidaAEditar(); as bebida) {
+    @defer (on idle) {
+      <app-panel-editar-bebida
+        [bebida]="bebida"
+        [porcentajeGanancia]="porcentajeGananciaBebida()"
+        (guardar)="onSaveBebida($event)"
+        (cerrar)="onCloseModals()">
+      </app-panel-editar-bebida>
     }
   }
 
