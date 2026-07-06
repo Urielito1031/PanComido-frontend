@@ -232,6 +232,7 @@ export class ModificarCartaStateService {
       descripcion: updatedPlato.descripcion ?? '',
       precioVentaFinal: updatedPlato.precioVenta,
       tiempoPreparacionBase: updatedPlato.tiempoPreparacion ?? updatedPlato.tiempo ?? 1,
+      esPrecioManual: updatedPlato.esPrecioManual ?? false,
       tipoPlatoId,
       categoriaPlatoId,
       urlImagen: this.normalizarUrlImagen(updatedPlato.imagen),

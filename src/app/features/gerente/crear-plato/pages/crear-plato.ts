@@ -36,6 +36,7 @@ export class CrearPlatoPage {
   restricciones = this.state.restricciones;
   restriccionesSeleccionadas = this.state.restriccionesSeleccionadas;
   ingredientesDisponibles = this.state.ingredientesDisponibles;
+  porcentajesPlatos = this.state.porcentajesPlatos;
   receta = this.state.receta;
   mostrarExito = this.state.mostrarExito;
   costoSugerido = this.state.costoSugerido;

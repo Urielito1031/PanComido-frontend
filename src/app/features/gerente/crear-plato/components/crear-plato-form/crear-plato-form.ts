@@ -3,11 +3,14 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Boton } from '../../../../../shared/ui/botones/boton/boton';
 import { ItemDesplegableDto } from '../../../services/plato.api';
+import { PorcentajeItem } from '../../../../../core/models/domain/porcentajes-ganancia';
+import { redondear100 } from '../../../services/plato-cost';
 
 export interface PlatoFormData {
   nombre: string;
   costo: number;
   precioVenta: number;
+  esPrecioManual: boolean;
   tiempoPreparacion: number;
   tipoPlatoId: number;
   categoriaPlatoId: number;
@@ -29,6 +32,7 @@ export class CrearPlatoFormComponent {
   costoSugerido = input<number>(0);
   tiposPlato = input<ItemDesplegableDto[]>([]);
   categoriasPlato = input<ItemDesplegableDto[]>([]);
+  porcentajesPlatos = input<PorcentajeItem[]>([]);
   vegano = input<boolean>(false);
   vegetariano = input<boolean>(false);
   celiaco = input<boolean>(false);
@@ -79,6 +83,30 @@ export class CrearPlatoFormComponent {
     initialValue: this.platoForm.status
   });
 
+  porcentajeVigente = computed(() => {
+    const categoriaId = this.formValue()?.categoriaPlatoId;
+    if (categoriaId == null) return 0;
+    return this.porcentajesPlatos().find(item => item.id === categoriaId)?.porcentaje ?? 0;
+  });
+
+  precioConGanancia = computed<number | null>(() => {
+    if (this.formValue()?.categoriaPlatoId == null) return null;
+    const costo = this.formValue()?.costo ?? 0;
+    return redondear100(costo + costo * this.porcentajeVigente() / 100);
+  });
+
+  private readonly sincronizarPrecioVentaAutocalculado = effect(() => {
+    const costo = this.formValue()?.costo ?? 0;
+    const precioCalculado = this.precioConGanancia();
+    const precioVentaControl = this.platoForm.controls.precioVenta;
+
+    if (precioVentaControl.dirty || costo <= 0 || precioCalculado == null) return;
+
+    if (precioVentaControl.value !== precioCalculado) {
+      precioVentaControl.setValue(precioCalculado);
+    }
+  });
+
   precioEsMenorQueCosto = computed(() => {
     const currentVal = this.formValue();
     const pVenta = currentVal?.precioVenta ?? 0;
@@ -106,6 +134,7 @@ export class CrearPlatoFormComponent {
       nombre: formVal.nombre!,
       costo: formVal.costo!,
       precioVenta: formVal.precioVenta!,
+      esPrecioManual: this.platoForm.controls.precioVenta.dirty,
       tiempoPreparacion: formVal.tiempoPreparacion!,
       tipoPlatoId: formVal.tipoPlatoId!,
       categoriaPlatoId: formVal.categoriaPlatoId!,

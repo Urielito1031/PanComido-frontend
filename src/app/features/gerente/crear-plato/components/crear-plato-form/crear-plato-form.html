@@ -16,24 +16,29 @@
     }
   </div>
 
-  <!-- Costo & Venta side-by-side -->
+  <!-- Costo, Ganancia & Venta -->
   <div class="row g-3 mb-3">
-    <div class="col-6">
-      <label class="form-label font-bold">Costo <strong class="field-required">*</strong></label>
+    <div class="col-4">
+      <label class="form-label font-bold">Costo</label>
       <div class="input-group">
         <span class="input-group-text">$</span>
-        <input type="number" class="form-control custom-input border-start-0"
-          [class.is-invalid]="platoForm.get('costo')?.touched && platoForm.get('costo')?.invalid"
+        <input type="number" class="form-control custom-input border-start-0" readonly
           formControlName="costo">
       </div>
-      @if (costoSugerido() > 0) {
-      <span class="small-hint calculated-hint">Autocalculado</span>
-      }
-      @if (platoForm.get('costo')?.touched && platoForm.get('costo')?.hasError('min')) {
-      <span class="error-text">Debe ser mayor a 0.</span>
+      <span class="small-hint calculated-hint">Autocalculado según receta</span>
+    </div>
+    <div class="col-4">
+      <label class="form-label font-bold">Precio con ganancia</label>
+      <div class="input-group">
+        <span class="input-group-text">$</span>
+        <input type="number" class="form-control custom-input border-start-0" readonly
+          [value]="precioConGanancia()" placeholder="Elegí una categoría">
+      </div>
+      @if (precioConGanancia() !== null) {
+      <span class="small-hint calculated-hint">Costo + {{ porcentajeVigente() }}% de ganancia</span>
       }
     </div>
-    <div class="col-6">
+    <div class="col-4">
       <label class="form-label font-bold">Venta <strong class="field-required">*</strong></label>
       <div class="input-group">
         <span class="input-group-text">$</span>

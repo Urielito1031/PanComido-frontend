@@ -57,27 +57,38 @@
 
       <div class="row g-3 mb-4">
         <!-- COST -->
-        <div class="col-6">
+        <div class="col-4">
           <label class="form-label soft-label">Costo Total</label>
           <div class="cost-readonly-box">
             {{ costo() | arsCurrency }}
           </div>
           <app-price-note text="Suma de insumos de la receta x cantidad usada." [compact]="true" />
         </div>
-        
+
+        <!-- PRECIO CON GANANCIA -->
+        <div class="col-4">
+          <label class="form-label soft-label">Precio con ganancia</label>
+          <div class="cost-readonly-box">
+            {{ precioConGanancia() !== null ? (precioConGanancia() | arsCurrency) : 'Elegí una categoría' }}
+          </div>
+          @if (precioConGanancia() !== null) {
+            <app-price-note [text]="'Costo + ' + porcentajeVigente() + '% de ganancia'" [compact]="true" />
+          }
+        </div>
+
         <!-- PRICE -->
-        <div class="col-6">
+        <div class="col-4">
           <label class="form-label soft-label">Precio Venta</label>
           <div class="input-group soft-input-group">
             <span class="input-group-text fw-bold">$</span>
-            <input 
-              type="number" 
-              class="form-control soft-input fw-bold text-dark" 
+            <input
+              type="number"
+              class="form-control soft-input fw-bold text-dark"
               placeholder="0.00"
-              [ngModel]="precioVenta()" 
-              (ngModelChange)="precioVenta.set($event === null || $event === '' ? null : +$event)">
+              [ngModel]="precioVenta()"
+              (ngModelChange)="onPrecioVentaChange($event)">
           </div>
-          
+
           <!-- MARGIN INDICATOR -->
           @if (precioVenta() && costo()) {
             @if (precioEsMenorQueCosto()) {

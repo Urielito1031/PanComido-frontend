@@ -5,9 +5,10 @@ import { Plato, RecetaIngrediente } from '../../../../../core/models/domain/plat
 import { Boton } from '../../../../../shared/ui/botones/boton/boton';
 import { ToggleComponent } from '../../../../../shared/ui/toggle/toggle';
 import { Buscador } from '../../../../../shared/ui/buscador/buscador';
-import { calcularCostoReceta } from '../../../services/plato-cost';
+import { calcularCostoReceta, redondear100 } from '../../../services/plato-cost';
 import { Insumo } from '../../../../../core/models/domain/insumo';
 import { PlatoApiService, ItemDesplegableDto } from '../../../services/plato.api';
+import { PorcentajeItem } from '../../../../../core/models/domain/porcentajes-ganancia';
 import { ArsCurrencyPipe } from '../../../../../shared/pipes/ars-currency.pipe';
 import { PriceNoteComponent } from '../../../../../shared/ui/price-note/price-note';
 
@@ -41,6 +42,10 @@ export class ModalEditarPlatoComponent {
   tiposPlato = signal<ItemDesplegableDto[]>([]);
   categoriasPlato = signal<ItemDesplegableDto[]>([]);
   restricciones = signal<ItemDesplegableDto[]>([]);
+  porcentajesPlatos = signal<PorcentajeItem[]>([]);
+
+  esPrecioManualOriginal = signal<boolean>(false);
+  precioVentaTocado = signal<boolean>(false);
 
   vegano = computed(() => this.restriccionesSeleccionadas().includes(1));
   vegetariano = computed(() => this.restriccionesSeleccionadas().includes(2));
@@ -55,6 +60,18 @@ export class ModalEditarPlatoComponent {
 
   costo = computed(() => {
     return calcularCostoReceta(this.receta());
+  });
+
+  porcentajeVigente = computed(() => {
+    const categoriaId = this.categoriaPlatoId();
+    if (categoriaId == null) return 0;
+    return this.porcentajesPlatos().find(item => item.id === categoriaId)?.porcentaje ?? 0;
+  });
+
+  precioConGanancia = computed<number | null>(() => {
+    if (this.categoriaPlatoId() == null) return null;
+    const costoVal = this.costo();
+    return redondear100(costoVal + costoVal * this.porcentajeVigente() / 100);
   });
 
   precioEsMenorQueCosto = computed(() => {
@@ -89,12 +106,25 @@ export class ModalEditarPlatoComponent {
         this.tipoPlatoId.set(p.tipoPlatoId || null);
         this.categoriaPlatoId.set(p.categoriaPlatoId || null);
         this.restriccionesSeleccionadas.set(p.restriccionesIds || []);
+        this.esPrecioManualOriginal.set(p.esPrecioManual ?? false);
+        this.precioVentaTocado.set(false);
 
         const receta = p.receta ? JSON.parse(JSON.stringify(p.receta)) as RecetaIngrediente[] : [];
         this.receta.set(receta.map(ingrediente => ({
           ...ingrediente,
           unidadMedida: this.normalizarUnidadMedida(ingrediente.unidadMedida)
         })));
+      }
+    });
+
+    effect(() => {
+      const costoVal = this.costo();
+      const precioCalculado = this.precioConGanancia();
+
+      if (this.esPrecioManualOriginal() || this.precioVentaTocado() || costoVal <= 0 || precioCalculado == null) return;
+
+      if (this.precioVenta() !== precioCalculado) {
+        this.precioVenta.set(precioCalculado);
       }
     });
   }
@@ -124,8 +154,14 @@ export class ModalEditarPlatoComponent {
           this.tiposPlato.set(res.tiposPlato);
           this.categoriasPlato.set(res.categoriasPlato);
           this.restricciones.set(res.restricciones);
+          this.porcentajesPlatos.set(res.porcentajes.platos);
         }
       });
+  }
+
+  onPrecioVentaChange(value: number | string | null): void {
+    this.precioVentaTocado.set(true);
+    this.precioVenta.set(value === null || value === '' ? null : +value);
   }
 
   toggleRestriccion(id: number): void {
@@ -183,6 +219,7 @@ export class ModalEditarPlatoComponent {
       nombre: this.nombre(),
       precioVenta: this.precioVenta()!,
       costo: this.costo()!,
+      esPrecioManual: this.esPrecioManualOriginal() || this.precioVentaTocado(),
       imagen: this.imagen(),
       visible: this.visible(),
       descripcion: this.descripcion(),

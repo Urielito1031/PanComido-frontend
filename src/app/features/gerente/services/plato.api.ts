@@ -6,6 +6,7 @@ import { Insumo } from '../../../core/models/domain/insumo';
 import { InsumoResponseDto } from '../../../core/models/dtos/responses/insumo.response';
 import { CrearPlatoIngredienteDto, CrearPlatoRequestDto } from '../../../core/models/dtos/requests/crear-plato.request';
 import { mapInsumoDtoToDomain } from '../../../infra/http/mappers/insumo.mapper';
+import { PorcentajesGanancia } from '../../../core/models/domain/porcentajes-ganancia';
 
 export interface ItemDesplegableDto {
   id: number;
@@ -24,6 +25,7 @@ export interface DatosFormularioCrearPlatoResponseDto {
   categoriasPlato: ItemDesplegableDto[];
   restricciones: ItemDesplegableDto[];
   ingredientes: IngredienteDisponibleDto[];
+  porcentajes: PorcentajesGanancia;
 }
 
 export interface ModificarPlatoRequestDto {
@@ -31,6 +33,7 @@ export interface ModificarPlatoRequestDto {
   descripcion: string;
   precioVentaFinal: number;
   tiempoPreparacionBase: number;
+  esPrecioManual: boolean;
   tipoPlatoId: number;
   categoriaPlatoId: number;
   urlImagen: string;
@@ -45,6 +48,7 @@ interface DetallePlatoResponseDto {
   descripcion: string;
   precioVentaFinal: number;
   tiempoPreparacionBase: number;
+  esPrecioManual: boolean;
   tipoPlatoId: number;
   categoriaPlatoId: number;
   urlImagen: string | null;
@@ -62,7 +66,9 @@ interface PlatoArticuloBackend {
   urlImagen: string | null;
   tipoArticulo: string;
   categoria: string;
+  categoriaPlatoId?: number | null;
   destacado?: boolean;
+  esPrecioManual?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -85,6 +91,7 @@ export class PlatoApiService {
     formData.append('TiempoPreparacionBase',plato.tiempoPreparacionBase.toString());
     formData.append('TipoPlatoId', plato.tipoPlatoId.toString());
     formData.append('CategoriaPlatoId',plato.categoriaPlatoId.toString());
+    formData.append('EsPrecioManual', plato.esPrecioManual ? 'true' : 'false');
 
     if(plato.descripcion){
       formData.append('Descripcion',plato.descripcion);
@@ -116,7 +123,9 @@ export class PlatoApiService {
         imagen: dto.urlImagen || '',
         tipo: dto.tipoArticulo,
         categoria: dto.categoria,
-        recomendado: dto.destacado ?? false
+        categoriaPlatoId: dto.categoriaPlatoId ?? undefined,
+        recomendado: dto.destacado ?? false,
+        esPrecioManual: dto.esPrecioManual ?? false
       })))
     );
   }
@@ -244,6 +253,7 @@ export class PlatoApiService {
       tiempoPreparacion: dto.tiempoPreparacionBase,
       tipoPlatoId: dto.tipoPlatoId,
       categoriaPlatoId: dto.categoriaPlatoId,
+      esPrecioManual: dto.esPrecioManual,
       tipo,
       categoria,
       restriccionesIds: dto.restriccionesIds ?? [],
@@ -274,6 +284,7 @@ export class PlatoApiService {
       tiempoPreparacion: request.tiempoPreparacionBase,
       tipoPlatoId: request.tipoPlatoId,
       categoriaPlatoId: request.categoriaPlatoId,
+      esPrecioManual: request.esPrecioManual,
       tipo: '',
       categoria: '',
       restriccionesIds: request.restriccionesIds,
