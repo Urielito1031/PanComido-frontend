@@ -4,7 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { Boton } from '../../../../../shared/ui/botones/boton/boton';
 import { ItemDesplegableDto } from '../../../services/plato.api';
 import { PorcentajeItem } from '../../../../../core/models/domain/porcentajes-ganancia';
-import { redondear100 } from '../../../services/plato-cost';
+import { calcularPrecioConGanancia } from '../../../services/plato-cost';
 
 export interface PlatoFormData {
   nombre: string;
@@ -92,7 +92,7 @@ export class CrearPlatoFormComponent {
   precioConGanancia = computed<number | null>(() => {
     if (this.formValue()?.categoriaPlatoId == null) return null;
     const costo = this.formValue()?.costo ?? 0;
-    return redondear100(costo + costo * this.porcentajeVigente() / 100);
+    return calcularPrecioConGanancia(costo, this.porcentajeVigente());
   });
 
   private readonly sincronizarPrecioVentaAutocalculado = effect(() => {

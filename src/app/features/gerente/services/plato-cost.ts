@@ -10,3 +10,7 @@ export function calcularCostoReceta(receta: RecetaIngrediente[]): number {
 export function redondear100(monto: number): number {
   return Math.round(monto / 100) * 100;
 }
+
+export function calcularPrecioConGanancia(costo: number, porcentaje: number): number {
+  return redondear100(costo + costo * porcentaje / 100);
+}

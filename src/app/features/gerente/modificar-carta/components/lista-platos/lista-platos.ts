@@ -1,5 +1,6 @@
 import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { Plato } from '../../../../../core/models/domain/plato';
+import { PorcentajeItem } from '../../../../../core/models/domain/porcentajes-ganancia';
 import { CardPlatoComponent } from '../card-plato/card-plato';
 
 @Component({
@@ -11,6 +12,7 @@ import { CardPlatoComponent } from '../card-plato/card-plato';
 })
 export class ListaPlatosComponent {
   platos = input<Plato[]>([]);
+  porcentajesPlatos = input<PorcentajeItem[]>([]);
   layoutMode = input<'grid' | 'list'>('grid');
   explodingId = input<number | null>(null);
   toggleVisible = output<Plato>();

@@ -5,7 +5,7 @@ import { Plato, RecetaIngrediente } from '../../../../../core/models/domain/plat
 import { Boton } from '../../../../../shared/ui/botones/boton/boton';
 import { ToggleComponent } from '../../../../../shared/ui/toggle/toggle';
 import { Buscador } from '../../../../../shared/ui/buscador/buscador';
-import { calcularCostoReceta, redondear100 } from '../../../services/plato-cost';
+import { calcularCostoReceta, calcularPrecioConGanancia } from '../../../services/plato-cost';
 import { Insumo } from '../../../../../core/models/domain/insumo';
 import { PlatoApiService, ItemDesplegableDto } from '../../../services/plato.api';
 import { PorcentajeItem } from '../../../../../core/models/domain/porcentajes-ganancia';
@@ -46,6 +46,7 @@ export class ModalEditarPlatoComponent {
 
   esPrecioManualOriginal = signal<boolean>(false);
   precioVentaTocado = signal<boolean>(false);
+  private edicionActiva = signal<boolean>(false);
 
   vegano = computed(() => this.restriccionesSeleccionadas().includes(1));
   vegetariano = computed(() => this.restriccionesSeleccionadas().includes(2));
@@ -70,9 +71,10 @@ export class ModalEditarPlatoComponent {
 
   precioConGanancia = computed<number | null>(() => {
     if (this.categoriaPlatoId() == null) return null;
-    const costoVal = this.costo();
-    return redondear100(costoVal + costoVal * this.porcentajeVigente() / 100);
+    return calcularPrecioConGanancia(this.costo(), this.porcentajeVigente());
   });
+
+  precioEsManual = computed(() => this.esPrecioManualOriginal() || this.precioVentaTocado());
 
   precioEsMenorQueCosto = computed(() => {
     const venta = this.precioVenta() ?? 0;
@@ -108,6 +110,7 @@ export class ModalEditarPlatoComponent {
         this.restriccionesSeleccionadas.set(p.restriccionesIds || []);
         this.esPrecioManualOriginal.set(p.esPrecioManual ?? false);
         this.precioVentaTocado.set(false);
+        this.edicionActiva.set(false);
 
         const receta = p.receta ? JSON.parse(JSON.stringify(p.receta)) as RecetaIngrediente[] : [];
         this.receta.set(receta.map(ingrediente => ({
@@ -121,7 +124,7 @@ export class ModalEditarPlatoComponent {
       const costoVal = this.costo();
       const precioCalculado = this.precioConGanancia();
 
-      if (this.esPrecioManualOriginal() || this.precioVentaTocado() || costoVal <= 0 || precioCalculado == null) return;
+      if (!this.edicionActiva() || this.precioEsManual() || costoVal <= 0 || precioCalculado == null) return;
 
       if (this.precioVenta() !== precioCalculado) {
         this.precioVenta.set(precioCalculado);
@@ -164,6 +167,15 @@ export class ModalEditarPlatoComponent {
     this.precioVenta.set(value === null || value === '' ? null : +value);
   }
 
+  onRecalcularPrecio(): void {
+    const precioCalculado = this.precioConGanancia();
+    if (precioCalculado == null) return;
+
+    this.precioVenta.set(precioCalculado);
+    this.precioVentaTocado.set(false);
+    this.esPrecioManualOriginal.set(false);
+  }
+
   toggleRestriccion(id: number): void {
     const current = this.restriccionesSeleccionadas();
     if (current.includes(id)) {
@@ -188,15 +200,18 @@ export class ModalEditarPlatoComponent {
       opcional: false
     };
 
+    this.edicionActiva.set(true);
     this.receta.update(items => [...items, nuevo]);
     this.busqueda.set('');
   }
 
   eliminarIngrediente(id: string | number) {
+    this.edicionActiva.set(true);
     this.receta.update(items => items.filter(item => item.id !== id));
   }
 
   toggleOpcional(id: string | number) {
+    this.edicionActiva.set(true);
     this.receta.update(items => items.map(item => {
       if (item.id === id) {
         return { ...item, opcional: !item.opcional };
@@ -206,9 +221,15 @@ export class ModalEditarPlatoComponent {
   }
 
   onCantidadCambiada(ing: RecetaIngrediente) {
+    this.edicionActiva.set(true);
     if (ing.cantidad === null || ing.cantidad === undefined || ing.cantidad < 0.01) {
       ing.cantidad = 0.01;
     }
+  }
+
+  onCategoriaChange(value: string | null): void {
+    this.edicionActiva.set(true);
+    this.categoriaPlatoId.set(value ? +value : null);
   }
 
   onSave() {
@@ -219,7 +240,7 @@ export class ModalEditarPlatoComponent {
       nombre: this.nombre(),
       precioVenta: this.precioVenta()!,
       costo: this.costo()!,
-      esPrecioManual: this.esPrecioManualOriginal() || this.precioVentaTocado(),
+      esPrecioManual: this.precioEsManual(),
       imagen: this.imagen(),
       visible: this.visible(),
       descripcion: this.descripcion(),

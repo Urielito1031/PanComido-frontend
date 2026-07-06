@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { forkJoin, map, Observable, of, delay } from 'rxjs';
+import { forkJoin, map, switchMap, Observable, of, delay } from 'rxjs';
 import { ApiService } from '../../../core/services/api-service';
 import { Plato } from '../../../core/models/domain/plato';
 import { Insumo } from '../../../core/models/domain/insumo';
@@ -7,6 +7,7 @@ import { InsumoResponseDto } from '../../../core/models/dtos/responses/insumo.re
 import { CrearPlatoIngredienteDto, CrearPlatoRequestDto } from '../../../core/models/dtos/requests/crear-plato.request';
 import { mapInsumoDtoToDomain } from '../../../infra/http/mappers/insumo.mapper';
 import { PorcentajesGanancia } from '../../../core/models/domain/porcentajes-ganancia';
+import { calcularCostoReceta, calcularPrecioConGanancia } from './plato-cost';
 
 export interface ItemDesplegableDto {
   id: number;
@@ -148,6 +149,32 @@ export class PlatoApiService {
   modificarPlato(id: number, request: ModificarPlatoRequestDto): Observable<Plato> {
     return this.api.put<{ mensaje: string }>(`${this.endpoint}/${id}`, request).pipe(
       map(() => this.mapModificarRequestToDomain(id, request))
+    );
+  }
+
+  recalcularPrecioAutomatico(platoId: number, porcentajeGanancia: number): Observable<Plato> {
+    return this.getPlatoById(platoId).pipe(
+      switchMap(detalle => {
+        const costo = calcularCostoReceta(detalle.receta ?? []);
+        const request: ModificarPlatoRequestDto = {
+          nombre: detalle.nombre,
+          descripcion: detalle.descripcion ?? '',
+          precioVentaFinal: calcularPrecioConGanancia(costo, porcentajeGanancia),
+          tiempoPreparacionBase: detalle.tiempoPreparacion ?? detalle.tiempo ?? 1,
+          esPrecioManual: false,
+          tipoPlatoId: detalle.tipoPlatoId!,
+          categoriaPlatoId: detalle.categoriaPlatoId!,
+          urlImagen: detalle.imagen,
+          esVisibleEnCarta: detalle.visible,
+          restriccionesIds: detalle.restriccionesIds ?? [],
+          ingredientes: (detalle.receta ?? []).map(ingrediente => ({
+            insumoId: Number(ingrediente.id),
+            cantidad: ingrediente.cantidad,
+            opcional: ingrediente.opcional ?? false
+          }))
+        };
+        return this.modificarPlato(platoId, request);
+      })
     );
   }
 

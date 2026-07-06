@@ -43,10 +43,7 @@
         </h5>
         
         <div class="dish-metrics-row">
-          <span class="dish-metric"
-                [class.metric-high]="obtenerPorcentajeGanancia() >= 40"
-                [class.metric-med]="obtenerPorcentajeGanancia() >= 20 && obtenerPorcentajeGanancia() < 40"
-                [class.metric-low]="obtenerPorcentajeGanancia() < 20">
+          <span class="dish-metric">
             <span class="dish-metric-label">Mrg</span>
             <strong>{{ obtenerPorcentajeGanancia() }}%</strong>
           </span>
@@ -143,11 +140,7 @@
            </div>
            <div class="d-flex flex-column align-items-center" style="min-width: 70px;">
              <span class="text-muted text-uppercase mb-1" style="font-size: 0.65rem; letter-spacing: 0.05em;">Ganancia</span>
-             <span class="fw-bold" 
-                   [class.text-success]="obtenerPorcentajeGanancia() >= 40" 
-                   [class.text-warning]="obtenerPorcentajeGanancia() < 40 && obtenerPorcentajeGanancia() >= 20" 
-                   [class.text-danger]="obtenerPorcentajeGanancia() < 20" 
-                   style="font-size: 0.9rem;">
+             <span class="fw-bold text-dark" style="font-size: 0.9rem;">
                {{ obtenerPorcentajeGanancia() }}%
              </span>
            </div>
