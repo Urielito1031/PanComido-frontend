@@ -99,6 +99,7 @@ export interface EstadisticaMozo {
   facturacionTotal: number;
   tiempoPromedioAtencion: string;
   estado: 'Sobrecargado' | 'Optimo' | 'Baja carga';
+  calificacionPromedio: number | null;
 }
 
 export interface IngredienteExcluidoStat {
