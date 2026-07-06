@@ -7,7 +7,10 @@
           <span class="material-symbols-outlined">info</span>
         </button>
       </div>
-      <p>Con acción sugerida</p>
+      <p class="low-sales-subtitle">
+        Con acción sugerida.
+        <span class="legend-note">(Nota: Para reflejar el total real de ventas, selecciona el periodo mensual o anual desde los filtros, ya que en el filtro diario podría mostrar 0 u.).</span>
+      </p>
 
       @if (mostrandoCriterios()) {
         <div class="criterios-popover animate-fade-in" (click)="$event.stopPropagation()">

@@ -13,6 +13,7 @@ import { Router, RouterModule } from '@angular/router';
 import { ProveedorListComponent } from '../components/proveedor-list/proveedor-list';
 import { Insumo as ProductoStockMock } from '../../../../core/models/domain/insumo';
 import { VerProveedoresState } from '../services/ver-proveedores.state';
+import { ProveedoresTourService } from '../services/proveedores-tour.service';
 import { UnidadMedida } from '../../../../core/models/domain/unidad-medida';
 import { CategoriaInsumo } from '../../../../core/models/domain/categoria-insumo';
 import { ArsCurrencyPipe } from '../../../../shared/pipes/ars-currency.pipe';
@@ -31,6 +32,7 @@ export class VerProveedoresComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly state = inject(VerProveedoresState);
   private readonly fb = inject(FormBuilder);
+  private readonly tour = inject(ProveedoresTourService);
 
   private readonly pedidoModalCard = viewChild<ElementRef<HTMLElement>>('pedidoModalCard');
 
@@ -85,6 +87,12 @@ export class VerProveedoresComponent implements OnInit {
     if (navState?.created) {
       this.state.mensajeAccion.set(navState.message ?? 'Proveedor creado correctamente');
       setTimeout(() => this.state.mensajeAccion.set(null), 3500);
+    }
+
+    if (!this.tour.haVistoElTutorial()) {
+      setTimeout(() => {
+        this.tour.iniciarTour();
+      }, 1200);
     }
   }
 
@@ -480,5 +488,9 @@ export class VerProveedoresComponent implements OnInit {
     if (enteros > 0 && menores > 0) return `${enteros} ${unidadMayor} ${menores} ${unidadMenor}`;
     if (enteros > 0) return `${enteros} ${unidadMayor}`;
     return `${Math.round(cantidad * factor)} ${unidadMenor}`;
+  }
+
+  iniciarTutorial(): void {
+    this.tour.iniciarTour();
   }
 }

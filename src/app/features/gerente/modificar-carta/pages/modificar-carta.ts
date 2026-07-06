@@ -10,6 +10,7 @@ import { Dropdown } from '../../../../shared/ui/dropdown/dropdown';
 import { ModalEditarPlatoComponent } from '../containers/modal-editar-plato/modal-editar-plato';
 import { ModalEliminarPlatoComponent } from '../components/modal-eliminar-plato/modal-eliminar-plato';
 import { ModificarCartaStateService } from '../services/modificar-carta.state';
+import { CartaTourService } from '../services/carta-tour.service';
 
 @Component({
   selector: 'app-modificar-carta',
@@ -31,6 +32,7 @@ export class ModificarCartaComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
   private readonly documento = inject(DOCUMENT);
+  private readonly tour = inject(CartaTourService);
   readonly state = inject(ModificarCartaStateService);
 
   layoutMode = signal<'grid' | 'list'>('grid');
@@ -114,6 +116,12 @@ export class ModificarCartaComponent implements OnInit {
         setTimeout(() => this.desplazarASeccion(fragment), 150);
       }
     });
+
+    if (!this.tour.haVistoElTutorial()) {
+      setTimeout(() => {
+        this.tour.iniciarTour();
+      }, 1200);
+    }
   }
 
   onTipoBebidaSeleccionado(tipo: string | null) {
@@ -193,5 +201,9 @@ export class ModificarCartaComponent implements OnInit {
 
   setLayoutMode(mode: 'grid' | 'list') {
     this.layoutMode.set(mode);
+  }
+
+  iniciarTutorial() {
+    this.tour.iniciarTour();
   }
 }

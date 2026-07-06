@@ -1,0 +1,15 @@
+<div class="estrella-rating" [class.solo-lectura]="soloLectura()">
+  @for (estrella of estrellas; track estrella) {
+  <span
+    class="estrella"
+    [class.llena]="estrella <= prevista()"
+    (mouseenter)="setHover(estrella)"
+    (mouseleave)="clearHover()"
+    (click)="seleccionar(estrella)"
+  >
+    <span class="material-symbols-outlined">
+      {{ estrella <= prevista() ? 'star' : 'star_border' }}
+    </span>
+  </span>
+  }
+</div>

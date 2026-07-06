@@ -74,7 +74,11 @@
       </div>
     </div>
     
-    <div acciones class="d-flex gap-2">
+    <div acciones class="d-flex gap-2 align-items-center">
+      <button type="button" class="tour-trigger-btn" (click)="iniciarTutorial()" title="Iniciar tutorial interactivo">
+        <span class="material-symbols-outlined">help</span>
+      </button>
+
       <button 
         class="btn-premium-primary d-flex align-items-center gap-2"
         (click)="irACrearPlato()">

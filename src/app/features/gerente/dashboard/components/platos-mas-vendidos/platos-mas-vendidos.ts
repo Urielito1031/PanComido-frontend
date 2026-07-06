@@ -12,6 +12,15 @@ import { DashboardStateService } from '../../services/dashboard.state';
 export class PlatosMasVendidosComponent {
   readonly state = inject(DashboardStateService);
 
+  get recomendacionHtml(): string {
+    const texto = this.state.recomendacionTopVentas();
+    // Reemplaza la palabra maridajes con una estructura de span anidada
+    return texto.replace(
+      'maridajes',
+      `<span class="tooltip-trigger">maridajes<span class="tooltip-box">El maridaje es la combinación perfecta de una comida y una bebida para resaltar los sabores de ambos.</span></span>`
+    );
+  }
+
   porcentajeRanking(valor: number): number {
     const max = Math.max(...this.state.platosMasVendidos().map(item => item.valor));
     if (max === 0) return 0;

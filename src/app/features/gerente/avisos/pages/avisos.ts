@@ -13,6 +13,7 @@ import { Buscador } from '../../../../shared/ui/buscador/buscador';
 import { Aviso } from '../../../../core/models/domain/aviso';
 import { VencimientosState } from '../../aviso-vencimientos/services/vencimientos.state';
 import { AvisosStateService } from '../services/avisos.state';
+import { AvisosTourService } from '../services/avisos-tour.service';
 import { UnidadMedida } from '../../../../core/models/domain/unidad-medida';
 import { RealizarPedidoSugeridoStateService } from '../../realizar-pedido-sugerido/services/realizar-pedido-sugerido.state';
 import { ArsCurrencyPipe } from '../../../../shared/pipes/ars-currency.pipe';
@@ -31,6 +32,7 @@ export class AvisosPage implements OnInit {
   protected readonly pedidoState = inject(VencimientosState);
   protected readonly pedidoSugeridoState = inject(RealizarPedidoSugeridoStateService);
   protected readonly router = inject(Router);
+  private readonly tour = inject(AvisosTourService);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
   private readonly documento = inject(DOCUMENT);
@@ -173,6 +175,12 @@ export class AvisosPage implements OnInit {
         }
       }
     });
+
+    if (!this.tour.haVistoElTutorial()) {
+      setTimeout(() => {
+        this.tour.iniciarTour();
+      }, 1200);
+    }
   }
 
   onBuscar(term: string) {
@@ -303,5 +311,7 @@ export class AvisosPage implements OnInit {
     });
   }
 
-
+  iniciarTutorial() {
+    this.tour.iniciarTour();
+  }
 }

@@ -1,24 +1,63 @@
-<div class="container-fluid p-4 min-vh-100 d-flex flex-column align-items-center justify-content-center">
-
-  <div class="text-center">
+<div class="pago-wrapper">
+  <div class="pago-card text-center">
     @if (pagoExitoso()) {
-      <span class="material-symbols-outlined fs-1 text-success mb-3">check_circle</span>
-      <h3>Gracias por tu compra</h3>
-      @if (esEfectivo()) {
-        <p class="text-muted">El mozo se acercará a la brevedad para realizar el cobro.</p>
+      <div class="check-animado">
+        @if (esEfectivo() && estado()?.estadoUI !== 'Finalizada') {
+          <span class="material-symbols-outlined check-icon" [style.color]="configuracionVisualState.colorPrimario()">schedule</span>
+        } @else {
+          <span class="material-symbols-outlined check-icon" [style.color]="configuracionVisualState.colorPrimario()">check_circle</span>
+        }
+      </div>
+      
+      @if (esEfectivo() && estado()?.estadoUI !== 'Finalizada') {
+        <h2 class="pago-titulo">¡El mozo fue notificado!</h2>
+        <p class="pago-subtitulo">Se acercará a la brevedad a tu mesa para realizar el cobro en efectivo.</p>
+        <div class="spinner mt-4" style="width: 2rem; height: 2rem; border-width: 2px;"></div>
       } @else {
-        <p class="text-muted">Tu pago fue procesado correctamente.</p>
+        <h2 class="pago-titulo">¡Tu pago en {{ configuracionVisualState.nombreLocal() || 'nuestro local' }} fue un éxito!</h2>
+        <p class="pago-subtitulo">Tu pago fue procesado correctamente y de forma segura.</p>
       }
-      <button class="btn btn-primary mt-3" (click)="volverInicio()">Volver al inicio</button>
+      
+      <div class="pago-acciones mt-4">
+        @if (!esEfectivo() || estado()?.estadoUI === 'Finalizada') {
+          <app-boton-comensal
+            [backgroundColor]="configuracionVisualState.colorPrimario()"
+            [textColor]="'#FFFFFF'"
+            (clicked)="puntuarPlatos()">
+            <div class="d-flex align-items-center justify-content-center gap-2">
+              <span class="material-symbols-outlined">star</span>
+              <span>Calificar experiencia</span>
+            </div>
+          </app-boton-comensal>
+          
+          <app-boton-comensal
+            [backgroundColor]="'#ffffff'"
+            [textColor]="configuracionVisualState.colorPrimario()!"
+            [tieneBorde]="true"
+            (clicked)="volverInicio()">
+            Volver al inicio
+          </app-boton-comensal>
+        } @else {
+          <p class="pago-subtitulo mb-3" style="font-size: 0.9rem;">Podrás calificar tu experiencia una vez que el pago sea confirmado por el mozo.</p>
+        }
+      </div>
     } @else if (error()) {
-      <span class="material-symbols-outlined fs-1 text-danger mb-3">cancel</span>
-      <h4>Error en el pago</h4>
-      <p class="text-muted">El pago no pudo completarse. Volvé a intentarlo.</p>
-      <button class="btn btn-primary mt-3" (click)="volverInicio()">Volver al inicio</button>
+      <div class="error-animado">
+        <span class="material-symbols-outlined error-icon">cancel</span>
+      </div>
+      <h2 class="pago-titulo text-danger">Error en el pago</h2>
+      <p class="pago-subtitulo">El pago no pudo completarse. Por favor, volvé a intentarlo.</p>
+      <div class="pago-acciones mt-4">
+        <app-boton-comensal
+          [backgroundColor]="configuracionVisualState.colorPrimario()"
+          [textColor]="'#FFFFFF'"
+          (clicked)="volverInicio()">
+          Volver al inicio
+        </app-boton-comensal>
+      </div>
     } @else {
-      <div class="spinner-border text-primary" role="status"></div>
-      <p class="mt-3">Verificando el pago...</p>
+      <div class="spinner"></div>
+      <p class="pago-subtitulo mt-3">Verificando tu pago...</p>
     }
   </div>
-
 </div>

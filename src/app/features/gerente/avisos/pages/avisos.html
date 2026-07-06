@@ -2,7 +2,11 @@
 
   <app-page-toolbar>
     <app-buscador buscador placeholder="Buscar avisos..." (busquedaCambiada)="onBuscar($event)"></app-buscador>
-    <div acciones class="d-flex gap-2">
+    <div acciones class="d-flex gap-2 align-items-center">
+      <button type="button" class="tour-trigger-btn" (click)="iniciarTutorial()" title="Iniciar tutorial interactivo">
+        <span class="material-symbols-outlined">help</span>
+      </button>
+
       <app-boton variante="outline" tamanio="md" (clicked)="state.marcarTodoRevisado()">
         <div class="d-flex align-items-center gap-1">
           <span class="material-symbols-outlined" style="font-size: 1.2rem;">done_all</span>

@@ -365,7 +365,7 @@ export class DashboardStateService implements OnDestroy {
     const top = this.platosMasVendidosPreview();
     if (top.length === 0) return 'Sin datos de ventas suficientes.';
     const principales = top.slice(0, 2).map(item => item.nombre).join(' y ');
-    return `Usar ${principales} como base para combos o destacados del día.`;
+    return `Destacar ${principales} en la carta o que los mozos los recomienden como maridajes sugeridos.`;
   });
 
   accionPlatoBajo(index: number): string {

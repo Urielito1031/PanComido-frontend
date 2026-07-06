@@ -1,0 +1,100 @@
+<app-header-comensal [title]="'Calificanos'" /> 
+<div class="encuesta-wrapper">
+
+  @switch (status()) {
+
+    @case ('formulario') {
+      <div class="encuesta-card">
+        <div class="encuesta-icono">
+          <span class="material-symbols-outlined">favorite</span>
+        </div>
+        <h2 class="encuesta-titulo">¡Gracias por tu visita!</h2>
+        <p class="encuesta-subtitulo">Contanos cómo fue tu experiencia</p>
+
+        <div class="rating-group" style="animation: slideUp 0.4s ease-out 0.1s both;">
+          <label class="rating-label">Lugar</label>
+          <app-estrellas-rating [(valor)]="puntuacionLugar" />
+        </div>
+
+        <div class="rating-group" style="animation: slideUp 0.4s ease-out 0.2s both;">
+          <label class="rating-label">Comida</label>
+          <app-estrellas-rating [(valor)]="puntuacionComida" />
+        </div>
+
+        <div class="rating-group" style="animation: slideUp 0.4s ease-out 0.3s both;">
+          <label class="rating-label">Mozo</label>
+          <app-estrellas-rating [(valor)]="puntuacionMozo" />
+        </div>
+
+        @if (status() === 'error') {
+          <div class="error-banner">
+            <span class="material-symbols-outlined">error</span>
+            No se pudo enviar. Intentalo de nuevo.
+          </div>
+        }
+      </div>
+
+      <div class="encuesta-acciones">
+        <app-boton-comensal
+          [backgroundColor]="configVisual.colorPrimario()"
+          [textColor]="'#FFFFFF'"
+          [disabled]="!puedeEnviar()"
+          (clicked)="enviarEncuesta()"
+        >
+          Enviar encuesta
+        </app-boton-comensal>
+      </div>
+    }
+
+    @case ('enviando') {
+      <div class="encuesta-card encuesta-card--centrada">
+        <div class="spinner"></div>
+        <p class="encuesta-subtitulo">Enviando tu opinion...</p>
+      </div>
+    }
+
+    @case ('exito') {
+      <div class="encuesta-card encuesta-card--centrada">
+        <div class="check-animado">
+          <span class="material-symbols-outlined check-icon" [style.color]="configVisual.colorPrimario()">check_circle</span>
+        </div>
+
+        <h2 class="encuesta-titulo">¡Gracias por tu calificacion!</h2>
+
+        @if (linkResena(); as link) {
+          <p class="encuesta-subtitulo">
+            ¡Nos alegra que hayas tenido una buena experiencia!
+            Ayudanos con una reseña en Google Maps.
+          </p>
+          <app-boton-comensal
+            [backgroundColor]="configVisual.colorPrimario()"
+            [textColor]="'#FFFFFF'"
+            (clicked)="abrirResena()"
+          >
+            <div class="d-flex align-items-center justify-content-center gap-2">
+              <span class="material-symbols-outlined" style="font-size:1.2rem;">share</span>
+              <span>Dejar reseña en Google Maps</span>
+            </div>
+          </app-boton-comensal>
+        } @else {
+          <p class="encuesta-subtitulo">
+            Tu opinion nos ayuda a mejorar. ¡Gracias!
+          </p>
+        }
+
+        <div class="encuesta-acciones-secundarias">
+          <app-boton-comensal
+            [backgroundColor]="'#ffffff'"
+            [textColor]="configVisual.colorPrimario()!"
+            [tieneBorde]="true"
+            (clicked)="irAlInicio()"
+          >
+            Volver al inicio
+          </app-boton-comensal>
+        </div>
+      </div>
+    }
+
+  }
+
+</div>

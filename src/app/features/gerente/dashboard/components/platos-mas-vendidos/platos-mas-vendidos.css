@@ -169,3 +169,42 @@
 .favorite-btn .material-symbols-outlined {
   font-size: 1.2rem;
 }
+
+/* Tooltip styles */
+::ng-deep .tooltip-trigger {
+  position: relative;
+  text-decoration: underline dashed #dd2b3d 2px;
+  cursor: help;
+  color: #dd2b3d;
+  font-weight: 700;
+  display: inline-block;
+}
+
+::ng-deep .tooltip-trigger .tooltip-box {
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%) scale(0.9);
+  background: #1e293b;
+  color: #ffffff;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: normal;
+  width: 240px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 9999;
+  display: block;
+}
+
+::ng-deep .tooltip-trigger:hover .tooltip-box {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+  pointer-events: auto;
+}
+
