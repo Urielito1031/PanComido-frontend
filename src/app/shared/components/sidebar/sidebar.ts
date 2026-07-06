@@ -33,7 +33,8 @@ import {
   faCalendarAlt,
   faWineGlass,
   faClock,
-  faMagic
+  faMagic,
+  faFileAlt
 } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
@@ -76,6 +77,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   readonly faWineGlass = faWineGlass;
   readonly faClock = faClock;
   readonly faMagic = faMagic;
+  readonly faFileAlt = faFileAlt;
 
   currentTime = signal(new Date());
   private timeIntervalId?: any;
@@ -125,6 +127,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
           { label: 'Personal de Salón', icon: 'faUsers', route: '/staff/gerente/dashboard', fragment: 'mozos', roles: ['Gerente'] },
         ]
       },
+      { label: 'Reportes', icon: 'faFileAlt', route: '/staff/gerente/reportes', roles: ['Gerente'] },
       {
         label: 'Sistema de avisos',
         icon: 'faBell',
@@ -324,7 +327,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
       'faList': this.faList,
       'faCalendarAlt': this.faCalendarAlt,
       'faWineGlass': this.faWineGlass,
-      'faMagic': this.faMagic
+      'faMagic': this.faMagic,
+      'faFileAlt': this.faFileAlt
     };
     return iconMap[iconName] || undefined;
   }

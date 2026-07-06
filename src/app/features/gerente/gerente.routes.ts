@@ -59,5 +59,9 @@ export const GERENTE_ROUTES: Routes = [
   {
     path: 'avisos',
     loadComponent: () => import('./avisos/pages/avisos').then(m => m.AvisosPage)
+  },
+  {
+    path: 'reportes',
+    loadComponent: () => import('./reportes/pages/reportes-page/reportes-page').then(m => m.ReportesPage)
   }
 ];
