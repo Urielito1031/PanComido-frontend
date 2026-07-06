@@ -121,7 +121,8 @@
           </div>
         </div>
         <app-lista-platos 
-          [platos]="platosRecomendados()" 
+          [platos]="platosRecomendados()"
+          [porcentajesPlatos]="porcentajesPlatos()"
           [layoutMode]="layoutMode()"
           [explodingId]="explodingPlatoId()"
           (toggleVisible)="toggleVisibility($event)"
@@ -172,7 +173,8 @@
           </div>
         } @else {
           <app-lista-platos 
-            [platos]="platosComidas()" 
+            [platos]="platosComidas()"
+            [porcentajesPlatos]="porcentajesPlatos()"
             [layoutMode]="layoutMode()"
             [explodingId]="explodingPlatoId()"
             (toggleVisible)="toggleVisibility($event)"
@@ -234,7 +236,8 @@
           </div>
         } @else {
           <app-lista-platos 
-            [platos]="platosBebidas()" 
+            [platos]="platosBebidas()"
+            [porcentajesPlatos]="porcentajesPlatos()"
             [layoutMode]="layoutMode()"
             [explodingId]="explodingPlatoId()"
             (toggleVisible)="toggleVisibility($event)"

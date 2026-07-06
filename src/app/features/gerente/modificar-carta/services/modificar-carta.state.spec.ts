@@ -158,6 +158,7 @@ describe('ModificarCartaStateService', () => {
       descripcion: '',
       precioVentaFinal: 150,
       tiempoPreparacionBase: 15,
+      esPrecioManual: false,
       tipoPlatoId: 1,
       categoriaPlatoId: 1,
       urlImagen: '',

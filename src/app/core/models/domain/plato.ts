@@ -30,4 +30,5 @@ export interface Plato {
   categoria?: string;
   recomendado?: boolean;
   ventas?: number;
+  esPrecioManual?: boolean;
 }

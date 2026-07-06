@@ -47,8 +47,10 @@ describe('ModificarCartaComponent', () => {
       searchTerm: signal(''),
       mostrarModalRestaurar: signal(false),
       mostrarModalImportar: signal(false),
+      porcentajesPlatos: signal([]),
 
       cargarPlatos: vi.fn(),
+      cargarPorcentajes: vi.fn(),
       setTipoBebida: vi.fn(),
       setTipoComida: vi.fn(),
       setSortOrder: vi.fn(),

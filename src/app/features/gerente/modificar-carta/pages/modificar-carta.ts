@@ -61,6 +61,7 @@ export class ModificarCartaComponent implements OnInit {
   totalComidasCount = this.state.totalComidasCount;
 
   sortOrder = this.state.sortOrder;
+  porcentajesPlatos = this.state.porcentajesPlatos;
 
   readonly opcionesOrden: { valor: string; etiqueta: string; icono: string }[] = [
     { valor: 'default',     etiqueta: 'Por Relevancia', icono: 'tune'          },
@@ -89,6 +90,7 @@ export class ModificarCartaComponent implements OnInit {
 
   ngOnInit() {
     this.state.cargarPlatos();
+    this.state.cargarPorcentajes();
 
     this.route.queryParams
       .pipe(takeUntilDestroyed(this.destroyRef))

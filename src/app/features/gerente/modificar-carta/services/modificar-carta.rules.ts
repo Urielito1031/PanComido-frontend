@@ -51,7 +51,11 @@ export function tiposDisponibles(platos: Plato[], resolverTipo: (plato: Plato) =
     .sort((a, b) => a.tipo.localeCompare(b.tipo));
 }
 
-export function ordenarPlatosCarta(platos: Plato[], sortOrder: CartaSortOrder): Plato[] {
+export function ordenarPlatosCarta(
+  platos: Plato[],
+  sortOrder: CartaSortOrder,
+  resolverTipo: (plato: Plato) => string = tipoComida
+): Plato[] {
   return [...platos].sort((a, b) => {
     if (sortOrder === 'ventas-desc') return (b.ventas ?? 0) - (a.ventas ?? 0);
     if (sortOrder === 'ventas-asc') return (a.ventas ?? 0) - (b.ventas ?? 0);
@@ -61,6 +65,10 @@ export function ordenarPlatosCarta(platos: Plato[], sortOrder: CartaSortOrder): 
     const aVisible = a.visible ?? true;
     const bVisible = b.visible ?? true;
     if (aVisible !== bVisible) return aVisible ? -1 : 1;
+
+    // Orden por defecto ("Por Relevancia"): agrupar por tipo de plato
+    const comparacionTipo = resolverTipo(a).localeCompare(resolverTipo(b));
+    if (comparacionTipo !== 0) return comparacionTipo;
 
     if (!aVisible) {
       const aRecomendado = !!a.recomendado;

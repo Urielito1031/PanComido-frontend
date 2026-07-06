@@ -9,6 +9,7 @@ import { FamiliaTipografica } from '../../../../core/models/domain/familia-tipog
 import { FilaVirtual } from '../../../../core/models/domain/fila-virtual';
 import { PorcentajesGanancia } from '../../../../core/models/domain/porcentajes-ganancia';
 import { DatosTransferencia } from '../../../../core/models/domain/datos-transferencia';
+import { PlatoApiService } from '../../services/plato.api';
 
 @Injectable({
   providedIn: 'root',
@@ -16,6 +17,7 @@ import { DatosTransferencia } from '../../../../core/models/domain/datos-transfe
 export class ConfiguracionState {
 
   private api = inject(ConfiguracionService);
+  private platoApi = inject(PlatoApiService);
   private destroyRef = inject(DestroyRef);
 
   readonly #datosLocal = signal<DatosLocal | null>(null);
@@ -23,6 +25,7 @@ export class ConfiguracionState {
   readonly #turnos = signal<TurnoLaboral[]>([]);
   readonly #filaVirtual = signal< FilaVirtual | null>(null);
   readonly #porcentajes = signal<PorcentajesGanancia| null>(null);
+  readonly #porcentajesOriginal = signal<PorcentajesGanancia | null>(null);
   readonly #familiasTipograficas = signal<FamiliaTipografica[]>([]);
   readonly #archivoLogoPendiente = signal<File | null> (null);
   readonly #datosTransferencia = signal<DatosTransferencia | null>(null);
@@ -102,6 +105,7 @@ export class ConfiguracionState {
         this.#turnos.set(turnos);
         this.#filaVirtual.set(filaVirtual);
         this.#porcentajes.set(porcentajes);
+        this.#porcentajesOriginal.set(porcentajes);
         this.#familiasTipograficas.set(fTipograficas);
         this.#datosTransferencia.set(datosTransferencia);
         this.#loading.set(false);
@@ -199,14 +203,43 @@ export class ConfiguracionState {
         if(resultado.datosTransferencia){
           this.#datosTransferencia.set(resultado.datosTransferencia);
         }
+
+        this.detectarCategoriasPlatosModificadas(porcentajes)
+          .forEach(({ categoriaId, porcentaje }) => this.recalcularPreciosDeCategoria(categoriaId, porcentaje));
+        this.#porcentajesOriginal.set(porcentajes);
+
         this.#guardando.set(false);
         this.#exito.set('Configuración guardada correctamente');
       },
-      error: () =>{ 
+      error: () =>{
         this.#guardando.set(false);
         this.#error.set("No se pudo guardar la condfiguración. Revisá los datos e intentá nuevamente")
       }
     })
+  }
+
+  private detectarCategoriasPlatosModificadas(nuevo: PorcentajesGanancia): { categoriaId: number; porcentaje: number }[] {
+    const original = this.#porcentajesOriginal();
+    if (!original) return [];
+
+    return nuevo.platos
+      .filter(item => original.platos.find(o => o.id === item.id)?.porcentaje !== item.porcentaje)
+      .map(item => ({ categoriaId: item.id, porcentaje: item.porcentaje }));
+  }
+
+  private recalcularPreciosDeCategoria(categoriaId: number, porcentaje: number): void {
+    this.platoApi.getPlatos()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (platos) => {
+          const afectados = platos.filter(p => p.categoriaPlatoId === categoriaId && !p.esPrecioManual);
+          afectados.forEach(plato => {
+            this.platoApi.recalcularPrecioAutomatico(plato.id, porcentaje)
+              .pipe(takeUntilDestroyed(this.destroyRef))
+              .subscribe();
+          });
+        }
+      });
   }
 
   limpiarFeedback():void{

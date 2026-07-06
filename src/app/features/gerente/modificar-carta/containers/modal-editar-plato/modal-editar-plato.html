@@ -57,27 +57,50 @@
 
       <div class="row g-3 mb-4">
         <!-- COST -->
-        <div class="col-6">
+        <div class="col-4">
           <label class="form-label soft-label">Costo Total</label>
           <div class="cost-readonly-box">
             {{ costo() | arsCurrency }}
           </div>
           <app-price-note text="Suma de insumos de la receta x cantidad usada." [compact]="true" />
         </div>
-        
+
+        <!-- PRECIO CON GANANCIA -->
+        <div class="col-4">
+          <label class="form-label soft-label">Precio con ganancia</label>
+          <div class="cost-readonly-box">
+            {{ precioConGanancia() !== null ? (precioConGanancia() | arsCurrency) : 'Elegí una categoría' }}
+          </div>
+          @if (precioConGanancia() !== null) {
+            <app-price-note [text]="'Costo + ' + porcentajeVigente() + '% de ganancia'" [compact]="true" />
+          }
+        </div>
+
         <!-- PRICE -->
-        <div class="col-6">
-          <label class="form-label soft-label">Precio Venta</label>
+        <div class="col-4">
+          <div class="d-flex justify-content-between align-items-center">
+            <label class="form-label soft-label mb-0">Precio Venta</label>
+            <app-boton
+              label="Recalcular"
+              variante="outline"
+              tamanio="sm"
+              [disabled]="!precioEsManual() || precioConGanancia() === null"
+              [title]="precioEsManual()
+                ? 'Volver a precio automático (costo + % de ganancia)'
+                : 'Precio ya automático'"
+              (clicked)="onRecalcularPrecio()">
+            </app-boton>
+          </div>
           <div class="input-group soft-input-group">
             <span class="input-group-text fw-bold">$</span>
-            <input 
-              type="number" 
-              class="form-control soft-input fw-bold text-dark" 
+            <input
+              type="number"
+              class="form-control soft-input fw-bold text-dark"
               placeholder="0.00"
-              [ngModel]="precioVenta()" 
-              (ngModelChange)="precioVenta.set($event === null || $event === '' ? null : +$event)">
+              [ngModel]="precioVenta()"
+              (ngModelChange)="onPrecioVentaChange($event)">
           </div>
-          
+
           <!-- MARGIN INDICATOR -->
           @if (precioVenta() && costo()) {
             @if (precioEsMenorQueCosto()) {
@@ -129,10 +152,10 @@
 
         <div class="col-6">
           <label class="form-label soft-label">Categoría</label>
-          <select 
-            class="form-select soft-input" 
-            [ngModel]="categoriaPlatoId()" 
-            (ngModelChange)="categoriaPlatoId.set($event ? +$event : null)">
+          <select
+            class="form-select soft-input"
+            [ngModel]="categoriaPlatoId()"
+            (ngModelChange)="onCategoriaChange($event)">
             <option [value]="null" disabled>Seleccione categoría...</option>
             @for (categoria of categoriasPlato(); track categoria.id) {
               <option [value]="categoria.id">{{ categoria.descripcion }}</option>
@@ -215,9 +238,10 @@
                     <input 
                       type="number" 
                       class="qty-input bg-transparent border-0 text-center fw-bold" 
-                      min="0.01" step="0.01"
+                      min="0" step="0.01"
                       [(ngModel)]="ing.cantidad"
-                      (ngModelChange)="onCantidadCambiada(ing)">
+                      (ngModelChange)="onCantidadCambiada(ing)"
+                      (focus)="onFocusCantidad(ing, $event)">
                   </div>
                   
                   <span class="unit-pill bg-light fw-semibold rounded-pill" title="La unidad depende del insumo">
@@ -255,9 +279,10 @@
                     <input 
                       type="number" 
                       class="qty-input bg-transparent border-0 text-center fw-bold text-primary" 
-                      min="0.01" step="0.01"
+                      min="0" step="0.01"
                       [(ngModel)]="ing.cantidad"
-                      (ngModelChange)="onCantidadCambiada(ing)">
+                      (ngModelChange)="onCantidadCambiada(ing)"
+                      (focus)="onFocusCantidad(ing, $event)">
                   </div>
                   
                   <span class="unit-pill bg-white fw-semibold text-primary rounded-pill" title="La unidad depende del insumo">

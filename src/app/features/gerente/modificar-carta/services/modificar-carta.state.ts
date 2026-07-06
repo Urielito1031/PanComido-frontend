@@ -2,6 +2,7 @@ import { Injectable, inject, signal, computed, DestroyRef } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PlatoApiService } from '../../services/plato.api';
 import { Plato } from '../../../../core/models/domain/plato';
+import { PorcentajeItem } from '../../../../core/models/domain/porcentajes-ganancia';
 import { environment } from '../../../../../environments/environment';
 import {
   CartaSortOrder,
@@ -33,6 +34,7 @@ export class ModificarCartaStateService {
   private _platosEliminados = signal<Plato[]>([]);
   private _mostrarModalRestaurar = signal<boolean>(false);
   private _loadingRestaurar = signal<boolean>(false);
+  private _porcentajesPlatos = signal<PorcentajeItem[]>([]);
 
   // 2. Estado PÚBLICO
   searchTerm = this._searchTerm.asReadonly();
@@ -49,6 +51,7 @@ export class ModificarCartaStateService {
   platosEliminados = this._platosEliminados.asReadonly();
   mostrarModalRestaurar = this._mostrarModalRestaurar.asReadonly();
   loadingRestaurar = this._loadingRestaurar.asReadonly();
+  porcentajesPlatos = this._porcentajesPlatos.asReadonly();
 
   // 3. Variables Derivadas (Computed)
   tiposBebidaDisponibles = computed(() => {
@@ -112,7 +115,7 @@ export class ModificarCartaStateService {
       }
       return true;
     });
-    return ordenarPlatosCarta(normal, this._sortOrder());
+    return ordenarPlatosCarta(normal, this._sortOrder(), tipoComida);
   });
 
   platosBebidas = computed(() => {
@@ -125,7 +128,7 @@ export class ModificarCartaStateService {
       }
       return true;
     });
-    return ordenarPlatosCarta(normal, this._sortOrder());
+    return ordenarPlatosCarta(normal, this._sortOrder(), tipoBebida);
   });
 
   // 4. Métodos de Negocio (UseCases)
@@ -151,6 +154,14 @@ export class ModificarCartaStateService {
           this._loading.set(false);
         },
         error: () => this._loading.set(false)
+      });
+  }
+
+  cargarPorcentajes(): void {
+    this.api.getDatosFormulario()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => this._porcentajesPlatos.set(res.porcentajes.platos)
       });
   }
 
@@ -232,6 +243,7 @@ export class ModificarCartaStateService {
       descripcion: updatedPlato.descripcion ?? '',
       precioVentaFinal: updatedPlato.precioVenta,
       tiempoPreparacionBase: updatedPlato.tiempoPreparacion ?? updatedPlato.tiempo ?? 1,
+      esPrecioManual: updatedPlato.esPrecioManual ?? false,
       tipoPlatoId,
       categoriaPlatoId,
       urlImagen: this.normalizarUrlImagen(updatedPlato.imagen),

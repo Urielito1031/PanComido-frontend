@@ -5,9 +5,9 @@ import { Plato, RecetaIngrediente } from '../../../../../core/models/domain/plat
 import { Boton } from '../../../../../shared/ui/botones/boton/boton';
 import { ToggleComponent } from '../../../../../shared/ui/toggle/toggle';
 import { Buscador } from '../../../../../shared/ui/buscador/buscador';
-import { calcularCostoReceta } from '../../../services/plato-cost';
-import { Insumo } from '../../../../../core/models/domain/insumo';
-import { PlatoApiService, ItemDesplegableDto } from '../../../services/plato.api';
+import { calcularCostoReceta, calcularPrecioConGanancia } from '../../../services/plato-cost';
+import { PlatoApiService, ItemDesplegableDto, IngredienteDisponibleDto } from '../../../services/plato.api';
+import { PorcentajeItem } from '../../../../../core/models/domain/porcentajes-ganancia';
 import { ArsCurrencyPipe } from '../../../../../shared/pipes/ars-currency.pipe';
 import { PriceNoteComponent } from '../../../../../shared/ui/price-note/price-note';
 
@@ -41,6 +41,11 @@ export class ModalEditarPlatoComponent {
   tiposPlato = signal<ItemDesplegableDto[]>([]);
   categoriasPlato = signal<ItemDesplegableDto[]>([]);
   restricciones = signal<ItemDesplegableDto[]>([]);
+  porcentajesPlatos = signal<PorcentajeItem[]>([]);
+
+  esPrecioManualOriginal = signal<boolean>(false);
+  precioVentaTocado = signal<boolean>(false);
+  private edicionActiva = signal<boolean>(false);
 
   vegano = computed(() => this.restriccionesSeleccionadas().includes(1));
   vegetariano = computed(() => this.restriccionesSeleccionadas().includes(2));
@@ -48,7 +53,7 @@ export class ModalEditarPlatoComponent {
 
   receta = signal<RecetaIngrediente[]>([]);
   busqueda = signal<string>('');
-  insumos = signal<Insumo[]>([]);
+  ingredientesDisponibles = signal<IngredienteDisponibleDto[]>([]);
 
   ingredientesBase = computed(() => this.receta().filter(i => !i.opcional));
   ingredientesOpcionales = computed(() => this.receta().filter(i => i.opcional));
@@ -56,6 +61,19 @@ export class ModalEditarPlatoComponent {
   costo = computed(() => {
     return calcularCostoReceta(this.receta());
   });
+
+  porcentajeVigente = computed(() => {
+    const categoriaId = this.categoriaPlatoId();
+    if (categoriaId == null) return 0;
+    return this.porcentajesPlatos().find(item => item.id === categoriaId)?.porcentaje ?? 0;
+  });
+
+  precioConGanancia = computed<number | null>(() => {
+    if (this.categoriaPlatoId() == null) return null;
+    return calcularPrecioConGanancia(this.costo(), this.porcentajeVigente());
+  });
+
+  precioEsManual = computed(() => this.esPrecioManualOriginal() || this.precioVentaTocado());
 
   precioEsMenorQueCosto = computed(() => {
     const venta = this.precioVenta() ?? 0;
@@ -66,15 +84,14 @@ export class ModalEditarPlatoComponent {
   sugerencias = computed(() => {
     const query = this.busqueda().toLowerCase().trim();
     if (!query) return [];
-    
-    return this.insumos().filter(prod =>
-      prod.nombre.toLowerCase().includes(query) &&
-      !this.receta().some(selected => selected.id === prod.id)
+
+    return this.ingredientesDisponibles().filter(ing =>
+      ing.nombre.toLowerCase().includes(query) &&
+      !this.receta().some(selected => selected.id === ing.id)
     );
   });
 
   constructor() {
-    this.cargarInsumos();
     this.cargarDatosFormulario();
 
     effect(() => {
@@ -89,12 +106,26 @@ export class ModalEditarPlatoComponent {
         this.tipoPlatoId.set(p.tipoPlatoId || null);
         this.categoriaPlatoId.set(p.categoriaPlatoId || null);
         this.restriccionesSeleccionadas.set(p.restriccionesIds || []);
+        this.esPrecioManualOriginal.set(p.esPrecioManual ?? false);
+        this.precioVentaTocado.set(false);
+        this.edicionActiva.set(false);
 
         const receta = p.receta ? JSON.parse(JSON.stringify(p.receta)) as RecetaIngrediente[] : [];
         this.receta.set(receta.map(ingrediente => ({
           ...ingrediente,
           unidadMedida: this.normalizarUnidadMedida(ingrediente.unidadMedida)
         })));
+      }
+    });
+
+    effect(() => {
+      const costoVal = this.costo();
+      const precioCalculado = this.precioConGanancia();
+
+      if (!this.edicionActiva() || this.precioEsManual() || costoVal <= 0 || precioCalculado == null) return;
+
+      if (this.precioVenta() !== precioCalculado) {
+        this.precioVenta.set(precioCalculado);
       }
     });
   }
@@ -107,15 +138,6 @@ export class ModalEditarPlatoComponent {
     this.busqueda.set(value);
   }
 
-  cargarInsumos(): void {
-    this.api.getInsumos()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: insumos => this.insumos.set(insumos),
-        error: () => this.insumos.set([])
-      });
-  }
-
   cargarDatosFormulario(): void {
     this.api.getDatosFormulario()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -124,8 +146,24 @@ export class ModalEditarPlatoComponent {
           this.tiposPlato.set(res.tiposPlato);
           this.categoriasPlato.set(res.categoriasPlato);
           this.restricciones.set(res.restricciones);
+          this.porcentajesPlatos.set(res.porcentajes.platos);
+          this.ingredientesDisponibles.set(res.ingredientes);
         }
       });
+  }
+
+  onPrecioVentaChange(value: number | string | null): void {
+    this.precioVentaTocado.set(true);
+    this.precioVenta.set(value === null || value === '' ? null : +value);
+  }
+
+  onRecalcularPrecio(): void {
+    const precioCalculado = this.precioConGanancia();
+    if (precioCalculado == null) return;
+
+    this.precioVenta.set(precioCalculado);
+    this.precioVentaTocado.set(false);
+    this.esPrecioManualOriginal.set(false);
   }
 
   toggleRestriccion(id: number): void {
@@ -142,25 +180,28 @@ export class ModalEditarPlatoComponent {
     this.toggleRestriccion(ids[tag]);
   }
 
-  agregarIngrediente(producto: Insumo) {
+  agregarIngrediente(ingrediente: IngredienteDisponibleDto) {
     const nuevo: RecetaIngrediente = {
-      id: producto.id,
-      nombre: producto.nombre,
-      cantidad: 1,
-      unidadMedida: this.normalizarUnidadMedida(producto.unidadMedida),
-      costoUnitario: producto.precioVentaFinal ?? 0,
+      id: ingrediente.id,
+      nombre: ingrediente.nombre,
+      cantidad: 0,
+      unidadMedida: this.normalizarUnidadMedida(ingrediente.unidadMedida),
+      costoUnitario: ingrediente.costoUnitario,
       opcional: false
     };
 
+    this.edicionActiva.set(true);
     this.receta.update(items => [...items, nuevo]);
     this.busqueda.set('');
   }
 
   eliminarIngrediente(id: string | number) {
+    this.edicionActiva.set(true);
     this.receta.update(items => items.filter(item => item.id !== id));
   }
 
   toggleOpcional(id: string | number) {
+    this.edicionActiva.set(true);
     this.receta.update(items => items.map(item => {
       if (item.id === id) {
         return { ...item, opcional: !item.opcional };
@@ -170,9 +211,23 @@ export class ModalEditarPlatoComponent {
   }
 
   onCantidadCambiada(ing: RecetaIngrediente) {
-    if (ing.cantidad === null || ing.cantidad === undefined || ing.cantidad < 0.01) {
-      ing.cantidad = 0.01;
+    this.edicionActiva.set(true);
+    const cantidad = Number(ing.cantidad);
+    const cantidadValida = Number.isFinite(cantidad) && cantidad > 0 ? cantidad : 0;
+    this.receta.update(items => items.map(item =>
+      item.id === ing.id ? { ...item, cantidad: cantidadValida } : item
+    ));
+  }
+
+  onFocusCantidad(ing: RecetaIngrediente, event: FocusEvent): void {
+    if (ing.cantidad === 0) {
+      (event.target as HTMLInputElement).value = '';
     }
+  }
+
+  onCategoriaChange(value: string | null): void {
+    this.edicionActiva.set(true);
+    this.categoriaPlatoId.set(value ? +value : null);
   }
 
   onSave() {
@@ -183,6 +238,7 @@ export class ModalEditarPlatoComponent {
       nombre: this.nombre(),
       precioVenta: this.precioVenta()!,
       costo: this.costo()!,
+      esPrecioManual: this.precioEsManual(),
       imagen: this.imagen(),
       visible: this.visible(),
       descripcion: this.descripcion(),
@@ -198,7 +254,7 @@ export class ModalEditarPlatoComponent {
     this.close.emit();
   }
 
-  private normalizarUnidadMedida(unidad: RecetaIngrediente['unidadMedida'] | Insumo['unidadMedida']): string {
+  private normalizarUnidadMedida(unidad: RecetaIngrediente['unidadMedida']): string {
     const valor = typeof unidad === 'string' ? unidad : unidad?.nombre ?? '';
     const normalizado = valor.trim().toLowerCase();
 

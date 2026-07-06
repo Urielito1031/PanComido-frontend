@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PlatoApiService, ItemDesplegableDto, IngredienteDisponibleDto } from '../../services/plato.api';
 import { CrearPlatoRequestDto } from '../../../../core/models/dtos/requests/crear-plato.request';
 import { RecetaIngrediente } from '../../../../core/models/domain/plato';
+import { PorcentajeItem } from '../../../../core/models/domain/porcentajes-ganancia';
 import { calcularCostoReceta } from '../../services/plato-cost';
 
 @Injectable({ providedIn: 'root' })
@@ -22,6 +23,7 @@ export class CrearPlatoState {
   categoriasPlato = signal<ItemDesplegableDto[]>([]);
   restricciones = signal<ItemDesplegableDto[]>([]);
   ingredientesDisponibles = signal<IngredienteDisponibleDto[]>([]);
+  porcentajesPlatos = signal<PorcentajeItem[]>([]);
   
   restriccionesSeleccionadas = signal<number[]>([]);
   vegano = computed(() => this.restriccionesSeleccionadas().includes(1));
@@ -56,6 +58,7 @@ export class CrearPlatoState {
             this.categoriasPlato.set(res.form.categoriasPlato);
             this.restricciones.set(res.form.restricciones);
             this.ingredientesDisponibles.set(res.form.ingredientes);
+            this.porcentajesPlatos.set(res.form.porcentajes.platos);
             this.nombresExistentes.set(res.platos.map(p => p.nombre.toLowerCase().trim()));
             this.#loading.set(false);
           },
@@ -99,13 +102,14 @@ export class CrearPlatoState {
     this.mostrarExito.set(val);
   }
 
-  guardarPlato(platoData: { 
-    nombre: string; 
-    costo: number; 
+  guardarPlato(platoData: {
+    nombre: string;
+    costo: number;
     precioVenta: number;
-    tiempoPreparacion: number; 
-    tipoPlatoId: number; 
-    categoriaPlatoId: number; 
+    esPrecioManual: boolean;
+    tiempoPreparacion: number;
+    tipoPlatoId: number;
+    categoriaPlatoId: number;
     descripcion: string; },
       callback: () => void): void {
        
@@ -123,6 +127,7 @@ export class CrearPlatoState {
       nombre: platoData.nombre,
       descripcion: platoData.descripcion,
       precioVentaFinal: platoData.precioVenta,
+      esPrecioManual: platoData.esPrecioManual,
       tiempoPreparacionBase: platoData.tiempoPreparacion,
       tipoPlatoId: platoData.tipoPlatoId,
       categoriaPlatoId: platoData.categoriaPlatoId,

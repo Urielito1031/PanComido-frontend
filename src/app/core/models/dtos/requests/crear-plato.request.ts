@@ -3,6 +3,7 @@ export interface CrearPlatoRequestDto {
   descripcion: string;
   precioVentaFinal: number;
   tiempoPreparacionBase: number;
+  esPrecioManual: boolean;
   tipoPlatoId: number;
   categoriaPlatoId: number;
   restriccionesIds: number[];

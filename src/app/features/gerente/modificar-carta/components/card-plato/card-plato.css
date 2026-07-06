@@ -405,8 +405,8 @@
 .dish-metrics-row {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.6rem;
 }
 
 .dish-metric {
@@ -435,7 +435,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  color: #94a3b8;
+  color: #64748b;
 }
 
 .dish-metric.metric-high {
@@ -471,7 +471,31 @@
 .dish-metric-subtle {
   background: transparent;
   border-color: transparent;
-  color: #94a3b8;
+  color: #64748b;
+}
+
+.dish-precios-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+.dish-precio-line {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  padding: 0.1rem 0;
+}
+
+.dish-precio-line .dish-metric-label {
+  min-width: 4.5rem;
+}
+
+.dish-precio-line strong {
+  font-weight: 700;
+  color: #0f172a;
 }
 
 .dish-metric-subtle strong {

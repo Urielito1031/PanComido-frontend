@@ -3,7 +3,8 @@
     @for (plato of platos(); track plato.id) {
       <div class="col mb-4">
         <app-card-plato 
-          [plato]="plato" 
+          [plato]="plato"
+          [porcentajesPlatos]="porcentajesPlatos()"
           [layoutMode]="'grid'"
           [isExploding]="plato.id === explodingId()"
           (toggleVisible)="onToggleVisible($event)"
@@ -23,7 +24,8 @@
     @for (plato of platos(); track plato.id) {
       <div class="col">
         <app-card-plato 
-          [plato]="plato" 
+          [plato]="plato"
+          [porcentajesPlatos]="porcentajesPlatos()"
           [layoutMode]="'list'"
           [isExploding]="plato.id === explodingId()"
           (toggleVisible)="onToggleVisible($event)"
