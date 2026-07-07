@@ -26,6 +26,7 @@ interface StockRow {
 export class InsumoList {
   productos = input.required<Insumo[]>();
   editar = output<number>();
+  eliminar = output<number>();
 
   private readonly dateFormatter = new Intl.DateTimeFormat('es-AR', {
     day: '2-digit',

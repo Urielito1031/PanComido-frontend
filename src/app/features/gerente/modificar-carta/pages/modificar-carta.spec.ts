@@ -34,6 +34,7 @@ describe('ModificarCartaComponent', () => {
       explodingPlatoId: signal<number | null>(null),
       platoAEditar: signal<Plato | null>(null),
       platoAEliminar: signal<Plato | null>(null),
+      bebidaAEditar: signal<{ id: number; costo: number; categoriaInsumoId: number | null; detalle: unknown } | null>(null),
       selectedCategoria: signal<string | null>(null),
       loading: signal<boolean>(false),
       categoriasDisponibles: signal([]),
@@ -47,6 +48,7 @@ describe('ModificarCartaComponent', () => {
       searchTerm: signal(''),
       mostrarModalImportar: signal(false),
       porcentajesPlatos: signal([]),
+      porcentajesBebidas: signal([]),
 
       cargarPlatos: vi.fn(),
       cargarPorcentajes: vi.fn(),
@@ -58,6 +60,8 @@ describe('ModificarCartaComponent', () => {
       toggleVisibility: vi.fn(),
       setPlatoAEditar: vi.fn(),
       setPlatoAEliminar: vi.fn(),
+      setBebidaAEditar: vi.fn(),
+      saveBebida: vi.fn(),
       savePlato: vi.fn(),
       confirmDelete: vi.fn(),
       closeModals: vi.fn(),
@@ -159,9 +163,10 @@ describe('ModificarCartaComponent', () => {
   });
 
   it('debería delegar onSavePlato al state', () => {
-    const payload = { nombre: 'Mila' };
+    const archivo = new File([''], 'foto.jpg');
+    const payload = { plato: { nombre: 'Mila' }, imagen: archivo };
     component.onSavePlato(payload);
-    expect(stateServiceMock.savePlato).toHaveBeenCalledWith(payload);
+    expect(stateServiceMock.savePlato).toHaveBeenCalledWith(payload.plato, archivo);
   });
 
   it('debería delegar onConfirmDelete al state', () => {

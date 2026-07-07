@@ -10,6 +10,9 @@ import { FilaVirtual } from '../../../../core/models/domain/fila-virtual';
 import { PorcentajesGanancia } from '../../../../core/models/domain/porcentajes-ganancia';
 import { DatosTransferencia } from '../../../../core/models/domain/datos-transferencia';
 import { PlatoApiService } from '../../services/plato.api';
+import { calcularPrecioConGanancia } from '../../services/plato-cost';
+import { esBebida } from '../../modificar-carta/services/modificar-carta.rules';
+import { StockMercaderiaService } from '../../stock-mercaderia/services/insumos/stock-mercaderia-service';
 
 @Injectable({
   providedIn: 'root',
@@ -18,6 +21,7 @@ export class ConfiguracionState {
 
   private api = inject(ConfiguracionService);
   private platoApi = inject(PlatoApiService);
+  private stockService = inject(StockMercaderiaService);
   private destroyRef = inject(DestroyRef);
 
   readonly #datosLocal = signal<DatosLocal | null>(null);
@@ -206,6 +210,8 @@ export class ConfiguracionState {
 
         this.detectarCategoriasPlatosModificadas(porcentajes)
           .forEach(({ categoriaId, porcentaje }) => this.recalcularPreciosDeCategoria(categoriaId, porcentaje));
+        this.detectarCategoriasBebidasModificadas(porcentajes)
+          .forEach(({ categoriaId, porcentaje }) => this.recalcularPreciosBebidaDeCategoria(categoriaId, porcentaje));
         this.#porcentajesOriginal.set(porcentajes);
 
         this.#guardando.set(false);
@@ -237,6 +243,44 @@ export class ConfiguracionState {
             this.platoApi.recalcularPrecioAutomatico(plato.id, porcentaje)
               .pipe(takeUntilDestroyed(this.destroyRef))
               .subscribe();
+          });
+        }
+      });
+  }
+
+  private detectarCategoriasBebidasModificadas(nuevo: PorcentajesGanancia): { categoriaId: number; porcentaje: number }[] {
+    const original = this.#porcentajesOriginal();
+    if (!original) return [];
+
+    return nuevo.bebidas
+      .filter(item => original.bebidas.find(o => o.id === item.id)?.porcentaje !== item.porcentaje)
+      .map(item => ({ categoriaId: item.id, porcentaje: item.porcentaje }));
+  }
+
+  private recalcularPreciosBebidaDeCategoria(categoriaId: number, porcentaje: number): void {
+    this.platoApi.getPlatos()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (articulos) => {
+          const afectadas = articulos.filter(a => esBebida(a) && a.categoriaInsumoId === categoriaId && !a.esPrecioManual);
+          afectadas.forEach(bebida => {
+            this.stockService.getById(bebida.id)
+              .pipe(takeUntilDestroyed(this.destroyRef))
+              .subscribe(detalle => {
+                const request = {
+                  nombre: detalle.nombre,
+                  descripcion: detalle.descripcion ?? undefined,
+                  precioVentaFinal: calcularPrecioConGanancia(bebida.costo, porcentaje),
+                  esPrecioManual: false,
+                  stockMinimo: detalle.stockMinimo,
+                  stockRecomendado: detalle.stockRecomendado,
+                  categoriaId: detalle.categoriaId,
+                  unidadDeMedidaId: detalle.unidadDeMedidaId
+                };
+                this.stockService.actualizarInsumoConImagen(bebida.id, request)
+                  .pipe(takeUntilDestroyed(this.destroyRef))
+                  .subscribe();
+              });
           });
         }
       });

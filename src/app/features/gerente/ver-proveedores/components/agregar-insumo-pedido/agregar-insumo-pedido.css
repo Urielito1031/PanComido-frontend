@@ -1,0 +1,215 @@
+.detail-kicker,
+.info-label {
+  color: #6b7280;
+}
+
+.detail-kicker {
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+.inline-ingredient-panel {
+  margin-top: 1rem;
+  border: 1px solid rgba(188, 0, 18, 0.16);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.86);
+  padding: 0.9rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.inline-ingredient-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.inline-close-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 999px;
+  background: #eef2f7;
+  color: #334155;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.inline-close-btn:hover {
+  background: #e2e8f0;
+}
+
+.inline-ingredient-search {
+  min-height: 42px;
+  border-color: #cbd5e1;
+  border-radius: 6px;
+}
+
+.inline-ingredient-search:focus {
+  border-color: #bc0012;
+  box-shadow: 0 0 0 3px rgba(188, 0, 18, 0.1);
+}
+
+.inline-ingredient-list {
+  overflow: visible;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.inline-ingredient-item {
+  width: 100%;
+  min-height: 58px;
+  border: 1px solid #dbe3ef;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #111827;
+  padding: 0.7rem 0.8rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.inline-ingredient-item:hover {
+  border-color: #b6c7d8;
+  background: #f8fafc;
+}
+
+.inline-ingredient-item.selected {
+  border-color: #bc0012;
+  background: rgba(188, 0, 18, 0.05);
+  box-shadow: inset 4px 0 0 #bc0012;
+}
+
+.inline-ingredient-item > span {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.inline-ingredient-item strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inline-ingredient-item small {
+  color: #6b7280;
+  font-size: 0.86rem;
+}
+
+.inline-ingredient-empty,
+.inline-ingredient-help {
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  color: #64748b;
+  padding: 1rem;
+}
+
+.inline-ingredient-selection {
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.78);
+  padding: 0.9rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 140px;
+  gap: 0.75rem;
+  align-items: end;
+}
+
+.inline-ingredient-selection > div,
+.inline-ingredient-selection label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.inline-ingredient-selection strong {
+  color: #111827;
+  font-weight: 800;
+}
+
+.inline-ingredient-selection small {
+  color: #64748b;
+  font-size: 0.86rem;
+}
+
+.inline-ingredient-selection label span {
+  color: #334155;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.inline-ingredient-selection input {
+  min-height: 42px;
+}
+
+.inline-ingredient-actions {
+  border-top: 1px solid #eef2f7;
+  padding-top: 0.9rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+
+.quantity-equivalence {
+  color: #0f2f64;
+  font-size: 0.8rem;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.modal-action-btn {
+  min-height: 40px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  padding: 0.55rem 1rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.modal-action-btn-outline {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #334155;
+}
+
+.modal-action-btn-primary {
+  background: var(--status-success, #22c55e);
+  border-color: var(--status-success, #22c55e);
+  color: #0f172a;
+}
+
+.modal-action-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+@media (max-width: 767.98px) {
+  .inline-ingredient-selection {
+    grid-template-columns: 1fr;
+  }
+
+  .inline-ingredient-actions {
+    flex-direction: column-reverse;
+  }
+
+  .inline-ingredient-actions .modal-action-btn {
+    width: 100%;
+  }
+}

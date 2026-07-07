@@ -71,6 +71,32 @@ export function productosParaAgregar(
   return candidatos.filter(producto => producto.nombre.toLowerCase().includes(texto));
 }
 
+export function unidadBaseParaPedido(unidadMedida: UnidadMedida): UnidadMedida;
+export function unidadBaseParaPedido(unidadMedida: string): string;
+export function unidadBaseParaPedido(unidadMedida: UnidadMedida | string): UnidadMedida | string {
+  const nombreUnidad = (typeof unidadMedida === 'string' ? unidadMedida : unidadMedida.nombre).trim().toUpperCase();
+
+  if (['G', 'GR', 'GRAMO', 'GRAMOS'].includes(nombreUnidad)) {
+    return typeof unidadMedida === 'string' ? 'Kg' : { ...unidadMedida, nombre: 'Kg' };
+  }
+
+  if (['ML', 'MILILITRO', 'MILILITROS'].includes(nombreUnidad)) {
+    return typeof unidadMedida === 'string' ? 'Litro' : { ...unidadMedida, nombre: 'Litro' };
+  }
+
+  return unidadMedida;
+}
+
+export function normalizarCantidadAUnidadBase(cantidad: number, unidadMedida: UnidadMedida | string): number {
+  const nombreUnidad = (typeof unidadMedida === 'string' ? unidadMedida : unidadMedida.nombre).trim().toUpperCase();
+
+  if (['G', 'GR', 'GRAMO', 'GRAMOS', 'ML', 'MILILITRO', 'MILILITROS'].includes(nombreUnidad)) {
+    return cantidad / 1000;
+  }
+
+  return cantidad;
+}
+
 export function ultimoPrecioDeInsumo(historial: PedidoProveedor[], insumoId: number | string): number | null {
   const pedidosOrdenados = [...historial].sort((a, b) => {
     const fechaA = new Date(a.fecha).getTime();

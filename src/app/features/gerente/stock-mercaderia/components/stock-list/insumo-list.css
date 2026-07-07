@@ -131,6 +131,7 @@
 .action-cell {
   display: flex;
   justify-content: flex-end;
+  gap: 0.4rem;
 }
 
 .btn-icon {
@@ -139,10 +140,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(188, 0, 18, 0.2);
+  border: 1px solid rgba(15, 23, 42, 0.12);
   border-radius: 8px;
   background: #ffffff;
-  color: #bc0012;
+  color: #475569;
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -153,7 +154,19 @@
 }
 
 .btn-icon:hover {
+  background: #1691ac;
+  border-color: #1691ac;
+  color: #ffffff;
+}
+
+.btn-icon-danger {
+  border-color: rgba(188, 0, 18, 0.2);
+  color: #bc0012;
+}
+
+.btn-icon-danger:hover {
   background: #bc0012;
+  border-color: #bc0012;
   color: #ffffff;
 }
 

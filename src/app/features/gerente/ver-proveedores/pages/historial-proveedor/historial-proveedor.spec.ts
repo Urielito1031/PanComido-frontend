@@ -19,7 +19,6 @@ describe('HistorialProveedorComponent', () => {
     telefono: '+54 11 5555-1200',
     email: 'ventas@distribuidorasur.com',
     direccion: 'Av. San Martín 1200, CABA',
-    activo: true,
     fechaUltimoPedido: '2026-05-18T09:00:00.000Z',
     categorias: ['Carne', 'Verdura'],
     historialPedidos: []

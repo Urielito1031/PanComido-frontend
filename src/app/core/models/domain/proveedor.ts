@@ -27,7 +27,6 @@ export interface Proveedor {
   telefono: string;
   email: string;
   direccion: string;
-  activo: boolean;
   fechaUltimoPedido: string | null;
   historialPedidos?: PedidoProveedor[];
   categorias?: string[];
@@ -71,4 +70,5 @@ export interface RecepcionPedidoItem {
   nombreLote: string;
   bodegaId: number;
   fechaVencimiento: string;
+  precioUnitario?: number;
 }

@@ -42,4 +42,5 @@ export interface PreRecepcionItemResponseDto {
   nombreLote: string | null;
   bodegaIdSug: number;
   fechaVencimientoSug: string | null;
+  precioCompra: number;
 }

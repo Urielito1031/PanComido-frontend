@@ -4,9 +4,11 @@ export interface InsumoResponseDto {
   stockActual: number;
   stockMinimo: number;
   precioVentaFinal?: number;
+  esPrecioManual: boolean;
   vencimiento: string | null;
   unidadMedida: string;
   categoria: string;
   tipo: string;
   estadoStock: string;
+  urlImagen: string | null;
 }

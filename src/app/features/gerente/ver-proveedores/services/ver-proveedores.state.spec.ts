@@ -20,7 +20,6 @@ describe('VerProveedoresState', () => {
       telefono: '+54 11 5555-1200',
       email: 'ventas@distribuidorasur.com',
       direccion: 'Av. San Martín 1200, CABA',
-      activo: true,
       fechaUltimoPedido: '2026-05-18T09:00:00.000Z',
       categorias: ['Carne', 'Verdura'],
       historialPedidos: []
@@ -32,7 +31,6 @@ describe('VerProveedoresState', () => {
       telefono: '+54 11 4444-8800',
       email: 'pedidos@elmolino.com.ar',
       direccion: 'Ruta 8 km 23, Buenos Aires',
-      activo: true,
       fechaUltimoPedido: '2026-05-12T15:45:00.000Z',
       categorias: ['Almacen'],
       historialPedidos: []
@@ -170,6 +168,7 @@ describe('VerProveedoresState', () => {
     service.cargarDatos();
     service.seleccionarProducto(mockProductos[0]);
     service.precioProductoManual.set(1200);
+    service.cantidadProducto.set(1);
     service.agregarItemPedido();
 
     service.actualizarCantidadItem(1, 5);

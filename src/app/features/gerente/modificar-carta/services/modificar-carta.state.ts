@@ -2,8 +2,11 @@ import { Injectable, inject, signal, computed, DestroyRef } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PlatoApiService } from '../../services/plato.api';
 import { Plato } from '../../../../core/models/domain/plato';
+import { InsumoDetalle } from '../../../../core/models/domain/insumo';
 import { PorcentajeItem } from '../../../../core/models/domain/porcentajes-ganancia';
-import { environment } from '../../../../../environments/environment';
+import { StockMercaderiaService } from '../../stock-mercaderia/services/insumos/stock-mercaderia-service';
+import { GuardarBebidaPayload } from '../../stock-mercaderia/components/editar-bebida-form/editar-bebida-form';
+import { GuardarProductoPayload } from '../../stock-mercaderia/components/producto-form/producto-form';
 import {
   CartaSortOrder,
   esBebida,
@@ -14,9 +17,17 @@ import {
   tiposDisponibles
 } from './modificar-carta.rules';
 
+export interface BebidaAEditar {
+  id: number;
+  costo: number;
+  categoriaInsumoId: number | null;
+  detalle: InsumoDetalle | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ModificarCartaStateService {
   private api = inject(PlatoApiService);
+  private stockService = inject(StockMercaderiaService);
   private destroyRef = inject(DestroyRef);
 
   // 1. Estado PRIVADO
@@ -32,6 +43,8 @@ export class ModificarCartaStateService {
   private _sortOrder = signal<CartaSortOrder>('default');
 
   private _porcentajesPlatos = signal<PorcentajeItem[]>([]);
+  private _porcentajesBebidas = signal<PorcentajeItem[]>([]);
+  private _bebidaAEditar = signal<BebidaAEditar | null>(null);
 
   // 2. Estado PÚBLICO
   searchTerm = this._searchTerm.asReadonly();
@@ -46,6 +59,8 @@ export class ModificarCartaStateService {
   sortOrder = this._sortOrder.asReadonly();
 
   porcentajesPlatos = this._porcentajesPlatos.asReadonly();
+  porcentajesBebidas = this._porcentajesBebidas.asReadonly();
+  bebidaAEditar = this._bebidaAEditar.asReadonly();
 
   // 3. Variables Derivadas (Computed)
   tiposBebidaDisponibles = computed(() => {
@@ -155,7 +170,10 @@ export class ModificarCartaStateService {
     this.api.getDatosFormulario()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (res) => this._porcentajesPlatos.set(res.porcentajes.platos)
+        next: (res) => {
+          this._porcentajesPlatos.set(res.porcentajes.platos);
+          this._porcentajesBebidas.set(res.porcentajes.bebidas);
+        }
       });
   }
 
@@ -222,7 +240,79 @@ export class ModificarCartaStateService {
     this._platoAEliminar.set(plato);
   }
 
-  savePlato(updatedFields: Partial<Plato>): void {
+  setBebidaAEditar(plato: Plato | null): void {
+    if (!plato) {
+      this._bebidaAEditar.set(null);
+      return;
+    }
+
+    this._bebidaAEditar.set({
+      id: plato.id,
+      costo: plato.costo,
+      categoriaInsumoId: plato.categoriaInsumoId ?? null,
+      detalle: null
+    });
+
+    this.stockService.getById(plato.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(detalle => {
+        this._bebidaAEditar.update(actual => actual ? { ...actual, detalle } : actual);
+      });
+  }
+
+  saveBebida(payload: GuardarBebidaPayload): void {
+    const target = this._bebidaAEditar();
+    const detalle = target?.detalle;
+    if (!target || !detalle) return;
+
+    const request = {
+      nombre: payload.nombre,
+      descripcion: detalle.descripcion ?? undefined,
+      precioVentaFinal: payload.precioVentaFinal,
+      esPrecioManual: payload.esPrecioManual,
+      stockMinimo: detalle.stockMinimo,
+      stockRecomendado: detalle.stockRecomendado,
+      categoriaId: detalle.categoriaId,
+      unidadDeMedidaId: detalle.unidadDeMedidaId
+    };
+
+    this.stockService.actualizarInsumoConImagen(target.id, request, payload.imagen)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(actualizado => {
+        this._platos.update(platos => platos.map(p => p.id === target.id
+          ? {
+              ...p,
+              nombre: actualizado.nombre,
+              precioVenta: actualizado.precioVentaFinal ?? p.precioVenta,
+              esPrecioManual: actualizado.esPrecioManual,
+              imagen: actualizado.urlImagen || p.imagen
+            }
+          : p));
+        this._bebidaAEditar.set(null);
+      });
+  }
+
+  crearBebida(payload: GuardarProductoPayload): void {
+    const request = {
+      nombre: payload.nombre,
+      descripcion: payload.descripcion,
+      precioVentaFinal: payload.precioVentaFinal,
+      esPrecioManual: payload.esPrecioManual,
+      stockMinimo: payload.stockMinimo,
+      stockRecomendado: payload.stockRecomendado,
+      categoriaId: payload.categoriaId,
+      unidadDeMedidaId: payload.unidadDeMedidaId,
+      cantidadInicial: payload.cantidadInicial!,
+      bodegaId: payload.bodegaId!,
+      fechaVencimiento: payload.fechaVencimiento!
+    };
+
+    this.stockService.crear(request, payload.imagen)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.cargarPlatos());
+  }
+
+  savePlato(updatedFields: Partial<Plato>, archivo?: File): void {
     const target = this._platoAEditar();
     if (!target) return;
 
@@ -240,7 +330,6 @@ export class ModificarCartaStateService {
       esPrecioManual: updatedPlato.esPrecioManual ?? false,
       tipoPlatoId,
       categoriaPlatoId,
-      urlImagen: this.normalizarUrlImagen(updatedPlato.imagen),
       esVisibleEnCarta: updatedPlato.visible,
       restriccionesIds: updatedPlato.restriccionesIds ?? [],
       ingredientes: (updatedPlato.receta ?? []).map(ingrediente => ({
@@ -250,10 +339,12 @@ export class ModificarCartaStateService {
       }))
     };
 
-    this.api.modificarPlato(target.id, request)
+    this.api.modificarPlato(target.id, request, archivo)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(updated => {
-        this._platos.update(platos => platos.map(p => p.id === target.id ? { ...p, ...updated, ...updatedPlato } : p));
+        this._platos.update(platos => platos.map(p => p.id === target.id
+          ? { ...p, ...updated, ...updatedPlato, imagen: updated.imagen || updatedPlato.imagen }
+          : p));
         this._platoAEditar.set(null);
       });
   }
@@ -273,6 +364,7 @@ export class ModificarCartaStateService {
   closeModals(): void {
     this._platoAEditar.set(null);
     this._platoAEliminar.set(null);
+    this._bebidaAEditar.set(null);
   }
 
   toggleRecomendado(plato: Plato): void {
@@ -299,9 +391,4 @@ export class ModificarCartaStateService {
       });
   }
 
-  private normalizarUrlImagen(url: string | undefined): string {
-    if (!url) return '';
-
-    return url.startsWith(environment.apiUrl) ? url.replace(environment.apiUrl, '') : url;
-  }
 }

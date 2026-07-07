@@ -7,7 +7,7 @@
   <app-page-toolbar>
     <app-buscador
       buscador
-      placeholder="Buscar ingrediente..."
+      placeholder="Buscar ingrediente"
       (busquedaCambiada)="termino.set($event)">
     </app-buscador>
 
@@ -309,24 +309,48 @@
     } @else {
       <app-insumo-list
         [productos]="productosPaginados()"
-        (editar)="abrirModalEditar(modalFormulario, $event)">
+        (editar)="abrirModalEditar(modalFormulario, $event)"
+        (eliminar)="abrirModalEliminar($event)">
       </app-insumo-list>
     }
   </section>
 </section>
 
-<app-modal #modalFormulario [titulo]="tituloModal()" (cerrado)="limpiarEstadoModal()">
+<app-modal #modalFormulario [titulo]="tituloModal()" [maxWidth]="680" (cerrado)="limpiarEstadoModal()">
 
-  @if(modalAbierto()){
-
-  <app-producto-form 
-    [producto]="productoSeleccionado()" 
-    [bodegas]="bodegaState.bodegas()" 
-    [categorias]="state.categoriasInsumos()" 
-    [unidadesMedida]="state.unidadMedidas()" 
-    (cancelado)="modalFormulario.cerrar()"
-    (guardar)="guardarCambios($event, modalFormulario)">
-  </app-producto-form>
+  @if (modalAbierto()) {
+    @if (esBebidaSeleccionada()) {
+      @if (detalleInsumo(); as detalle) {
+        <app-editar-bebida-form
+          [insumo]="detalle"
+          [costo]="costoBebida()"
+          [porcentajeGanancia]="porcentajeGananciaBebida()"
+          (cancelado)="modalFormulario.cerrar()"
+          (guardar)="guardarBebida($event, modalFormulario)">
+        </app-editar-bebida-form>
+      } @else {
+        <div class="text-center text-muted p-4">Cargando...</div>
+      }
+    } @else if (!productoEditandoId() || detalleInsumo()) {
+      <app-producto-form
+        [producto]="detalleInsumo()"
+        [bodegas]="bodegaState.bodegas()"
+        [categorias]="state.categoriasInsumos()"
+        [unidadesMedida]="state.unidadMedidas()"
+        (cancelado)="modalFormulario.cerrar()"
+        (guardar)="guardarCambios($event, modalFormulario)">
+      </app-producto-form>
+    } @else {
+      <div class="text-center text-muted p-4">Cargando...</div>
+    }
   }
 
-    </app-modal>
+</app-modal>
+
+@if (insumoAEliminar(); as producto) {
+  <app-modal-eliminar-insumo
+    [producto]="producto"
+    (confirm)="confirmarEliminar()"
+    (close)="cerrarModalEliminar()">
+  </app-modal-eliminar-insumo>
+}

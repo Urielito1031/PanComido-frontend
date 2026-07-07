@@ -18,7 +18,6 @@ let dbProveedores: Proveedor[] = [
     telefono: '+54 11 5555-1200',
     email: 'ventas@distribuidorasur.com',
     direccion: 'Av. San Martín 1200, CABA',
-    activo: true,
     fechaUltimoPedido: '2026-05-18T09:00:00.000Z',
     categorias: ['Carne', 'Verdura'],
     historialPedidos: [
@@ -43,7 +42,6 @@ let dbProveedores: Proveedor[] = [
     telefono: '+54 11 4444-8800',
     email: 'pedidos@elmolino.com.ar',
     direccion: 'Ruta 8 km 23, Buenos Aires',
-    activo: true,
     fechaUltimoPedido: '2026-05-12T15:45:00.000Z',
     categorias: ['Almacen'],
     historialPedidos: []
@@ -55,7 +53,6 @@ let dbProveedores: Proveedor[] = [
     telefono: '+54 11 3333-9911',
     email: 'contacto@labodegamayorista.com',
     direccion: 'Parque Industrial, Pilar',
-    activo: true,
     fechaUltimoPedido: '2026-05-20T11:10:00.000Z',
     categorias: ['Almacen'],
     historialPedidos: []
@@ -67,7 +64,6 @@ let dbProveedores: Proveedor[] = [
     telefono: '+54 11 2222-7744',
     email: 'pedidos@frutasdelnorte.com',
     direccion: 'Mercado Central, La Matanza',
-    activo: false,
     fechaUltimoPedido: '2026-04-30T07:40:00.000Z',
     categorias: ['Verdura'],
     historialPedidos: []
@@ -249,7 +245,6 @@ export const handleProveedorMock = (req: HttpRequest<unknown>, next: HttpHandler
       telefono: body.telefono,
       email: body.email,
       direccion: direccionCompleta,
-      activo: true,
       fechaUltimoPedido: null,
       historialPedidos: [],
       categorias: body.categorias ?? []

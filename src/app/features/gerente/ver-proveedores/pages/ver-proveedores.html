@@ -6,20 +6,6 @@
       (busquedaCambiada)="termino.set($event)">
     </app-buscador>
 
-    <div filtros class="d-flex align-items-center">
-      <app-dropdown #filtroDropdown>
-        <button trigger class="btn-pill-filter text-nowrap" [class.active]="filtroEstado() !== 'Todos'">
-          <span class="material-symbols-outlined" style="font-size: 18px;">filter_alt</span>
-          <span>Estado: {{ filtroEstado() }}</span>
-        </button>
-        <ul menu class="m-0 p-0 list-unstyled w-100">
-          <li (click)="setFiltroEstado('Todos'); filtroDropdown.cerrar()" [class.dropdown-option-active]="filtroEstado() === 'Todos'">Todos</li>
-          <li (click)="setFiltroEstado('Activos'); filtroDropdown.cerrar()" [class.dropdown-option-active]="filtroEstado() === 'Activos'">Activos</li>
-          <li (click)="setFiltroEstado('Inactivos'); filtroDropdown.cerrar()" [class.dropdown-option-active]="filtroEstado() === 'Inactivos'">Inactivos</li>
-        </ul>
-      </app-dropdown>
-    </div>
-
     <div acciones class="d-flex gap-2 align-items-center ms-auto">
       <button type="button" class="tour-trigger-btn" (click)="iniciarTutorial()" title="Iniciar tutorial interactivo">
         <span class="material-symbols-outlined">help</span>
@@ -95,7 +81,6 @@
             <h2 class="detail-title mb-0">{{ proveedor.nombre }}</h2>
           </div>
           <div class="detail-actions">
-            <span class="status-pill" [class.inactivo]="!proveedor.activo">{{ proveedor.activo ? 'Activo' : 'Inactivo' }}</span>
             <button type="button" class="icon-action-btn" title="Editar proveedor" (click)="abrirEditarProveedor(proveedor)">
               <span class="material-symbols-outlined">edit</span>
             </button>
@@ -136,7 +121,7 @@
             </div>
             <app-boton
               label="Recibir pedido"
-              variante="success"
+              variante="teal"
               tamanio="sm"
               (clicked)="mostrarHistorial(proveedor)">
             </app-boton>
@@ -183,7 +168,7 @@
                   <button type="button" class="history-card history-card-clickable history-card-compact" (click)="abrirDetallePedido(pedido)">
                     <div>
                       <strong>{{ pedido.concepto }}</strong>
-                      <div class="history-date">{{ pedido.fecha | date:'dd/MM/yyyy HH:mm' }}</div>
+                      <div class="history-date">{{ pedido.fecha | date:'dd/MM/yyyy' }}</div>
                     </div>
                     <div class="history-card-side">
                       <span class="estado-pill" [class]="getEstadoClase(pedido.estado)">{{ pedido.estado }}</span>
@@ -229,7 +214,7 @@
                   <input
                     type="text"
                     class="form-control custom-input"
-                    placeholder="Escribí el nombre del insumo..."
+                    placeholder="Escribí el nombre del insumo"
                     [ngModel]="productoTexto()"
                     (ngModelChange)="onProductoTextoChange($event)">
 
@@ -299,7 +284,8 @@
                         [step]="cantidadPasoDisplay()"
                         [placeholder]="cantidadPlaceholderDisplay()"
                         [ngModel]="cantidadDisplay()"
-                        (ngModelChange)="setCantidadDisplay($event)">
+                        (ngModelChange)="setCantidadDisplay($event)"
+                        (focus)="onFocusCantidad($event)">
                       <button type="button" class="step-btn" (click)="ajustarCantidadDisplay(cantidadPasoDisplay())">+</button>
                     </div>
                     <div class="quantity-tools-row">
@@ -308,7 +294,6 @@
                     @if (presetsCantidad().length > 0) {
                       <div class="quantity-presets-header" title="Los primeros accesos pueden aparecer segun cantidades frecuentes usadas antes con este proveedor.">
                         <span>Accesos rápidos</span>
-                        <span class="material-symbols-outlined">info</span>
                       </div>
                       <div class="quantity-presets">
                         @for (preset of presetsCantidad(); track preset.label) {
@@ -364,9 +349,9 @@
                       </div>
 
                       <div class="cart-row-qty">
-                        <button type="button" class="step-btn sm" (click)="actualizarCantidadItem(item.id, Math.max((item.cantidad) - 1, 1))">−</button>
+                        <button type="button" class="step-btn sm" (click)="decrementarCantidadCarrito(item)">−</button>
                         <span class="qty-display">{{ item.cantidad }}</span>
-                        <button type="button" class="step-btn sm" (click)="actualizarCantidadItem(item.id, item.cantidad + 1)">+</button>
+                        <button type="button" class="step-btn sm" (click)="incrementarCantidadCarrito(item)">+</button>
                       </div>
 
                       @if (item.precioUnitario) {
@@ -471,14 +456,8 @@
           </div>
 
           <div class="pedido-modal-meta">
-            <span>{{ pedido.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
+            <span>{{ pedido.fecha | date:'dd/MM/yyyy' }}</span>
             <span class="estado-pill" [class]="getEstadoClase(pedido.estado)">{{ pedido.estado }}</span>
-          </div>
-
-          <div class="pedido-modal-summary-row">
-            <span>{{ pedido.items.length }} ítems</span>
-            <span class="summary-dot">•</span>
-            <strong class="summary-amount">Monto: {{ pedido.monto | arsCurrency }}</strong>
           </div>
 
           <div class="pedido-modal-grid">
@@ -505,18 +484,32 @@
               <div class="pedido-modal-item">
                 <div>
                   <strong>{{ item.nombre }}</strong>
-                  <div class="history-date">
-                    ID: {{ item.id }}
-                    @if (item.precioUnitario) {
-                      <span> • Precio: {{ item.precioUnitario | arsCurrency }} c/u</span>
-                    }
-                  </div>
+                  @if (item.precioUnitario) {
+                    <div class="history-date">
+                      Precio: {{ item.precioUnitario | arsCurrency }}/{{ nombreUnidad(unidadItemPedido(item)) }} • Total: {{ (item.cantidad * item.precioUnitario) | arsCurrency }}
+                    </div>
+                  }
                 </div>
 
-                <span class="pedido-modal-quantity">{{ item.cantidad }} {{ nombreUnidad(item.unidadMedida) }}</span>
+                <span class="pedido-modal-quantity">{{ item.cantidad }} {{ nombreUnidad(unidadItemPedido(item)) }}</span>
               </div>
             }
           </div>
+
+          @if (pedido.estado === 'Pendiente') {
+            <div class="pedido-modal-actions">
+              <app-boton variante="outline" tamanio="md" (clicked)="isAgregarInsumoOpen.set(!isAgregarInsumoOpen())">
+                <span class="fw-bold">{{ isAgregarInsumoOpen() ? 'Ocultar insumos' : 'Agregar insumos' }}</span>
+              </app-boton>
+              <app-boton variante="success" tamanio="md" (clicked)="confirmarPedido($event, pedido)">
+                <span class="fw-bold text-dark">Confirmar pedido</span>
+              </app-boton>
+            </div>
+
+            @if (isAgregarInsumoOpen()) {
+              <app-agregar-insumo-pedido [pedido]="pedido" (cerrar)="isAgregarInsumoOpen.set(false)" />
+            }
+          }
         </div>
       </div>
     }

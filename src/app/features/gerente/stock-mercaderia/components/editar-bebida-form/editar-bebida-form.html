@@ -1,0 +1,98 @@
+<div class="bebida-form">
+  <div class="mb-4">
+    <label class="form-label soft-label">Nombre de la Bebida</label>
+    <input
+      type="text"
+      class="form-control soft-input fs-5 fw-bold"
+      placeholder="Ej: Coca-Cola 500ml"
+      [ngModel]="nombre()"
+      (ngModelChange)="nombre.set($event)">
+  </div>
+
+  <div class="mb-4">
+    <label class="form-label soft-label">Imagen</label>
+    <div class="imagen-preview mb-2" [style.backgroundImage]="imagenPreview() ? 'url(' + imagenPreview() + ')' : 'none'">
+      @if (!imagenPreview()) {
+        <span class="material-symbols-outlined text-muted fs-1">add_a_photo</span>
+      }
+    </div>
+    <input type="file" accept="image/*" class="form-control soft-input" (change)="onImagenSeleccionada($event)">
+  </div>
+
+  <div class="row g-3 mb-4">
+    <!-- COSTO -->
+    <div class="col-4">
+      <label class="form-label soft-label">Costo</label>
+      <div class="cost-readonly-box">
+        {{ costo() | arsCurrency }}
+      </div>
+      <app-price-note text="Último precio de compra recibido." [compact]="true" />
+    </div>
+
+    <!-- PRECIO CON GANANCIA -->
+    <div class="col-4">
+      <label class="form-label soft-label">Precio con ganancia</label>
+      <div class="cost-readonly-box">
+        {{ precioConGanancia() | arsCurrency }}
+      </div>
+      <app-price-note [text]="'Costo + ' + porcentajeGanancia() + '% de ganancia'" [compact]="true" />
+    </div>
+
+    <!-- PRECIO FINAL -->
+    <div class="col-4">
+      <div class="d-flex justify-content-between align-items-center">
+        <label class="form-label soft-label mb-0">Precio Venta</label>
+        <app-boton
+          label="Recalcular"
+          variante="outline"
+          tamanio="sm"
+          [disabled]="!precioEsManual()"
+          [title]="precioEsManual()
+            ? 'Volver a precio automático (costo + % de ganancia)'
+            : 'Precio ya automático'"
+          (clicked)="onRecalcularPrecio()">
+        </app-boton>
+      </div>
+      <div class="input-group soft-input-group">
+        <span class="input-group-text fw-bold">$</span>
+        <input
+          type="number"
+          class="form-control soft-input fw-bold text-dark"
+          placeholder="0.00"
+          [ngModel]="precioVenta()"
+          (ngModelChange)="onPrecioVentaChange($event)"
+          (focus)="onFocusNumero($event)">
+      </div>
+
+      @if (precioVenta() && costo()) {
+        @if (precioEsMenorQueCosto()) {
+          <small class="text-danger fw-bold d-flex align-items-center gap-1 mt-1" style="font-size: 0.75rem;">
+            <span class="material-symbols-outlined" style="font-size: 1rem;">warning</span>
+            Pérdida
+          </small>
+        } @else {
+          <small class="text-success fw-bold d-flex align-items-center gap-1 mt-1" style="font-size: 0.75rem;">
+            <span class="material-symbols-outlined" style="font-size: 1rem;">trending_up</span>
+            Buen margen
+          </small>
+        }
+      }
+    </div>
+  </div>
+
+  <div class="form-actions d-flex justify-content-end gap-3">
+    <app-boton
+      label="Cancelar"
+      variante="outline"
+      tamanio="md"
+      (clicked)="onCancelar()">
+    </app-boton>
+    <app-boton
+      label="Guardar Cambios"
+      variante="success"
+      tamanio="md"
+      [disabled]="!puedeGuardar()"
+      (clicked)="onSave()">
+    </app-boton>
+  </div>
+</div>

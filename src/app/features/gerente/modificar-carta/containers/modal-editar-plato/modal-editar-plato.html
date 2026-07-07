@@ -43,16 +43,8 @@
       </div>
 
       <div class="mb-4">
-        <label class="form-label soft-label">URL de Imagen</label>
-        <div class="input-group soft-input-group">
-          <span class="input-group-text"><span class="material-symbols-outlined fs-5">link</span></span>
-          <input 
-            type="text" 
-            class="form-control soft-input" 
-            placeholder="https://..."
-            [ngModel]="imagen()" 
-            (ngModelChange)="imagen.set($event)">
-        </div>
+        <label class="form-label soft-label">Imagen</label>
+        <input type="file" accept="image/*" class="form-control soft-input" (change)="onImagenSeleccionada($event)">
       </div>
 
       <div class="row g-3 mb-4">
@@ -170,7 +162,7 @@
         <textarea 
           class="form-control soft-input custom-textarea" 
           rows="3" 
-          placeholder="Descripción del plato..."
+          placeholder="Descripción del plato"
           [ngModel]="descripcion()" 
           (ngModelChange)="descripcion.set($event)">
         </textarea>
@@ -200,7 +192,7 @@
 
         <div class="position-relative mb-4 spotlight-search">
           <app-buscador
-            [placeholder]="'Buscar ingrediente para añadir...'"
+            [placeholder]="'Buscar ingrediente para añadir'"
             [valor]="busqueda()"
             (busquedaCambiada)="onSearchChanged($event)">
           </app-buscador>

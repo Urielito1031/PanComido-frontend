@@ -7,6 +7,7 @@ export const INSUMOS_MOCK: Insumo[] = [
     stockActual: 5,
     vencimiento: '2026-05-17',
     stockMinimo: 5,
+    esPrecioManual: false,
     unidadMedida: { id: 1, nombre: 'Kg' },
     categoriaIngrediente: { id: 2, descripcion: 'Verdura', tipoAplica: 'Ingrediente' }
   },
@@ -16,6 +17,7 @@ export const INSUMOS_MOCK: Insumo[] = [
     stockActual: 25,
     vencimiento: '2026-06-10',
     stockMinimo: 10,
+    esPrecioManual: false,
     unidadMedida: { id: 1, nombre: 'Kg' },
     categoriaIngrediente: { id: 2, descripcion: 'Verdura', tipoAplica: 'Ingrediente' }
   },
@@ -25,6 +27,7 @@ export const INSUMOS_MOCK: Insumo[] = [
     stockActual: 3,
     vencimiento: '2027-01-20',
     stockMinimo: 5,
+    esPrecioManual: false,
     unidadMedida: { id: 3, nombre: 'Lt' },
     categoriaIngrediente: { id: 9, descripcion: 'Aceites y Grasas', tipoAplica: 'Ingrediente' }
   },
@@ -34,6 +37,7 @@ export const INSUMOS_MOCK: Insumo[] = [
     stockActual: 1,
     vencimiento: '2026-12-05',
     stockMinimo: 15,
+    esPrecioManual: false,
     unidadMedida: { id: 1, nombre: 'Kg' },
     categoriaIngrediente: { id: 11, descripcion: 'Harinas y Panificados', tipoAplica: 'Ingrediente' }
   },
@@ -43,6 +47,7 @@ export const INSUMOS_MOCK: Insumo[] = [
     stockActual: 12,
     vencimiento: '2026-05-25',
     stockMinimo: 5,
+    esPrecioManual: false,
     unidadMedida: { id: 1, nombre: 'Kg' },
     categoriaIngrediente: { id: 2, descripcion: 'Verdura', tipoAplica: 'Ingrediente' }
   },
@@ -52,6 +57,7 @@ export const INSUMOS_MOCK: Insumo[] = [
     stockActual: 3,
     vencimiento: '2026-05-28',
     stockMinimo: 10,
+    esPrecioManual: false,
     unidadMedida: { id: 1, nombre: 'Kg' },
     categoriaIngrediente: { id: 3, descripcion: 'Carne', tipoAplica: 'Ingrediente' }
   }

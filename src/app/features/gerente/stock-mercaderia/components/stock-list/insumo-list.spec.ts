@@ -129,6 +129,16 @@ describe('InsumoList', () => {
     });
   });
 
+  describe('eliminar output', () => {
+    it('debería emitir id cuando se dispara eliminar', async () => {
+      const { component } = await setup(mockInsumos);
+      const spy = vi.fn();
+      component.eliminar.subscribe(spy);
+      component.eliminar.emit(2);
+      expect(spy).toHaveBeenCalledWith(2);
+    });
+  });
+
   describe('reactive updates', () => {
     it('debería recalcular filas cuando cambia el input productos', async () => {
       const { fixture, component } = await setup(mockInsumos);

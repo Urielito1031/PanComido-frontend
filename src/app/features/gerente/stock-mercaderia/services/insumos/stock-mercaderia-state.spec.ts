@@ -3,22 +3,26 @@ import { StockMercaderiaState } from './stock-mercaderia-state';
 import { StockMercaderiaService } from './stock-mercaderia-service';
 import { UnidadMedidaService } from '../unidad-medida.service';
 import { CategoriaInsumoService } from '../categorias/categoria-insumo.service';
+import { PlatoApiService } from '../../../services/plato.api';
 import { of, throwError } from 'rxjs';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Insumo } from '../../../../../core/models/domain/insumo';
 import { INSUMOS_MOCK } from '../../../../../infra/mocks/insumo.mock-data';
+import { GuardarProductoPayload } from '../../components/producto-form/producto-form';
 
 describe('StockMercaderiaState', () => {
   let state: StockMercaderiaState;
   let mockService: any;
   let mockUnidadMedida: any;
   let mockCategoriaInsumo: any;
+  let mockPlatoApi: any;
 
   beforeEach(() => {
     mockService = {
       getStockMercaderia: vi.fn(),
+      getById: vi.fn(),
       crear: vi.fn(),
-      actualizar: vi.fn(),
+      actualizarInsumoConImagen: vi.fn(),
       eliminar: vi.fn()
     };
 
@@ -30,12 +34,18 @@ describe('StockMercaderiaState', () => {
       getCategorias: vi.fn().mockReturnValue(of([])),
     };
 
+    mockPlatoApi = {
+      getDatosFormulario: vi.fn().mockReturnValue(of({ porcentajes: { platos: [], bebidas: [] } })),
+      getPlatos: vi.fn().mockReturnValue(of([]))
+    };
+
     TestBed.configureTestingModule({
       providers: [
         StockMercaderiaState,
         { provide: StockMercaderiaService, useValue: mockService },
         { provide: UnidadMedidaService, useValue: mockUnidadMedida },
-        { provide: CategoriaInsumoService, useValue: mockCategoriaInsumo }
+        { provide: CategoriaInsumoService, useValue: mockCategoriaInsumo },
+        { provide: PlatoApiService, useValue: mockPlatoApi }
       ]
     });
 
@@ -74,26 +84,77 @@ describe('StockMercaderiaState', () => {
   });
 
   describe('guardarProducto()', () => {
-    it('debería crear un nuevo producto', () => {
-      const nuevo: Partial<Insumo> = {
+    it('debería crear un nuevo producto cuando el payload no tiene id', () => {
+      const payload: GuardarProductoPayload = {
         nombre: 'Sal',
-        stockActual: 15,
-        unidadMedida: { id: 1, nombre: 'Kg' },
+        descripcion: '',
+        categoriaId: 1,
+        unidadDeMedidaId: 1,
         stockMinimo: 5,
-        categoriaIngrediente: { id: 1, descripcion: 'Almacen', tipoAplica: 'Ingrediente' },
-        vencimiento: '2028-01-01'
+        stockRecomendado: 10,
+        esPrecioManual: false,
+        bodegaId: 2,
+        cantidadInicial: 15,
+        fechaVencimiento: '2028-01-01'
       };
 
       const productoCreado: Insumo = {
         id: 99,
-        ...nuevo
-      } as Insumo;
+        nombre: 'Sal',
+        stockActual: 15,
+        vencimiento: '2028-01-01',
+        unidadMedida: { id: 1, nombre: 'Kg' },
+        categoriaIngrediente: { id: 1, descripcion: 'Almacen', tipoAplica: 'Ingrediente' },
+        stockMinimo: 5,
+        esPrecioManual: false
+      };
 
       mockService.crear.mockReturnValue(of(productoCreado));
 
-      state.guardarProducto(nuevo as Insumo);
+      state.guardarProducto(payload);
 
-      expect(mockService.crear).toHaveBeenCalledWith(nuevo);
+      expect(mockService.crear).toHaveBeenCalledWith(expect.objectContaining({
+        nombre: 'Sal',
+        categoriaId: 1,
+        bodegaId: 2,
+        cantidadInicial: 15
+      }), undefined);
+      expect(state.productos()).toContainEqual(productoCreado);
+    });
+
+    it('debería actualizar un producto existente cuando el payload tiene id', () => {
+      mockService.getStockMercaderia.mockReturnValue(of(INSUMOS_MOCK));
+      state.cargarMercaderia();
+      const idExistente = INSUMOS_MOCK[0].id;
+
+      const payload: GuardarProductoPayload = {
+        id: idExistente,
+        nombre: 'Sal fina',
+        descripcion: '',
+        categoriaId: 1,
+        unidadDeMedidaId: 1,
+        stockMinimo: 5,
+        stockRecomendado: 10,
+        esPrecioManual: false
+      };
+
+      mockService.actualizarInsumoConImagen.mockReturnValue(of({
+        id: idExistente,
+        nombre: 'Sal fina',
+        descripcion: null,
+        esPrecioManual: false,
+        stockMinimo: 5,
+        stockRecomendado: 10,
+        categoriaId: 1,
+        unidadDeMedidaId: 1,
+        urlImagen: null,
+        tipo: 'Ingrediente'
+      }));
+
+      state.guardarProducto(payload);
+
+      expect(mockService.actualizarInsumoConImagen).toHaveBeenCalledWith(idExistente, expect.objectContaining({ nombre: 'Sal fina' }), undefined);
+      expect(state.productos().find(p => p.id === idExistente)?.nombre).toBe('Sal fina');
     });
   });
 

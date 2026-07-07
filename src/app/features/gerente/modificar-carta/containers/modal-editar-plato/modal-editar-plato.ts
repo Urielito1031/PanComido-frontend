@@ -24,12 +24,13 @@ export class ModalEditarPlatoComponent {
   private destroyRef = inject(DestroyRef);
 
   plato = input.required<Plato>();
-  save = output<Partial<Plato>>();
+  save = output<{ plato: Partial<Plato>; imagen?: File }>();
   close = output<void>();
 
   nombre = signal('');
   precioVenta = signal<number | null>(null);
   imagen = signal('');
+  archivoImagen = signal<File | null>(null);
   visible = signal(true);
 
   descripcion = signal('');
@@ -100,6 +101,7 @@ export class ModalEditarPlatoComponent {
         this.nombre.set(p.nombre);
         this.precioVenta.set(p.precioVenta);
         this.imagen.set(p.imagen);
+        this.archivoImagen.set(null);
         this.visible.set(p.visible);
         this.descripcion.set(p.descripcion || '');
         this.tiempoPreparacion.set(p.tiempoPreparacion || p.tiempo || 15);
@@ -132,6 +134,14 @@ export class ModalEditarPlatoComponent {
 
   onToggleVisible() {
     this.visible.update(v => !v);
+  }
+
+  onImagenSeleccionada(event: Event): void {
+    const archivo = (event.target as HTMLInputElement).files?.[0];
+    if (!archivo) return;
+
+    this.archivoImagen.set(archivo);
+    this.imagen.set(URL.createObjectURL(archivo));
   }
 
   onSearchChanged(value: string) {
@@ -235,18 +245,20 @@ export class ModalEditarPlatoComponent {
       return;
     }
     this.save.emit({
-      nombre: this.nombre(),
-      precioVenta: this.precioVenta()!,
-      costo: this.costo()!,
-      esPrecioManual: this.precioEsManual(),
-      imagen: this.imagen(),
-      visible: this.visible(),
-      descripcion: this.descripcion(),
-      tiempoPreparacion: this.tiempoPreparacion(),
-      tipoPlatoId: this.tipoPlatoId()!,
-      categoriaPlatoId: this.categoriaPlatoId()!,
-      restriccionesIds: this.restriccionesSeleccionadas(),
-      receta: this.receta()
+      plato: {
+        nombre: this.nombre(),
+        precioVenta: this.precioVenta()!,
+        costo: this.costo()!,
+        esPrecioManual: this.precioEsManual(),
+        visible: this.visible(),
+        descripcion: this.descripcion(),
+        tiempoPreparacion: this.tiempoPreparacion(),
+        tipoPlatoId: this.tipoPlatoId()!,
+        categoriaPlatoId: this.categoriaPlatoId()!,
+        restriccionesIds: this.restriccionesSeleccionadas(),
+        receta: this.receta()
+      },
+      imagen: this.archivoImagen() ?? undefined
     });
   }
 

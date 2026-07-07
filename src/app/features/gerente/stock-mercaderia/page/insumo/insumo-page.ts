@@ -9,16 +9,17 @@ import { Modal } from "../../../../../shared/ui/modal/modal";
 import { StockMercaderiaState } from '../../services/insumos/stock-mercaderia-state';
 import { BodegaState } from '../../services/bodegas/bodega-state';
 import { StockTourService } from '../../services/stock-tour.service';
-import { ProductoForm } from "../../components/producto-form/producto-form";
+import { ProductoForm, GuardarProductoPayload } from "../../components/producto-form/producto-form";
 import { Insumo, LoteInsumo } from '../../../../../core/models/domain/insumo';
-import { CrearInsumo } from '../../../../../core/models/domain/insumo';
+import { EditarBebidaFormComponent, GuardarBebidaPayload } from '../../components/editar-bebida-form/editar-bebida-form';
+import { ModalEliminarInsumoComponent } from '../../components/modal-eliminar-insumo/modal-eliminar-insumo';
 
 type EstadoStockFiltro = 'todos' | 'criticos' | 'bajos' | 'ok';
 
 @Component({
   selector: 'app-insumo',
   standalone: true,
-  imports: [InsumoList, CommonModule, PageToolbar, Buscador, Dropdown, Modal, ProductoForm],
+  imports: [InsumoList, CommonModule, PageToolbar, Buscador, Dropdown, Modal, ProductoForm, EditarBebidaFormComponent, ModalEliminarInsumoComponent],
   templateUrl: './insumo-page.html',
   styleUrl: './insumo-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -77,11 +78,18 @@ export class InsumoPage implements OnInit {
   
   tabSeleccionada = signal<'productos' | 'bodegas' | 'lotes'>('productos');
   productoEditandoId = signal<number | null>(null);
-  
+  productoEliminandoId = signal<number | null>(null);
+
   tituloModal= computed(() => {
     return this.productoEditandoId() ? 'Editar Insumo' : 'Nuevo Insumo'
   })
   modalAbierto = signal<boolean>(false);
+
+  insumoAEliminar = computed(() => {
+    const id = this.productoEliminandoId();
+    if (!id) return null;
+    return this.state.productos().find(p => p.id === id) || null;
+  });
 
   categoriasConInfo = computed(() => {
     const productos = this.state.productos();
@@ -138,8 +146,19 @@ export class InsumoPage implements OnInit {
   if (!id) return null;
   return this.state.productos().find(p => p.id === id) || null;
 });
- 
-  
+
+  esBebidaSeleccionada = computed(() => this.productoSeleccionado()?.categoriaIngrediente?.tipoAplica === 'Bebida');
+
+  detalleInsumo = this.state.detalleInsumo;
+  costoBebida = this.state.costoBebida;
+
+  porcentajeGananciaBebida = computed(() => {
+    const categoriaId = this.state.detalleInsumo()?.categoriaId;
+    if (categoriaId == null) return 0;
+    return this.state.porcentajesBebidas().find(item => item.id === categoriaId)?.porcentaje ?? 0;
+  });
+
+
   productosFiltrados = computed(() => {
    let listaBase: Insumo[] = [];
 
@@ -323,16 +342,49 @@ export class InsumoPage implements OnInit {
     this.productoEditandoId.set(id);
     this.modalAbierto.set(true);
     modal.abrir();
+
+    const producto = this.state.productos().find(p => p.id === id);
+    const esBebida = producto?.categoriaIngrediente?.tipoAplica === 'Bebida';
+    this.state.cargarDetalleInsumo(id, esBebida);
+    if (esBebida) {
+      this.state.cargarPorcentajesBebidas();
+    }
   }
 
   limpiarEstadoModal() {
     this.productoEditandoId.set(null);
     this.modalAbierto.set(false);
+    this.state.limpiarDetalleInsumo();
   }
 
-  guardarCambios(datosProducto: CrearInsumo, modal: Modal) {
-    this.state.guardarProducto(datosProducto);
+  guardarCambios(payload: GuardarProductoPayload, modal: Modal) {
+    this.state.guardarProducto(payload);
     modal.cerrar();
     this.limpiarEstadoModal();
+  }
+
+  guardarBebida(payload: GuardarBebidaPayload, modal: Modal) {
+    const id = this.productoEditandoId();
+    if (!id) return;
+
+    this.state.guardarBebida(id, payload);
+    modal.cerrar();
+    this.limpiarEstadoModal();
+  }
+
+  abrirModalEliminar(id: number) {
+    this.productoEliminandoId.set(id);
+  }
+
+  cerrarModalEliminar() {
+    this.productoEliminandoId.set(null);
+  }
+
+  confirmarEliminar() {
+    const id = this.productoEliminandoId();
+    if (!id) return;
+
+    this.state.eliminarProducto(id);
+    this.productoEliminandoId.set(null);
   }
 }

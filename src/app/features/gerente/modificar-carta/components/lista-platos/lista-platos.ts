@@ -13,6 +13,7 @@ import { CardPlatoComponent } from '../card-plato/card-plato';
 export class ListaPlatosComponent {
   platos = input<Plato[]>([]);
   porcentajesPlatos = input<PorcentajeItem[]>([]);
+  porcentajesBebidas = input<PorcentajeItem[]>([]);
   layoutMode = input<'grid' | 'list'>('grid');
   explodingId = input<number | null>(null);
   toggleVisible = output<Plato>();

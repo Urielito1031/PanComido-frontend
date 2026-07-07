@@ -79,11 +79,18 @@
         <span class="material-symbols-outlined">help</span>
       </button>
 
-      <button 
+      <button
         class="btn-premium-primary d-flex align-items-center gap-2"
         (click)="irACrearPlato()">
         <span class="material-symbols-outlined">add</span>
         <span class="fw-semibold">Nuevo plato</span>
+      </button>
+
+      <button
+        class="btn-premium-primary d-flex align-items-center gap-2"
+        (click)="abrirPanelCrearBebida()">
+        <span class="material-symbols-outlined">add</span>
+        <span class="fw-semibold">Nueva bebida</span>
       </button>
     </div>
 
@@ -123,6 +130,7 @@
         <app-lista-platos 
           [platos]="platosRecomendados()"
           [porcentajesPlatos]="porcentajesPlatos()"
+          [porcentajesBebidas]="porcentajesBebidas()"
           [layoutMode]="layoutMode()"
           [explodingId]="explodingPlatoId()"
           (toggleVisible)="toggleVisibility($event)"
@@ -175,6 +183,7 @@
           <app-lista-platos 
             [platos]="platosComidas()"
             [porcentajesPlatos]="porcentajesPlatos()"
+          [porcentajesBebidas]="porcentajesBebidas()"
             [layoutMode]="layoutMode()"
             [explodingId]="explodingPlatoId()"
             (toggleVisible)="toggleVisibility($event)"
@@ -229,7 +238,7 @@
             <span class="material-symbols-outlined carta-empty-icon">local_bar</span>
             <strong>No hay bebidas en esta categoría</strong>
             <small>Probá con otro filtro o creá una bebida nueva</small>
-            <button class="btn-premium-primary carta-empty-cta" (click)="irACrearPlato()">
+            <button class="btn-premium-primary carta-empty-cta" (click)="abrirPanelCrearBebida()">
               <span class="material-symbols-outlined">add</span>
               <span>Crear bebida</span>
             </button>
@@ -238,6 +247,7 @@
           <app-lista-platos 
             [platos]="platosBebidas()"
             [porcentajesPlatos]="porcentajesPlatos()"
+          [porcentajesBebidas]="porcentajesBebidas()"
             [layoutMode]="layoutMode()"
             [explodingId]="explodingPlatoId()"
             (toggleVisible)="toggleVisibility($event)"
@@ -252,7 +262,7 @@
         <span class="material-symbols-outlined carta-empty-icon">local_bar</span>
         <strong>Todavía no hay bebidas</strong>
         <small>Creá tu primera bebida para sumarla a la carta</small>
-        <button class="btn-premium-primary carta-empty-cta" (click)="irACrearPlato()">
+        <button class="btn-premium-primary carta-empty-cta" (click)="abrirPanelCrearBebida()">
           <span class="material-symbols-outlined">add</span>
           <span>Crear bebida</span>
         </button>
@@ -270,6 +280,17 @@
     }
   }
 
+  @if (bebidaAEditar(); as bebida) {
+    @defer (on idle) {
+      <app-panel-editar-bebida
+        [bebida]="bebida"
+        [porcentajeGanancia]="porcentajeGananciaBebida()"
+        (guardar)="onSaveBebida($event)"
+        (cerrar)="onCloseModals()">
+      </app-panel-editar-bebida>
+    }
+  }
+
   @if (platoAEliminar()) {
     @defer (on idle) {
       <app-modal-eliminar-plato
@@ -277,6 +298,18 @@
         (confirm)="onConfirmDelete()"
         (close)="onCloseModals()">
       </app-modal-eliminar-plato>
+    }
+  }
+
+  @if (mostrarPanelCrearBebida()) {
+    @defer (on idle) {
+      <app-panel-crear-bebida
+        [bodegas]="bodegaState.bodegas()"
+        [categorias]="categoriasBebida()"
+        [unidadesMedida]="stockState.unidadMedidas()"
+        (guardar)="onGuardarBebidaNueva($event)"
+        (cerrar)="cerrarPanelCrearBebida()">
+      </app-panel-crear-bebida>
     }
   }
 

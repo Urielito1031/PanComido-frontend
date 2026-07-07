@@ -2,9 +2,10 @@
   <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
     @for (plato of platos(); track plato.id) {
       <div class="col mb-4">
-        <app-card-plato 
+        <app-card-plato
           [plato]="plato"
           [porcentajesPlatos]="porcentajesPlatos()"
+          [porcentajesBebidas]="porcentajesBebidas()"
           [layoutMode]="'grid'"
           [isExploding]="plato.id === explodingId()"
           (toggleVisible)="onToggleVisible($event)"
@@ -23,9 +24,10 @@
   <div class="row row-cols-1 row-cols-xxl-2 g-3">
     @for (plato of platos(); track plato.id) {
       <div class="col">
-        <app-card-plato 
+        <app-card-plato
           [plato]="plato"
           [porcentajesPlatos]="porcentajesPlatos()"
+          [porcentajesBebidas]="porcentajesBebidas()"
           [layoutMode]="'list'"
           [isExploding]="plato.id === explodingId()"
           (toggleVisible)="onToggleVisible($event)"

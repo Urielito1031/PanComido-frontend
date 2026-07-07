@@ -10,18 +10,21 @@ export interface Insumo {
   categoriaIngrediente: CategoriaInsumo;
   stockMinimo: number;
   precioVentaFinal?: number;
+  esPrecioManual: boolean;
 }
 
-export interface CrearInsumo {
+export interface InsumoDetalle {
+  id: number;
   nombre: string;
-  descripcion: string;
-  precioVentaFinal: number;
+  descripcion: string | null;
+  precioVentaFinal?: number;
+  esPrecioManual: boolean;
   stockMinimo: number;
+  stockRecomendado: number;
   categoriaId: number;
   unidadDeMedidaId: number;
-  bodegaId: number;
-  cantidadInicial: number;
-  fechaVencimiento: string;
+  urlImagen: string | null;
+  tipo: string;
 }
 
 export interface LoteInsumo {

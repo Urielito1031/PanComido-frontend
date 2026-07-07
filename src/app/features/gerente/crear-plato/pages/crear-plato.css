@@ -39,7 +39,7 @@
 
 .create-layout {
   display: grid;
-  grid-template-columns: minmax(220px, 0.58fr) minmax(420px, 1fr) minmax(500px, 1.22fr);
+  grid-template-columns: minmax(220px, 0.58fr) minmax(460px, 1.08fr) minmax(500px, 1.18fr);
   gap: 1rem;
   align-items: start;
 }
