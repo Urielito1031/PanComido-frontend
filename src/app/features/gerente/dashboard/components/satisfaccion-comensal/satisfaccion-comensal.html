@@ -1,0 +1,126 @@
+<article class="panel-card satisfaction-panel" [class.empty]="!tieneEncuestas()">
+  <div class="panel-heading satisfaction-header">
+    <div>
+      <h2>Satisfacción del comensal</h2>
+      <p>Encuestas internas y derivación a Google Maps</p>
+    </div>
+    <div class="panel-actions" (click)="$event.stopPropagation()">
+      <span class="panel-badge badge-satisfaction">Escala 1-5</span>
+      <button type="button" class="favorite-btn" [class.active]="state.esFavorito('satisfaccion-comensal')" (click)="state.toggleFavorito('satisfaccion-comensal')" title="Fijar en favoritos" aria-label="Fijar satisfacción del comensal en favoritos">
+        <span class="material-symbols-outlined">{{ state.esFavorito('satisfaccion-comensal') ? 'star' : 'star_border' }}</span>
+      </button>
+    </div>
+  </div>
+
+  @if (metricas(); as data) {
+    @if (tieneEncuestas()) {
+      <div class="satisfaction-content-split">
+        <!-- Contenedor Izquierdo (60%): Radar a la izquierda, Categorías a la derecha de forma apilada -->
+        <div class="radar-and-metrics-section">
+          <!-- Gráfico Radial -->
+          <section class="radar-column" aria-label="Promedios de satisfacción">
+            <div class="radar-chart">
+              <svg viewBox="0 0 260 260" role="img" aria-label="Gráfico radial de satisfacción con escala máxima fija de 5">
+                <defs>
+                  <linearGradient id="radarSatGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#d8081c" stop-opacity="0.3" />
+                    <stop offset="100%" stop-color="#94a3b8" stop-opacity="0.15" />
+                  </linearGradient>
+                </defs>
+                <polygon class="radar-grid radar-grid-outer" [attr.points]="fullScalePolygon()"></polygon>
+                <circle class="radar-grid-circle" cx="130" cy="130" r="54.6"></circle>
+                <circle class="radar-grid-circle" cx="130" cy="130" r="27.3"></circle>
+                @for (point of radarPoints(); track $index) {
+                  <line class="radar-axis" x1="130" y1="130" [attr.x2]="obtenerPunto(escalaMaxima, $index).x" [attr.y2]="obtenerPunto(escalaMaxima, $index).y"></line>
+                }
+                <polygon class="satisfaction-radar-polygon" [attr.points]="radarPolygon()" fill="url(#radarSatGradient)"></polygon>
+                @for (point of radarPoints(); track $index) {
+                  <circle class="radar-dot" 
+                    [ngClass]="{
+                      'is-strongest': ejes()[$index].valor === maxValor(),
+                      'is-weakest': ejes()[$index].valor === minValor()
+                    }"
+                    [attr.cx]="point.x" [attr.cy]="point.y" r="4.5"></circle>
+                }
+                @for (eje of ejes(); track eje.label) {
+                  <foreignObject 
+                    [attr.x]="obtenerPunto(escalaMaxima + 1.25, $index).x - 14" 
+                    [attr.y]="obtenerPunto(escalaMaxima + 1.25, $index).y - 14" 
+                    width="28" 
+                    height="28">
+                    <div class="radar-icon-wrapper"
+                      [ngClass]="{
+                        'is-strongest': eje.valor === maxValor(),
+                        'is-weakest': eje.valor === minValor()
+                      }">
+                      <span class="material-symbols-outlined radar-vertex-icon">{{ eje.icono }}</span>
+                    </div>
+                  </foreignObject>
+                }
+              </svg>
+              <div class="radar-score">
+                <strong>{{ formatoPromedio(promedioGeneral()) }}</strong>
+                <span>promedio</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Desglose de Ejes (Apilado Vertical) -->
+          <section class="metrics-column" aria-label="Detalle por categorías">
+            <h3 class="column-subtitle">Evaluación por categoría</h3>
+            <div class="axis-list-vertical">
+              @for (eje of ejes(); track eje.label) {
+                <div class="axis-item-card">
+                  <div class="axis-item-header">
+                    <div class="axis-item-label">
+                      <span class="material-symbols-outlined axis-icon">{{ eje.icono }}</span>
+                      <span>{{ eje.label }}</span>
+                    </div>
+                    <strong class="axis-val">{{ formatoPromedio(eje.valor) }} <span class="val-scale">/ 5</span></strong>
+                  </div>
+                  <div class="progress-bar-container">
+                    <div class="progress-bar-fill" [style.width.%]="(normalizarValor(eje.valor) / escalaMaxima) * 100"></div>
+                  </div>
+                </div>
+              }
+            </div>
+          </section>
+        </div>
+
+        <!-- Contenedor Derecho (40%): Tarjeta de derivación a Google Maps centrado verticalmente -->
+        <section class="google-column-premium" aria-label="Tasa de derivación a Google Maps">
+          <div class="google-rate-card-premium" [ngClass]="tonoDerivacion()">
+            <div class="google-rate-card-header">
+              <span class="material-symbols-outlined google-icon">reviews</span>
+              <span class="google-label">Derivación a Google Maps</span>
+            </div>
+            <div class="google-value-wrapper-premium">
+              <div class="google-percentage-block">
+                <strong>{{ formatoPorcentaje(data.porcentajeDerivados) }}</strong>
+                <span class="percentage-kicker">Derivados</span>
+              </div>
+              <div class="google-divider-premium"></div>
+              <div class="google-total-block">
+                <span class="total-qty">{{ data.totalEncuestas }}</span>
+                <span class="total-label">Encuestas</span>
+              </div>
+            </div>
+            <p class="google-desc">
+              Se invitó a <strong>{{ data.totalDerivadosGoogleMaps }}</strong> de los <strong>{{ data.totalEncuestas }}</strong> comensales con experiencias excelentes a dejar una reseña en Google Maps.
+            </p>
+          </div>
+        </section>
+      </div>
+    } @else {
+      <div class="satisfaction-empty-state">
+        <span class="material-symbols-outlined">sentiment_neutral</span>
+        <p>Todavía no hay encuestas de satisfacción en este período.</p>
+      </div>
+    }
+  } @else {
+    <div class="satisfaction-empty-state">
+      <span class="material-symbols-outlined">sentiment_neutral</span>
+      <p>Todavía no hay encuestas de satisfacción en este período.</p>
+    </div>
+  }
+</article>

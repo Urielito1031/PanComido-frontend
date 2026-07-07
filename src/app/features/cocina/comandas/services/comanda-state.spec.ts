@@ -88,7 +88,6 @@ describe('ComandaState (cocina)', () => {
       expect(state.comandasNuevas()).toEqual([]);
       expect(state.comandasEnPreparacion()).toEqual([]);
       expect(state.comandasEnEspera()).toEqual([]);
-      expect(state.comandasfinalizadas()).toEqual([]);
       expect(state.cargando()).toBe(false);
     });
   });
@@ -103,7 +102,6 @@ describe('ComandaState (cocina)', () => {
       expect(state.comandasNuevas().length).toBe(1);
       expect(state.comandasEnPreparacion().length).toBe(1);
       expect(state.comandasEnEspera().length).toBe(1);
-      expect(state.comandasfinalizadas().length).toBe(1);
       expect(state.cargando()).toBe(false);
     });
 
@@ -207,8 +205,8 @@ describe('ComandaState (cocina)', () => {
       state.actualizarDesdeHub(comandaHub);
 
       expect(state.comandasNuevas().length).toBe(0);
-      expect(state.comandasfinalizadas().length).toBe(2);
-      expect(state.comandas().length).toBe(4); // no se agregan, solo se actualiza
+      expect(state.comandas().some(c => c.id === 1)).toBe(false);
+      expect(state.comandas().length).toBe(3);
     });
 
     it('deberia agregar una comanda nueva si no existe en la lista', () => {

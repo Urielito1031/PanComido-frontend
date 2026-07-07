@@ -99,6 +99,7 @@ export interface EstadisticaMozo {
   facturacionTotal: number;
   tiempoPromedioAtencion: string;
   estado: 'Sobrecargado' | 'Optimo' | 'Baja carga';
+  calificacionPromedio: number | null;
 }
 
 export interface IngredienteExcluidoStat {
@@ -109,4 +110,13 @@ export interface IngredienteExcluidoStat {
   exclusionesEnPlatoMasExcluido: number;
   totalPedidosPlatoMasExcluido: number;
   tasaExclusionPlatoMasExcluido: string;
+}
+
+export interface DashboardSatisfaccionMetricas {
+  promedioComida: number;
+  promedioLugar: number;
+  promedioAtencion: number;
+  totalEncuestas: number;
+  totalDerivadosGoogleMaps: number;
+  porcentajeDerivados: number;
 }

@@ -5,7 +5,7 @@ import {
   DashboardLecturaComercial, DashboardAtencionItem, DashboardAccionItem, 
   DashboardDestino, DashboardVentaMensual, DashboardVentaDia,
   DashboardViewMode, PlatoAnalisis, EstadisticaMozo, WidgetLayout, FavoriteWidgetConfig,
-  IngredienteExcluidoStat
+  IngredienteExcluidoStat, DashboardSatisfaccionMetricas
 } from '../../../../core/models/domain/dashboard';
 import { DashboardApiService, DashboardResumenOperativoResponse } from './dashboard.api';
 import { DashboardPreferencesService } from './dashboard-preferences.service';
@@ -30,6 +30,7 @@ export const DISEÑO_POR_DEFECTO: WidgetLayout[] = [
   { id: 'platos-menos-vendidos', colSpan: 6 },
   { id: 'insumos-vencer', colSpan: 12 },
   { id: 'radar-alergias', colSpan: 12 },
+  { id: 'satisfaccion-comensal', colSpan: 12 },
   { id: 'mozos', colSpan: 12 }
 ];
 
@@ -54,6 +55,8 @@ export class DashboardStateService implements OnDestroy {
   private _resumen = signal<DashboardResumenOperativoResponse | null>(null);
   private _ingredientesExcluidos = signal<IngredienteExcluidoStat[]>([]);
   ingredientesExcluidos = this._ingredientesExcluidos.asReadonly();
+  private _satisfaccionComensal = signal<DashboardSatisfaccionMetricas | null>(null);
+  satisfaccionComensal = this._satisfaccionComensal.asReadonly();
 
   private _ultimoRefresco = signal<Date>(new Date());
   ultimoRefresco = this._ultimoRefresco.asReadonly();
@@ -433,8 +436,15 @@ export class DashboardStateService implements OnDestroy {
           console.error('Error cargando ingredientes excluidos', err);
           return of(null);
         })
+      ),
+      satisfaccion: this.api.getSatisfaccionComensal(desdeIso, hastaIso).pipe(
+        take(1),
+        catchError(err => {
+          console.error('Error cargando satisfaccion del comensal', err);
+          return of(null);
+        })
       )
-    }).subscribe(({ vencimientos, rendimiento, resumen, ingredientesExcluidos }) => {
+    }).subscribe(({ vencimientos, rendimiento, resumen, ingredientesExcluidos, satisfaccion }) => {
       if (vencimientos) {
         this._vencimientos.set(vencimientos);
       }
@@ -455,6 +465,10 @@ export class DashboardStateService implements OnDestroy {
 
       if (ingredientesExcluidos) {
         this._ingredientesExcluidos.set(ingredientesExcluidos);
+      }
+
+      if (satisfaccion) {
+        this._satisfaccionComensal.set(satisfaccion);
       }
 
       this.cargando.set(false);

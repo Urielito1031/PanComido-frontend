@@ -42,7 +42,7 @@ describe('ComandaCard', () => {
   });
 
   it('debería mostrar el header con color según estado', () => {
-    expect(component.headerClass()).toBe('bg-danger');
+    expect(component.headerClass()).toBe('bg-nueva');
   });
 
   it('debería mostrar "ACEPTAR COMANDA" cuando el estado es Nueva', () => {

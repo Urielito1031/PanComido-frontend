@@ -12,3 +12,5 @@ getTestBed().initTestEnvironment(
   BrowserDynamicTestingModule,
   platformBrowserDynamicTesting()
 );
+
+window.alert = () => undefined;

@@ -17,6 +17,10 @@ export const GERENTE_ROUTES: Routes = [
     loadComponent: () => import('./configuracion/pages/configuracion-page/configuracion-page').then(m=> m.ConfiguracionPage)
   },
   {
+    path: 'usuarios',
+    loadComponent: () => import('./usuarios/pages/usuarios-page/usuarios-page').then(m => m.UsuariosPage)
+  },
+  {
     path: 'mapa-de-mesas',
     loadComponent: () => import('../mesas/pages/mapa-mesas/mapa-mesas').then(m => m.MapaMesas)
   },
@@ -55,5 +59,9 @@ export const GERENTE_ROUTES: Routes = [
   {
     path: 'avisos',
     loadComponent: () => import('./avisos/pages/avisos').then(m => m.AvisosPage)
+  },
+  {
+    path: 'reportes',
+    loadComponent: () => import('./reportes/pages/reportes-page/reportes-page').then(m => m.ReportesPage)
   }
 ];

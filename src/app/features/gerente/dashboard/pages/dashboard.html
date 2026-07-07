@@ -454,7 +454,7 @@
                 <div class="size-selector-popover" (click)="$event.stopPropagation()">
                   <div class="popover-title">Seleccionar ancho:</div>
                   <div class="popover-options">
-                    @if (fav.id.startsWith('kpi-') || fav.id === 'proximas-acciones' || fav.id.startsWith('lectura-')) {
+                    @if (fav.id.startsWith('kpi-') || fav.id === 'proximas-acciones') {
                       <button type="button" [class.active]="fav.width === '25'" (click)="establecerAnchoModulo(fav.id, '25')">Chico (25%)</button>
                     }
                     @if (fav.id !== 'mozos') {
@@ -524,6 +524,9 @@
       @case ('radar-alergias') {
         <app-radar-alergias></app-radar-alergias>
       }
+      @case ('satisfaccion-comensal') {
+        <app-satisfaccion-comensal></app-satisfaccion-comensal>
+      }
       @case ('mozos') {
         @defer (on viewport) {
           <app-mozos></app-mozos>
@@ -587,6 +590,10 @@
         <button type="button" class="floating-menu-item" (click)="desplazarASeccion('insumos-vencer')">
           <span class="material-symbols-outlined">warning</span>
           <span>Inventario y Mermas</span>
+        </button>
+        <button type="button" class="floating-menu-item" (click)="desplazarASeccion('satisfaccion-comensal')">
+          <span class="material-symbols-outlined">reviews</span>
+          <span>Satisfacción de Clientes</span>
         </button>
         <button type="button" class="floating-menu-item" (click)="desplazarASeccion('mozos')">
           <span class="material-symbols-outlined">groups</span>

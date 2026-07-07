@@ -140,7 +140,7 @@
                     stroke-linejoin="round"
                     [attr.points]="obtenerPuntosSparkline(detalle.tendencia)">
                   </polyline>
-                  @for (pt of obtenerArrayPuntosSparkline(detalle.tendencia); track pt; let last = $last) {
+                  @for (pt of obtenerArrayPuntosSparkline(detalle.tendencia); track $index; let last = $last) {
                     <circle 
                       [attr.cx]="pt.x" 
                       [attr.cy]="pt.y" 

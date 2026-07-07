@@ -28,6 +28,14 @@ describe('DashboardStateService', () => {
         recordatorios: []
       })),
       getIngredientesExcluidos: vi.fn().mockReturnValue(of([])),
+      getSatisfaccionComensal: vi.fn().mockReturnValue(of({
+        promedioComida: 3.71,
+        promedioLugar: 3.84,
+        promedioAtencion: 3.23,
+        totalEncuestas: 31,
+        totalDerivadosGoogleMaps: 13,
+        porcentajeDerivados: 41.9
+      })),
       getAnalisisPlato: vi.fn().mockImplementation((nombre: string) => of({
         platoId: 10,
         plato: { nombre, valor: 10, detalle: '$ 4.000' },
@@ -164,6 +172,24 @@ describe('DashboardStateService', () => {
       expect(service.insumosPorVencer()).toHaveLength(1);
       expect(service.totalVentasNumero()).toBe(2000);
       expect(service.platosMasVendidos()).toEqual([]);
+      expect(service.satisfaccionComensal()?.totalEncuestas).toBe(31);
+    });
+
+    it('deberia exponer las metricas de satisfaccion del comensal', () => {
+      const satisfaccion = {
+        promedioComida: 4.2,
+        promedioLugar: 4,
+        promedioAtencion: 3.7,
+        totalEncuestas: 18,
+        totalDerivadosGoogleMaps: 9,
+        porcentajeDerivados: 50
+      };
+      apiSpy.getSatisfaccionComensal.mockReturnValue(of(satisfaccion));
+
+      service.cargarDatos();
+
+      expect(apiSpy.getSatisfaccionComensal).toHaveBeenCalled();
+      expect(service.satisfaccionComensal()).toEqual(satisfaccion);
     });
   });
 
@@ -263,14 +289,14 @@ describe('DashboardStateService', () => {
     it('deberia aplicar preset personal correctamente', () => {
       service.aplicarPreset('personal');
       const config = service.favoritesConfig();
-      expect(config.length).toBe(3);
+      expect(config.length).toBe(4);
       expect(config[0].id).toBe('mozos');
-      expect(config[1].id).toBe('kpi-pedidos');
+      expect(config[1].id).toBe('satisfaccion-comensal');
     });
 
     it('deberia restablecer favoritos por defecto', () => {
       service.aplicarPreset('personal');
-      expect(service.favoritesConfig().length).toBe(3);
+      expect(service.favoritesConfig().length).toBe(4);
       
       service.restablecerFavoritos();
       expect(service.favoritesConfig().length).toBe(5);

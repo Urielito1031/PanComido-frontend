@@ -1,9 +1,9 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DashboardPage } from './dashboard';
 import { DashboardStateService } from '../services/dashboard.state';
 import { signal } from '@angular/core';
 import { By } from '@angular/platform-browser';
-import { vi, expect, describe, it, beforeEach, afterEach } from 'vitest';
+import { vi, expect, describe, it, beforeEach } from 'vitest';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 
@@ -52,8 +52,15 @@ describe('DashboardPage', () => {
       reordenarFavoritos: vi.fn(),
       toggleEditing: vi.fn(),
       alternarEdicion: vi.fn(),
+      aplicarPreset: vi.fn(),
+      restablecerFavoritos: vi.fn(),
+      moverFavorito: vi.fn(),
       atencion: signal([]),
       resumenOperativo: signal(null),
+      tieneVentasRegistradas: signal(true),
+      tienePedidosRegistrados: signal(true),
+      tieneTicketPromedio: signal(true),
+      porcentajeRailVentas: signal(62),
       esModoCalendario: signal(false),
       tituloGrafico: signal('Tendencia de ventas'),
       subtituloGrafico: signal('Evolución del periodo'),
@@ -63,6 +70,8 @@ describe('DashboardPage', () => {
       platosMenosVendidos: signal([]),
       platosMasVendidosPreview: signal([]),
       platosMenosVendidosPreview: signal([]),
+      ingredientesExcluidos: signal([]),
+      satisfaccionComensal: signal(null),
       recomendacionTopVentas: signal(''),
       lecturaComercial: signal([]),
       vencimientosResumen: signal([]),
@@ -96,7 +105,8 @@ describe('DashboardPage', () => {
       abrirDetallePlato: vi.fn(),
       cerrarDetallePlato: vi.fn(),
       aplicarDescuentoDirecto: vi.fn(),
-      agendarRecordatorioDirecto: vi.fn()
+      agendarRecordatorioDirecto: vi.fn(),
+      resolverRecordatorio: vi.fn()
     };
 
     await TestBed.configureTestingModule({

@@ -22,13 +22,14 @@ import { InsumosVencerComponent } from '../components/insumos-vencer/insumos-ven
 import { RadarAlergiasComponent } from '../components/radar-alergias/radar-alergias';
 import { MozosComponent } from '../components/mozos/mozos';
 import { AnalisisPlatoPanelComponent } from '../components/analisis-plato-panel/analisis-plato-panel';
+import { SatisfaccionComensalComponent } from '../components/satisfaccion-comensal/satisfaccion-comensal';
 
 export interface ModuloDisponible {
   id: string;
   name: string;
   description: string;
   icon: string;
-  category: 'Finanzas' | 'Ventas' | 'Inventario' | 'Personal';
+  category: 'Finanzas' | 'Ventas' | 'Inventario' | 'Personal' | 'Experiencia';
   allowedWidths: ('25' | '50' | '100')[];
 }
 
@@ -42,6 +43,7 @@ export const MODULOS_DISPONIBLES: ModuloDisponible[] = [
   { id: 'platos-menos-vendidos', name: 'Platos menos vendidos', description: 'Ranking de los 5 platos de menor rotación', icon: 'trending_down', category: 'Ventas', allowedWidths: ['50', '100'] },
   { id: 'insumos-vencer', name: 'Insumos por vencer', description: 'Materia prima próxima a caducar', icon: 'warning', category: 'Inventario', allowedWidths: ['50', '100'] },
   { id: 'radar-alergias', name: 'Radar de Alergias', description: 'Ingredientes excluidos frecuentemente', icon: 'health_and_safety', category: 'Ventas', allowedWidths: ['25', '50', '100'] },
+  { id: 'satisfaccion-comensal', name: 'Satisfacción del comensal', description: 'Encuestas internas y derivación a Google Maps', icon: 'reviews', category: 'Experiencia', allowedWidths: ['50', '100'] },
   { id: 'mozos', name: 'Desempeño de Mozos', description: 'Eficiencia y carga del personal de salón', icon: 'groups', category: 'Personal', allowedWidths: ['100'] }
 ];
 
@@ -72,6 +74,7 @@ const LOCALIZACION_ESPANOLA: CustomLocale = {
     PlatosMenosVendidosComponent,
     InsumosVencerComponent,
     RadarAlergiasComponent,
+    SatisfaccionComensalComponent,
     MozosComponent,
     AnalisisPlatoPanelComponent,
     ArsCurrencyPipe
@@ -514,6 +517,7 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
 
     if (modo === 'resumen') {
       return widget.id === 'radar-alergias' ||
+             widget.id === 'satisfaccion-comensal' ||
              widget.id === 'insumos-vencer' ||
              widget.id === 'platos-menos-vendidos';
     }
@@ -531,6 +535,7 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
 
     if (modo === 'personal') {
       return widget.id === 'mozos' || 
+             widget.id === 'satisfaccion-comensal' ||
              widget.id === 'radar-alergias';
     }
 
@@ -560,6 +565,7 @@ export class DashboardPage implements OnInit, AfterViewInit, OnDestroy {
         'platos-menos-vendidos': 'reportes',
         'insumos-vencer': 'operativo',
         'radar-alergias': 'operativo',
+        'satisfaccion-comensal': 'personal',
         'mozos': 'personal'
       };
       const targetMode = widgetTabMap[widgetId] || 'reportes';

@@ -42,9 +42,6 @@ export class ModificarCartaStateService {
   private _selectedTipoComida = signal<string | null>(null);
   private _sortOrder = signal<CartaSortOrder>('default');
 
-  private _platosEliminados = signal<Plato[]>([]);
-  private _mostrarModalRestaurar = signal<boolean>(false);
-  private _loadingRestaurar = signal<boolean>(false);
   private _porcentajesPlatos = signal<PorcentajeItem[]>([]);
   private _porcentajesBebidas = signal<PorcentajeItem[]>([]);
   private _bebidaAEditar = signal<BebidaAEditar | null>(null);
@@ -61,9 +58,6 @@ export class ModificarCartaStateService {
   selectedTipoComida = this._selectedTipoComida.asReadonly();
   sortOrder = this._sortOrder.asReadonly();
 
-  platosEliminados = this._platosEliminados.asReadonly();
-  mostrarModalRestaurar = this._mostrarModalRestaurar.asReadonly();
-  loadingRestaurar = this._loadingRestaurar.asReadonly();
   porcentajesPlatos = this._porcentajesPlatos.asReadonly();
   porcentajesBebidas = this._porcentajesBebidas.asReadonly();
   bebidaAEditar = this._bebidaAEditar.asReadonly();
@@ -393,41 +387,6 @@ export class ModificarCartaStateService {
           this._platos.update(platos =>
             platos.map(p => p.id === plato.id ? { ...p, recomendado: plato.recomendado } : p)
           );
-        }
-      });
-  }
-
-  abrirModalRestaurar(): void {
-    this._mostrarModalRestaurar.set(true);
-    this._loadingRestaurar.set(true);
-    this.api.getPlatosEliminados()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (platos) => {
-          this._platosEliminados.set(platos);
-          this._loadingRestaurar.set(false);
-        },
-        error: () => this._loadingRestaurar.set(false)
-      });
-  }
-
-  cerrarModalRestaurar(): void {
-    this._mostrarModalRestaurar.set(false);
-  }
-
-  restaurarPlato(plato: Plato): void {
-    // Actualización optimista
-    this._platosEliminados.update(lista => lista.filter(p => p.id !== plato.id));
-    const platoRestaurado = { ...plato, visible: true };
-    this._platos.update(lista => [...lista, platoRestaurado]);
-
-    this.api.restaurarPlato(plato.id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        error: () => {
-          // Revertir
-          this._platosEliminados.update(lista => [...lista, plato]);
-          this._platos.update(lista => lista.filter(p => p.id !== plato.id));
         }
       });
   }
