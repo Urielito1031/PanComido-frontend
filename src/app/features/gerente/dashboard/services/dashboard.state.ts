@@ -11,6 +11,7 @@ import { DashboardApiService, DashboardResumenOperativoResponse } from './dashbo
 import { DashboardPreferencesService } from './dashboard-preferences.service';
 import { SignalRConexionService } from '../../../../core/services/hubs/base-hub-service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { ToastService } from '../../../../core/services/toast.service';
 import {
   diasDelPeriodo,
   diasPersonalizados,
@@ -40,6 +41,7 @@ export class DashboardStateService implements OnDestroy {
   private preferences = inject(DashboardPreferencesService);
   private signalR = inject(SignalRConexionService);
   private auth = inject(AuthService);
+  private toast = inject(ToastService);
 
   private _periodo = signal<DashboardPeriodo>('7d');
   private _fechaDesde = signal<string>('');
@@ -65,13 +67,10 @@ export class DashboardStateService implements OnDestroy {
   private _recordatoriosAdicionales = signal<DashboardAccionItem[]>([]);
   recordatoriosAdicionales = this._recordatoriosAdicionales.asReadonly();
 
-  readonly toastMensaje = signal<{ texto: string; tipo: 'exito' | 'info' } | null>(null);
+  readonly toastMensaje = this.toast.toastMensaje;
 
   mostrarToast(texto: string, tipo: 'exito' | 'info' = 'exito'): void {
-    this.toastMensaje.set({ texto, tipo });
-    setTimeout(() => {
-      this.toastMensaje.set(null);
-    }, 4000);
+    this.toast.mostrar(texto, tipo);
   }
 
   private idIntervaloPolling: any = null;
