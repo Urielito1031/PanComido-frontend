@@ -22,7 +22,6 @@ describe('VerProveedoresComponent', () => {
     contacto: '',
     email: '',
     direccion: '',
-    activo: true,
     categorias: [],
     historialPedidos: []
   };
@@ -30,7 +29,6 @@ describe('VerProveedoresComponent', () => {
   beforeEach(async () => {
     stateMock = {
       termino: signal(''),
-      filtroEstado: signal('Todos'),
       proveedores: signal([mockProveedor]),
       productos: signal([]),
       proveedorSeleccionadoId: signal<number | string | null>(1),

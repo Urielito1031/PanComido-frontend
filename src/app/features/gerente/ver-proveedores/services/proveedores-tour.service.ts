@@ -71,7 +71,7 @@ export class ProveedoresTourService {
         element: '.list-panel',
         popover: {
           title: 'Lista de Proveedores 📋',
-          description: 'Explora y selecciona tus proveedores activos o inactivos. Desde aquí tienes accesos rápidos para editar su información, abrir el historial de compras o iniciar un pedido.',
+          description: 'Explora y selecciona tus proveedores. Desde aquí tienes accesos rápidos para editar su información, abrir el historial de compras o iniciar un pedido.',
           side: 'right' as const,
           align: 'start' as const
         }

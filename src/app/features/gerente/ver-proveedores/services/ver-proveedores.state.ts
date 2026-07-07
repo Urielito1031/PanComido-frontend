@@ -15,9 +15,10 @@ import {
   agregarProductoAPedidoHistorial,
   calcularMontoPedido,
   getCantidadConfiguracion,
-  getCantidadInicial,
+  normalizarCantidadAUnidadBase,
   productosParaAgregar,
-  ultimoPrecioDeInsumo
+  ultimoPrecioDeInsumo,
+  unidadBaseParaPedido
 } from './ver-proveedores.rules';
 
 @Injectable({ providedIn: 'root' })
@@ -32,7 +33,6 @@ export class VerProveedoresState {
   };*/
 
   termino = signal('');
-  filtroEstado = signal<'Todos' | 'Activos' | 'Inactivos'>('Todos');
   proveedores = signal<Proveedor[]>([]);
   productos = signal<Insumo[]>([]);
   proveedorSeleccionadoId = signal<number | string | null>(null);
@@ -41,7 +41,7 @@ export class VerProveedoresState {
   mensajeAccion = signal<string | null>(null);
   productoTexto = signal('');
   productoSeleccionadoId = signal<string | number | null>(null);
-  cantidadProducto = signal<number | null>(1);
+  cantidadProducto = signal<number | null>(0);
   precioProductoManual = signal<number | null>(null);
   pedidoItems = signal<PedidoProveedorItem[]>([]);
   pedidoHistorialSeleccionado = signal<PedidoProveedor | null>(null);
@@ -70,13 +70,8 @@ export class VerProveedoresState {
 
   proveedoresFiltrados = computed(() => {
     const texto = this.termino().toLowerCase().trim();
-    const filtro = this.filtroEstado();
 
-    const lista = [...this.proveedores()].filter(prov => {
-      if (filtro === 'Activos' && !prov.activo) return false;
-      if (filtro === 'Inactivos' && prov.activo) return false;
-      return true;
-    }).sort((a, b) => {
+    const lista = [...this.proveedores()].sort((a, b) => {
       const fechaA = a.fechaUltimoPedido ? new Date(a.fechaUltimoPedido).getTime() : 0;
       const fechaB = b.fechaUltimoPedido ? new Date(b.fechaUltimoPedido).getTime() : 0;
       return fechaB - fechaA;
@@ -369,8 +364,8 @@ export class VerProveedoresState {
     const item: PedidoProveedorItem = {
       id: producto.id,
       nombre: producto.nombre,
-      cantidad,
-      unidadMedida: producto.unidadMedida,
+      cantidad: normalizarCantidadAUnidadBase(cantidad, producto.unidadMedida),
+      unidadMedida: unidadBaseParaPedido(producto.unidadMedida),
       precioUnitario: precio
     };
 
@@ -383,7 +378,7 @@ export class VerProveedoresState {
   seleccionarProducto(producto: Insumo): void {
     this.productoSeleccionadoId.set(producto.id);
     this.productoTexto.set(producto.nombre);
-    this.cantidadProducto.set(getCantidadInicial(producto.unidadMedida));
+    this.cantidadProducto.set(0);
     this.precioProductoManual.set(ultimoPrecioDeInsumo(this.#historialProveedor(), producto.id));
   }
 
@@ -394,7 +389,7 @@ export class VerProveedoresState {
 
     if (encontrado) {
       this.productoSeleccionadoId.set(encontrado.id);
-      this.cantidadProducto.set(getCantidadInicial(encontrado.unidadMedida));
+      this.cantidadProducto.set(0);
       this.precioProductoManual.set(ultimoPrecioDeInsumo(this.#historialProveedor(), encontrado.id));
     } else {
       this.productoSeleccionadoId.set(null);
@@ -412,14 +407,14 @@ export class VerProveedoresState {
       return;
     }
 
-    const unidadMedida = (producto?.unidadMedida as UnidadMedida) || 'UN';
+    const unidadMedida = unidadBaseParaPedido((producto?.unidadMedida as UnidadMedida) || 'UN');
     const itemId = producto?.id ?? `manual-${nombre.toLowerCase().replace(/\s+/g, '-')}`;
 
     this.pedidoItems.update(items => agregarItemPedidoALista(items, { id: itemId, nombre, cantidad, unidadMedida, precioUnitario: precio }));
 
     this.productoTexto.set('');
     this.productoSeleccionadoId.set(null);
-    this.cantidadProducto.set(1);
+    this.cantidadProducto.set(0);
     this.precioProductoManual.set(null);
   }
 
@@ -438,7 +433,7 @@ export class VerProveedoresState {
     this.pedidoItems.set([]);
     this.productoTexto.set('');
     this.productoSeleccionadoId.set(null);
-    this.cantidadProducto.set(1);
+    this.cantidadProducto.set(0);
     this.precioProductoManual.set(null);
     this.observacionPedido.set('');
     this.mensajeAccion.set(null);

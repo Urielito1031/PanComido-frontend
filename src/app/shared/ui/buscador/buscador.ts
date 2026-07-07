@@ -13,7 +13,7 @@ import { faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
 export class Buscador {
 
  // Configuración visual
-  placeholder = input<string>('Buscar...');
+  placeholder = input<string>('Buscar');
   
   // Estado interno bidireccional
   valor = model<string>('');

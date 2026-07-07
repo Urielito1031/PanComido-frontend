@@ -17,6 +17,11 @@
   margin-bottom: 0.5rem;
 }
 
+.cost-row-label {
+  white-space: nowrap;
+  font-size: 0.82rem;
+}
+
 .custom-input {
   background-color: #f8fafc;
   border: 1px solid rgba(15, 23, 42, 0.06);

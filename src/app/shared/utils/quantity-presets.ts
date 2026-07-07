@@ -60,7 +60,8 @@ export function buildSmartQuantityPresets(
       seen.add(preset.value);
       return true;
     })
-    .slice(0, maxPresets);
+    .slice(0, maxPresets)
+    .sort((a, b) => a.value - b.value);
 }
 
 function getQuantityUnitKind(unitName: string): QuantityUnitKind {

@@ -8,7 +8,7 @@ import { Boton } from '../../../../shared/ui/botones/boton/boton';
 import { Dropdown } from '../../../../shared/ui/dropdown/dropdown';
 import { PageToolbar } from '../../../../shared/ui/page-toolbar/page-toolbar';
 import { GlassCard } from '../../../../shared/ui/glass-card/glass-card';
-import { PedidoProveedor, EstadoPedidoProveedor, Proveedor } from '../../../../core/models/domain/proveedor';
+import { PedidoProveedor, EstadoPedidoProveedor, PedidoProveedorItem, Proveedor } from '../../../../core/models/domain/proveedor';
 import { Router, RouterModule } from '@angular/router';
 import { ProveedorListComponent } from '../components/proveedor-list/proveedor-list';
 import { Insumo as ProductoStockMock } from '../../../../core/models/domain/insumo';
@@ -19,11 +19,12 @@ import { CategoriaInsumo } from '../../../../core/models/domain/categoria-insumo
 import { ArsCurrencyPipe } from '../../../../shared/pipes/ars-currency.pipe';
 import { PriceNoteComponent } from '../../../../shared/ui/price-note/price-note';
 import { buildSmartQuantityPresets, QuantityPreset } from '../../../../shared/utils/quantity-presets';
+import { AgregarInsumoPedidoComponent } from '../components/agregar-insumo-pedido/agregar-insumo-pedido';
 
 @Component({
   selector: 'app-ver-proveedores',
   standalone: true,
-  imports: [DatePipe, FormsModule, ReactiveFormsModule, FontAwesomeModule, Buscador, Boton, Dropdown, PageToolbar, GlassCard, ProveedorListComponent, RouterModule, ArsCurrencyPipe, PriceNoteComponent],
+  imports: [DatePipe, FormsModule, ReactiveFormsModule, FontAwesomeModule, Buscador, Boton, Dropdown, PageToolbar, GlassCard, ProveedorListComponent, RouterModule, ArsCurrencyPipe, PriceNoteComponent, AgregarInsumoPedidoComponent],
   templateUrl: './ver-proveedores.html',
   styleUrls: ['./ver-proveedores.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -38,7 +39,6 @@ export class VerProveedoresComponent implements OnInit {
 
   // Exponer señales del State Service para que la plantilla HTML y los tests sigan funcionando sin cambios
   termino = this.state.termino;
-  filtroEstado = this.state.filtroEstado;
   proveedores = this.state.proveedores;
   productos = this.state.productos;
   proveedorSeleccionadoId = this.state.proveedorSeleccionadoId;
@@ -175,10 +175,6 @@ export class VerProveedoresComponent implements OnInit {
     this.router.navigate(['/staff', 'gerente', 'realizar-pedido-sugerido']);
   }
 
-  setFiltroEstado(estado: 'Todos' | 'Activos' | 'Inactivos'): void {
-    this.filtroEstado.set(estado);
-  }
-
   irARealizarPedidoSugerido(proveedor: Proveedor): void {
     this.router.navigate(['/staff', 'gerente', 'realizar-pedido-sugerido', proveedor.id]);
   }
@@ -203,13 +199,21 @@ export class VerProveedoresComponent implements OnInit {
     this.state.panelModo.set('historial');
   }
 
+  isAgregarInsumoOpen = signal(false);
+
   abrirDetallePedido(pedido: PedidoProveedor): void {
     this.state.abrirDetallePedido(pedido);
+    this.isAgregarInsumoOpen.set(false);
     setTimeout(() => this.focusModal(), 50);
   }
 
   cerrarDetallePedido(): void {
     this.state.cerrarDetallePedido();
+  }
+
+  confirmarPedido(event: MouseEvent, pedido: PedidoProveedor): void {
+    event.stopPropagation();
+    this.state.confirmarPedido(pedido);
   }
 
   private focusModal(): void {
@@ -315,18 +319,21 @@ export class VerProveedoresComponent implements OnInit {
   }
 
   setCantidadDisplay(valor: number | string | null): void {
-    if (valor === null || valor === '') {
-      this.cantidadProducto.set(null);
-      return;
-    }
-
-    const cantidad = Number(valor);
-    if (!Number.isFinite(cantidad)) {
-      this.cantidadProducto.set(null);
-      return;
-    }
-
+    const cantidad = this.parseCantidadInput(valor);
     this.cantidadProducto.set(this.usaUnidadMenor() ? cantidad / 1000 : cantidad);
+  }
+
+  onFocusCantidad(event: FocusEvent): void {
+    if (!this.cantidadDisplay()) {
+      (event.target as HTMLInputElement).value = '';
+    }
+  }
+
+  private parseCantidadInput(valor: number | string | null): number {
+    if (valor === null || valor === '') return 0;
+    const texto = typeof valor === 'string' ? valor.replace(',', '.') : valor;
+    const cantidad = Number(texto);
+    return Number.isFinite(cantidad) && cantidad > 0 ? cantidad : 0;
   }
 
   ajustarCantidadDisplay(delta: number): void {
@@ -431,6 +438,11 @@ export class VerProveedoresComponent implements OnInit {
     return typeof unidadMedida === 'string' ? unidadMedida : unidadMedida.nombre;
   }
 
+  unidadItemPedido(item: PedidoProveedorItem): UnidadMedida | string {
+    const producto = this.state.productos().find(p => p.id.toString() === item.id.toString());
+    return producto?.unidadMedida ?? item.unidadMedida;
+  }
+
   nombreCategoria(categoria: CategoriaInsumo | string | null | undefined): string {
     if (!categoria) return '';
     return typeof categoria === 'string' ? categoria : categoria.descripcion;
@@ -442,23 +454,38 @@ export class VerProveedoresComponent implements OnInit {
     if (!cantidad || cantidad <= 0 || !producto?.unidadMedida) return null;
 
     const unidad = this.nombreUnidad(producto.unidadMedida).trim().toUpperCase();
-    if (['KG', 'KILO', 'KILOS'].includes(unidad)) {
+    if (['KG', 'KILO', 'KILOS', 'G', 'GR', 'GRAMO', 'GRAMOS'].includes(unidad)) {
       return `Se agregará como ${this.formatearEquivalencia(cantidad, 'kg', 'g', 1000)}`;
     }
 
-    if (['L', 'LT', 'LITRO', 'LITROS'].includes(unidad)) {
+    if (['L', 'LT', 'LITRO', 'LITROS', 'ML', 'MILILITRO', 'MILILITROS'].includes(unidad)) {
       return `Se agregará como ${this.formatearEquivalencia(cantidad, 'l', 'ml', 1000)}`;
-    }
-
-    if (['ML', 'MILILITRO', 'MILILITROS'].includes(unidad) && cantidad >= 1000) {
-      return `Equivale a ${this.formatearEquivalencia(cantidad / 1000, 'l', 'ml', 1000)}`;
     }
 
     return null;
   }
 
+  incrementarCantidadCarrito(item: PedidoProveedorItem): void {
+    const paso = this.pasoCantidadCarrito(item.unidadMedida);
+    this.actualizarCantidadItem(item.id, this.redondearCantidadCarrito(item.cantidad + paso));
+  }
+
+  decrementarCantidadCarrito(item: PedidoProveedorItem): void {
+    const paso = this.pasoCantidadCarrito(item.unidadMedida);
+    this.actualizarCantidadItem(item.id, Math.max(this.redondearCantidadCarrito(item.cantidad - paso), paso));
+  }
+
+  private pasoCantidadCarrito(unidadMedida: UnidadMedida | string): number {
+    const unidad = this.nombreUnidad(unidadMedida).trim().toUpperCase();
+    return ['KG', 'KILO', 'KILOS', 'L', 'LT', 'LITRO', 'LITROS'].includes(unidad) ? 0.01 : 1;
+  }
+
+  private redondearCantidadCarrito(valor: number): number {
+    return Math.round(valor * 100) / 100;
+  }
+
   private usaUnidadMenor(): boolean {
-    return this.esUnidadPeso() || this.esUnidadVolumen();
+    return this.esUnidadPeso() || this.esUnidadGramos() || this.esUnidadVolumen() || this.esUnidadMililitros();
   }
 
   private esUnidadPeso(): boolean {

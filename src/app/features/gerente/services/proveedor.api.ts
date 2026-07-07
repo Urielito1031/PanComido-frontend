@@ -134,8 +134,7 @@ export class ProveedorApiService {
       contacto: dto.nombre ?? 'Sin Contacto',
       telefono,
       email: dto.email ?? dto.correo ?? '',
-      direccion: '', 
-      activo: true,
+      direccion: '',
       fechaUltimoPedido: this.normalizarFecha(dto.fechaUltimoPedido),
       categorias: dto.categorias ?? []
     };
@@ -172,7 +171,8 @@ export class ProveedorApiService {
         cantidad: item.cantidad,
         nombreLote: item.nombreLote ?? '',
         bodegaId: item.bodegaIdSug,
-        fechaVencimiento: this.normalizarFecha(item.fechaVencimientoSug) ?? ''
+        fechaVencimiento: this.normalizarFecha(item.fechaVencimientoSug) ?? '',
+        precioUnitario: item.precioCompra
       })))
     );
   }
@@ -184,7 +184,8 @@ export class ProveedorApiService {
         nombreLote: item.nombreLote,
         bodegaId: item.bodegaId,
         cantidad: item.cantidad,
-        fechaVencimiento: item.fechaVencimiento
+        fechaVencimiento: item.fechaVencimiento,
+        precioCompra: item.precioUnitario ?? 0
       }))
     });
   }

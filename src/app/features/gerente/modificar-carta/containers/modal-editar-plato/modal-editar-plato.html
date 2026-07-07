@@ -162,7 +162,7 @@
         <textarea 
           class="form-control soft-input custom-textarea" 
           rows="3" 
-          placeholder="Descripción del plato..."
+          placeholder="Descripción del plato"
           [ngModel]="descripcion()" 
           (ngModelChange)="descripcion.set($event)">
         </textarea>
@@ -192,7 +192,7 @@
 
         <div class="position-relative mb-4 spotlight-search">
           <app-buscador
-            [placeholder]="'Buscar ingrediente para añadir...'"
+            [placeholder]="'Buscar ingrediente para añadir'"
             [valor]="busqueda()"
             (busquedaCambiada)="onSearchChanged($event)">
           </app-buscador>

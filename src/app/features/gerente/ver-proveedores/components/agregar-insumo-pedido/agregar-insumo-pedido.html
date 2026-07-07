@@ -1,0 +1,81 @@
+<section class="inline-ingredient-panel" aria-labelledby="inline-ingredient-title">
+  <div class="inline-ingredient-header">
+    <div>
+      <p class="detail-kicker mb-1">Agregar al pedido</p>
+      <h4 id="inline-ingredient-title" class="section-title mb-0">Insumos disponibles</h4>
+    </div>
+    <button type="button" class="inline-close-btn" aria-label="Cerrar agregar insumo" (click)="cancelar()">
+      <fa-icon [icon]="faXmark"></fa-icon>
+    </button>
+  </div>
+
+  <input
+    type="search"
+    class="form-control inline-ingredient-search"
+    placeholder="Buscar insumo"
+    [value]="busqueda()"
+    (input)="onBusquedaChange($event)">
+
+  <div class="inline-ingredient-list">
+    @for (item of productosParaAgregar(); track item.id) {
+      <button
+        type="button"
+        class="inline-ingredient-item"
+        [class.selected]="productoSeleccionadoId() === item.id"
+        (click)="seleccionarProducto(item.producto)">
+        <span>
+          <strong>{{ item.nombre }}</strong>
+          <small>{{ item.stock }}</small>
+        </span>
+        @if (item.vencimiento) {
+          <small>{{ item.vencimiento | date:'dd/MM/yyyy' }}</small>
+        }
+      </button>
+    } @empty {
+      <div class="inline-ingredient-empty">No hay insumos disponibles para agregar.</div>
+    }
+  </div>
+
+  @if (productoSeleccionado(); as producto) {
+    <div class="inline-ingredient-selection">
+      <div>
+        <span class="info-label">Seleccionado</span>
+        <strong>{{ producto.nombre }}</strong>
+        <small>{{ producto.stockActual }} {{ nombreUnidad(producto.unidadMedida) }} disponibles</small>
+      </div>
+
+      <label>
+        <span>Cantidad ({{ nombreUnidad(producto.unidadMedida) }})</span>
+        <input
+          type="number"
+          class="form-control"
+          [value]="cantidad()"
+          [min]="cantidadMinima"
+          [step]="cantidadPaso"
+          [placeholder]="cantidadPlaceholder"
+          (input)="onCantidadChange($event)">
+        @if (equivalenciaCantidad(); as equivalencia) {
+          <strong class="quantity-equivalence">{{ equivalencia }}</strong>
+        }
+      </label>
+
+      <label>
+        <span>Precio c/u</span>
+        <input
+          type="number"
+          class="form-control"
+          min="0"
+          placeholder="0"
+          [value]="precio() ?? ''"
+          (input)="onPrecioChange($event)">
+      </label>
+    </div>
+  } @else {
+    <div class="inline-ingredient-help">Selecciona un insumo para indicar la cantidad.</div>
+  }
+
+  <div class="inline-ingredient-actions">
+    <button type="button" class="modal-action-btn modal-action-btn-outline" (click)="cancelar()">Cancelar</button>
+    <button type="button" class="modal-action-btn modal-action-btn-primary" [disabled]="!productoSeleccionadoId()" (click)="confirmar()">Agregar insumo</button>
+  </div>
+</section>
