@@ -2,7 +2,8 @@ export interface ActualizarDatosLocalRequest {
   nombre: string;
   colorPrincipal: string | null;
   colorSecundario: string | null;
-  familiaTipograficaId:number | null;
+  familiaTipograficaId: number | null;
+  linkResenaGoogleMaps?: string | null;
 }
 
 export interface ActualizarMetodoPagoRequest {
@@ -16,14 +17,14 @@ export interface ActualizarTurnoLaboralRequest {
   horarioFin: string;
   esNocturno: boolean;
 }
-export interface ActualizarFilaVirtualRequest { 
+export interface ActualizarFilaVirtualRequest {
   habilitada: boolean;
 }
-export interface PorcentajeItemRequest{ 
-  id:number;
+export interface PorcentajeItemRequest {
+  id: number;
   porcentaje: number;
 }
-export interface ActualizarPorcentajeGananciaRequest{
+export interface ActualizarPorcentajeGananciaRequest {
   platos: PorcentajeItemRequest[];
   bebidas: PorcentajeItemRequest[];
 }
