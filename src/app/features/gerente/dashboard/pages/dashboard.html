@@ -519,13 +519,31 @@
         <app-platos-menos-vendidos></app-platos-menos-vendidos>
       }
       @case ('insumos-vencer') {
-        <app-insumos-vencer></app-insumos-vencer>
+        @defer (on viewport) {
+          <app-insumos-vencer></app-insumos-vencer>
+        } @placeholder {
+          <div class="panel-card deferred-placeholder deferred-placeholder-medium">
+            <div class="skeleton-pulsing deferred-placeholder-block"></div>
+          </div>
+        }
       }
       @case ('radar-alergias') {
-        <app-radar-alergias></app-radar-alergias>
+        @defer (on viewport) {
+          <app-radar-alergias></app-radar-alergias>
+        } @placeholder {
+          <div class="panel-card deferred-placeholder deferred-placeholder-medium">
+            <div class="skeleton-pulsing deferred-placeholder-block"></div>
+          </div>
+        }
       }
       @case ('satisfaccion-comensal') {
-        <app-satisfaccion-comensal></app-satisfaccion-comensal>
+        @defer (on viewport) {
+          <app-satisfaccion-comensal></app-satisfaccion-comensal>
+        } @placeholder {
+          <div class="panel-card deferred-placeholder deferred-placeholder-medium">
+            <div class="skeleton-pulsing deferred-placeholder-block"></div>
+          </div>
+        }
       }
       @case ('mozos') {
         @defer (on viewport) {

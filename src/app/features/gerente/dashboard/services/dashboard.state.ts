@@ -12,6 +12,7 @@ import { DashboardPreferencesService } from './dashboard-preferences.service';
 import { SignalRConexionService } from '../../../../core/services/hubs/base-hub-service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ToastService } from '../../../../core/services/toast.service';
+import { toLocalISOString } from '../../../../core/utils/date.utils';
 import {
   diasDelPeriodo,
   diasPersonalizados,
@@ -404,8 +405,8 @@ export class DashboardStateService implements OnDestroy {
   cargarDatos(): void {
     this.cargando.set(true);
     const { desde, hasta } = this.obtenerRangoFechas();
-    const desdeIso = desde.toISOString();
-    const hastaIso = hasta.toISOString();
+    const desdeIso = toLocalISOString(desde);
+    const hastaIso = toLocalISOString(hasta);
 
     forkJoin({
       vencimientos: this.api.getVencimientos().pipe(
