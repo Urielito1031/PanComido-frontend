@@ -1,6 +1,6 @@
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Insumo, InsumoDetalle, CrearInsumo, LoteInsumo } from '../../../../../core/models/domain/insumo';
+import { Insumo, InsumoDetalle, LoteInsumo } from '../../../../../core/models/domain/insumo';
 import { StockMercaderiaService } from './stock-mercaderia-service';
 import { UnidadMedidaService } from '../unidad-medida.service';
 import { CategoriaInsumoService } from '../categorias/categoria-insumo.service';
@@ -9,6 +9,7 @@ import { CategoriaInsumo } from '../../../../../core/models/domain/categoria-ins
 import { PorcentajeItem } from '../../../../../core/models/domain/porcentajes-ganancia';
 import { PlatoApiService } from '../../../services/plato.api';
 import { GuardarBebidaPayload } from '../../components/editar-bebida-form/editar-bebida-form';
+import { GuardarProductoPayload } from '../../components/producto-form/producto-form';
 import { forkJoin } from 'rxjs';
 
 
@@ -29,7 +30,7 @@ export class StockMercaderiaState {
   readonly #categoriasInsumos = signal<CategoriaInsumo[]>([]);
   readonly #cargando = signal<boolean>(false);
   readonly #porcentajesBebidas = signal<PorcentajeItem[]>([]);
-  readonly #bebidaDetalle = signal<InsumoDetalle | null>(null);
+  readonly #detalleInsumo = signal<InsumoDetalle | null>(null);
   readonly #costoBebida = signal<number>(0);
 
   productos = this.#productos.asReadonly();
@@ -39,7 +40,7 @@ export class StockMercaderiaState {
   unidadMedidas = this.#unidadMedidas.asReadonly();
   categoriasInsumos = this.#categoriasInsumos.asReadonly();
   porcentajesBebidas = this.#porcentajesBebidas.asReadonly();
-  bebidaDetalle = this.#bebidaDetalle.asReadonly();
+  detalleInsumo = this.#detalleInsumo.asReadonly();
   costoBebida = this.#costoBebida.asReadonly();
 
   productosCriticos = computed(() =>
@@ -92,36 +93,60 @@ export class StockMercaderiaState {
     });
   }
 
-  guardarProducto(producto: CrearInsumo): void {
+  guardarProducto(payload: GuardarProductoPayload): void {
     this.#cargando.set(true);
-    
-    const idEdicion = 'id' in producto ? (producto as any).id : null;
 
-    if (idEdicion) {
-      this.api.actualizar(idEdicion, producto).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-        next: (updated) => {
-          this.#productos.update(lista => 
-            lista.map(p => p.id === updated.id ? updated : p)
-          );
+    if (payload.id) {
+      const request = {
+        nombre: payload.nombre,
+        descripcion: payload.descripcion || undefined,
+        precioVentaFinal: payload.precioVentaFinal,
+        esPrecioManual: payload.esPrecioManual,
+        stockMinimo: payload.stockMinimo,
+        stockRecomendado: payload.stockRecomendado,
+        categoriaId: payload.categoriaId,
+        unidadDeMedidaId: payload.unidadDeMedidaId
+      };
+
+      this.api.actualizarInsumoConImagen(payload.id, request, payload.imagen).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: (actualizado) => {
+          this.#productos.update(lista => lista.map(p => p.id === payload.id
+            ? {
+                ...p,
+                nombre: actualizado.nombre,
+                precioVentaFinal: actualizado.precioVentaFinal ?? p.precioVentaFinal,
+                esPrecioManual: actualizado.esPrecioManual,
+                stockMinimo: actualizado.stockMinimo
+              }
+            : p));
           this.#cargando.set(false);
         },
         error: () => this.#cargando.set(false)
       });
     } else {
-      this.api.crear(producto).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      const request = {
+        nombre: payload.nombre,
+        descripcion: payload.descripcion,
+        precioVentaFinal: payload.precioVentaFinal,
+        esPrecioManual: payload.esPrecioManual,
+        stockMinimo: payload.stockMinimo,
+        stockRecomendado: payload.stockRecomendado,
+        categoriaId: payload.categoriaId,
+        unidadDeMedidaId: payload.unidadDeMedidaId,
+        cantidadInicial: payload.cantidadInicial!,
+        bodegaId: payload.bodegaId!,
+        fechaVencimiento: payload.fechaVencimiento!
+      };
+
+      this.api.crear(request, payload.imagen).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: (nuevo: Insumo) => {
           const lotesEstabanCargados = this.#lotesCargados();
           this.#productos.update(lista => [...lista, nuevo]);
           this.#lotesCargados.set(false);
           if (lotesEstabanCargados) this.cargarLotes();
           this.#cargando.set(false);
-          
         },
-        error: (err) => {
-          this.#cargando.set(false)
-          
-
-        }
+        error: () => this.#cargando.set(false)
       });
     }
   }
@@ -147,9 +172,16 @@ export class StockMercaderiaState {
       });
   }
 
-  cargarDetalleBebida(id: number): void {
-    this.#bebidaDetalle.set(null);
+  cargarDetalleInsumo(id: number, esBebida: boolean): void {
+    this.#detalleInsumo.set(null);
     this.#costoBebida.set(0);
+
+    if (!esBebida) {
+      this.api.getById(id)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(detalle => this.#detalleInsumo.set(detalle));
+      return;
+    }
 
     forkJoin({
       detalle: this.api.getById(id),
@@ -157,20 +189,18 @@ export class StockMercaderiaState {
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(({ detalle, articulos }) => {
-        const articulo = articulos.find(a => a.id === id);
-        // GET /insumo/{id} no siempre trae urlImagen; usamos la que ya vino de carta/obtener-articulos como respaldo.
-        this.#bebidaDetalle.set(detalle.urlImagen ? detalle : { ...detalle, urlImagen: articulo?.imagen || null });
-        this.#costoBebida.set(articulo?.costo ?? 0);
+        this.#detalleInsumo.set(detalle);
+        this.#costoBebida.set(articulos.find(a => a.id === id)?.costo ?? 0);
       });
   }
 
-  limpiarDetalleBebida(): void {
-    this.#bebidaDetalle.set(null);
+  limpiarDetalleInsumo(): void {
+    this.#detalleInsumo.set(null);
     this.#costoBebida.set(0);
   }
 
   guardarBebida(id: number, payload: GuardarBebidaPayload): void {
-    const detalle = this.#bebidaDetalle();
+    const detalle = this.#detalleInsumo();
     if (!detalle) return;
 
     this.#cargando.set(true);
@@ -192,7 +222,7 @@ export class StockMercaderiaState {
           this.#productos.update(lista => lista.map(p => p.id === id
             ? { ...p, nombre: actualizado.nombre, precioVentaFinal: actualizado.precioVentaFinal ?? p.precioVentaFinal, esPrecioManual: actualizado.esPrecioManual }
             : p));
-          this.#bebidaDetalle.set(null);
+          this.#detalleInsumo.set(null);
           this.#cargando.set(false);
         },
         error: () => this.#cargando.set(false)

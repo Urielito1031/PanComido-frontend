@@ -9,9 +9,8 @@ import { Modal } from "../../../../../shared/ui/modal/modal";
 import { StockMercaderiaState } from '../../services/insumos/stock-mercaderia-state';
 import { BodegaState } from '../../services/bodegas/bodega-state';
 import { StockTourService } from '../../services/stock-tour.service';
-import { ProductoForm } from "../../components/producto-form/producto-form";
+import { ProductoForm, GuardarProductoPayload } from "../../components/producto-form/producto-form";
 import { Insumo, LoteInsumo } from '../../../../../core/models/domain/insumo';
-import { CrearInsumo } from '../../../../../core/models/domain/insumo';
 import { EditarBebidaFormComponent, GuardarBebidaPayload } from '../../components/editar-bebida-form/editar-bebida-form';
 
 type EstadoStockFiltro = 'todos' | 'criticos' | 'bajos' | 'ok';
@@ -142,11 +141,11 @@ export class InsumoPage implements OnInit {
 
   esBebidaSeleccionada = computed(() => this.productoSeleccionado()?.categoriaIngrediente?.tipoAplica === 'Bebida');
 
-  bebidaDetalle = this.state.bebidaDetalle;
+  detalleInsumo = this.state.detalleInsumo;
   costoBebida = this.state.costoBebida;
 
   porcentajeGananciaBebida = computed(() => {
-    const categoriaId = this.state.bebidaDetalle()?.categoriaId;
+    const categoriaId = this.state.detalleInsumo()?.categoriaId;
     if (categoriaId == null) return 0;
     return this.state.porcentajesBebidas().find(item => item.id === categoriaId)?.porcentaje ?? 0;
   });
@@ -337,8 +336,9 @@ export class InsumoPage implements OnInit {
     modal.abrir();
 
     const producto = this.state.productos().find(p => p.id === id);
-    if (producto?.categoriaIngrediente?.tipoAplica === 'Bebida') {
-      this.state.cargarDetalleBebida(id);
+    const esBebida = producto?.categoriaIngrediente?.tipoAplica === 'Bebida';
+    this.state.cargarDetalleInsumo(id, esBebida);
+    if (esBebida) {
       this.state.cargarPorcentajesBebidas();
     }
   }
@@ -346,11 +346,11 @@ export class InsumoPage implements OnInit {
   limpiarEstadoModal() {
     this.productoEditandoId.set(null);
     this.modalAbierto.set(false);
-    this.state.limpiarDetalleBebida();
+    this.state.limpiarDetalleInsumo();
   }
 
-  guardarCambios(datosProducto: CrearInsumo, modal: Modal) {
-    this.state.guardarProducto(datosProducto);
+  guardarCambios(payload: GuardarProductoPayload, modal: Modal) {
+    this.state.guardarProducto(payload);
     modal.cerrar();
     this.limpiarEstadoModal();
   }

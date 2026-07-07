@@ -315,11 +315,11 @@
   </section>
 </section>
 
-<app-modal #modalFormulario [titulo]="tituloModal()" (cerrado)="limpiarEstadoModal()">
+<app-modal #modalFormulario [titulo]="tituloModal()" [maxWidth]="680" (cerrado)="limpiarEstadoModal()">
 
   @if (modalAbierto()) {
     @if (esBebidaSeleccionada()) {
-      @if (bebidaDetalle(); as detalle) {
+      @if (detalleInsumo(); as detalle) {
         <app-editar-bebida-form
           [insumo]="detalle"
           [costo]="costoBebida()"
@@ -330,15 +330,17 @@
       } @else {
         <div class="text-center text-muted p-4">Cargando...</div>
       }
-    } @else {
+    } @else if (!productoEditandoId() || detalleInsumo()) {
       <app-producto-form
-        [producto]="productoSeleccionado()"
+        [producto]="detalleInsumo()"
         [bodegas]="bodegaState.bodegas()"
         [categorias]="state.categoriasInsumos()"
         [unidadesMedida]="state.unidadMedidas()"
         (cancelado)="modalFormulario.cerrar()"
         (guardar)="guardarCambios($event, modalFormulario)">
       </app-producto-form>
+    } @else {
+      <div class="text-center text-muted p-4">Cargando...</div>
     }
   }
 

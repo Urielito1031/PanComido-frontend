@@ -68,6 +68,13 @@ export class EditarBebidaFormComponent {
     this.precioVenta.set(value === null || value === '' ? null : +value);
   }
 
+  onFocusNumero(event: FocusEvent): void {
+    const input = event.target as HTMLInputElement;
+    if (input.value === '0') {
+      input.value = '';
+    }
+  }
+
   onRecalcularPrecio(): void {
     this.precioVenta.set(this.precioConGanancia());
     this.precioVentaTocado.set(false);

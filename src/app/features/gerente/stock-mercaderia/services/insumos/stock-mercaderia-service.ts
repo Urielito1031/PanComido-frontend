@@ -41,20 +41,41 @@ export class StockMercaderiaService {
     );
   }
 
-  crear(producto: CrearInsumoRequest): Observable<Insumo> {
-    return this.api.post< {insumo: InsumoResponseDto, mensaje: string} >(this.endpoint, producto).pipe(
+  crear(producto: CrearInsumoRequest, imagen?: File): Observable<Insumo> {
+    const formData = this.crearInsumoAFormData(producto, imagen);
+    return this.api.post<{ insumo: InsumoResponseDto; mensaje: string }>(this.endpoint, formData).pipe(
       map(response => mapInsumoDtoToDomain(response.insumo))
     );
   }
 
-  actualizar(id: number, producto: Partial<Insumo>): Observable<Insumo> {
-    return this.api.put<Insumo>(`${this.endpoint}/${id}`, producto);
+  private crearInsumoAFormData(producto: CrearInsumoRequest, imagen?: File): FormData {
+    const formData = new FormData();
+    formData.append('Nombre', producto.nombre);
+    formData.append('EsPrecioManual', producto.esPrecioManual ? 'true' : 'false');
+    formData.append('StockMinimo', producto.stockMinimo.toString());
+    formData.append('StockRecomendado', producto.stockRecomendado.toString());
+    formData.append('CategoriaId', producto.categoriaId.toString());
+    formData.append('UnidadDeMedidaId', producto.unidadDeMedidaId.toString());
+    formData.append('CantidadInicial', producto.cantidadInicial.toString());
+    formData.append('BodegaId', producto.bodegaId.toString());
+    formData.append('FechaVencimiento', producto.fechaVencimiento);
+
+    if (producto.descripcion) {
+      formData.append('Descripcion', producto.descripcion);
+    }
+    if (producto.precioVentaFinal != null) {
+      formData.append('PrecioVentaFinal', producto.precioVentaFinal.toString().replace('.', ','));
+    }
+    if (imagen) {
+      formData.append('Imagen', imagen);
+    }
+    return formData;
   }
 
   actualizarInsumoConImagen(id: number, request: ModificarInsumoRequestDto, imagen?: File): Observable<InsumoDetalle> {
     const formData = this.modificarInsumoAFormData(request, imagen);
-    return this.api.put<{ mensaje: string }>(`${this.endpoint}/${id}`, formData).pipe(
-      map(() => this.mapModificarRequestToDomain(id, request))
+    return this.api.put<{ insumo: InsumoResponseDto; mensaje: string }>(`${this.endpoint}/${id}`, formData).pipe(
+      map(response => this.mapModificarRequestToDomain(id, request, response.insumo.urlImagen))
     );
   }
 
@@ -70,7 +91,7 @@ export class StockMercaderiaService {
     if (request.descripcion) {
       formData.append('Descripcion', request.descripcion);
     }
-    if (request.precioVentaFinal !== undefined) {
+    if (request.precioVentaFinal != null) {
       formData.append('PrecioVentaFinal', request.precioVentaFinal.toString().replace('.', ','));
     }
     if (imagen) {
@@ -79,7 +100,7 @@ export class StockMercaderiaService {
     return formData;
   }
 
-  private mapModificarRequestToDomain(id: number, request: ModificarInsumoRequestDto): InsumoDetalle {
+  private mapModificarRequestToDomain(id: number, request: ModificarInsumoRequestDto, urlImagen: string | null): InsumoDetalle {
     return {
       id,
       nombre: request.nombre,
@@ -90,7 +111,7 @@ export class StockMercaderiaService {
       stockRecomendado: request.stockRecomendado,
       categoriaId: request.categoriaId,
       unidadDeMedidaId: request.unidadDeMedidaId,
-      urlImagen: null,
+      urlImagen,
       tipo: ''
     };
   }

@@ -10,4 +10,5 @@ export interface InsumoResponseDto {
   categoria: string;
   tipo: string;
   estadoStock: string;
+  urlImagen: string | null;
 }

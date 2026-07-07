@@ -20,16 +20,6 @@ describe('StockMercaderiaService', () => {
     tipo: 'Ingrediente'
   };
 
-  const mappedDomain = {
-    id: 1,
-    nombre: 'Harina',
-    stockActual: 10,
-    stockMinimo: 5,
-    vencimiento: '',
-    unidadMedida: { id: 0, nombre: 'KG' },
-    categoriaIngrediente: { id: 0, descripcion: 'Almacen', tipoAplica: 'Ingrediente' }
-  };
-
   const mockDetalleInsumoDto = {
     id: 1,
     nombre: 'Harina',
@@ -90,12 +80,14 @@ describe('StockMercaderiaService', () => {
       expect(mockApiService.get).toHaveBeenCalledWith('insumo/5');
     });
 
-    it('crear() debería hacer POST', () => {
-      const nuevoProducto: CrearInsumoRequest = { 
-        nombre: 'Azúcar', 
+    it('crear() debería hacer POST con FormData', () => {
+      const nuevoProducto: CrearInsumoRequest = {
+        nombre: 'Azúcar',
         descripcion: 'Azúcar blanca',
         precioVentaFinal: 100,
+        esPrecioManual: false,
         stockMinimo: 5,
+        stockRecomendado: 10,
         categoriaId: 1,
         unidadDeMedidaId: 1,
         bodegaId: 1,
@@ -106,19 +98,16 @@ describe('StockMercaderiaService', () => {
 
       service.crear(nuevoProducto).subscribe();
 
-      expect(mockApiService.post).toHaveBeenCalledWith('insumo', nuevoProducto);
-    });
-
-    it('actualizar() debería hacer PUT con id', () => {
-      mockApiService.put.mockReturnValue(of(mappedDomain));
-
-      service.actualizar(10, mappedDomain).subscribe();
-
-      expect(mockApiService.put).toHaveBeenCalledWith('insumo/10', mappedDomain);
+      expect(mockApiService.post).toHaveBeenCalledWith('insumo', expect.any(FormData));
+      const formData: FormData = mockApiService.post.mock.calls[0][1];
+      expect(formData.get('Nombre')).toBe('Azúcar');
+      expect(formData.get('CategoriaId')).toBe('1');
+      expect(formData.get('BodegaId')).toBe('1');
+      expect(formData.get('UnidadDeMedidaId')).toBe('1');
     });
 
     it('actualizarInsumoConImagen() debería hacer PUT con FormData', () => {
-      mockApiService.put.mockReturnValue(of({ mensaje: 'ok' }));
+      mockApiService.put.mockReturnValue(of({ insumo: { ...mockInsumoDto, urlImagen: 'https://res.cloudinary.com/nueva.jpg' }, mensaje: 'ok' }));
 
       service.actualizarInsumoConImagen(1, {
         nombre: 'Gaseosa',
@@ -131,6 +120,7 @@ describe('StockMercaderiaService', () => {
       }).subscribe(result => {
         expect(result.id).toBe(1);
         expect(result.nombre).toBe('Gaseosa');
+        expect(result.urlImagen).toBe('https://res.cloudinary.com/nueva.jpg');
       });
 
       expect(mockApiService.put).toHaveBeenCalledWith('insumo/1', expect.any(FormData));

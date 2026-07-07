@@ -1,12 +1,4 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()" class="producto-form">
-  <div class="form-intro">
-    <span class="material-symbols-outlined">inventory_2</span>
-    <div>
-      <strong>{{ producto() ? 'Editar insumo' : 'Nuevo producto' }}</strong>
-      <p>Definí ubicación, unidad y mínimo para que las alertas de stock sean confiables.</p>
-    </div>
-  </div>
-
   <section class="form-section">
     <div class="section-heading">
       <span class="material-symbols-outlined">label</span>
@@ -19,7 +11,7 @@
     <div class="form-row">
       <div class="form-group full-width">
         <label for="nombre">Nombre <span class="text-danger">*</span></label>
-        <input id="nombre" type="text" formControlName="nombre" class="form-control" placeholder="Ej: Tomate perita">
+        <input id="nombre" type="text" formControlName="nombre" class="form-control" [placeholder]="nombrePlaceholder()">
         @if (getError('nombre'); as error) { <div class="error-text">{{ error }}</div> }
       </div>
 
@@ -39,19 +31,60 @@
       </div>
     </div>
 
-    <div class="form-row">
-      <div class="form-group">
-        <label for="stockInicial">{{ producto() ? 'Stock actual' : 'Cantidad inicial' }} <span class="text-danger">*</span></label>
-        <input id="stockInicial" type="number" formControlName="stockInicial" class="form-control" min="0">
-        @if (getError('stockInicial'); as error) { <div class="error-text">{{ error }}</div> }
+    @if (!producto()) {
+      <div class="form-row form-row-3">
+        <div class="form-group">
+          <label for="stockInicial">Cantidad inicial <span class="text-danger">*</span></label>
+          <input id="stockInicial" type="number" formControlName="stockInicial" class="form-control" min="0" (focus)="onFocusNumero($event)">
+          @if (getError('stockInicial'); as error) { <div class="error-text">{{ error }}</div> }
+        </div>
+
+        <div class="form-group">
+          <label for="stockMinimo">Stock mínimo <span class="text-danger">*</span></label>
+          <input id="stockMinimo" type="number" formControlName="stockMinimo" class="form-control" min="0" (focus)="onFocusNumero($event)">
+          @if (getError('stockMinimo'); as error) { <div class="error-text">{{ error }}</div> }
+        </div>
+
+        <div class="form-group">
+          <label for="stockRecomendado">Recomendado <span class="text-danger">*</span></label>
+          <input id="stockRecomendado" type="number" formControlName="stockRecomendado" class="form-control" min="0" (focus)="onFocusNumero($event)">
+          @if (getError('stockRecomendado'); as error) { <div class="error-text">{{ error }}</div> }
+        </div>
       </div>
 
-      <div class="form-group">
-        <label for="stockMinimo">Stock mínimo <span class="text-danger">*</span></label>
-        <input id="stockMinimo" type="number" formControlName="stockMinimo" class="form-control" min="0">
-        @if (getError('stockMinimo'); as error) { <div class="error-text">{{ error }}</div> }
+      <div class="form-row">
+        <div class="form-group">
+          <label for="fechaVencimiento">Fecha de vencimiento <span class="text-danger">*</span></label>
+          <input id="fechaVencimiento" type="date" formControlName="fechaVencimiento" class="form-control">
+          @if (getError('fechaVencimiento'); as error) { <div class="error-text">{{ error }}</div> }
+        </div>
+
+        <div class="form-group">
+          <label for="bodegaId">Bodega <span class="text-danger">*</span></label>
+          <select id="bodegaId" formControlName="bodegaId" class="form-control">
+            <option value="" disabled selected>Seleccione...</option>
+            @for (bodega of bodegas(); track bodega.id) {
+              <option [value]="bodega.id">{{ bodega.nombre }}</option>
+            }
+          </select>
+          @if (getError('bodegaId'); as error) { <div class="error-text">{{ error }}</div> }
+        </div>
       </div>
-    </div>
+    } @else {
+      <div class="form-row">
+        <div class="form-group">
+          <label for="stockMinimo">Stock mínimo <span class="text-danger">*</span></label>
+          <input id="stockMinimo" type="number" formControlName="stockMinimo" class="form-control" min="0" (focus)="onFocusNumero($event)">
+          @if (getError('stockMinimo'); as error) { <div class="error-text">{{ error }}</div> }
+        </div>
+
+        <div class="form-group">
+          <label for="stockRecomendado">Recomendado <span class="text-danger">*</span></label>
+          <input id="stockRecomendado" type="number" formControlName="stockRecomendado" class="form-control" min="0" (focus)="onFocusNumero($event)">
+          @if (getError('stockRecomendado'); as error) { <div class="error-text">{{ error }}</div> }
+        </div>
+      </div>
+    }
 
     <div class="form-row">
       <div class="form-group">
@@ -63,25 +96,6 @@
           }
         </select>
         @if (getError('unidadDeMedidaId'); as error) { <div class="error-text">{{ error }}</div> }
-      </div>
-
-      <div class="form-group">
-        <label for="fechaVencimiento">Fecha de vencimiento <span class="text-danger">*</span></label>
-        <input id="fechaVencimiento" type="date" formControlName="fechaVencimiento" class="form-control">
-        @if (getError('fechaVencimiento'); as error) { <div class="error-text">{{ error }}</div> }
-      </div>
-    </div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label for="bodegaId">Bodega <span class="text-danger">*</span></label>
-        <select id="bodegaId" formControlName="bodegaId" class="form-control">
-          <option value="" disabled selected>Seleccione...</option>
-          @for (bodega of bodegas(); track bodega.id) {
-            <option [value]="bodega.id">{{ bodega.nombre }}</option>
-          }
-        </select>
-        @if (getError('bodegaId'); as error) { <div class="error-text">{{ error }}</div> }
       </div>
 
       <div class="form-group">
@@ -109,8 +123,25 @@
 
       <div class="form-row">
         <div class="form-group full-width">
-          <label for="precioVentaFinal">Precio si se vende directo (por Kg)</label>
-          <input id="precioVentaFinal" type="number" formControlName="precioVentaFinal" class="form-control" min="0" placeholder="0">
+          <label for="precioVentaFinal">Precio si se vende directo (por Lt)</label>
+          <input id="precioVentaFinal" type="number" formControlName="precioVentaFinal" class="form-control" min="0" placeholder="0" (focus)="onFocusNumero($event)">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group full-width">
+          <label for="imagen">
+            Imagen
+            @if (categoriaSeleccionadaEsBebida()) { <span class="text-danger">*</span> }
+          </label>
+          <small class="d-block text-muted mb-2">Solo se guarda para insumos de tipo Bebida.</small>
+          @if (imagenPreview()) {
+            <div class="imagen-preview mb-2" [style.backgroundImage]="'url(' + imagenPreview() + ')'"></div>
+          }
+          <input id="imagen" type="file" accept="image/*" class="form-control" (change)="onImagenSeleccionada($event)">
+          @if (categoriaSeleccionadaEsBebida() && !archivoImagen()) {
+            <div class="error-text">La imagen es obligatoria para insumos de tipo Bebida</div>
+          }
         </div>
       </div>
     </section>
@@ -118,7 +149,7 @@
 
   <div class="form-actions">
     <button type="button" class="btn-cancelar" (click)="cancelado.emit()">Cancelar</button>
-    <button type="submit" class="btn-guardar" [disabled]="form.invalid">
+    <button type="submit" class="btn-guardar" [disabled]="!puedeGuardar()">
       {{ producto() ? 'Guardar cambios' : 'Crear producto' }}
     </button>
   </div>

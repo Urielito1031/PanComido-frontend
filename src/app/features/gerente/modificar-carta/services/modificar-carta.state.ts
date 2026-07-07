@@ -4,9 +4,9 @@ import { PlatoApiService } from '../../services/plato.api';
 import { Plato } from '../../../../core/models/domain/plato';
 import { InsumoDetalle } from '../../../../core/models/domain/insumo';
 import { PorcentajeItem } from '../../../../core/models/domain/porcentajes-ganancia';
-import { environment } from '../../../../../environments/environment';
 import { StockMercaderiaService } from '../../stock-mercaderia/services/insumos/stock-mercaderia-service';
 import { GuardarBebidaPayload } from '../../stock-mercaderia/components/editar-bebida-form/editar-bebida-form';
+import { GuardarProductoPayload } from '../../stock-mercaderia/components/producto-form/producto-form';
 import {
   CartaSortOrder,
   esBebida,
@@ -262,9 +262,7 @@ export class ModificarCartaStateService {
     this.stockService.getById(plato.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(detalle => {
-        // GET /insumo/{id} no siempre trae urlImagen; usamos la que ya vino de carta/obtener-articulos como respaldo.
-        const detalleConImagen = detalle.urlImagen ? detalle : { ...detalle, urlImagen: plato.imagen || null };
-        this._bebidaAEditar.update(actual => actual ? { ...actual, detalle: detalleConImagen } : actual);
+        this._bebidaAEditar.update(actual => actual ? { ...actual, detalle } : actual);
       });
   }
 
@@ -288,13 +286,39 @@ export class ModificarCartaStateService {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(actualizado => {
         this._platos.update(platos => platos.map(p => p.id === target.id
-          ? { ...p, nombre: actualizado.nombre, precioVenta: actualizado.precioVentaFinal ?? p.precioVenta, esPrecioManual: actualizado.esPrecioManual }
+          ? {
+              ...p,
+              nombre: actualizado.nombre,
+              precioVenta: actualizado.precioVentaFinal ?? p.precioVenta,
+              esPrecioManual: actualizado.esPrecioManual,
+              imagen: actualizado.urlImagen || p.imagen
+            }
           : p));
         this._bebidaAEditar.set(null);
       });
   }
 
-  savePlato(updatedFields: Partial<Plato>): void {
+  crearBebida(payload: GuardarProductoPayload): void {
+    const request = {
+      nombre: payload.nombre,
+      descripcion: payload.descripcion,
+      precioVentaFinal: payload.precioVentaFinal,
+      esPrecioManual: payload.esPrecioManual,
+      stockMinimo: payload.stockMinimo,
+      stockRecomendado: payload.stockRecomendado,
+      categoriaId: payload.categoriaId,
+      unidadDeMedidaId: payload.unidadDeMedidaId,
+      cantidadInicial: payload.cantidadInicial!,
+      bodegaId: payload.bodegaId!,
+      fechaVencimiento: payload.fechaVencimiento!
+    };
+
+    this.stockService.crear(request, payload.imagen)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.cargarPlatos());
+  }
+
+  savePlato(updatedFields: Partial<Plato>, archivo?: File): void {
     const target = this._platoAEditar();
     if (!target) return;
 
@@ -312,7 +336,6 @@ export class ModificarCartaStateService {
       esPrecioManual: updatedPlato.esPrecioManual ?? false,
       tipoPlatoId,
       categoriaPlatoId,
-      urlImagen: this.normalizarUrlImagen(updatedPlato.imagen),
       esVisibleEnCarta: updatedPlato.visible,
       restriccionesIds: updatedPlato.restriccionesIds ?? [],
       ingredientes: (updatedPlato.receta ?? []).map(ingrediente => ({
@@ -322,10 +345,12 @@ export class ModificarCartaStateService {
       }))
     };
 
-    this.api.modificarPlato(target.id, request)
+    this.api.modificarPlato(target.id, request, archivo)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(updated => {
-        this._platos.update(platos => platos.map(p => p.id === target.id ? { ...p, ...updated, ...updatedPlato } : p));
+        this._platos.update(platos => platos.map(p => p.id === target.id
+          ? { ...p, ...updated, ...updatedPlato, imagen: updated.imagen || updatedPlato.imagen }
+          : p));
         this._platoAEditar.set(null);
       });
   }
@@ -407,9 +432,4 @@ export class ModificarCartaStateService {
       });
   }
 
-  private normalizarUrlImagen(url: string | undefined): string {
-    if (!url) return '';
-
-    return url.startsWith(environment.apiUrl) ? url.replace(environment.apiUrl, '') : url;
-  }
 }

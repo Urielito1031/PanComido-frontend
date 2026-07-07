@@ -9,11 +9,15 @@ import { PageToolbar } from '../../../../shared/ui/page-toolbar/page-toolbar';
 import { Dropdown } from '../../../../shared/ui/dropdown/dropdown';
 import { ModalEditarPlatoComponent } from '../containers/modal-editar-plato/modal-editar-plato';
 import { PanelEditarBebidaComponent } from '../containers/panel-editar-bebida/panel-editar-bebida';
+import { PanelCrearBebidaComponent } from '../containers/panel-crear-bebida/panel-crear-bebida';
 import { ModalEliminarPlatoComponent } from '../components/modal-eliminar-plato/modal-eliminar-plato';
 import { ModificarCartaStateService } from '../services/modificar-carta.state';
 import { CartaTourService } from '../services/carta-tour.service';
 import { esBebida } from '../services/modificar-carta.rules';
 import { GuardarBebidaPayload } from '../../stock-mercaderia/components/editar-bebida-form/editar-bebida-form';
+import { GuardarProductoPayload } from '../../stock-mercaderia/components/producto-form/producto-form';
+import { StockMercaderiaState } from '../../stock-mercaderia/services/insumos/stock-mercaderia-state';
+import { BodegaState } from '../../stock-mercaderia/services/bodegas/bodega-state';
 
 @Component({
   selector: 'app-modificar-carta',
@@ -25,6 +29,7 @@ import { GuardarBebidaPayload } from '../../stock-mercaderia/components/editar-b
     PageToolbar,
     ModalEditarPlatoComponent,
     PanelEditarBebidaComponent,
+    PanelCrearBebidaComponent,
     ModalEliminarPlatoComponent
   ],
   templateUrl: './modificar-carta.html',
@@ -38,11 +43,16 @@ export class ModificarCartaComponent implements OnInit {
   private readonly documento = inject(DOCUMENT);
   private readonly tour = inject(CartaTourService);
   readonly state = inject(ModificarCartaStateService);
+  readonly stockState = inject(StockMercaderiaState);
+  readonly bodegaState = inject(BodegaState);
 
   layoutMode = signal<'grid' | 'list'>('grid');
   isFloatingMenuOpen = signal(false);
+  mostrarPanelCrearBebida = signal(false);
   private platoPendienteEdicion = signal<string | null>(null);
   private scrollPosition = 0;
+
+  categoriasBebida = computed(() => this.stockState.categoriasInsumos().filter(cat => cat.tipoAplica === 'Bebida'));
 
   // Exponer señales del State Service para que la plantilla HTML y los tests sigan funcionando sin cambios
   platos = this.state.platos;
@@ -181,8 +191,8 @@ export class ModificarCartaComponent implements OnInit {
     this.state.setPlatoAEliminar(plato);
   }
 
-  onSavePlato(updatedFields: Partial<Plato>) {
-    this.state.savePlato(updatedFields);
+  onSavePlato(payload: { plato: Partial<Plato>; imagen?: File }) {
+    this.state.savePlato(payload.plato, payload.imagen);
   }
 
   onSaveBebida(payload: GuardarBebidaPayload) {
@@ -204,6 +214,21 @@ export class ModificarCartaComponent implements OnInit {
 
   irACrearPlato() {
     this.router.navigate(['/staff/gerente/crear-plato']);
+  }
+
+  abrirPanelCrearBebida() {
+    this.stockState.cargarCatalogos();
+    this.bodegaState.cargarBodegas();
+    this.mostrarPanelCrearBebida.set(true);
+  }
+
+  cerrarPanelCrearBebida() {
+    this.mostrarPanelCrearBebida.set(false);
+  }
+
+  onGuardarBebidaNueva(payload: GuardarProductoPayload) {
+    this.state.crearBebida(payload);
+    this.mostrarPanelCrearBebida.set(false);
   }
 
   desplazarASeccion(id: string) {

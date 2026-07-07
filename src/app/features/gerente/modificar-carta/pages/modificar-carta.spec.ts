@@ -164,9 +164,10 @@ describe('ModificarCartaComponent', () => {
   });
 
   it('debería delegar onSavePlato al state', () => {
-    const payload = { nombre: 'Mila' };
+    const archivo = new File([''], 'foto.jpg');
+    const payload = { plato: { nombre: 'Mila' }, imagen: archivo };
     component.onSavePlato(payload);
-    expect(stateServiceMock.savePlato).toHaveBeenCalledWith(payload);
+    expect(stateServiceMock.savePlato).toHaveBeenCalledWith(payload.plato, archivo);
   });
 
   it('debería delegar onConfirmDelete al state', () => {

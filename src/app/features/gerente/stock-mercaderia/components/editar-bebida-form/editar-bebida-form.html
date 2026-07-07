@@ -60,7 +60,8 @@
           class="form-control soft-input fw-bold text-dark"
           placeholder="0.00"
           [ngModel]="precioVenta()"
-          (ngModelChange)="onPrecioVentaChange($event)">
+          (ngModelChange)="onPrecioVentaChange($event)"
+          (focus)="onFocusNumero($event)">
       </div>
 
       @if (precioVenta() && costo()) {

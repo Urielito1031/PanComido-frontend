@@ -37,10 +37,14 @@ export interface ModificarPlatoRequestDto {
   esPrecioManual: boolean;
   tipoPlatoId: number;
   categoriaPlatoId: number;
-  urlImagen: string;
   esVisibleEnCarta: boolean;
   restriccionesIds: number[];
   ingredientes: CrearPlatoIngredienteDto[];
+}
+
+interface ModificarPlatoResponseDto {
+  plato: DetallePlatoResponseDto;
+  mensaje: string;
 }
 
 interface DetallePlatoResponseDto {
@@ -148,10 +152,42 @@ export class PlatoApiService {
     );
   }
 
-  modificarPlato(id: number, request: ModificarPlatoRequestDto): Observable<Plato> {
-    return this.api.put<{ mensaje: string }>(`${this.endpoint}/${id}`, request).pipe(
-      map(() => this.mapModificarRequestToDomain(id, request))
+  modificarPlato(id: number, request: ModificarPlatoRequestDto, archivo?: File): Observable<Plato> {
+    const formData = this.modificarPlatoAFormData(request, archivo);
+    return this.api.put<ModificarPlatoResponseDto>(`${this.endpoint}/${id}`, formData).pipe(
+      map(response => this.mapDetalleBasicoToDomain(response.plato))
     );
+  }
+
+  private modificarPlatoAFormData(request: ModificarPlatoRequestDto, archivo?: File): FormData {
+    const formData = new FormData();
+    formData.append('Nombre', request.nombre);
+    formData.append('PrecioVentaFinal', request.precioVentaFinal.toString().replace('.', ','));
+    formData.append('TiempoPreparacionBase', request.tiempoPreparacionBase.toString());
+    formData.append('TipoPlatoId', request.tipoPlatoId.toString());
+    formData.append('CategoriaPlatoId', request.categoriaPlatoId.toString());
+    formData.append('EsPrecioManual', request.esPrecioManual ? 'true' : 'false');
+    formData.append('EsVisibleEnCarta', request.esVisibleEnCarta ? 'true' : 'false');
+
+    if (request.descripcion) {
+      formData.append('Descripcion', request.descripcion);
+    }
+    if (request.restriccionesIds && request.restriccionesIds.length > 0) {
+      request.restriccionesIds.forEach((id, index) => {
+        formData.append(`RestriccionesIds[${index}]`, id.toString());
+      });
+    }
+    if (request.ingredientes && request.ingredientes.length > 0) {
+      request.ingredientes.forEach((ingrediente, index) => {
+        formData.append(`Ingredientes[${index}].InsumoId`, ingrediente.insumoId.toString());
+        formData.append(`Ingredientes[${index}].Cantidad`, ingrediente.cantidad.toString().replace('.', ','));
+        formData.append(`Ingredientes[${index}].Opcional`, ingrediente.opcional ? 'true' : 'false');
+      });
+    }
+    if (archivo) {
+      formData.append('Imagen', archivo);
+    }
+    return formData;
   }
 
   recalcularPrecioAutomatico(platoId: number, porcentajeGanancia: number): Observable<Plato> {
@@ -166,7 +202,6 @@ export class PlatoApiService {
           esPrecioManual: false,
           tipoPlatoId: detalle.tipoPlatoId!,
           categoriaPlatoId: detalle.categoriaPlatoId!,
-          urlImagen: detalle.imagen,
           esVisibleEnCarta: detalle.visible,
           restriccionesIds: detalle.restriccionesIds ?? [],
           ingredientes: (detalle.receta ?? []).map(ingrediente => ({
@@ -302,24 +337,24 @@ export class PlatoApiService {
     };
   }
 
-  private mapModificarRequestToDomain(id: number, request: ModificarPlatoRequestDto): Plato {
+  private mapDetalleBasicoToDomain(dto: DetallePlatoResponseDto): Plato {
     return {
-      id,
-      nombre: request.nombre,
-      descripcion: request.descripcion,
-      precioVenta: request.precioVentaFinal,
+      id: dto.id,
+      nombre: dto.nombre,
+      descripcion: dto.descripcion,
+      precioVenta: dto.precioVentaFinal,
       costo: 0,
-      tiempo: request.tiempoPreparacionBase,
-      tiempoPreparacion: request.tiempoPreparacionBase,
-      tipoPlatoId: request.tipoPlatoId,
-      categoriaPlatoId: request.categoriaPlatoId,
-      esPrecioManual: request.esPrecioManual,
+      tiempo: dto.tiempoPreparacionBase,
+      tiempoPreparacion: dto.tiempoPreparacionBase,
+      tipoPlatoId: dto.tipoPlatoId,
+      categoriaPlatoId: dto.categoriaPlatoId,
+      esPrecioManual: dto.esPrecioManual,
       tipo: '',
       categoria: '',
-      restriccionesIds: request.restriccionesIds,
-      visible: request.esVisibleEnCarta,
-      imagen: request.urlImagen,
-      receta: request.ingredientes.map(ingrediente => ({
+      restriccionesIds: dto.restriccionesIds ?? [],
+      visible: dto.esVisibleEnCarta,
+      imagen: dto.urlImagen || '',
+      receta: (dto.ingredientes ?? []).map(ingrediente => ({
         id: ingrediente.insumoId,
         nombre: '',
         cantidad: ingrediente.cantidad,

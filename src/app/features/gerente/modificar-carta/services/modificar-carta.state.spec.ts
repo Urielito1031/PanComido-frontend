@@ -30,7 +30,6 @@ describe('ModificarCartaStateService', () => {
           nombre: data.nombre,
           precioVenta: data.precioVentaFinal,
           visible: data.esVisibleEnCarta,
-          imagen: data.urlImagen,
           receta: data.ingredientes.map((ingrediente: any) => ({
             id: ingrediente.insumoId,
             nombre: '',
@@ -161,11 +160,10 @@ describe('ModificarCartaStateService', () => {
       esPrecioManual: false,
       tipoPlatoId: 1,
       categoriaPlatoId: 1,
-      urlImagen: '',
       esVisibleEnCarta: true,
       restriccionesIds: [],
       ingredientes: []
-    });
+    }, undefined);
     const updated = service.platos().find(p => p.id === 1);
     expect(updated?.nombre).toBe('Milanesa Napolitana Suprema');
     expect(updated?.precioVenta).toBe(150);
