@@ -153,13 +153,13 @@
 }
 
 .reporte-card-icon.ventas {
-  background: rgba(2, 89, 108, 0.08);
-  color: #02596c;
+  background: rgba(15, 23, 42, 0.08);
+  color: #0f172a;
 }
 
 .reporte-card-icon.personal {
-  background: rgba(240, 143, 26, 0.1);
-  color: #f08f1a;
+  background: rgba(71, 85, 105, 0.08);
+  color: #475569;
 }
 
 .reporte-card-body {
@@ -226,7 +226,7 @@
 }
 
 .reporte-requiere-rango.no-date {
-  color: #02596c;
+  color: #0f172a;
 }
 
 /* ── Botones de descarga ── */
@@ -263,27 +263,27 @@
 }
 
 .reporte-download-btn.ventas {
-  background: #02596c;
+  background: #0f172a;
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(2, 89, 108, 0.18);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.18);
 }
 
 .reporte-download-btn.ventas:hover:not(:disabled) {
-  background: #024f60;
+  background: #1e293b;
   transform: translateY(-1px);
-  box-shadow: 0 8px 18px rgba(2, 89, 108, 0.22);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.22);
 }
 
 .reporte-download-btn.personal {
-  background: #f08f1a;
+  background: #475569;
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(240, 143, 26, 0.18);
+  box-shadow: 0 4px 12px rgba(71, 85, 105, 0.18);
 }
 
 .reporte-download-btn.personal:hover:not(:disabled) {
-  background: #d97e16;
+  background: #334155;
   transform: translateY(-1px);
-  box-shadow: 0 8px 18px rgba(240, 143, 26, 0.22);
+  box-shadow: 0 8px 18px rgba(71, 85, 105, 0.22);
 }
 
 .reporte-download-btn:disabled {

@@ -5,75 +5,173 @@
         <span class="material-symbols-outlined">arrow_back</span>
       </button>
       <div>
+        <p class="eyebrow mb-1">Alta de producto</p>
         <h1 class="page-title mb-0">Crear un plato</h1>
-        <p class="page-subtitle mb-0">Registrá el plato, su receta y cómo se verá en carta.</p>
+        <p class="page-subtitle mb-0">Completá la información en orden y revisá costo, receta y publicación.</p>
       </div>
     </div>
   </header>
 
-  <div class="create-layout">
-    <aside class="media-panel">
-      <div class="image-preview-card" [class.image-error]="errorImagen()">
-            <input type="file" id="dishFileInput" accept="image/*" style="display:none" (change)="onFileSelected($event)">
-            <label for="dishFileInput" class="edit-photo-icon" 
-            title="Subir foto" 
-            aria-label="Subir foto" 
-            style="cursor: pointer; margin: 0;">
-              <span class="material-symbols-outlined">edit</span>
-            </label>
-            @if (previsualizarImagen()) {
-              <img [src]="previsualizarImagen()" class="dish-image-large img-fluid shadow-sm" alt="Vista previa del plato">
-            } @else {
-              <label for="dishFileInput" class="image-placeholder d-flex flex-column
-              align-items-center justify-content-center w-100 m-0" style="cursor: pointer;">
-              <span class="material-symbols-outlined placeholder-icon">add_photo_alternate</span>
-              <span class="placeholder-text small mt-2">Añadir foto desde tu PC</span>
-            </label>
-          }
-        </div>
-        @if (errorImagen()) {
-          <span class="error-text text-center mt-1">La imagen del plato es obligatoria.</span>
+  <section class="wizard-shell">
+    <div class="stepper-card">
+      <div class="progress-track">
+        <span class="progress-fill" [style.width]="progressWidth()"></span>
+      </div>
+      <div class="stepper-grid">
+        @for (step of steps; track step.label; let index = $index) {
+          <button
+            type="button"
+            class="step-item"
+            [class.active]="activeStep() === index"
+            [class.done]="pasoCompleto(index)"
+            [disabled]="index > activeStep()"
+            (click)="onIrAPaso(index)">
+            <span class="step-icon">
+              <span class="material-symbols-outlined">{{ pasoCompleto(index) ? 'check' : step.icon }}</span>
+            </span>
+            <span class="step-copy">
+              <strong>{{ step.label }}</strong>
+              <small>{{ step.helper }}</small>
+            </span>
+          </button>
         }
-        <p class="photo-guidance"> 
-            Para que se vea bien en carta, usá una foto horizontal, luminosa y
-            enfocada en el plato completo.
-        </p>
-        <div class="visibility-toggle-wrapper">
-          <app-toggle [active]="visible()" label="Visible en carta"
-          (toggled)="onToggleVisible()">
-          </app-toggle>
+      </div>
+    </div>
+
+    <div class="step-layout" [class.recipe-mode]="activeStep() === 1" [class.publish-mode]="activeStep() === 2">
+      <aside class="side-panel">
+        <div class="summary-status-card metrics-only">
+          <div class="summary-metrics">
+            <div>
+              <span>Ingredientes</span>
+              <strong>{{ receta().length }}</strong>
+            </div>
+            <div>
+              <span>Costo</span>
+              <strong>${{ costoSugerido() }}</strong>
+            </div>
+            <div>
+              <span>Margen</span>
+              <strong>{{ margenFinal() !== null ? margenFinal() + '%' : '—' }}</strong>
+            </div>
           </div>
-        </aside>
+        </div>
 
-    <section class="form-panel">
-      <app-crear-plato-form
-        [costoSugerido]="costoSugerido()"
-        [tiposPlato]="tiposPlato()"
-        [categoriasPlato]="categoriasPlato()"
-        [porcentajesPlatos]="porcentajesPlatos()"
-        [vegano]="vegano()"
-        [vegetariano]="vegetariano()"
-        [celiaco]="celiaco()"
-        [loading]="loading()"
-        [nombresExistentes]="nombresExistentes()"
-        (guardar)="onGuardar($event)"
-        (toggleTag)="onToggleTag($event)">
-      </app-crear-plato-form>
-    </section>
+        <div class="live-preview-card">
+          <div class="preview-media">
+            @if (previsualizarImagen()) {
+              <img [src]="previsualizarImagen()" alt="Vista previa del plato en carta">
+            } @else {
+              <div class="preview-empty">
+                <span class="material-symbols-outlined">restaurant_menu</span>
+              </div>
+            }
+            <span class="preview-visibility">{{ visible() ? 'Visible' : 'Borrador' }}</span>
+          </div>
+          <div class="preview-body">
+            <div class="preview-row">
+              <span>{{ categoriaSeleccionada() }}</span>
+              <strong>{{ formDraft().precioVenta ? '$' + formDraft().precioVenta : '$ —' }}</strong>
+            </div>
+            <h3>{{ formDraft().nombre || 'Nombre del plato' }}</h3>
+            <p>{{ formDraft().descripcion || 'La descripción se verá acá mientras completás el formulario.' }}</p>
+            <div class="preview-tags">
+              <span>{{ formDraft().tiempoPreparacion || 0 }} min</span>
+              @for (tag of tagsSeleccionados(); track tag) {
+                <span>{{ tag }}</span>
+              }
+            </div>
+          </div>
+        </div>
+      </aside>
 
-    <section class="recipe-panel">
-      <app-detalle-receta
-        [ingredientesIniciales]="receta()"
-        [ingredientesDisponibles]="ingredientesDisponibles()"
-        (recetaCambiada)="onRecetaCambiada($event)">
-      </app-detalle-receta>
-    </section>
-  </div>
+      <section class="form-panel" [class.is-hidden]="activeStep() === 1">
+        <app-crear-plato-form
+          [step]="activeStep() === 2 ? 2 : 0"
+          [previsualizarImagen]="previsualizarImagen()"
+          [errorImagen]="errorImagen()"
+          [costoSugerido]="costoSugerido()"
+          [tiposPlato]="tiposPlato()"
+          [categoriasPlato]="categoriasPlato()"
+          [porcentajesPlatos]="porcentajesPlatos()"
+          [vegano]="vegano()"
+          [vegetariano]="vegetariano()"
+          [celiaco]="celiaco()"
+          [loading]="loading()"
+          [nombresExistentes]="nombresExistentes()"
+          [resetVersion]="resetVersion()"
+          (guardar)="onGuardar($event)"
+          (continuar)="onContinuarDesdeFormulario()"
+          (volver)="onVolverPaso()"
+          (draftCambiado)="onDraftCambiado($event)"
+          (imagenSeleccionada)="onImagenSeleccionada($event)"
+          (toggleTag)="onToggleTag($event)">
+        </app-crear-plato-form>
+      </section>
 
-  <footer class="create-footer">
-    <app-boton label="Cancelar" variante="outline" tamanio="lg" (clicked)="onCancelar()" class="cancel-btn">
-    </app-boton>
-  </footer>
+      <section class="recipe-panel" [class.is-hidden]="activeStep() !== 1">
+        <div class="recipe-step-card">
+          <app-detalle-receta
+            [ingredientesIniciales]="receta()"
+            [ingredientesDisponibles]="ingredientesDisponibles()"
+            (recetaCambiada)="onRecetaCambiada($event)">
+          </app-detalle-receta>
+          <div class="recipe-actions">
+            <app-boton label="Anterior" variante="outline" tamanio="md" (clicked)="onVolverPaso()">
+            </app-boton>
+            <div class="recipe-next">
+              @if (!recetaLista()) {
+                <span>
+                  @if (receta().length === 0) {
+                    Agregá al menos un ingrediente para continuar.
+                  } @else {
+                    {{ ingredientesSinCantidad() }} ingrediente{{ ingredientesSinCantidad() !== 1 ? 's' : '' }} sin cantidad.
+                  }
+                </span>
+              }
+              <app-boton label="Continuar a precio" variante="primary" tamanio="md" [disabled]="!recetaLista()" (clicked)="onContinuarDesdeReceta()">
+              </app-boton>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="summary-panel" [class.is-hidden]="activeStep() !== 2">
+        <div class="publication-card">
+          <div class="panel-heading publication-heading">
+            <span class="material-symbols-outlined">visibility</span>
+            <div>
+              <strong>Estado en carta</strong>
+              <p>{{ visible() ? 'Publicado apenas se guarde' : 'Oculto como borrador' }}</p>
+            </div>
+          </div>
+          <div class="publication-main">
+            <div>
+              <span class="publication-label">Publicación</span>
+              <strong>{{ visible() ? 'Visible en carta' : 'Borrador oculto' }}</strong>
+              <small>{{ visible() ? 'Los clientes podrán verlo al guardar.' : 'Quedará guardado sin mostrarse al cliente.' }}</small>
+            </div>
+            <app-toggle [active]="visible()" label="" (toggled)="onToggleVisible()">
+            </app-toggle>
+          </div>
+          <div class="publication-metrics">
+            <div>
+              <span>Ingredientes</span>
+              <strong>{{ receta().length }}</strong>
+            </div>
+            <div>
+              <span>Costo estimado</span>
+              <strong>${{ costoSugerido() }}</strong>
+            </div>
+            <div>
+              <span>Precio final</span>
+              <strong>{{ formDraft().precioVenta ? '$' + formDraft().precioVenta : '—' }}</strong>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
 </div>
 
 @if (mostrarExito()) {
@@ -83,10 +181,11 @@
       <span class="material-symbols-outlined success-icon">check_circle</span>
     </div>
     <h3 class="modal-title mb-2">¡Plato guardado con éxito!</h3>
-    <p class="modal-text text-muted mb-4">El plato se ha registrado correctamente en el sistema y estará visible en la
-      carta.</p>
-    <div class="modal-action-btn">
-      <app-boton label="ACEPTAR" variante="primary" tamanio="md" (clicked)="onCerrarExito()" class="w-100 save-btn">
+    <p class="modal-text text-muted mb-4">El plato se registró correctamente. Podés volver a la carta o cargar otro producto.</p>
+    <div class="modal-action-grid">
+      <app-boton label="Crear otro" variante="outline" tamanio="md" (clicked)="onCrearOtroPlato()">
+      </app-boton>
+      <app-boton label="Ver carta" variante="primary" tamanio="md" (clicked)="onCerrarExito()" class="save-btn">
       </app-boton>
     </div>
   </div>

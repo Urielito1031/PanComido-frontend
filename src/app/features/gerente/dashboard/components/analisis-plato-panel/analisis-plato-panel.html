@@ -94,6 +94,33 @@
           </div>
           
           <div class="side-panel-body">
+            @if (detalle.esFallbackLocal) {
+              <div class="fallback-banner alert alert-info py-2 px-3 mb-3 d-flex align-items-start gap-2">
+                <span class="material-symbols-outlined text-info">info</span>
+                <div>
+                  <div class="fw-bold">IA no disponible</div>
+                  <p class="mb-0 text-xs">Se generó un análisis local de respaldo con reglas internas del sistema. Revisar antes de aplicar acciones comerciales.</p>
+                  @if (detalle.mensajeFallback) {
+                    <p class="mb-0 mt-1 text-xs text-muted">{{ detalle.mensajeFallback }}</p>
+                  }
+                </div>
+              </div>
+            } @else if (detalle.fuenteAnalisis === 'ia') {
+              <div class="ia-source-tag mb-2">
+                @if (detalle.analisisProvieneDeCache) {
+                  <span class="badge bg-light text-secondary border d-inline-flex align-items-center gap-1">
+                    <span class="material-symbols-outlined fs-6 text-muted">history</span>
+                    Análisis IA recuperado de caché
+                  </span>
+                } @else {
+                  <span class="badge bg-light text-success border d-inline-flex align-items-center gap-1">
+                    <span class="material-symbols-outlined fs-6 text-success">auto_awesome</span>
+                    Análisis generado con IA
+                  </span>
+                }
+              </div>
+            }
+
             <div class="diagnostico-box">
               <span class="material-symbols-outlined">troubleshoot</span>
               <div>

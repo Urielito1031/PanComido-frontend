@@ -244,8 +244,16 @@
           formControlName="nombre"
           placeholder="Ej: Marcelo Gallardo"
           [class.is-invalid]="userForm.get('nombre')?.touched && userForm.get('nombre')?.invalid">
-        @if (userForm.get('nombre')?.touched && userForm.get('nombre')?.hasError('required')) {
-          <span class="error-text">El nombre es requerido.</span>
+        @if (userForm.get('nombre')?.touched) {
+          @if (userForm.get('nombre')?.hasError('required')) {
+            <span class="error-text">El nombre es requerido.</span>
+          }
+          @if (userForm.get('nombre')?.hasError('minlength')) {
+            <span class="error-text">El nombre debe tener al menos 2 caracteres.</span>
+          }
+          @if (userForm.get('nombre')?.hasError('maxlength')) {
+            <span class="error-text">El nombre no puede superar los 120 caracteres.</span>
+          }
         }
       </div>
 
@@ -258,11 +266,16 @@
           formControlName="email"
           placeholder="Ej: mgallardo@pancomido.com"
           [class.is-invalid]="userForm.get('email')?.touched && userForm.get('email')?.invalid">
-        @if (userForm.get('email')?.touched && userForm.get('email')?.hasError('required')) {
-          <span class="error-text">El correo es requerido.</span>
-        }
-        @if (userForm.get('email')?.touched && userForm.get('email')?.hasError('email')) {
-          <span class="error-text">Ingrese un correo válido.</span>
+        @if (userForm.get('email')?.touched) {
+          @if (userForm.get('email')?.hasError('required')) {
+            <span class="error-text">El correo es requerido.</span>
+          }
+          @if (userForm.get('email')?.hasError('email')) {
+            <span class="error-text">Ingrese un correo válido.</span>
+          }
+          @if (userForm.get('email')?.hasError('maxlength')) {
+            <span class="error-text">El correo no puede superar los 160 caracteres.</span>
+          }
         }
       </div>
 
@@ -293,11 +306,16 @@
             </span>
           </button>
         </div>
-        @if (userForm.get('contrasenia')?.touched && userForm.get('contrasenia')?.hasError('required')) {
-          <span class="error-text">La contraseña es requerida.</span>
-        }
-        @if (userForm.get('contrasenia')?.touched && userForm.get('contrasenia')?.hasError('minlength')) {
-          <span class="error-text">Debe tener al menos 6 caracteres.</span>
+        @if (userForm.get('contrasenia')?.touched) {
+          @if (userForm.get('contrasenia')?.hasError('required')) {
+            <span class="error-text">La contraseña es requerida.</span>
+          }
+          @if (userForm.get('contrasenia')?.hasError('minlength')) {
+            <span class="error-text">La contraseña debe tener al menos 8 caracteres.</span>
+          }
+          @if (userForm.get('contrasenia')?.hasError('maxlength')) {
+            <span class="error-text">La contraseña no puede superar los 128 caracteres.</span>
+          }
         }
       </div>
 

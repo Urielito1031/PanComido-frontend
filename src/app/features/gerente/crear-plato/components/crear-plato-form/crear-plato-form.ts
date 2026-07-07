@@ -17,6 +17,18 @@ export interface PlatoFormData {
   descripcion: string;
 }
 
+export interface PlatoFormDraft {
+  nombre?: string | null;
+  costo?: number | null;
+  precioVenta?: number | null;
+  tiempoPreparacion?: number | null;
+  tipoPlatoId?: number | null;
+  categoriaPlatoId?: number | null;
+  descripcion?: string | null;
+  porcentajeGanancia?: number;
+  precioSugerido?: number | null;
+}
+
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-crear-plato-form',
@@ -37,12 +49,20 @@ export class CrearPlatoFormComponent {
   vegetariano = input<boolean>(false);
   celiaco = input<boolean>(false);
   loading = input<boolean>(false);
+  step = input<0 | 2>(0);
+  resetVersion = input<number>(0);
+  previsualizarImagen = input<string | null>(null);
+  errorImagen = input<boolean>(false);
 
   nombresExistentes = input<string[]>([]);
 
   // Outputs
   guardar = output<PlatoFormData>();
   toggleTag = output<'vegano' | 'vegetariano' | 'celiaco'>();
+  continuar = output<void>();
+  volver = output<void>();
+  draftCambiado = output<PlatoFormDraft>();
+  imagenSeleccionada = output<File>();
 
   // Form
   platoForm = this.fb.group({
@@ -72,6 +92,19 @@ export class CrearPlatoFormComponent {
       costoControl.setValue(costo);
       costoControl.markAsTouched();
     }
+  });
+
+  private readonly resetearFormulario = effect(() => {
+    this.resetVersion();
+    this.platoForm.reset({
+      nombre: '',
+      costo: 0,
+      precioVenta: 0,
+      tiempoPreparacion: 15,
+      tipoPlatoId: null,
+      categoriaPlatoId: null,
+      descripcion: ''
+    });
   });
 
   // Signals derivados del form
@@ -114,6 +147,29 @@ export class CrearPlatoFormComponent {
     return pVenta > 0 && pCosto > 0 && pVenta <= pCosto;
   });
 
+  margenFinal = computed(() => {
+    const currentVal = this.formValue();
+    const precioVenta = Number(currentVal?.precioVenta ?? 0);
+    const costo = Number(currentVal?.costo ?? 0);
+    if (precioVenta <= 0 || costo <= 0) return null;
+
+    return Math.round(((precioVenta - costo) / precioVenta) * 100);
+  });
+
+  margenBajo = computed(() => {
+    const margen = this.margenFinal();
+    return margen !== null && margen < 20;
+  });
+
+  private readonly emitirDraft = effect(() => {
+    const value = this.formValue();
+    this.draftCambiado.emit({
+      ...value,
+      porcentajeGanancia: this.porcentajeVigente(),
+      precioSugerido: this.precioConGanancia()
+    });
+  });
+
   tiempoPreparacionLegible = computed(() => {
     const minutos = Number(this.formValue()?.tiempoPreparacion ?? 0);
     if (!Number.isFinite(minutos) || minutos < 60) return '';
@@ -140,6 +196,33 @@ export class CrearPlatoFormComponent {
       categoriaPlatoId: formVal.categoriaPlatoId!,
       descripcion: formVal.descripcion!,
     });
+  }
+
+  onContinuar(): void {
+    const controls = [
+      this.platoForm.controls.nombre,
+      this.platoForm.controls.tipoPlatoId,
+      this.platoForm.controls.categoriaPlatoId,
+      this.platoForm.controls.descripcion,
+      this.platoForm.controls.tiempoPreparacion
+    ];
+
+    controls.forEach(control => control.markAsTouched());
+    if (controls.some(control => control.invalid)) return;
+
+    this.continuar.emit();
+  }
+
+  onVolver(): void {
+    this.volver.emit();
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    this.imagenSeleccionada.emit(file);
   }
 
   onToggleTag(tag: 'vegano' | 'vegetariano' | 'celiaco'): void {

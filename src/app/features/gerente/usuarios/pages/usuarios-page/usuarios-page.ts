@@ -37,8 +37,8 @@ export class UsuariosPage implements OnInit {
 
   // Form definition
   readonly userForm = this.fb.group({
-    nombre: ['', [Validators.required, Validators.minLength(3)]],
-    email: ['', [Validators.required, Validators.email]],
+    nombre: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(120)]],
+    email: ['', [Validators.required, Validators.email, Validators.maxLength(160)]],
     contrasenia: [''],
     estado: ['activo', [Validators.required]],
     rol: ['Mozo', [Validators.required]]
@@ -69,7 +69,7 @@ export class UsuariosPage implements OnInit {
     this.turnosSeleccionadosIds.set([]);
     
     // Contrasenia is required when creating
-    this.userForm.get('contrasenia')?.setValidators([Validators.required, Validators.minLength(6)]);
+    this.userForm.get('contrasenia')?.setValidators([Validators.required, Validators.minLength(8), Validators.maxLength(128)]);
     this.userForm.reset({
       nombre: '',
       email: '',
@@ -88,7 +88,7 @@ export class UsuariosPage implements OnInit {
     this.turnosSeleccionadosIds.set(empleado.turnos.map(t => t.id));
 
     // Contrasenia is optional when editing
-    this.userForm.get('contrasenia')?.setValidators([Validators.minLength(6)]);
+    this.userForm.get('contrasenia')?.setValidators([Validators.minLength(8), Validators.maxLength(128)]);
     this.userForm.reset({
       nombre: empleado.nombre,
       email: empleado.email,
@@ -116,11 +116,16 @@ export class UsuariosPage implements OnInit {
     const formVal = this.userForm.value;
     const editando = this.empleadoEditando();
 
+    const normalizarTexto = (val?: string | null) => val ? val.trim().replace(/\s+/g, ' ') : '';
+    const nombreNormalizado = normalizarTexto(formVal.nombre);
+    const emailNormalizado = normalizarTexto(formVal.email);
+    const contraseniaNormalizada = formVal.contrasenia?.trim() || null;
+
     if (editando) {
       const payload: EmpleadoEdicion = {
-        nombre: formVal.nombre!.trim(),
-        email: formVal.email!.trim(),
-        contrasenia: formVal.contrasenia?.trim() || null,
+        nombre: nombreNormalizado,
+        email: emailNormalizado,
+        contrasenia: contraseniaNormalizada,
         estado: formVal.estado as 'activo' | 'inactivo',
         rol: formVal.rol as 'Gerente' | 'Mozo' | 'Cocina',
         turnosIds: this.turnosSeleccionadosIds()
@@ -130,9 +135,9 @@ export class UsuariosPage implements OnInit {
       });
     } else {
       const payload: EmpleadoNuevo = {
-        nombre: formVal.nombre!.trim(),
-        email: formVal.email!.trim(),
-        contrasenia: formVal.contrasenia!.trim(),
+        nombre: nombreNormalizado,
+        email: emailNormalizado,
+        contrasenia: contraseniaNormalizada || '',
         estado: formVal.estado as 'activo' | 'inactivo',
         rol: formVal.rol as 'Gerente' | 'Mozo' | 'Cocina',
         turnosIds: this.turnosSeleccionadosIds()

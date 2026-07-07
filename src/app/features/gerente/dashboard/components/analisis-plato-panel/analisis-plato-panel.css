@@ -803,3 +803,21 @@
   0%, 100% { opacity: 0.6; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.02); }
 }
+
+.fallback-banner {
+  background-color: rgba(2, 89, 108, 0.05);
+  border: 1px solid rgba(2, 89, 108, 0.15);
+  border-radius: 8px;
+  color: #02596c;
+}
+
+.fallback-banner .material-symbols-outlined {
+  color: #02596c;
+}
+
+.ia-source-tag .badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+}

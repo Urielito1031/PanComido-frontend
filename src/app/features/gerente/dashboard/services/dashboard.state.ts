@@ -621,7 +621,10 @@ export class DashboardStateService implements OnDestroy {
       },
       error: (err) => {
         console.error('Error al aplicar el descuento', err);
-        this.mostrarToast('No se pudo aplicar el descuento en el servidor', 'info');
+        const mensaje = err?.error?.error
+          || err?.error?.Error
+          || 'No se pudo aplicar el descuento en el servidor';
+        this.mostrarToast(mensaje, 'info');
       }
     });
   }
