@@ -46,6 +46,9 @@
             <button class="btn-icon" type="button" title="Editar producto" (click)="editar.emit(fila.id)">
               <span class="material-symbols-outlined" aria-hidden="true">settings</span>
             </button>
+            <button class="btn-icon btn-icon-danger" type="button" title="Eliminar producto" (click)="eliminar.emit(fila.id)">
+              <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+            </button>
           </div>
         </div>
       }

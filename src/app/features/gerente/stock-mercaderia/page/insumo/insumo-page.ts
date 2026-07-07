@@ -12,13 +12,14 @@ import { StockTourService } from '../../services/stock-tour.service';
 import { ProductoForm, GuardarProductoPayload } from "../../components/producto-form/producto-form";
 import { Insumo, LoteInsumo } from '../../../../../core/models/domain/insumo';
 import { EditarBebidaFormComponent, GuardarBebidaPayload } from '../../components/editar-bebida-form/editar-bebida-form';
+import { ModalEliminarInsumoComponent } from '../../components/modal-eliminar-insumo/modal-eliminar-insumo';
 
 type EstadoStockFiltro = 'todos' | 'criticos' | 'bajos' | 'ok';
 
 @Component({
   selector: 'app-insumo',
   standalone: true,
-  imports: [InsumoList, CommonModule, PageToolbar, Buscador, Dropdown, Modal, ProductoForm, EditarBebidaFormComponent],
+  imports: [InsumoList, CommonModule, PageToolbar, Buscador, Dropdown, Modal, ProductoForm, EditarBebidaFormComponent, ModalEliminarInsumoComponent],
   templateUrl: './insumo-page.html',
   styleUrl: './insumo-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -77,11 +78,18 @@ export class InsumoPage implements OnInit {
   
   tabSeleccionada = signal<'productos' | 'bodegas' | 'lotes'>('productos');
   productoEditandoId = signal<number | null>(null);
-  
+  productoEliminandoId = signal<number | null>(null);
+
   tituloModal= computed(() => {
     return this.productoEditandoId() ? 'Editar Insumo' : 'Nuevo Insumo'
   })
   modalAbierto = signal<boolean>(false);
+
+  insumoAEliminar = computed(() => {
+    const id = this.productoEliminandoId();
+    if (!id) return null;
+    return this.state.productos().find(p => p.id === id) || null;
+  });
 
   categoriasConInfo = computed(() => {
     const productos = this.state.productos();
@@ -362,5 +370,21 @@ export class InsumoPage implements OnInit {
     this.state.guardarBebida(id, payload);
     modal.cerrar();
     this.limpiarEstadoModal();
+  }
+
+  abrirModalEliminar(id: number) {
+    this.productoEliminandoId.set(id);
+  }
+
+  cerrarModalEliminar() {
+    this.productoEliminandoId.set(null);
+  }
+
+  confirmarEliminar() {
+    const id = this.productoEliminandoId();
+    if (!id) return;
+
+    this.state.eliminarProducto(id);
+    this.productoEliminandoId.set(null);
   }
 }

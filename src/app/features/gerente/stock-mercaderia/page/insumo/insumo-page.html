@@ -309,7 +309,8 @@
     } @else {
       <app-insumo-list
         [productos]="productosPaginados()"
-        (editar)="abrirModalEditar(modalFormulario, $event)">
+        (editar)="abrirModalEditar(modalFormulario, $event)"
+        (eliminar)="abrirModalEliminar($event)">
       </app-insumo-list>
     }
   </section>
@@ -345,3 +346,11 @@
   }
 
 </app-modal>
+
+@if (insumoAEliminar(); as producto) {
+  <app-modal-eliminar-insumo
+    [producto]="producto"
+    (confirm)="confirmarEliminar()"
+    (close)="cerrarModalEliminar()">
+  </app-modal-eliminar-insumo>
+}
