@@ -1,10 +1,10 @@
 import { FormsModule } from '@angular/forms';
-import { Buscador } from '../../../../../shared/ui/buscador/buscador';
-import { RecetaIngrediente } from '../../../../../core/models/domain/plato';
-import { IngredienteDisponibleDto } from '../../../services/plato.api';
-import { factorConversionAUnidadBase } from '../../../services/plato-cost';
-import { Component, output, signal, computed, input, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { UnidadMedida } from '../../../../../core/models/domain/unidad-medida';
+import { Buscador } from '../../ui/buscador/buscador';
+import { RecetaIngrediente } from '../../../core/models/domain/plato';
+import { InsumoRecetaDisponible } from '../../../core/models/domain/receta';
+import { factorConversionAUnidadBase } from '../../../features/gerente/services/plato-cost';
+import { Component, output, signal, computed, input, effect, ChangeDetectionStrategy } from '@angular/core';
+import { UnidadMedida } from '../../../core/models/domain/unidad-medida';
 
 interface RecipeQuantityPreset {
   label: string;
@@ -19,13 +19,32 @@ interface RecipeQuantityPreset {
   templateUrl: './detalle-receta.html',
   styleUrl: './detalle-receta.css'
 })
-export class DetalleRecetaComponent implements OnInit {
+export class DetalleRecetaComponent {
   recetaCambiada = output<RecetaIngrediente[]>();
   ingredientesIniciales = input<RecetaIngrediente[]>([]);
-  ingredientesDisponibles = input<IngredienteDisponibleDto[]>([]);
+  ingredientesDisponibles = input<InsumoRecetaDisponible[]>([]);
 
   busqueda = signal<string>('');
   ingredientesSeleccionados = signal<RecetaIngrediente[]>([]);
+
+  private ultimoEmitido: RecetaIngrediente[] | null = null;
+
+  constructor() {
+    // La receta inicial puede llegar en dos tandas (ej: el plato "básico" primero
+    // y su detalle completo después, de forma asíncrona). Por eso no alcanza con
+    // leer `ingredientesIniciales` una sola vez al crear el componente: hay que
+    // reaccionar cada vez que cambie, salvo que el cambio sea el eco de lo que
+    // este mismo componente acaba de emitir (para no pisar una edición en curso).
+    effect(() => {
+      const iniciales = this.ingredientesIniciales();
+      if (iniciales === this.ultimoEmitido) return;
+
+      this.ingredientesSeleccionados.set(iniciales);
+      if (iniciales.length > 0) {
+        this.notificarCambio();
+      }
+    });
+  }
 
   ingredientesBase = computed(() => this.ingredientesSeleccionados().filter(i => !i.opcional));
   ingredientesOpcionales = computed(() => this.ingredientesSeleccionados().filter(i => i.opcional));
@@ -43,7 +62,7 @@ export class DetalleRecetaComponent implements OnInit {
     this.busqueda.set(value);
   }
 
-  agregarIngrediente(ingrediente: IngredienteDisponibleDto) {
+  agregarIngrediente(ingrediente: InsumoRecetaDisponible) {
     const nuevo: RecetaIngrediente = {
       id: ingrediente.id,
       nombre: ingrediente.nombre,
@@ -192,15 +211,9 @@ export class DetalleRecetaComponent implements OnInit {
   }
 
   private notificarCambio() {
-    this.recetaCambiada.emit(this.ingredientesSeleccionados());
-  }
-
-  ngOnInit() {
-    const iniciales = this.ingredientesIniciales();
-    if (iniciales.length > 0) {
-      this.ingredientesSeleccionados.set(iniciales);
-      this.notificarCambio();
-    }
+    const actual = this.ingredientesSeleccionados();
+    this.ultimoEmitido = actual;
+    this.recetaCambiada.emit(actual);
   }
 
   private unidadNormalizada(unidad: string | UnidadMedida): string {

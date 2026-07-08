@@ -251,6 +251,8 @@ export class ProveedorApiService {
       stockMinimo: dto.stockMinimo,
       precioVentaFinal: dto.precioVentaFinal ?? 0,
       esPrecioManual: dto.esPrecioManual,
+      esVisibleEnCarta: dto.esVisibleEnCarta,
+      costo: dto.costo,
 
       unidadMedida: {
         id: 0, 

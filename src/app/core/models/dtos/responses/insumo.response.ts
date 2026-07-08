@@ -11,4 +11,6 @@ export interface InsumoResponseDto {
   tipo: string;
   estadoStock: string;
   urlImagen: string | null;
+  esVisibleEnCarta: boolean;
+  costo: number;
 }

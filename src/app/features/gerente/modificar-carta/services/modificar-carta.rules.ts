@@ -1,4 +1,6 @@
 import { Plato } from '../../../../core/models/domain/plato';
+import { TipoArticuloCarta } from '../../../../core/models/domain/articulo-carta';
+import { PorcentajeItem } from '../../../../core/models/domain/porcentajes-ganancia';
 
 export type CartaSortOrder = 'default' | 'ventas-desc' | 'ventas-asc' | 'precio-desc' | 'precio-asc';
 
@@ -7,10 +9,21 @@ export interface TipoCartaDisponible {
   count: number;
 }
 
+export function esBebidaPreparada(plato: Plato): boolean {
+  return plato.tipo === TipoArticuloCarta.BebidaPreparada;
+}
+
 export function esBebida(plato: Plato): boolean {
-  return normalizar(plato.categoria).includes('bebida')
+  return esBebidaPreparada(plato)
+    || normalizar(plato.categoria).includes('bebida')
     || normalizar(plato.tipo).includes('bebida')
     || !!plato.bebida;
+}
+
+// BebidaPreparada no tiene categoriaInsumoId/categoriaPlatoId: su categoría de ganancia es "Con alcohol"/"Sin alcohol".
+export function categoriaGananciaBebidaPreparada(plato: Plato, porcentajesBebidas: PorcentajeItem[]): number {
+  const categoria = normalizar(plato.categoria);
+  return porcentajesBebidas.find(item => normalizar(item.descripcion) === categoria)?.porcentaje ?? 0;
 }
 
 export function tipoBebida(plato: Plato): string {

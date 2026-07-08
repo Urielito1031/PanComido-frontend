@@ -229,12 +229,12 @@
 
 /* Primary "Nuevo Plato" Button */
 .btn-premium-primary {
-  background: #bc0012;
+  background: #ff9001;
   color: #ffffff;
   border: none;
   border-radius: 8px;
   padding: 8px 20px;
-  box-shadow: 0 4px 10px rgba(188, 0, 18, 0.18);
+  box-shadow: 0 4px 10px rgba(255, 144, 1, 0.25);
   transition: all 0.2s ease;
   font-size: 0.95rem;
   display: inline-flex;
@@ -245,9 +245,9 @@
 }
 
 .btn-premium-primary:hover {
-  background: #a8041a;
+  background: #e08201;
   transform: translateY(-1px);
-  box-shadow: 0 6px 14px rgba(188, 0, 18, 0.22);
+  box-shadow: 0 6px 14px rgba(255, 144, 1, 0.3);
 }
 
 .btn-premium-primary:active {

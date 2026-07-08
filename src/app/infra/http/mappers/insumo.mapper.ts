@@ -10,6 +10,8 @@ export function mapInsumoDtoToDomain(dto: InsumoResponseDto): Insumo {
     stockMinimo: dto.stockMinimo,
     precioVentaFinal: dto.precioVentaFinal ?? 0,
     esPrecioManual: dto.esPrecioManual,
+    esVisibleEnCarta: dto.esVisibleEnCarta,
+    costo: dto.costo,
     vencimiento: dto.vencimiento ?? '',
     unidadMedida: { id: 0, nombre: dto.unidadMedida },
     categoriaIngrediente: {
@@ -32,6 +34,8 @@ export function mapDetalleInsumoDtoToDomain(dto: DetalleInsumoResponseDto): Insu
     categoriaId: dto.categoriaId,
     unidadDeMedidaId: dto.unidadDeMedidaId,
     urlImagen: dto.urlImagen,
-    tipo: dto.tipo
+    tipo: dto.tipo,
+    esVisibleEnCarta: dto.esVisibleEnCarta,
+    costo: dto.costo
   };
 }
