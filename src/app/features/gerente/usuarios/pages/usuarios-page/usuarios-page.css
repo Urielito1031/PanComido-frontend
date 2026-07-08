@@ -1,6 +1,11 @@
 .usuarios-page {
   min-height: 100%;
   background: var(--gray-50);
+  --primary-teal: #02596C;
+  --primary-orange: #f38d00;
+  --status-success: #3db955;
+  --status-danger: #b90000;
+  --status-warning: #f3c010;
 }
 
 .usuarios-layout {
@@ -31,8 +36,8 @@
 }
 
 .counter-pill {
-  background: rgba(168, 4, 26, 0.08);
-  color: #a8041a;
+  background: rgba(2, 89, 108, 0.08);
+  color: var(--primary-teal);
   padding: 0.25rem 0.75rem;
   border-radius: 999px;
   font-size: 0.8rem;
@@ -50,7 +55,7 @@
   align-items: center;
   gap: 0.45rem;
   min-height: 38px;
-  border: 1px solid rgba(168, 4, 26, 0.12);
+  border: 1px solid rgba(2, 89, 108, 0.12);
   border-radius: 8px;
   padding: 0.4rem 0.8rem;
   background: #ffffff;
@@ -62,14 +67,14 @@
 }
 
 .btn-pill-filter:hover {
-  border-color: rgba(168, 4, 26, 0.3);
-  color: #a8041a;
+  border-color: rgba(2, 89, 108, 0.3);
+  color: var(--primary-teal);
 }
 
 .btn-pill-filter.active {
-  background: rgba(168, 4, 26, 0.05);
-  border-color: #d8081c;
-  color: #d8081c;
+  background: rgba(2, 89, 108, 0.05);
+  border-color: var(--primary-teal);
+  color: var(--primary-teal);
 }
 
 .dropdown-menu-custom {
@@ -101,12 +106,12 @@
 }
 
 .dropdown-menu-custom li:hover {
-  background: rgba(168, 4, 26, 0.04);
-  color: #a8041a;
+  background: rgba(2, 89, 108, 0.04);
+  color: var(--primary-teal);
 }
 
 .dropdown-menu-custom li.active {
-  background: #d8081c;
+  background: var(--primary-teal);
   color: #ffffff;
   font-weight: 700;
 }
@@ -160,7 +165,7 @@
 }
 
 .usuario-row:hover {
-  background: rgba(168, 4, 26, 0.015);
+  background: rgba(2, 89, 108, 0.015);
 }
 
 .usuario-nombre {
@@ -178,14 +183,14 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: rgba(168, 4, 26, 0.1);
-  color: #a8041a;
+  background: rgba(2, 89, 108, 0.1);
+  color: var(--primary-teal);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 850;
   font-size: 0.8rem;
-  border: 1px solid rgba(168, 4, 26, 0.2);
+  border: 1px solid rgba(2, 89, 108, 0.2);
 }
 
 /* Status Badge */
@@ -225,9 +230,9 @@
 }
 
 .icon-action-btn:hover {
-  background: rgba(188, 0, 18, 0.06);
-  border-color: rgba(188, 0, 18, 0.22);
-  color: #bc0012;
+  background: rgba(2, 89, 108, 0.06);
+  border-color: rgba(2, 89, 108, 0.22);
+  color: var(--primary-teal);
   transform: translateY(-1px);
 }
 
@@ -306,8 +311,8 @@
 }
 
 .custom-input:focus {
-  border-color: rgba(216, 8, 28, 0.5);
-  box-shadow: 0 0 0 3px rgba(216, 8, 28, 0.15);
+  border-color: rgba(2, 89, 108, 0.5);
+  box-shadow: 0 0 0 3px rgba(2, 89, 108, 0.15);
   outline: none;
 }
 
@@ -352,13 +357,13 @@
 }
 
 .turno-card-option:hover {
-  border-color: rgba(168, 4, 26, 0.2);
-  background: rgba(168, 4, 26, 0.01);
+  border-color: rgba(2, 89, 108, 0.2);
+  background: rgba(2, 89, 108, 0.01);
 }
 
 .turno-card-option.selected {
-  border-color: #d8081c;
-  background: rgba(168, 4, 26, 0.035);
+  border-color: var(--primary-teal);
+  background: rgba(2, 89, 108, 0.035);
 }
 
 .turno-hours {
@@ -457,12 +462,12 @@
 }
 
 .btn-premium-secondary {
-  background: #ffffff;
-  color: #bc0012;
-  border: 1px solid rgba(188, 0, 18, 0.22);
+  background: var(--primary-orange);
+  color: #ffffff;
+  border: none;
   border-radius: 10px;
   padding: 8px 18px;
-  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 4px 10px rgba(243, 141, 0, 0.18);
   transition: all 0.2s ease;
   font-size: 0.95rem;
   outline: none;
@@ -470,9 +475,9 @@
 }
 
 .btn-premium-secondary:hover {
-  background: rgba(188, 0, 18, 0.06);
+  background: #d37a00;
   transform: translateY(-2px);
-  box-shadow: 0 5px 12px rgba(188, 0, 18, 0.12);
+  box-shadow: 0 5px 12px rgba(243, 141, 0, 0.12);
 }
 
 /* Tour trigger button */
@@ -491,9 +496,9 @@
 }
 
 .tour-trigger-btn:hover {
-  background: rgba(168, 4, 26, 0.04);
-  color: #a8041a;
-  border-color: rgba(168, 4, 26, 0.2);
+  background: rgba(2, 89, 108, 0.04);
+  color: var(--primary-teal);
+  border-color: rgba(2, 89, 108, 0.2);
   transform: translateY(-1px);
 }
 
@@ -532,8 +537,8 @@
 }
 
 .usuario-row.active-row {
-  background: rgba(168, 4, 26, 0.035) !important;
-  border-left: 3px solid #d8081c;
+  background: rgba(2, 89, 108, 0.035) !important;
+  border-left: 3px solid var(--primary-teal);
 }
 
 /* Detail Panel Elements */
@@ -550,7 +555,7 @@
   font-size: 0.72rem;
   font-weight: 850;
   text-transform: uppercase;
-  color: #d8081c;
+  color: var(--primary-teal);
   letter-spacing: 0.02em;
 }
 
@@ -624,7 +629,7 @@
 }
 
 .turno-detail-item:hover {
-  border-color: rgba(168, 4, 26, 0.15);
+  border-color: rgba(2, 89, 108, 0.15);
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
 }
 

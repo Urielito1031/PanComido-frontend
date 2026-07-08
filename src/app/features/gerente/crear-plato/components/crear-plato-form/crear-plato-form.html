@@ -1,234 +1,146 @@
 <div class="form-card" [formGroup]="platoForm">
-  @if (step() === 0) {
-    <div class="step-section">
-      <div class="section-kicker">Paso 1 de 3</div>
-      <h2 class="form-section-title">Identidad del plato</h2>
-      <p class="form-section-copy">Definí cómo va a aparecer en carta y cuánto tarda cocina en prepararlo.</p>
-    </div>
+  <!-- Nombre -->
+  <div class="mb-3">
+    <label class="form-label font-bold">Nombre <strong class="field-required">*</strong></label>
+    <input type="text" class="form-control custom-input"
+      [class.is-invalid]="platoForm.get('nombre')?.touched && platoForm.get('nombre')?.invalid"
+      placeholder="Ej. Suprema Maryland" formControlName="nombre">
+    @if (platoForm.get('nombre')?.touched && platoForm.get('nombre')?.hasError('required')) {
+    <span class="error-text">El nombre es requerido.</span>
+    }
+    @if (platoForm.get('nombre')?.touched && platoForm.get('nombre')?.hasError('minlength')) {
+    <span class="error-text">Debe tener al menos 3 caracteres.</span>
+    }
+    @if (platoForm.get('nombre')?.touched && platoForm.get('nombre')?.hasError('nombreExiste')) {
+    <span class="error-text">Ya existe un plato con este nombre.</span>
+    }
+  </div>
 
-    <div class="identity-layout">
-      <div class="photo-field">
-        <div class="photo-field-header">
-          <div>
-            <label class="form-label font-bold mb-1">Foto del plato <strong class="field-required">*</strong></label>
-            <span>Horizontal, luminosa y enfocada en el plato completo.</span>
-          </div>
-        </div>
-        <div class="inline-image-card" [class.image-error]="errorImagen()">
-          <input type="file" id="dishFileInput" accept="image/*" class="visually-hidden-input" (change)="onFileSelected($event)">
-          @if (previsualizarImagen()) {
-            <img [src]="previsualizarImagen()" alt="Vista previa del plato">
-            <label for="dishFileInput" class="change-photo-btn">
-              <span class="material-symbols-outlined">edit</span>
-              Cambiar
-            </label>
-          } @else {
-            <label for="dishFileInput" class="image-dropzone">
-              <span class="material-symbols-outlined">add_photo_alternate</span>
-              <strong>Subir foto</strong>
-              <small>JPG o PNG desde tu PC</small>
-            </label>
-          }
-        </div>
-        @if (errorImagen()) {
-          <span class="error-text">La imagen del plato es obligatoria.</span>
-        }
+  <!-- Costo, Ganancia & Venta -->
+  <div class="row g-3 mb-3">
+    <div class="col-4">
+      <label class="form-label font-bold cost-row-label">Costo</label>
+      <div class="input-group">
+        <span class="input-group-text">$</span>
+        <input type="number" class="form-control custom-input border-start-0" readonly
+          formControlName="costo">
       </div>
-
-      <div class="identity-fields">
-        <!-- Nombre -->
-        <div class="mb-3">
-          <label class="form-label font-bold">Nombre <strong class="field-required">*</strong></label>
-          <input type="text" class="form-control custom-input"
-            [class.is-invalid]="platoForm.get('nombre')?.touched && platoForm.get('nombre')?.invalid"
-            placeholder="Ej. Suprema Maryland" formControlName="nombre">
-          @if (platoForm.get('nombre')?.touched && platoForm.get('nombre')?.hasError('required')) {
-          <span class="error-text">El nombre es requerido.</span>
-          }
-          @if (platoForm.get('nombre')?.touched && platoForm.get('nombre')?.hasError('minlength')) {
-          <span class="error-text">Debe tener al menos 3 caracteres.</span>
-          }
-          @if (platoForm.get('nombre')?.touched && platoForm.get('nombre')?.hasError('nombreExiste')) {
-          <span class="error-text">Ya existe un plato con este nombre.</span>
-          }
-        </div>
-
-        <!-- Tipo y categoría -->
-        <div class="row g-3 mb-3">
-          <div class="col-md-6">
-            <label class="form-label font-bold">Tipo de plato <strong class="field-required">*</strong></label>
-            <div class="select-wrapper">
-              <select class="form-select custom-input"
-                [class.is-invalid]="platoForm.get('tipoPlatoId')?.touched && platoForm.get('tipoPlatoId')?.invalid"
-                formControlName="tipoPlatoId">
-                <option [ngValue]="null" disabled>Seleccione tipo...</option>
-                @for (tipo of tiposPlato(); track tipo.id) {
-                  <option [ngValue]="tipo.id">{{ tipo.descripcion }}</option>
-                }
-              </select>
-            </div>
-            @if (platoForm.get('tipoPlatoId')?.touched && platoForm.get('tipoPlatoId')?.hasError('required')) {
-            <span class="error-text">Debe seleccionar un tipo de plato.</span>
-            }
-          </div>
-
-          <div class="col-md-6">
-            <label class="form-label font-bold">Categoría <strong class="field-required">*</strong></label>
-            <div class="select-wrapper">
-              <select class="form-select custom-input"
-                [class.is-invalid]="platoForm.get('categoriaPlatoId')?.touched && platoForm.get('categoriaPlatoId')?.invalid"
-                formControlName="categoriaPlatoId">
-                <option [ngValue]="null" disabled>Seleccione categoría...</option>
-                @for (categoria of categoriasPlato(); track categoria.id) {
-                  <option [ngValue]="categoria.id">{{ categoria.descripcion }}</option>
-                }
-              </select>
-            </div>
-            @if (platoForm.get('categoriaPlatoId')?.touched && platoForm.get('categoriaPlatoId')?.hasError('required')) {
-            <span class="error-text">Debe seleccionar una categoría.</span>
-            }
-          </div>
-        </div>
-
-        <!-- Tiempo de preparación -->
-        <div class="mb-3">
-          <label class="form-label font-bold">Tiempo de preparación <strong class="field-required">*</strong></label>
-          <div class="input-group prep-time-group">
-            <span class="input-group-text">
-              <span class="material-symbols-outlined text-muted">schedule</span>
-            </span>
-            <input type="number" class="form-control custom-input border-start-0"
-              [class.is-invalid]="platoForm.get('tiempoPreparacion')?.touched && platoForm.get('tiempoPreparacion')?.invalid"
-              formControlName="tiempoPreparacion">
-            <span class="input-group-text bg-white border-start-0 text-muted">minutos</span>
-          </div>
-          @if (tiempoPreparacionLegible()) {
-          <span class="time-readable-hint">{{ tiempoPreparacionLegible() }}</span>
-          }
-          @if (platoForm.get('tiempoPreparacion')?.touched && platoForm.get('tiempoPreparacion')?.hasError('min')) {
-          <span class="error-text">Debe ser al menos 1 minuto.</span>
-          }
-        </div>
-
-        <!-- Descripción -->
-        <div class="mb-4">
-          <label class="form-label font-bold">Descripción <strong class="field-required">*</strong></label>
-          <textarea class="form-control custom-input custom-textarea"
-            [class.is-invalid]="platoForm.get('descripcion')?.touched && platoForm.get('descripcion')?.invalid" rows="4"
-            placeholder="Contá ingredientes principales, técnica o diferencial del plato."
-            formControlName="descripcion">
-          </textarea>
-          @if (platoForm.get('descripcion')?.touched && platoForm.get('descripcion')?.hasError('required')) {
-          <span class="error-text">La descripción es requerida.</span>
-          }
-          @if (platoForm.get('descripcion')?.touched && platoForm.get('descripcion')?.hasError('minlength')) {
-          <span class="error-text">La descripción debe tener al menos 8 caracteres.</span>
-          }
-        </div>
+      <span class="small-hint">Autocalculado según receta</span>
+    </div>
+    <div class="col-4">
+      <label class="form-label font-bold cost-row-label">Precio con ganancia</label>
+      <div class="input-group">
+        <span class="input-group-text">$</span>
+        <input type="number" class="form-control custom-input border-start-0" readonly
+          [value]="precioConGanancia()" placeholder="—">
       </div>
+      @if (precioConGanancia() !== null) {
+      <span class="small-hint calculated-hint">Costo + {{ porcentajeVigente() }}% de ganancia</span>
+      } @else {
+      <span class="small-hint">Elegí una categoría</span>
+      }
     </div>
+    <div class="col-4">
+      <label class="form-label font-bold cost-row-label">Venta <strong class="field-required">*</strong></label>
+      <div class="input-group">
+        <span class="input-group-text">$</span>
+        <input type="number" class="form-control custom-input border-start-0"
+          [class.is-invalid]="platoForm.get('precioVenta')?.touched && platoForm.get('precioVenta')?.invalid"
+          formControlName="precioVenta">
+      </div>
+      @if (platoForm.get('precioVenta')?.touched && platoForm.get('precioVenta')?.hasError('min')) {
+      <span class="error-text">Debe ser mayor a 0.</span>
+      }
+    </div>
+  </div>
 
-    <div class="d-flex justify-content-end">
-      <app-boton label="Continuar a receta" variante="primary" tamanio="md" (clicked)="onContinuar()">
-      </app-boton>
-    </div>
+  @if (precioEsMenorQueCosto()) {
+  <div class="alert alert-warning py-2 px-3 small mb-3">
+    <strong>Advertencia comercial:</strong> El precio de venta es menor o igual al costo de preparación del plato.
+  </div>
   }
 
-  @if (step() === 2) {
-    <div class="step-section">
-      <div class="section-kicker">Paso 3 de 3</div>
-      <h2 class="form-section-title">Precio y publicación</h2>
-      <p class="form-section-copy">Revisá el costo calculado por receta, ajustá el precio final y definí etiquetas.</p>
+  <!-- Tiempo de preparación -->
+  <div class="mb-3">
+    <label class="form-label font-bold">Tiempo de preparación <strong class="field-required">*</strong></label>
+    <div class="input-group prep-time-group">
+      <span class="input-group-text">
+        <span class="material-symbols-outlined text-muted">schedule</span>
+      </span>
+      <input type="number" class="form-control custom-input border-start-0"
+        [class.is-invalid]="platoForm.get('tiempoPreparacion')?.touched && platoForm.get('tiempoPreparacion')?.invalid"
+        formControlName="tiempoPreparacion">
+      <span class="input-group-text bg-white border-start-0 text-muted">minutos</span>
     </div>
-
-    <div class="pricing-overview mb-3">
-      <div class="pricing-metric">
-        <span>Costo receta</span>
-        <strong>${{ platoForm.get('costo')?.value }}</strong>
-      </div>
-      <div class="pricing-metric suggested">
-        <span>Precio sugerido</span>
-        <strong>{{ precioConGanancia() !== null ? '$' + precioConGanancia() : '—' }}</strong>
-        <small>{{ porcentajeVigente() }}% ganancia configurada</small>
-      </div>
-      <div class="pricing-metric">
-        <span>Margen final</span>
-        <strong>{{ margenFinal() !== null ? margenFinal() + '%' : '—' }}</strong>
-        @if (margenBajo()) {
-          <small class="warning-copy">Margen bajo</small>
-        } @else {
-          <small>Según precio de venta</small>
-        }
-      </div>
-    </div>
-
-    <!-- Costo, Ganancia & Venta -->
-    <div class="price-grid mb-3">
-      <div>
-        <label class="form-label font-bold cost-row-label">Costo</label>
-        <div class="input-group">
-          <span class="input-group-text">$</span>
-          <input type="number" class="form-control custom-input border-start-0" readonly
-            formControlName="costo">
-        </div>
-        <span class="small-hint">Autocalculado según receta</span>
-      </div>
-      <div>
-        <label class="form-label font-bold cost-row-label">Precio con ganancia</label>
-        <div class="input-group">
-          <span class="input-group-text">$</span>
-          <input type="number" class="form-control custom-input border-start-0" readonly
-            [value]="precioConGanancia()" placeholder="—">
-        </div>
-        @if (precioConGanancia() !== null) {
-        <span class="small-hint calculated-hint">Costo + {{ porcentajeVigente() }}% de ganancia</span>
-        } @else {
-        <span class="small-hint">Elegí una categoría</span>
-        }
-      </div>
-      <div>
-        <label class="form-label font-bold cost-row-label">Venta <strong class="field-required">*</strong></label>
-        <div class="input-group">
-          <span class="input-group-text">$</span>
-          <input type="number" class="form-control custom-input border-start-0"
-            [class.is-invalid]="platoForm.get('precioVenta')?.touched && platoForm.get('precioVenta')?.invalid"
-            formControlName="precioVenta">
-        </div>
-        @if (platoForm.get('precioVenta')?.touched && platoForm.get('precioVenta')?.hasError('min')) {
-        <span class="error-text">Debe ser mayor a 0.</span>
-        }
-      </div>
-    </div>
-
-    @if (precioEsMenorQueCosto()) {
-    <div class="alert alert-warning py-2 px-3 small mb-3">
-      <strong>Advertencia comercial:</strong> El precio de venta es menor o igual al costo de preparación del plato.
-    </div>
+    @if (tiempoPreparacionLegible()) {
+    <span class="time-readable-hint">{{ tiempoPreparacionLegible() }}</span>
     }
-    @if (margenBajo() && !precioEsMenorQueCosto()) {
-    <div class="alert alert-warning py-2 px-3 small mb-3">
-      <strong>Revisá el margen:</strong> el precio final deja menos del 20% de margen estimado.
-    </div>
+    @if (platoForm.get('tiempoPreparacion')?.touched && platoForm.get('tiempoPreparacion')?.hasError('min')) {
+    <span class="error-text">Debe ser al menos 1 minuto.</span>
     }
+  </div>
 
-    <!-- Diet Tags -->
-    <div class="tag-panel mb-4">
-      <span class="tag-panel-title">Restricciones y preferencias</span>
-      <div class="d-flex flex-wrap gap-2 justify-content-start mt-2">
-        <button type="button" class="diet-tag-btn" [class.active]="vegano()" (click)="onToggleTag('vegano')">
-          <span class="material-symbols-outlined">{{ vegano() ? 'check_circle' : 'eco' }}</span>
-          VEGANO
-        </button>
-        <button type="button" class="diet-tag-btn" [class.active]="vegetariano()" (click)="onToggleTag('vegetariano')">
-          <span class="material-symbols-outlined">{{ vegetariano() ? 'check_circle' : 'psychiatry' }}</span>
-          VEGETARIANO
-        </button>
-        <button type="button" class="diet-tag-btn" [class.active]="celiaco()" (click)="onToggleTag('celiaco')">
-          <span class="material-symbols-outlined">{{ celiaco() ? 'check_circle' : 'no_food' }}</span>
-          CELÍACO
-        </button>
+  <!-- Tipo y categoría -->
+  <div class="row g-3 mb-3">
+    <div class="col-6">
+      <label class="form-label font-bold">Tipo de plato <strong class="field-required">*</strong></label>
+      <div class="select-wrapper">
+        <select class="form-select custom-input"
+          [class.is-invalid]="platoForm.get('tipoPlatoId')?.touched && platoForm.get('tipoPlatoId')?.invalid"
+          formControlName="tipoPlatoId">
+          <option [ngValue]="null" disabled>Seleccione tipo...</option>
+          @for (tipo of tiposPlato(); track tipo.id) {
+            <option [ngValue]="tipo.id">{{ tipo.descripcion }}</option>
+          }
+        </select>
       </div>
+      @if (platoForm.get('tipoPlatoId')?.touched && platoForm.get('tipoPlatoId')?.hasError('required')) {
+      <span class="error-text">Debe seleccionar un tipo de plato.</span>
+      }
     </div>
+
+    <div class="col-6">
+      <label class="form-label font-bold">Categoría <strong class="field-required">*</strong></label>
+      <div class="select-wrapper">
+        <select class="form-select custom-input"
+          [class.is-invalid]="platoForm.get('categoriaPlatoId')?.touched && platoForm.get('categoriaPlatoId')?.invalid"
+          formControlName="categoriaPlatoId">
+          <option [ngValue]="null" disabled>Seleccione categoría...</option>
+          @for (categoria of categoriasPlato(); track categoria.id) {
+            <option [ngValue]="categoria.id">{{ categoria.descripcion }}</option>
+          }
+        </select>
+      </div>
+      @if (platoForm.get('categoriaPlatoId')?.touched && platoForm.get('categoriaPlatoId')?.hasError('required')) {
+      <span class="error-text">Debe seleccionar una categoría.</span>
+      }
+    </div>
+  </div>
+
+  <!-- Descripción -->
+  <div class="mb-4">
+    <label class="form-label font-bold">Descripción <strong class="field-required">*</strong></label>
+    <textarea class="form-control custom-input custom-textarea"
+      [class.is-invalid]="platoForm.get('descripcion')?.touched && platoForm.get('descripcion')?.invalid" rows="3"
+      formControlName="descripcion">
+    </textarea>
+    @if (platoForm.get('descripcion')?.touched && platoForm.get('descripcion')?.hasError('minlength')) {
+    <span class="error-text">La descripción debe tener al menos 8 caracteres.</span>
+    }
+  </div>
+
+  <!-- Diet Tags -->
+  <div class="d-flex flex-wrap gap-2 justify-content-start mb-4">
+    <button type="button" class="diet-tag-btn" [class.active]="vegano()" (click)="onToggleTag('vegano')">
+      VEGANO
+    </button>
+    <button type="button" class="diet-tag-btn" [class.active]="vegetariano()" (click)="onToggleTag('vegetariano')">
+      VEGETARIANO
+    </button>
+    <button type="button" class="diet-tag-btn" [class.active]="celiaco()" (click)="onToggleTag('celiaco')">
+      CELÍACO
+    </button>
+  </div>
 
   <!-- Botones de acción -->
   <div class="d-flex justify-content-end gap-3">

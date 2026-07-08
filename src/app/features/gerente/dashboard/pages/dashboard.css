@@ -3,6 +3,11 @@
   padding: 2rem;
   background: var(--gray-50);
   color: #0f172a;
+  --primary-teal: #02596C;
+  --primary-orange: #f38d00;
+  --status-success: #3db955;
+  --status-danger: #b90000;
+  --status-warning: #f3c010;
 }
 
 .dashboard-header {
@@ -1927,3 +1932,234 @@ h1 {
     font-size: 1.15rem;
   }
 }
+
+/* ==========================================
+   PALETTE ADAPTATIONS (Teal/Orange/Yellow/Green/Red)
+   ========================================== */
+
+/* Global page overrides */
+.eyebrow {
+  color: var(--primary-teal) !important;
+}
+
+.period-context {
+  border: 1px solid rgba(2, 89, 108, 0.12) !important;
+  background: rgba(2, 89, 108, 0.035) !important;
+}
+
+.period-context .material-symbols-outlined {
+  color: var(--primary-teal) !important;
+}
+
+.period-filter,
+.date-filter {
+  border-color: rgba(2, 89, 108, 0.12) !important;
+}
+
+.period-button:hover {
+  border-color: rgba(2, 89, 108, 0.2) !important;
+  color: var(--primary-teal) !important;
+}
+
+.period-button.active {
+  border-color: var(--primary-teal) !important;
+  background: var(--primary-teal) !important;
+}
+
+.date-field:focus-within,
+.date-filter.active .date-field {
+  border-color: rgba(2, 89, 108, 0.42) !important;
+  box-shadow: 0 0 0 3px rgba(2, 89, 108, 0.12) !important;
+}
+
+.date-filter.active label {
+  color: var(--primary-teal) !important;
+}
+
+.date-field .material-symbols-outlined {
+  color: var(--primary-teal) !important;
+}
+
+.view-tabs-list-wrapper button:hover {
+  color: var(--primary-teal) !important;
+  border-color: rgba(2, 89, 108, 0.35) !important;
+}
+
+.view-tabs-list-wrapper button.active {
+  color: var(--primary-teal) !important;
+  border-color: var(--primary-teal) !important;
+  box-shadow: 0 4px 14px rgba(2, 89, 108, 0.08) !important;
+}
+
+.summary-action-btn {
+  border: 1px solid var(--primary-orange) !important;
+  background: var(--primary-orange) !important;
+}
+
+.summary-action-btn:hover {
+  background: #d37a00 !important;
+  border-color: #d37a00 !important;
+}
+
+.customize-layout-btn {
+  border: 1px solid var(--status-warning) !important;
+  background: var(--status-warning) !important;
+  color: #0f172a !important;
+  box-shadow: 0 8px 18px rgba(243, 192, 16, 0.18) !important;
+}
+
+.customize-layout-btn:hover {
+  background: #e2b20f !important;
+  color: #0f172a !important;
+  border-color: #e2b20f !important;
+}
+
+.customize-layout-btn.editing {
+  background: var(--status-success) !important;
+  color: #ffffff !important;
+  border-color: var(--status-success) !important;
+  box-shadow: 0 8px 18px rgba(61, 185, 85, 0.18) !important;
+}
+
+.add-module-btn {
+  color: var(--primary-orange) !important;
+}
+
+.add-module-btn:hover {
+  color: #d37a00 !important;
+}
+
+.close-drawer-btn:hover {
+  color: var(--status-danger) !important;
+}
+
+.drawer-eyebrow {
+  color: var(--primary-teal) !important;
+}
+
+.preset-btn:hover {
+  border-color: var(--primary-teal) !important;
+  color: var(--primary-teal) !important;
+}
+
+.empty-favorites-action {
+  border: 1px solid var(--status-warning) !important;
+  background: var(--status-warning) !important;
+  color: #0f172a !important;
+}
+
+.empty-favorites-action:hover {
+  background: #e2b20f !important;
+  border-color: #e2b20f !important;
+  color: #0f172a !important;
+}
+
+/* Floating Navigation Action overrides */
+.floating-menu-trigger {
+  background: var(--primary-teal) !important;
+}
+
+.floating-menu-trigger:hover {
+  background: #014352 !important;
+}
+
+.floating-back-to-top:hover {
+  color: var(--primary-teal) !important;
+}
+
+.floating-menu-item:hover {
+  color: var(--primary-teal) !important;
+}
+
+.floating-menu-item:hover .material-symbols-outlined {
+  color: var(--primary-teal) !important;
+}
+
+/* KPI Card overrides */
+::ng-deep .kpi-card.revenue::before,
+::ng-deep .kpi-card.orders::before,
+::ng-deep .kpi-card.warning::before {
+  background: var(--primary-teal) !important;
+}
+
+::ng-deep .kpi-card.revenue .kpi-icon,
+::ng-deep .kpi-card.orders .kpi-icon {
+  background: rgba(2, 89, 108, 0.06) !important;
+  color: var(--primary-teal) !important;
+}
+
+::ng-deep .orders-card-detail span {
+  background: rgba(2, 89, 108, 0.035) !important;
+  border-color: rgba(2, 89, 108, 0.09) !important;
+}
+
+::ng-deep .fav-icon-btn:hover,
+::ng-deep .favorite-btn:hover,
+::ng-deep .fav-icon-btn.active,
+::ng-deep .favorite-btn.active {
+  color: var(--status-warning) !important;
+}
+
+/* Radar Alergias overrides */
+::ng-deep .badge-radar {
+  background: rgba(2, 89, 108, 0.06) !important;
+  color: var(--primary-teal) !important;
+}
+
+::ng-deep .exclusion-count {
+  color: var(--primary-teal) !important;
+}
+
+::ng-deep .tasa-badge-medium {
+  color: var(--primary-orange) !important;
+}
+
+/* Platos Mas/Menos Vendidos overrides */
+::ng-deep .rank,
+::ng-deep .ranking-value {
+  background: rgba(2, 89, 108, 0.06) !important;
+  color: var(--primary-teal) !important;
+}
+
+::ng-deep .ranking-recommendation .material-symbols-outlined {
+  background: var(--primary-teal) !important;
+}
+
+::ng-deep .tooltip-trigger {
+  color: var(--primary-teal) !important;
+  text-decoration-color: var(--primary-teal) !important;
+}
+
+/* Insumos a vencer overrides */
+::ng-deep .insumos-table th {
+  color: var(--primary-teal) !important;
+}
+
+::ng-deep .insumos-vencer-panel .badge-radar {
+  background: rgba(2, 89, 108, 0.06) !important;
+  color: var(--primary-teal) !important;
+}
+
+/* Analisis de plato panel overrides */
+::ng-deep .analisis-plato-panel .eyebrow {
+  color: var(--primary-teal) !important;
+}
+
+::ng-deep .analisis-plato-panel .metric-box .val {
+  color: var(--primary-teal) !important;
+}
+
+/* Satisfaccion Comensal - Highlight strongest vertex in Orange */
+::ng-deep .satisfaction-radar-polygon {
+  stroke: url(#radarSatStrokeGradient) !important;
+}
+
+::ng-deep .radar-dot.is-strongest {
+  fill: var(--primary-orange) !important;
+  stroke: var(--primary-orange) !important;
+}
+
+::ng-deep .radar-icon-wrapper.is-strongest .radar-vertex-icon {
+  color: var(--primary-orange) !important;
+}
+

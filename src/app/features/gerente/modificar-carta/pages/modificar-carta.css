@@ -228,22 +228,22 @@
 }
 
 .tour-trigger-btn {
-  background: rgba(247, 214, 39, 0.15);
+  background: rgba(255, 255, 255, 0.15);
   border: none;
   color: #f7d627;
 }
 
 .tour-trigger-btn .material-symbols-outlined {
-  color: #f7d627;
+  color: #60748f;
 }
 
 .tour-trigger-btn:hover {
   background: rgba(247, 214, 39, 0.25);
-  color: #f7d627;
+  color: #b49b1e94;
 }
 
 .tour-trigger-btn:hover .material-symbols-outlined {
-  color: #f7d627;
+  color: #a79124;
 }
 
 /* Primary "Nuevo Plato" Button */

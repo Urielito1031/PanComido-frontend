@@ -3,6 +3,7 @@ import { environment } from "../../../environments/environment";
 import { handleStockMock } from "../../infra/mocks/handlers/producto-stock.mock-handler";
 import { handlePlatoMock } from "../../infra/mocks/handlers/plato.mock-handler";
 import { handleProveedorMock } from "../../infra/mocks/handlers/proveedor.mock-handler";
+import { handleAvisosMock } from "../../infra/mocks/handlers/avisos.mock-handler";
 
 /**
  * Interceptor de mocks — solo actúa cuando environment.useMock === true.
@@ -20,6 +21,11 @@ export const mockInterceptor: HttpInterceptorFn = (req, next) => {
    }
 
    const url = req.url.toLowerCase();
+
+   // Avisos / IA sugerencias
+   if (url.includes('/avisos')) {
+      return handleAvisosMock(req, next);
+   }
 
    // Insumos / stock-mercadería
    if (url.includes('/insumo')) {

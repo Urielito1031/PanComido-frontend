@@ -102,16 +102,6 @@ export class CrearPlatoState {
     this.mostrarExito.set(val);
   }
 
-  resetFormulario(): void {
-    this.visible.set(true);
-    this.archivoImagen.set(null);
-    this.previsualizacionImagen.set(null);
-    this.errorImagen.set(false);
-    this.restriccionesSeleccionadas.set([]);
-    this.receta.set([]);
-    this.mostrarExito.set(false);
-  }
-
   guardarPlato(platoData: {
     nombre: string;
     costo: number;

@@ -23,8 +23,12 @@
               <svg viewBox="0 0 260 260" role="img" aria-label="Gráfico radial de satisfacción con escala máxima fija de 5">
                 <defs>
                   <linearGradient id="radarSatGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#d8081c" stop-opacity="0.3" />
-                    <stop offset="100%" stop-color="#94a3b8" stop-opacity="0.15" />
+                    <stop offset="0%" stop-color="#d8081c" stop-opacity="0.55" />
+                    <stop offset="100%" stop-color="#f38d00" stop-opacity="0.4" />
+                  </linearGradient>
+                  <linearGradient id="radarSatStrokeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#d8081c" stop-opacity="1" />
+                    <stop offset="100%" stop-color="#f38d00" stop-opacity="1" />
                   </linearGradient>
                 </defs>
                 <polygon class="radar-grid radar-grid-outer" [attr.points]="fullScalePolygon()"></polygon>
