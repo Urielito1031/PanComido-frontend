@@ -116,3 +116,19 @@
   border-color: #f87171 !important;
   background-color: #fef2f2 !important;
 }
+
+.save-spinner {
+  width: 1rem;
+  height: 1rem;
+  margin-left: 0.55rem;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: saveSpin 0.75s linear infinite;
+}
+
+@keyframes saveSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
