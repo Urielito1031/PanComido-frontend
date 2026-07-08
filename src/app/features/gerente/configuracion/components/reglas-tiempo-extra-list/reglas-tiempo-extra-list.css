@@ -1,0 +1,35 @@
+.fila-regla {
+  transition: background-color 0.4s ease;
+}
+
+.fila-exito {
+  background-color: #d1e7dd !important;
+}
+
+.fila-confirmar-borrar {
+  background-color: #f8f9fa !important;
+}
+
+.btn-icon-sm {
+  width: 28px;
+  height: 28px;
+}
+
+.btn-icon-md {
+  width: 30px;
+  height: 30px;
+}
+
+.btn-success-custom {
+  background-color: var(--status-success) !important;
+  border-color: var(--status-success) !important;
+  color: white !important;
+}
+
+.btn-success-custom:hover {
+  filter: brightness(0.95);
+}
+
+.text-success-custom {
+  color: var(--status-success) !important;
+}
