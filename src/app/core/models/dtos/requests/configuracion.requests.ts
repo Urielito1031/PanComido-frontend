@@ -35,3 +35,8 @@ export interface ActualizarDatosTransferenciaRequest {
   numeroCuenta: string;
   titularCuenta: string;
 }
+
+export interface ReglaTiempoExtraRequest {
+  porcentajeOcupacionHasta: number;
+  minutosExtra: number;
+}

@@ -145,6 +145,12 @@ toggleCategoria(categoria: string): void {
     });
   }
 
+  recargarCarta(restauranteId: number): void {
+    this._cache.delete(restauranteId);
+    this._cargandoId = null;
+    this.cargarCarta(restauranteId);
+  }
+
   setBusqueda(valor: string): void {
     this.busqueda.set(valor);
   }

@@ -16,6 +16,8 @@ import { FamiliaTipografica } from '../../../../core/models/domain/familia-tipog
 import { FilaVirtual } from '../../../../core/models/domain/fila-virtual';
 import { PorcentajesGanancia } from '../../../../core/models/domain/porcentajes-ganancia';
 import { DatosTransferencia } from '../../../../core/models/domain/datos-transferencia';
+import { ReglaTiempoExtra } from '../../../../core/models/domain/regla-tiempo-extra';
+import { ReglaTiempoExtraRequest } from '../../../../core/models/dtos/requests/configuracion.requests';
 
 @Injectable({
   providedIn: 'root',
@@ -85,6 +87,22 @@ export class ConfiguracionService {
     return this.api.get<DatosTransferencia>(`${this.endpoint}/datos-transferencia/${restauranteId}/comensal`).pipe(
       catchError((err) => err.status === 404 ? of(null) : throwError(() => err))
     );
+  }
+
+  obtenerReglasTiempoExtra(): Observable<ReglaTiempoExtra[]> {
+    return this.api.get<ReglaTiempoExtra[]>(`${this.endpoint}/tiempos-extra`);
+  }
+
+  crearReglaTiempoExtra(data: ReglaTiempoExtraRequest): Observable<ReglaTiempoExtra> {
+    return this.api.post<ReglaTiempoExtra>(`${this.endpoint}/tiempos-extra`, data);
+  }
+
+  actualizarReglaTiempoExtra(id: number, data: ReglaTiempoExtraRequest): Observable<ReglaTiempoExtra> {
+    return this.api.put<ReglaTiempoExtra>(`${this.endpoint}/tiempos-extra/${id}`, data);
+  }
+
+  eliminarReglaTiempoExtra(id: number): Observable<{ mensaje: string }> {
+    return this.api.delete<{ mensaje: string }>(`${this.endpoint}/tiempos-extra/${id}`);
   }
 
 

@@ -47,7 +47,11 @@ export class ComensalPreviewComponent {
   readonly cargando = this.cartaState.cargando;
 
   readonly displayItems = computed((): PreviewItem[] => {
-    const real = this.cartaState.items();
+    const real = [...this.cartaState.items()].sort((a, b) => {
+      if (a.esDestacado === b.esDestacado) return 0;
+      return a.esDestacado ? -1 : 1;
+    });
+
     if (real.length > 0) {
       return real.slice(0, 5).map(item => ({
         nombre: item.nombre,
