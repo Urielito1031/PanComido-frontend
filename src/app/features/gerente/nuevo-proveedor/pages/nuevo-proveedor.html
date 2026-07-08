@@ -117,21 +117,46 @@
                 </div>
               }
 
-              <ul class="category-list">
-                @for (cat of categoriasFiltradas(); track cat.id) {
-                  <li>
-                    <label class="category-checkbox">
-                      <input 
-                        type="checkbox" 
-                        [checked]="categoriaSeleccionada(cat.id)" 
-                        (change)="toggleCategoria(cat)">
-                      <span class="checkbox-pill">{{ cat.descripcion }}</span>
-                    </label>
-                  </li>
-                } @empty {
-                  <li class="empty-text">No encontramos categorias con esa busqueda.</li>
+              @if (categoriasIngredienteFiltradas().length === 0 && categoriasBebidaFiltradas().length === 0) {
+                <span class="empty-text">No encontramos categorias con esa busqueda.</span>
+              } @else {
+                @if (categoriasIngredienteFiltradas().length > 0) {
+                  <div class="category-group">
+                    <span class="category-group-title">Ingredientes</span>
+                    <ul class="category-list">
+                      @for (cat of categoriasIngredienteFiltradas(); track cat.id) {
+                        <li>
+                          <label class="category-checkbox">
+                            <input
+                              type="checkbox"
+                              [checked]="categoriaSeleccionada(cat.id)"
+                              (change)="toggleCategoria(cat)">
+                            <span class="checkbox-pill">{{ cat.descripcion }}</span>
+                          </label>
+                        </li>
+                      }
+                    </ul>
+                  </div>
                 }
-              </ul>
+                @if (categoriasBebidaFiltradas().length > 0) {
+                  <div class="category-group">
+                    <span class="category-group-title">Bebidas</span>
+                    <ul class="category-list">
+                      @for (cat of categoriasBebidaFiltradas(); track cat.id) {
+                        <li>
+                          <label class="category-checkbox">
+                            <input
+                              type="checkbox"
+                              [checked]="categoriaSeleccionada(cat.id)"
+                              (change)="toggleCategoria(cat)">
+                            <span class="checkbox-pill">{{ cat.descripcion }}</span>
+                          </label>
+                        </li>
+                      }
+                    </ul>
+                  </div>
+                }
+              }
             } @else if (!errorCategorias()) {
               <span class="empty-text">No hay categorias disponibles para asociar.</span>
             }

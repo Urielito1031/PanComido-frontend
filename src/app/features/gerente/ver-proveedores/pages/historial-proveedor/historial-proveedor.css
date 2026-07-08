@@ -18,6 +18,16 @@
   padding-inline: 0;
 }
 
+::ng-deep .btn-recibir-pedido .btn-teal {
+  background-color: #f59e0b;
+  border-color: #f59e0b;
+}
+
+::ng-deep .btn-recibir-pedido .btn-teal:hover:not(:disabled) {
+  background-color: #d97706;
+  border-color: #d97706;
+}
+
 .historial-toolbar-shell ::ng-deep .toolbar-search {
   display: none;
 }

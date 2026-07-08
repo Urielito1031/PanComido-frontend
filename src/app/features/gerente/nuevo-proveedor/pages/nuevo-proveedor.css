@@ -269,6 +269,20 @@
   list-style: none;
 }
 
+.category-group + .category-group {
+  margin-top: 0.75rem;
+}
+
+.category-group-title {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
 .category-checkbox {
   display: inline-flex;
 }

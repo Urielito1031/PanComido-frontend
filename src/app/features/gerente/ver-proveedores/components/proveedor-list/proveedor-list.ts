@@ -13,6 +13,7 @@ import { Proveedor } from '../../../../../core/models/domain/proveedor';
 export class ProveedorListComponent {
   proveedores = input.required<Proveedor[]>();
   proveedorSeleccionadoId = input<number |string| null>(null);
+  categoriasBebida = input<string[]>([]);
 
   seleccionar = output<Proveedor>();
   crearPedido = output<Proveedor>();
@@ -30,5 +31,18 @@ export class ProveedorListComponent {
 
   contactoProveedor(proveedor: Proveedor): string {
     return proveedor.telefono?.trim() || 'Sin telefono registrado';
+  }
+
+  private esCategoriaBebida(nombre: string): boolean {
+    const normalizado = nombre.toLowerCase().trim();
+    return this.categoriasBebida().some(bebida => bebida.toLowerCase().trim() === normalizado);
+  }
+
+  categoriasIngrediente(proveedor: Proveedor): string[] {
+    return (proveedor.categorias ?? []).filter(categoria => !this.esCategoriaBebida(categoria));
+  }
+
+  categoriasBebidaProveedor(proveedor: Proveedor): string[] {
+    return (proveedor.categorias ?? []).filter(categoria => this.esCategoriaBebida(categoria));
   }
 }
