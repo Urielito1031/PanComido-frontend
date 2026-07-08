@@ -57,6 +57,7 @@
         [loading]="loading()"
         [nombresExistentes]="nombresExistentes()"
         (guardar)="onGuardar($event)"
+        (cancelar)="onCancelar()"
         (toggleTag)="onToggleTag($event)">
       </app-crear-plato-form>
     </section>
@@ -69,11 +70,6 @@
       </app-detalle-receta>
     </section>
   </div>
-
-  <footer class="create-footer">
-    <app-boton label="Cancelar" variante="outline" tamanio="lg" (clicked)="onCancelar()" class="cancel-btn">
-    </app-boton>
-  </footer>
 </div>
 
 @if (mostrarExito()) {

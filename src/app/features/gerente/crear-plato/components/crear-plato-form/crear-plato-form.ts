@@ -42,6 +42,7 @@ export class CrearPlatoFormComponent {
 
   // Outputs
   guardar = output<PlatoFormData>();
+  cancelar = output<void>();
   toggleTag = output<'vegano' | 'vegetariano' | 'celiaco'>();
 
   // Form

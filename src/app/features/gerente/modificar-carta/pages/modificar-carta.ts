@@ -50,7 +50,6 @@ export class ModificarCartaComponent implements OnInit {
   readonly bodegaState = inject(BodegaState);
 
   layoutMode = signal<'grid' | 'list'>('grid');
-  isFloatingMenuOpen = signal(false);
   mostrarPanelCrearBebida = signal(false);
   mostrarPanelCrearBebidaPreparada = signal(false);
   private platoPendienteEdicion = signal<string | null>(null);
@@ -273,12 +272,6 @@ export class ModificarCartaComponent implements OnInit {
     const element = this.documento.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }
-
-  desplazarAlPrincipio() {
-    if (typeof window !== 'undefined') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 

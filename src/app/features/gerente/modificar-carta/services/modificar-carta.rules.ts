@@ -27,23 +27,7 @@ export function categoriaGananciaBebidaPreparada(plato: Plato, porcentajesBebida
 }
 
 export function tipoBebida(plato: Plato): string {
-  const tipo = plato.tipo?.trim();
-  const tipoNormalizado = normalizar(tipo);
-
-  if (tipo && tipoNormalizado !== 'bebida' && tipoNormalizado !== 'bebidas') {
-    return tipo;
-  }
-
-  const nombre = normalizar(plato.nombre);
-  if (nombre.includes('cerveza')) return 'Cerveza';
-  if (nombre.includes('vino')) return 'Vino';
-  if (nombre.includes('agua')) return 'Agua';
-  if (nombre.includes('jugo') || nombre.includes('exprimido')) return 'Jugo';
-  if (nombre.includes('coca-cola') || nombre.includes('sprite') || nombre.includes('fanta') || nombre.includes('pepsi') || nombre.includes('gaseosa')) {
-    return 'Gaseosa';
-  }
-
-  return 'Otros';
+  return plato.categoria?.trim() ?? '';
 }
 
 export function tipoComida(plato: Plato): string {

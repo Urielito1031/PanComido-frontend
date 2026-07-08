@@ -61,8 +61,8 @@
 
 .soft-input:focus {
   background-color: #ffffff;
-  border-color: #cbd5e1;
-  box-shadow: 0 0 0 4px rgba(203, 213, 225, 0.2);
+  border-color: #02596c;
+  box-shadow: 0 0 0 4px rgba(2, 89, 108, 0.15);
   outline: none;
 }
 
@@ -83,7 +83,7 @@
 .soft-input-group:focus-within .input-group-text,
 .soft-input-group:focus-within .soft-input {
   background-color: #ffffff;
-  border-color: #cbd5e1;
+  border-color: #02596c;
 }
 
 .cost-readonly-box {
@@ -122,31 +122,16 @@
   letter-spacing: 0.03em;
 }
 
-::ng-deep .save-btn .btn {
-  background-color: #0ea5e9 !important;
-  color: #ffffff !important;
-  font-weight: 700;
-  border-radius: 10px;
-  padding: 10px 24px;
-}
-
-::ng-deep .save-btn .btn:hover {
-  background-color: #0284c7 !important;
-}
-
-::ng-deep .save-btn .btn:disabled {
-  background-color: #94a3b8 !important;
-  opacity: 0.6 !important;
-}
-
 ::ng-deep .cancel-btn .btn {
   border-radius: 10px;
   font-weight: 600;
-  border: 1px solid #e2e8f0 !important;
+  border: 1px solid #a8041a !important;
   background: white !important;
-  color: #475569 !important;
+  color: #a8041a !important;
 }
 
 ::ng-deep .cancel-btn .btn:hover {
-  background: #f8fafc !important;
+  background: #fef2f2 !important;
+  border-color: #a8041a !important;
+  color: #a8041a !important;
 }

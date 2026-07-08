@@ -597,6 +597,15 @@
   color: #a8041a;
 }
 
+.dish-action-edit {
+  color: #f7d627;
+}
+
+.dish-action-edit .material-symbols-outlined,
+.dish-action-edit:hover .material-symbols-outlined {
+  color: #f7d627;
+}
+
 .dish-action-danger:hover {
   background: rgba(168, 4, 26, 0.06);
 }
