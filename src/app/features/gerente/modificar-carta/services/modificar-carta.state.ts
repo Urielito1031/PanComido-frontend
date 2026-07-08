@@ -1,12 +1,15 @@
 import { Injectable, inject, signal, computed, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PlatoApiService } from '../../services/plato.api';
+import { BebidaPreparadaApiService } from '../../services/bebida-preparada.api';
 import { Plato } from '../../../../core/models/domain/plato';
 import { InsumoDetalle } from '../../../../core/models/domain/insumo';
+import { BebidaPreparada } from '../../../../core/models/domain/bebida-preparada';
 import { PorcentajeItem } from '../../../../core/models/domain/porcentajes-ganancia';
 import { StockMercaderiaService } from '../../stock-mercaderia/services/insumos/stock-mercaderia-service';
 import { GuardarBebidaPayload } from '../../stock-mercaderia/components/editar-bebida-form/editar-bebida-form';
 import { GuardarProductoPayload } from '../../stock-mercaderia/components/producto-form/producto-form';
+import { GuardarBebidaPreparadaPayload } from '../containers/panel-bebida-preparada/panel-bebida-preparada';
 import {
   CartaSortOrder,
   esBebida,
@@ -27,6 +30,7 @@ export interface BebidaAEditar {
 @Injectable({ providedIn: 'root' })
 export class ModificarCartaStateService {
   private api = inject(PlatoApiService);
+  private bebidaPreparadaApi = inject(BebidaPreparadaApiService);
   private stockService = inject(StockMercaderiaService);
   private destroyRef = inject(DestroyRef);
 
@@ -45,6 +49,7 @@ export class ModificarCartaStateService {
   private _porcentajesPlatos = signal<PorcentajeItem[]>([]);
   private _porcentajesBebidas = signal<PorcentajeItem[]>([]);
   private _bebidaAEditar = signal<BebidaAEditar | null>(null);
+  private _bebidaPreparadaAEditar = signal<BebidaPreparada | null>(null);
 
   // 2. Estado PÚBLICO
   searchTerm = this._searchTerm.asReadonly();
@@ -61,6 +66,7 @@ export class ModificarCartaStateService {
   porcentajesPlatos = this._porcentajesPlatos.asReadonly();
   porcentajesBebidas = this._porcentajesBebidas.asReadonly();
   bebidaAEditar = this._bebidaAEditar.asReadonly();
+  bebidaPreparadaAEditar = this._bebidaPreparadaAEditar.asReadonly();
 
   // 3. Variables Derivadas (Computed)
   tiposBebidaDisponibles = computed(() => {
@@ -292,6 +298,53 @@ export class ModificarCartaStateService {
       });
   }
 
+  setBebidaPreparadaAEditar(plato: Plato | null): void {
+    if (!plato) {
+      this._bebidaPreparadaAEditar.set(null);
+      return;
+    }
+
+    this.bebidaPreparadaApi.getById(plato.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(detalle => this._bebidaPreparadaAEditar.set(detalle));
+  }
+
+  crearBebidaPreparada(payload: GuardarBebidaPreparadaPayload): void {
+    const request = {
+      nombre: payload.nombre,
+      descripcion: payload.descripcion,
+      precioVentaFinal: payload.precioVentaFinal,
+      esPrecioManual: payload.esPrecioManual,
+      esVisibleEnCarta: payload.esVisibleEnCarta,
+      insumos: payload.insumos
+    };
+
+    this.bebidaPreparadaApi.crear(request, payload.imagen!)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.cargarPlatos());
+  }
+
+  saveBebidaPreparada(payload: GuardarBebidaPreparadaPayload): void {
+    const target = this._bebidaPreparadaAEditar();
+    if (!target) return;
+
+    const request = {
+      nombre: payload.nombre,
+      descripcion: payload.descripcion,
+      precioVentaFinal: payload.precioVentaFinal,
+      esPrecioManual: payload.esPrecioManual,
+      esVisibleEnCarta: payload.esVisibleEnCarta,
+      insumos: payload.insumos
+    };
+
+    this.bebidaPreparadaApi.modificar(target.id, request, payload.imagen)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this._bebidaPreparadaAEditar.set(null);
+        this.cargarPlatos();
+      });
+  }
+
   crearBebida(payload: GuardarProductoPayload): void {
     const request = {
       nombre: payload.nombre,
@@ -304,7 +357,8 @@ export class ModificarCartaStateService {
       unidadDeMedidaId: payload.unidadDeMedidaId,
       cantidadInicial: payload.cantidadInicial!,
       bodegaId: payload.bodegaId!,
-      fechaVencimiento: payload.fechaVencimiento!
+      fechaVencimiento: payload.fechaVencimiento!,
+      esVisibleEnCarta: payload.esVisibleEnCarta
     };
 
     this.stockService.crear(request, payload.imagen)
@@ -365,6 +419,7 @@ export class ModificarCartaStateService {
     this._platoAEditar.set(null);
     this._platoAEliminar.set(null);
     this._bebidaAEditar.set(null);
+    this._bebidaPreparadaAEditar.set(null);
   }
 
   toggleRecomendado(plato: Plato): void {

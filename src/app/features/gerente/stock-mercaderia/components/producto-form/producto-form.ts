@@ -2,6 +2,7 @@ import { Component, inject, input, output, signal, ChangeDetectionStrategy } fro
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InsumoDetalle } from '../../../../../core/models/domain/insumo';
 import { Bodega } from '../../../../../core/models/domain/bodega';
+import { ToggleComponent } from '../../../../../shared/ui/toggle/toggle';
 
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { CategoriaInsumo } from '../../../../../core/models/domain/categoria-insumo';
@@ -31,12 +32,13 @@ export interface GuardarProductoPayload {
   cantidadInicial?: number;
   fechaVencimiento?: string;
   imagen?: File;
+  esVisibleEnCarta?: boolean;
 }
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-producto-form',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, ToggleComponent],
   templateUrl: './producto-form.html',
   styleUrls: ['./producto-form.css'],
 })
@@ -54,6 +56,7 @@ export class ProductoForm {
   form!: FormGroup;
   imagenPreview = signal<string | null>(null);
   archivoImagen = signal<File | null>(null);
+  visibleEnCarta = signal<boolean>(true);
 
   ngOnInit() {
     this.initForm();
@@ -113,6 +116,10 @@ export class ProductoForm {
     }
   }
 
+  onToggleVisibleEnCarta(): void {
+    this.visibleEnCarta.update(v => !v);
+  }
+
   onImagenSeleccionada(event: Event): void {
     const archivo = (event.target as HTMLInputElement).files?.[0];
     if (!archivo) return;
@@ -147,6 +154,7 @@ export class ProductoForm {
       payload.bodegaId = Number(formValue.bodegaId);
       payload.cantidadInicial = Number(formValue.stockInicial);
       payload.fechaVencimiento = formValue.fechaVencimiento;
+      payload.esVisibleEnCarta = this.visibleEnCarta();
     }
 
     this.guardar.emit(payload);
@@ -158,6 +166,7 @@ export class ProductoForm {
     });
     this.archivoImagen.set(null);
     this.imagenPreview.set(null);
+    this.visibleEnCarta.set(true);
   }
 
   getError(campo: string): string | null {

@@ -2,7 +2,7 @@
 
   <div class="carta-header">
     <h1>Modificar Carta</h1>
-    <p class="carta-header-sub">Gestioná platos, bebidas y destacados de tu menú</p>
+    <p class="carta-header-sub">Gestiona platos, bebidas y destacados de tu menú</p>
   </div>
 
   <app-page-toolbar>
@@ -80,17 +80,21 @@
       </button>
 
       <button
-        class="btn-premium-primary d-flex align-items-center gap-2"
+        class="btn-premium-primary"
         (click)="irACrearPlato()">
-        <span class="material-symbols-outlined">add</span>
-        <span class="fw-semibold">Nuevo plato</span>
+        <span class="fw-semibold">+ Plato</span>
       </button>
 
       <button
-        class="btn-premium-primary d-flex align-items-center gap-2"
+        class="btn-premium-primary"
         (click)="abrirPanelCrearBebida()">
-        <span class="material-symbols-outlined">add</span>
-        <span class="fw-semibold">Nueva bebida</span>
+        <span class="fw-semibold">+ Bebida</span>
+      </button>
+
+      <button
+        class="btn-premium-primary"
+        (click)="abrirPanelCrearBebidaPreparada()">
+        <span class="fw-semibold">+ Bebida preparada</span>
       </button>
     </div>
 
@@ -111,11 +115,6 @@
     </div>
   } @else {
 
-    <!-- Contador de resultados -->
-    <div class="carta-results-count">
-      <span>Encontrados:{{ filteredPlatos().length }} plato{{ filteredPlatos().length !== 1 ? 's' : '' }} {{ sortOrder() !== 'default' ? '· Ordenado por ' + ordenActivo().etiqueta.toLowerCase() : '' }}</span>
-    </div>
-
     @if (platosRecomendados().length > 0) {
       <div id="seccion-recomendados" class="carta-section">
         <div class="carta-section-header">
@@ -123,7 +122,6 @@
             <span class="material-symbols-outlined carta-section-icon carta-section-icon-star">star</span>
             <div>
               <h4 class="carta-section-title">Platos Recomendados</h4>
-              <p class="carta-section-sub">Ordenados por ventas</p>
             </div>
           </div>
         </div>
@@ -148,7 +146,6 @@
             <span class="material-symbols-outlined carta-section-icon">restaurant_menu</span>
             <div>
               <h4 class="carta-section-title">Platos</h4>
-              <p class="carta-section-sub">{{ platosComidas().length }} en la carta</p>
             </div>
           </div>
           
@@ -212,7 +209,6 @@
             <span class="material-symbols-outlined carta-section-icon">local_bar</span>
             <div>
               <h4 class="carta-section-title">Bebidas</h4>
-              <p class="carta-section-sub">{{ platosBebidas().length }} en la carta</p>
             </div>
           </div>
           
@@ -310,6 +306,29 @@
         (guardar)="onGuardarBebidaNueva($event)"
         (cerrar)="cerrarPanelCrearBebida()">
       </app-panel-crear-bebida>
+    }
+  }
+
+  @if (mostrarPanelCrearBebidaPreparada()) {
+    @defer (on idle) {
+      <app-panel-bebida-preparada
+        [insumosDisponibles]="insumosBebidaParaReceta()"
+        [porcentajesBebidas]="porcentajesBebidas()"
+        (guardar)="onGuardarBebidaPreparadaNueva($event)"
+        (cerrar)="cerrarPanelCrearBebidaPreparada()">
+      </app-panel-bebida-preparada>
+    }
+  }
+
+  @if (bebidaPreparadaAEditar(); as bebidaPreparada) {
+    @defer (on idle) {
+      <app-panel-bebida-preparada
+        [bebidaPreparada]="bebidaPreparada"
+        [insumosDisponibles]="insumosBebidaParaReceta()"
+        [porcentajesBebidas]="porcentajesBebidas()"
+        (guardar)="onGuardarBebidaPreparadaEditada($event)"
+        (cerrar)="onCloseModals()">
+      </app-panel-bebida-preparada>
     }
   }
 
