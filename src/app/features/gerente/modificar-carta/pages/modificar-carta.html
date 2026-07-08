@@ -333,49 +333,29 @@
   }
 
   <!-- Navegación Flotante -->
-  <div class="floating-navegacion-carta" [class.expanded]="isFloatingMenuOpen()">
-    <button
-      type="button"
-      class="btn-flotante btn-flotante-toggle"
-      (click)="isFloatingMenuOpen.update(v => !v)"
-      title="Navegación">
-      <span class="material-symbols-outlined">{{ isFloatingMenuOpen() ? 'close' : 'tune' }}</span>
-    </button>
-    @if (isFloatingMenuOpen()) {
+  <div class="floating-navegacion-carta">
     @if (platosRecomendados().length > 0) {
       <button
         type="button"
-        class="btn-flotante recomendados"
-        (click)="desplazarASeccion('seccion-recomendados'); isFloatingMenuOpen.set(false)"
-        title="Ir a Recomendados">
+        class="btn-flotante-sutil"
+        (click)="desplazarASeccion('seccion-recomendados')"
+        title="Ir a Destacados">
         <span class="material-symbols-outlined">star</span>
-        <span class="tooltip-flotante">Destacados</span>
       </button>
     }
     <button
       type="button"
-      class="btn-flotante platos"
-      (click)="desplazarASeccion('seccion-platos'); isFloatingMenuOpen.set(false)"
+      class="btn-flotante-sutil"
+      (click)="desplazarASeccion('seccion-platos')"
       title="Ir a Platos">
       <span class="material-symbols-outlined">restaurant_menu</span>
-      <span class="tooltip-flotante">Platos</span>
     </button>
     <button
       type="button"
-      class="btn-flotante bebidas"
-      (click)="desplazarASeccion('seccion-bebidas'); isFloatingMenuOpen.set(false)"
+      class="btn-flotante-sutil"
+      (click)="desplazarASeccion('seccion-bebidas')"
       title="Ir a Bebidas">
       <span class="material-symbols-outlined">local_bar</span>
-      <span class="tooltip-flotante">Bebidas</span>
     </button>
-    <button
-      type="button"
-      class="btn-flotante arriba"
-      (click)="desplazarAlPrincipio(); isFloatingMenuOpen.set(false)"
-      title="Volver arriba">
-      <span class="material-symbols-outlined">arrow_upward</span>
-      <span class="tooltip-flotante">Volver arriba</span>
-    </button>
-    }
   </div>
 </div>

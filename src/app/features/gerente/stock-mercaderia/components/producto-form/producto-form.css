@@ -100,9 +100,9 @@ label {
 }
 
 .form-control:focus {
-  border-color: #1691ac;
+  border-color: #02596c;
   background-color: #ffffff;
-  box-shadow: 0 0 0 3px rgba(22, 145, 172, 0.12);
+  box-shadow: 0 0 0 3px rgba(2, 89, 108, 0.15);
 }
 
 select.form-control {
@@ -132,26 +132,27 @@ select.form-control {
 }
 
 .btn-cancelar {
-  border: 1px solid rgba(15, 23, 42, 0.1);
+  border: 1px solid #a8041a;
   background: #ffffff;
-  color: #475569;
+  color: #a8041a;
 }
 
 .btn-cancelar:hover {
-  color: #07153a;
-  border-color: rgba(15, 23, 42, 0.18);
+  color: #a8041a;
+  background: #fef2f2;
+  border-color: #a8041a;
 }
 
 .btn-guardar {
   border: none;
-  background: linear-gradient(135deg, #fb923c 0%, #f59e0b 100%);
+  background-color: var(--status-success, #6abf3f);
   color: #ffffff;
-  box-shadow: 0 5px 14px rgba(245, 158, 11, 0.18);
+  box-shadow: 0 5px 14px rgba(106, 191, 63, 0.18);
 }
 
 .btn-guardar:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 8px 18px rgba(245, 158, 11, 0.22);
+  box-shadow: 0 8px 18px rgba(106, 191, 63, 0.22);
 }
 
 .btn-guardar:active:not(:disabled),

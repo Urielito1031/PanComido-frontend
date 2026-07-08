@@ -32,12 +32,6 @@
   </div>
 
   <div class="recipe-list">
-    <div class="recipe-list-head" aria-hidden="true">
-      <span>Ingrediente</span>
-      <span>Unidad</span>
-      <span>Acción</span>
-    </div>
-
     @if (ingredientesBase().length > 0 || ingredientesSeleccionados().length === 0) {
       @if (ingredientesSeleccionados().length > 0) {
         <div class="section-title mt-2 mb-2 px-2 text-muted fw-bold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">Ingredientes Fijos (Base)</div>
@@ -45,54 +39,58 @@
       @for (ing of ingredientesBase(); track ing.id) {
         <article class="ingredient-row">
           <div class="ingredient-cell">
-            <input type="checkbox" checked class="form-check-input ingredient-checkbox" disabled>
             <span class="ingredient-name">{{ ing.nombre }}</span>
+            <span class="badge-unidad">{{ ing.unidadMedida }}</span>
           </div>
 
           <div class="quantity-cell">
             <div class="quantity-input-row">
-              <input 
-                type="number" 
-                class="form-control form-control-sm text-center qty-input" 
-                min="0"
-                [step]="cantidadPaso(ing)"
-                [(ngModel)]="ing.cantidad" 
-                (ngModelChange)="onCantidadCambiada(ing)"
-                (focus)="onFocusCantidad(ing, $event)">
+              <div class="quantity-input-group">
+                <input
+                  type="number"
+                  class="form-control form-control-sm text-center qty-input"
+                  min="0"
+                  [step]="cantidadPaso(ing)"
+                  [(ngModel)]="ing.cantidad"
+                  (ngModelChange)="onCantidadCambiada(ing)"
+                  (focus)="onFocusCantidad(ing, $event)">
 
-              <button
-                type="button"
-                class="quantity-clear-icon"
-                title="Limpiar cantidad"
-                aria-label="Limpiar cantidad"
-                (click)="limpiarCantidad(ing)">
-                <span class="material-symbols-outlined">close</span>
-              </button>
+                <button
+                  type="button"
+                  class="quantity-clear-icon"
+                  title="Limpiar cantidad"
+                  aria-label="Limpiar cantidad"
+                  (click)="limpiarCantidad(ing)">
+                  <span class="material-symbols-outlined">close</span>
+                </button>
+              </div>
+
+              @if (presetsCantidad(ing).length > 0) {
+                <div class="quantity-presets" aria-label="Accesos rápidos de cantidad">
+                  @for (preset of presetsCantidad(ing); track preset.label) {
+                    <button
+                      type="button"
+                      class="quantity-preset"
+                      (click)="aplicarPresetCantidad(ing, preset)">
+                      {{ preset.label }}
+                    </button>
+                  }
+                </div>
+              }
             </div>
 
-            @if (presetsCantidad(ing).length > 0) {
-              <div class="quantity-presets" aria-label="Accesos rápidos de cantidad">
-                @for (preset of presetsCantidad(ing); track preset.label) {
-                  <button
-                    type="button"
-                    class="quantity-preset"
-                    (click)="aplicarPresetCantidad(ing, preset)">
-                    {{ preset.label }}
-                  </button>
+            <div class="quantity-meta-row">
+              <div class="quantity-meta-left">
+                @if (equivalenciaCantidad(ing); as equivalencia) {
+                  <strong class="quantity-equivalence">{{ equivalencia }}</strong>
                 }
               </div>
-            }
-
-            @if (equivalenciaCantidad(ing); as equivalencia) {
-              <strong class="quantity-equivalence">{{ equivalencia }}</strong>
-            }
-            <div class="quantity-cost-info mt-1 d-flex flex-wrap gap-2 text-muted" style="font-size: 0.76rem;">
-              <span>Costo: <strong>${{ ing.costoUnitario }}</strong>/{{ ing.unidadMedida }}</span>
-              <span>Subtotal: <strong>${{ calcularCostoIngrediente(ing) }}</strong></span>
+              <div class="quantity-cost-info d-flex flex-wrap gap-2 text-muted" style="font-size: 0.76rem;">
+                <span>Costo: <strong>${{ ing.costoUnitario }}</strong>/{{ ing.unidadMedida }}</span>
+                <span>Subtotal: <strong>${{ calcularCostoIngrediente(ing) }}</strong></span>
+              </div>
             </div>
           </div>
-
-          <span class="badge-unidad">{{ ing.unidadMedida }}</span>
 
           <div class="actions-cell d-flex gap-2 justify-content-end">
             <button class="btn-toggle-opcional" (click)="toggleOpcional(ing.id)" title="Hacer ingrediente opcional (removible)">
@@ -112,54 +110,58 @@
       @for (ing of ingredientesOpcionales(); track ing.id) {
         <article class="ingredient-row opcional-row">
           <div class="ingredient-cell">
-            <input type="checkbox" checked class="form-check-input ingredient-checkbox" style="opacity: 0.5;">
             <span class="ingredient-name optional-ingredient-name">{{ ing.nombre }}</span>
+            <span class="badge-unidad">{{ ing.unidadMedida }}</span>
           </div>
 
           <div class="quantity-cell">
             <div class="quantity-input-row">
-              <input 
-                type="number" 
-                class="form-control form-control-sm text-center qty-input" 
-                min="0"
-                [step]="cantidadPaso(ing)"
-                [(ngModel)]="ing.cantidad" 
-                (ngModelChange)="onCantidadCambiada(ing)"
-                (focus)="onFocusCantidad(ing, $event)">
+              <div class="quantity-input-group">
+                <input
+                  type="number"
+                  class="form-control form-control-sm text-center qty-input"
+                  min="0"
+                  [step]="cantidadPaso(ing)"
+                  [(ngModel)]="ing.cantidad"
+                  (ngModelChange)="onCantidadCambiada(ing)"
+                  (focus)="onFocusCantidad(ing, $event)">
 
-              <button
-                type="button"
-                class="quantity-clear-icon"
-                title="Limpiar cantidad"
-                aria-label="Limpiar cantidad"
-                (click)="limpiarCantidad(ing)">
-                <span class="material-symbols-outlined">close</span>
-              </button>
+                <button
+                  type="button"
+                  class="quantity-clear-icon"
+                  title="Limpiar cantidad"
+                  aria-label="Limpiar cantidad"
+                  (click)="limpiarCantidad(ing)">
+                  <span class="material-symbols-outlined">close</span>
+                </button>
+              </div>
+
+              @if (presetsCantidad(ing).length > 0) {
+                <div class="quantity-presets" aria-label="Accesos rápidos de cantidad">
+                  @for (preset of presetsCantidad(ing); track preset.label) {
+                    <button
+                      type="button"
+                      class="quantity-preset"
+                      (click)="aplicarPresetCantidad(ing, preset)">
+                      {{ preset.label }}
+                    </button>
+                  }
+                </div>
+              }
             </div>
 
-            @if (presetsCantidad(ing).length > 0) {
-              <div class="quantity-presets" aria-label="Accesos rápidos de cantidad">
-                @for (preset of presetsCantidad(ing); track preset.label) {
-                  <button
-                    type="button"
-                    class="quantity-preset"
-                    (click)="aplicarPresetCantidad(ing, preset)">
-                    {{ preset.label }}
-                  </button>
+            <div class="quantity-meta-row">
+              <div class="quantity-meta-left">
+                @if (equivalenciaCantidad(ing); as equivalencia) {
+                  <strong class="quantity-equivalence">{{ equivalencia }}</strong>
                 }
               </div>
-            }
-
-            @if (equivalenciaCantidad(ing); as equivalencia) {
-              <strong class="quantity-equivalence">{{ equivalencia }}</strong>
-            }
-            <div class="quantity-cost-info mt-1 d-flex flex-wrap gap-2 text-muted" style="font-size: 0.76rem;">
-              <span>Costo: <strong>${{ ing.costoUnitario }}</strong>/{{ ing.unidadMedida }}</span>
-              <span>Subtotal: <strong>${{ calcularCostoIngrediente(ing) }}</strong></span>
+              <div class="quantity-cost-info d-flex flex-wrap gap-2 text-muted" style="font-size: 0.76rem;">
+                <span>Costo: <strong>${{ ing.costoUnitario }}</strong>/{{ ing.unidadMedida }}</span>
+                <span>Subtotal: <strong>${{ calcularCostoIngrediente(ing) }}</strong></span>
+              </div>
             </div>
           </div>
-
-          <span class="badge-unidad">{{ ing.unidadMedida }}</span>
 
           <div class="actions-cell d-flex gap-2 justify-content-end">
             <button class="btn-toggle-opcional active" (click)="toggleOpcional(ing.id)" title="Volver a ingrediente fijo">

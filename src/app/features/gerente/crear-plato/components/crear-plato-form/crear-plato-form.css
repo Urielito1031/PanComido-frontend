@@ -35,8 +35,8 @@
 
 .custom-input:focus {
   background-color: #ffffff;
-  border-color: rgba(216, 8, 28, 0.42);
-  box-shadow: 0 0 0 4px rgba(216, 8, 28, 0.08);
+  border-color: #02596c;
+  box-shadow: 0 0 0 4px rgba(2, 89, 108, 0.15);
 }
 
 .input-group-text {
@@ -88,9 +88,9 @@
 }
 
 .diet-tag-btn.active {
-  background-color: var(--primary-red, #d8081c);
+  background-color: #02596c;
   color: #ffffff;
-  border-color: var(--primary-red, #d8081c);
+  border-color: #02596c;
 }
 
 .error-text {

@@ -62,20 +62,22 @@ describe('ModalEditarPlatoComponent', () => {
     expect(component.precioConGanancia()).toBe(1500);
   });
 
-  it('debería gestionar ingredientes, búsqueda y opcionales', () => {
+  it('debería actualizar la receta cuando el editor de receta emite cambios', () => {
     const component = fixture.componentInstance;
 
-    component.onSearchChanged('ques');
-    expect(component.sugerencias()).toHaveLength(1);
-
-    component.agregarIngrediente({ id: 11, nombre: 'Queso', unidadMedida: 'gr', costoUnitario: 2 });
+    const conQueso = [
+      ...component.receta(),
+      { id: 11, nombre: 'Queso', cantidad: 1, unidadMedida: 'GR', costoUnitario: 2, opcional: false }
+    ];
+    component.onRecetaCambiada(conQueso);
     expect(component.receta()).toHaveLength(2);
-    expect(component.busqueda()).toBe('');
 
-    component.toggleOpcional(11);
-    expect(component.ingredientesOpcionales()[0].id).toBe(11);
+    const conOpcional = component.receta().map(item => item.id === 11 ? { ...item, opcional: true } : item);
+    component.onRecetaCambiada(conOpcional);
+    expect(component.receta().find(item => item.id === 11)?.opcional).toBe(true);
 
-    component.eliminarIngrediente(11);
+    const sinQueso = component.receta().filter(item => item.id !== 11);
+    component.onRecetaCambiada(sinQueso);
     expect(component.receta()).toHaveLength(1);
   });
 
@@ -95,13 +97,15 @@ describe('ModalEditarPlatoComponent', () => {
     component.onSave();
 
     expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining({
-      nombre: 'Pizza',
-      precioVenta: 1500,
-      costo: 1000,
-      visible: false,
-      tipoPlatoId: 1,
-      categoriaPlatoId: 2,
-      restriccionesIds: [2]
+      plato: expect.objectContaining({
+        nombre: 'Pizza',
+        precioVenta: 1500,
+        costo: 1000,
+        visible: false,
+        tipoPlatoId: 1,
+        categoriaPlatoId: 2,
+        restriccionesIds: [2]
+      })
     }));
   });
 
