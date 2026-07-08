@@ -30,12 +30,37 @@
   cursor: pointer;
 }
 
-.eyebrow {
-  color: var(--primary-red, #d8081c);
-  font-size: 0.76rem;
-  font-weight: 850;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.back-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.09);
+}
+
+.create-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.58fr) minmax(460px, 1.08fr) minmax(500px, 1.18fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.media-panel,
+.form-panel,
+.recipe-panel {
+  min-width: 0;
+}
+
+.form-panel {
+  align-self: stretch;
+  display: flex;
+}
+
+.form-panel > * {
+  width: 100%;
+  display: flex;
+}
+
+.media-panel {
+  display: grid;
+  gap: 0.9rem;
 }
 
 .page-title {
@@ -296,51 +321,50 @@
   object-fit: cover;
 }
 
-.preview-empty {
+.image-placeholder {
+  height: 184px;
+  background-color: #f8fafc;
+  border-radius: 9px;
+  border: 2px dashed rgba(148, 163, 184, 0.42);
+  color: #64748b;
+  transition: all 0.2s ease;
+}
+
+.image-placeholder:hover {
+  background-color: rgba(2, 89, 108, 0.04);
+  border-color: rgba(2, 89, 108, 0.36);
+}
+
+.placeholder-icon {
+  font-size: 3rem !important;
+  opacity: 0.7;
+}
+
+.placeholder-text {
+  font-weight: 600;
+}
+
+.edit-photo-icon {
+  position: absolute;
+  right: 0.9rem;
+  top: 0.9rem;
+  z-index: 2;
   display: grid;
   place-items: center;
-  height: 100%;
-  color: #94a3b8;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(2, 89, 108, 0.16);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.88);
+  color: #02596c;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+  cursor: pointer;
+  transition: transform 0.16s ease, background 0.16s ease;
 }
 
-.preview-empty .material-symbols-outlined {
-  font-size: 3rem;
-}
-
-.preview-visibility {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  border-radius: 999px;
-  padding: 0.25rem 0.6rem;
-  background: rgba(255, 255, 255, 0.92);
-  color: #334155;
-  font-size: 0.72rem;
-  font-weight: 850;
-}
-
-.preview-body {
-  display: grid;
-  gap: 0.45rem;
-  padding: 0.95rem;
-}
-
-.preview-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.preview-row span {
-  color: var(--primary-red, #d8081c);
-  font-size: 0.76rem;
-  font-weight: 850;
-}
-
-.preview-row strong {
-  color: #111827;
-  font-size: 1rem;
+.edit-photo-icon:hover {
+  background: rgba(2, 89, 108, 0.08);
+  transform: translateY(-1px);
 }
 
 .preview-body h3 {
@@ -426,35 +450,128 @@
   padding: 0.95rem;
 }
 
-.summary-card span {
+.edit-photo-btn {
+  width: 100%;
+}
+
+.form-card {
+  border-radius: 16px;
+  background-color: #f7f7f7 !important;
+  background: #f7f7f7 !important;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+}
+
+/* === INPUTS === */
+.font-bold {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+}
+
+.field-required {
+  color: #ef4444;
+}
+
+.custom-input {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  color: #0f172a;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) inset;
+}
+
+.custom-input:focus {
+  background-color: #ffffff;
+  border-color: #02596c;
+  box-shadow: 0 0 0 4px rgba(2, 89, 108, 0.15);
+  outline: none;
+}
+
+.input-group-text {
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  font-weight: 600;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.custom-textarea {
+  resize: none;
+}
+
+/* === DIET TAGS (PILL STYLE) === */
+.diet-tag-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background-color: #f1f5f9;
+  border: none;
+  border-radius: 10px;
   color: #64748b;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.diet-tag-btn:hover {
+  background-color: #e2e8f0;
+  color: #0f172a;
+  transform: translateY(-1px);
+}
+
+.diet-tag-btn.active {
+  background-color: #02596c;
+  color: #ffffff;
+  box-shadow: 0 2px 5px rgba(2, 89, 108, 0.22);
+}
+
+/* === FOOTER BUTTONS === */
+::ng-deep .save-btn .btn {
+  background-color: var(--status-success, #6abf3f) !important;
+  color: #ffffff !important;
   font-weight: 700;
 }
 
 .summary-card strong {
   color: #111827;
   font-size: 1rem;
+  padding: 12px 32px;
+  border-radius: 12px;
+  border: none;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 10px rgba(106, 191, 63, 0.18);
 }
 
-.publication-card {
-  overflow: hidden;
+::ng-deep .save-btn .btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(106, 191, 63, 0.26);
+  background-color: #5aa832 !important;
 }
 
-.publication-heading {
-  border: 0;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 8px 8px 0 0;
+::ng-deep .cancel-btn .btn {
+  background-color: #ffffff !important;
+  border: 1px solid #a8041a !important;
+  color: #a8041a !important;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 12px 32px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
 }
 
-.publication-main {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+::ng-deep .cancel-btn .btn:hover {
+  background-color: #fef2f2 !important;
+  color: #a8041a !important;
+  border-color: #a8041a !important;
 }
 
 .publication-main > div {
@@ -482,40 +599,6 @@
   line-height: 1.3;
 }
 
-.publication-metrics {
-  display: grid;
-}
-
-.publication-metrics div {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.95rem 1rem;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-}
-
-.publication-metrics div:last-child {
-  border-bottom: 0;
-}
-
-.publication-metrics span {
-  color: #64748b;
-  font-size: 0.82rem;
-  font-weight: 800;
-}
-
-.publication-metrics strong {
-  color: #111827;
-  font-size: 1rem;
-  font-weight: 850;
-}
-
-.error-text {
-  color: #dc2626;
-  font-size: 0.78rem;
-  font-weight: 700;
-  display: block;
 }
 
 .modal-overlay {
@@ -607,11 +690,3 @@
     border-bottom: 1px solid rgba(15, 23, 42, 0.08);
   }
 
-  .recipe-actions,
-  .recipe-next,
-  .modal-action-grid {
-    align-items: stretch;
-    grid-template-columns: 1fr;
-    flex-direction: column;
-  }
-}

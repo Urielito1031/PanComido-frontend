@@ -7,4 +7,5 @@ export interface ModificarInsumoRequestDto {
   stockRecomendado: number;
   categoriaId: number;
   unidadDeMedidaId: number;
+  esVisibleEnCarta?: boolean;
 }

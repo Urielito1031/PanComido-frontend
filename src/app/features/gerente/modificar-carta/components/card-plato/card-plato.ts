@@ -4,7 +4,7 @@ import { PorcentajeItem } from '../../../../../core/models/domain/porcentajes-ga
 import { ToggleComponent } from '../../../../../shared/ui/toggle/toggle';
 import { ArsCurrencyPipe } from '../../../../../shared/pipes/ars-currency.pipe';
 import { calcularPrecioConGanancia } from '../../../services/plato-cost';
-import { esBebida } from '../../services/modificar-carta.rules';
+import { esBebida, esBebidaPreparada, categoriaGananciaBebidaPreparada } from '../../services/modificar-carta.rules';
 
 @Component({
   selector: 'app-card-plato',
@@ -74,6 +74,10 @@ export class CardPlatoComponent {
     // if (precio <= 0) return 0;
     // return Math.round(((precio - costo) / precio) * 100);
 
+    if (esBebidaPreparada(this.plato())) {
+      return categoriaGananciaBebidaPreparada(this.plato(), this.porcentajesBebidas());
+    }
+
     const categoriaId = this.categoriaGananciaId();
     if (categoriaId == null) return 0;
 
@@ -82,6 +86,11 @@ export class CardPlatoComponent {
   }
 
   obtenerPrecioSugerido(): number | null {
+    if (esBebidaPreparada(this.plato())) {
+      if (!this.plato().categoria) return null;
+      return calcularPrecioConGanancia(this.plato().costo, this.obtenerPorcentajeGanancia());
+    }
+
     if (this.categoriaGananciaId() == null) return null;
     return calcularPrecioConGanancia(this.plato().costo, this.obtenerPorcentajeGanancia());
   }

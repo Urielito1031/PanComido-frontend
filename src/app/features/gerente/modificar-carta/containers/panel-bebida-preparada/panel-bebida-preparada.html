@@ -1,0 +1,150 @@
+<div class="panel-overlay" (click)="onClose()">
+  <div class="side-panel shadow-lg bg-white" (click)="$event.stopPropagation()">
+
+    <div class="panel-header d-flex justify-content-between align-items-center p-3 border-bottom">
+      <h3 class="fw-bold fs-5 mb-0 d-flex align-items-center gap-2 text-dark">
+        <span class="material-symbols-outlined text-secondary">liquor</span>
+        {{ bebidaPreparada() ? 'Editar bebida preparada' : 'Nueva bebida preparada' }}
+      </h3>
+      <button class="btn-close-panel" (click)="onClose()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="panel-body p-4 d-flex flex-column flex-grow-1 overflow-auto">
+      <div class="mb-4">
+        <label class="form-label soft-label">Nombre</label>
+        <input
+          type="text"
+          class="form-control soft-input fs-5 fw-bold"
+          placeholder="Ej: Fernet con Coca"
+          [ngModel]="nombre()"
+          (ngModelChange)="nombre.set($event)">
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label soft-label">Descripción</label>
+        <input
+          type="text"
+          class="form-control soft-input"
+          placeholder="Opcional"
+          [ngModel]="descripcion()"
+          (ngModelChange)="descripcion.set($event)">
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label soft-label">Imagen @if (!bebidaPreparada()) { <span class="text-danger">*</span> }</label>
+        <div class="imagen-preview mb-2" [style.backgroundImage]="imagenPreview() ? 'url(' + imagenPreview() + ')' : 'none'">
+          @if (!imagenPreview()) {
+            <span class="material-symbols-outlined text-muted fs-1">add_a_photo</span>
+          }
+        </div>
+        <input type="file" accept="image/*" class="form-control soft-input" (change)="onImagenSeleccionada($event)">
+      </div>
+
+      @if (categoriaCalculada(); as categoria) {
+        <div class="mb-4">
+          <span class="badge-categoria">{{ categoria }}</span>
+          <small class="d-block text-muted mt-1">Se calcula sola según los insumos de la receta.</small>
+        </div>
+      }
+
+      <div class="row g-3 mb-4">
+        <div class="col-4">
+          <label class="form-label soft-label">Costo</label>
+          <div class="cost-readonly-box">
+            {{ costo() | arsCurrency }}
+          </div>
+          <app-price-note text="Suma de insumos de la receta x cantidad usada." [compact]="true" />
+        </div>
+
+        <div class="col-4">
+          <label class="form-label soft-label">Precio con ganancia</label>
+          <div class="cost-readonly-box">
+            {{ precioConGanancia() !== null ? (precioConGanancia() | arsCurrency) : 'Agregá insumos' }}
+          </div>
+          @if (precioConGanancia() !== null) {
+            <app-price-note [text]="'Costo + ' + porcentajeVigente() + '% de ganancia'" [compact]="true" />
+          }
+        </div>
+
+        <div class="col-4">
+          <div class="d-flex justify-content-between align-items-center">
+            <label class="form-label soft-label mb-0">Precio Venta</label>
+            <app-boton
+              label="Recalcular"
+              variante="outline"
+              tamanio="sm"
+              [disabled]="!precioEsManual() || precioConGanancia() === null"
+              [title]="precioEsManual()
+                ? 'Volver a precio automático (costo + % de ganancia)'
+                : 'Precio ya automático'"
+              (clicked)="onRecalcularPrecio()">
+            </app-boton>
+          </div>
+          <div class="input-group soft-input-group">
+            <span class="input-group-text fw-bold">$</span>
+            <input
+              type="number"
+              class="form-control soft-input fw-bold text-dark"
+              placeholder="0.00"
+              [ngModel]="precioVenta()"
+              (ngModelChange)="onPrecioVentaChange($event)"
+              (focus)="onFocusNumero($event)">
+          </div>
+
+          @if (precioVenta() && costo()) {
+            @if (precioEsMenorQueCosto()) {
+              <small class="text-danger fw-bold d-flex align-items-center gap-1 mt-1" style="font-size: 0.75rem;">
+                <span class="material-symbols-outlined" style="font-size: 1rem;">warning</span>
+                Pérdida
+              </small>
+            } @else {
+              <small class="text-success fw-bold d-flex align-items-center gap-1 mt-1" style="font-size: 0.75rem;">
+                <span class="material-symbols-outlined" style="font-size: 1rem;">trending_up</span>
+                Buen margen
+              </small>
+            }
+          }
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <app-toggle
+          [active]="visibleEnCarta()"
+          label="Visible en carta"
+          (toggled)="onToggleVisibleEnCarta()">
+        </app-toggle>
+      </div>
+
+      <div class="mt-2 flex-grow-1 d-flex flex-column">
+        <app-receta-compacta
+          [ingredientesIniciales]="receta()"
+          [ingredientesDisponibles]="insumosDisponibles()"
+          [permitirOpcional]="false"
+          [preferirUnidadesPequenas]="true"
+          (recetaCambiada)="onRecetaCambiada($event)">
+        </app-receta-compacta>
+      </div>
+    </div>
+
+    <div class="panel-footer p-3 border-top bg-light d-flex justify-content-end gap-3">
+      <app-boton
+        label="Cancelar"
+        variante="outline"
+        tamanio="md"
+        (clicked)="onClose()"
+        class="cancel-btn">
+      </app-boton>
+      <app-boton
+        [label]="bebidaPreparada() ? 'Guardar cambios' : 'Crear bebida preparada'"
+        variante="success"
+        tamanio="md"
+        (clicked)="onSave()"
+        class="save-btn shadow-sm"
+        [disabled]="!puedeGuardar()">
+      </app-boton>
+    </div>
+
+  </div>
+</div>

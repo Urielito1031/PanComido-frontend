@@ -11,6 +11,8 @@ export interface Insumo {
   stockMinimo: number;
   precioVentaFinal?: number;
   esPrecioManual: boolean;
+  esVisibleEnCarta: boolean;
+  costo: number;
 }
 
 export interface InsumoDetalle {
@@ -25,6 +27,8 @@ export interface InsumoDetalle {
   unidadDeMedidaId: number;
   urlImagen: string | null;
   tipo: string;
+  esVisibleEnCarta: boolean;
+  costo: number;
 }
 
 export interface LoteInsumo {

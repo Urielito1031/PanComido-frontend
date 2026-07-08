@@ -69,6 +69,9 @@ export class StockMercaderiaService {
     if (imagen) {
       formData.append('Imagen', imagen);
     }
+    if (producto.esVisibleEnCarta != null) {
+      formData.append('EsVisibleEnCarta', producto.esVisibleEnCarta ? 'true' : 'false');
+    }
     return formData;
   }
 
@@ -97,6 +100,9 @@ export class StockMercaderiaService {
     if (imagen) {
       formData.append('Imagen', imagen);
     }
+    if (request.esVisibleEnCarta != null) {
+      formData.append('EsVisibleEnCarta', request.esVisibleEnCarta ? 'true' : 'false');
+    }
     return formData;
   }
 
@@ -112,7 +118,9 @@ export class StockMercaderiaService {
       categoriaId: request.categoriaId,
       unidadDeMedidaId: request.unidadDeMedidaId,
       urlImagen,
-      tipo: ''
+      tipo: '',
+      esVisibleEnCarta: request.esVisibleEnCarta ?? false,
+      costo: 0
     };
   }
 

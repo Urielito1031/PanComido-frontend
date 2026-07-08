@@ -27,11 +27,9 @@ describe('modificar-carta.rules', () => {
     expect(esBebida({ ...basePlato, categoria: 'Entradas', tipo: 'Comida' })).toBe(false);
   });
 
-  it('deduce tipos de bebida conocidos cuando el tipo genérico no alcanza', () => {
-    expect(tipoBebida({ ...basePlato, nombre: 'Cerveza rubia', tipo: 'Bebida' })).toBe('Cerveza');
-    expect(tipoBebida({ ...basePlato, nombre: 'Jugo exprimido', tipo: 'Bebidas' })).toBe('Jugo');
-    expect(tipoBebida({ ...basePlato, nombre: 'Agua mineral', tipo: '' })).toBe('Agua');
-    expect(tipoBebida({ ...basePlato, nombre: 'Limonada', tipo: '' })).toBe('Otros');
+  it('agrupa bebidas por Con alcohol / Sin alcohol', () => {
+    expect(tipoBebida({ ...basePlato, categoria: 'Con alcohol' })).toBe('Con alcohol');
+    expect(tipoBebida({ ...basePlato, categoria: 'Sin alcohol' })).toBe('Sin alcohol');
   });
 
   it('normaliza plato principal como Principal para comidas', () => {

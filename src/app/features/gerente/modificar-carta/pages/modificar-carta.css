@@ -227,14 +227,33 @@
   margin-left: auto;
 }
 
+.tour-trigger-btn {
+  background: rgba(247, 214, 39, 0.15);
+  border: none;
+  color: #f7d627;
+}
+
+.tour-trigger-btn .material-symbols-outlined {
+  color: #f7d627;
+}
+
+.tour-trigger-btn:hover {
+  background: rgba(247, 214, 39, 0.25);
+  color: #f7d627;
+}
+
+.tour-trigger-btn:hover .material-symbols-outlined {
+  color: #f7d627;
+}
+
 /* Primary "Nuevo Plato" Button */
 .btn-premium-primary {
-  background: #bc0012;
+  background: #ff9001;
   color: #ffffff;
   border: none;
   border-radius: 8px;
   padding: 8px 20px;
-  box-shadow: 0 4px 10px rgba(188, 0, 18, 0.18);
+  box-shadow: 0 4px 10px rgba(255, 144, 1, 0.25);
   transition: all 0.2s ease;
   font-size: 0.95rem;
   display: inline-flex;
@@ -245,9 +264,9 @@
 }
 
 .btn-premium-primary:hover {
-  background: #a8041a;
+  background: #e08201;
   transform: translateY(-1px);
-  box-shadow: 0 6px 14px rgba(188, 0, 18, 0.22);
+  box-shadow: 0 6px 14px rgba(255, 144, 1, 0.3);
 }
 
 .btn-premium-primary:active {
@@ -285,9 +304,9 @@
 }
 
 .segmented-btn.active {
-  background-color: #bc0012;
+  background-color: #02596c;
   color: #ffffff;
-  box-shadow: 0 2px 6px rgba(188, 0, 18, 0.15);
+  box-shadow: 0 2px 6px rgba(2, 89, 108, 0.15);
 }
 
 .segmented-btn .material-symbols-outlined {
@@ -320,9 +339,9 @@
 }
 
 .btn-pill-filter.active {
-  background-color: #bc0012;
+  background-color: #02596c;
   color: #ffffff;
-  box-shadow: 0 2px 5px rgba(188, 0, 18, 0.2);
+  box-shadow: 0 2px 5px rgba(2, 89, 108, 0.2);
 }
 
 .btn-pill-filter .filter-badge {
@@ -365,22 +384,22 @@
 }
 
 .btn-sort-trigger:hover {
-  border-color: #bc0012;
-  color: #bc0012;
-  box-shadow: 0 3px 10px rgba(188, 0, 18, 0.12);
+  border-color: #02596c;
+  color: #02596c;
+  box-shadow: 0 3px 10px rgba(2, 89, 108, 0.12);
 }
 
 .btn-sort-trigger.activo {
-  background: #bc0012;
+  background: #02596c;
   border-color: transparent;
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(188, 0, 18, 0.3);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
 .btn-sort-trigger.activo:hover {
-  background: #a8041a;
+  background: #1d4ed8;
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(188, 0, 18, 0.38);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.38);
   color: #ffffff;
 }
 
@@ -425,13 +444,13 @@
 }
 
 .sort-menu-item:hover {
-  background: rgba(188, 0, 18, 0.04);
-  color: #bc0012;
+  background: rgba(37, 99, 235, 0.04);
+  color: #02596c;
 }
 
 .sort-menu-item.seleccionado {
-  background: rgba(188, 0, 18, 0.06);
-  color: #bc0012;
+  background: rgba(37, 99, 235, 0.06);
+  color: #02596c;
   font-weight: 600;
 }
 
@@ -443,7 +462,7 @@
 .sort-item-check {
   font-size: 1rem;
   margin-left: auto;
-  color: #bc0012;
+  color: #6abf3f;
 }
 
 /* Limpiar filtro chip */
@@ -483,99 +502,35 @@
 .floating-navegacion-carta {
   position: fixed;
   bottom: 2rem;
-  right: 2rem;
+  right: 1.25rem;
   display: flex;
-  flex-direction: column-reverse;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.4rem;
   z-index: 1000;
-  align-items: flex-end;
 }
 
-.btn-flotante {
-  position: relative;
-  width: 3rem;
-  height: 3rem;
+.btn-flotante-sutil {
+  width: 2.25rem;
+  height: 2.25rem;
   border-radius: 50%;
   border: none;
+  background: #02596c;
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.25);
+  box-shadow: 0 2px 8px rgba(2, 89, 108, 0.3);
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  animation: floatBtnIn 0.2s cubic-bezier(0.4, 0, 0.2, 1) both;
+  transition: all 0.2s ease;
 }
 
-@keyframes floatBtnIn {
-  from { opacity: 0; transform: scale(0.7); }
-  to { opacity: 1; transform: scale(1); }
+.btn-flotante-sutil:hover {
+  background: #013f4d;
+  transform: translateY(-1px);
 }
 
-.btn-flotante-toggle {
-  background: #0f172a;
-  width: 3.25rem;
-  height: 3.25rem;
-}
-
-.btn-flotante-toggle:hover {
-  background: #1e293b;
-  transform: scale(1.05);
-}
-
-.floating-navegacion-carta:not(.expanded) .btn-flotante-toggle {
-  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.3);
-}
-
-.btn-flotante.recomendados {
-  background: #f59e0b;
-}
-
-.btn-flotante.platos {
-  background: #bc0012;
-}
-
-.btn-flotante.bebidas {
-  background: #9333ea;
-}
-
-.btn-flotante.arriba {
-  background: #0f172a;
-}
-
-.btn-flotante:hover {
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.35);
-}
-
-.btn-flotante:active {
-  transform: translateY(-1px) scale(0.95);
-}
-
-.btn-flotante .material-symbols-outlined {
-  font-size: 1.35rem;
-}
-
-.tooltip-flotante {
-  position: absolute;
-  right: 3.75rem;
-  background: #0f172a;
-  color: #ffffff;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateX(10px);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.btn-flotante:hover .tooltip-flotante {
-  opacity: 1;
-  transform: translateX(0);
+.btn-flotante-sutil .material-symbols-outlined {
+  font-size: 1.1rem;
 }
 
 @media (max-width: 768px) {
@@ -589,22 +544,7 @@
 
   .floating-navegacion-carta {
     bottom: 1.5rem;
-    right: 1.5rem;
-    gap: 0.4rem;
-  }
-
-  .btn-flotante {
-    width: 2.75rem;
-    height: 2.75rem;
-  }
-
-  .btn-flotante-toggle {
-    width: 3rem;
-    height: 3rem;
-  }
-
-  .tooltip-flotante {
-    display: none;
+    right: 1rem;
   }
 
   .carta-skeleton-grid {

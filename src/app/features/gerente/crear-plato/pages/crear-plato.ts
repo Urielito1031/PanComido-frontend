@@ -3,8 +3,8 @@ import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { Boton } from '../../../../shared/ui/botones/boton/boton';
 import { ToggleComponent } from '../../../../shared/ui/toggle/toggle';
-import { DetalleRecetaComponent } from '../components/detalle-receta/detalle-receta';
-import { CrearPlatoFormComponent, PlatoFormData, PlatoFormDraft } from '../components/crear-plato-form/crear-plato-form';
+import { DetalleRecetaComponent } from '../../../../shared/components/detalle-receta/detalle-receta';
+import { CrearPlatoFormComponent, PlatoFormData } from '../components/crear-plato-form/crear-plato-form';
 import { RecetaIngrediente } from '../../../../core/models/domain/plato';
 import { CrearPlatoState } from '../services/crear-plato.state';
 

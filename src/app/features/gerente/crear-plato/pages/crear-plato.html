@@ -57,121 +57,31 @@
           </div>
         </div>
 
-        <div class="live-preview-card">
-          <div class="preview-media">
-            @if (previsualizarImagen()) {
-              <img [src]="previsualizarImagen()" alt="Vista previa del plato en carta">
-            } @else {
-              <div class="preview-empty">
-                <span class="material-symbols-outlined">restaurant_menu</span>
-              </div>
-            }
-            <span class="preview-visibility">{{ visible() ? 'Visible' : 'Borrador' }}</span>
-          </div>
-          <div class="preview-body">
-            <div class="preview-row">
-              <span>{{ categoriaSeleccionada() }}</span>
-              <strong>{{ formDraft().precioVenta ? '$' + formDraft().precioVenta : '$ —' }}</strong>
-            </div>
-            <h3>{{ formDraft().nombre || 'Nombre del plato' }}</h3>
-            <p>{{ formDraft().descripcion || 'La descripción se verá acá mientras completás el formulario.' }}</p>
-            <div class="preview-tags">
-              <span>{{ formDraft().tiempoPreparacion || 0 }} min</span>
-              @for (tag of tagsSeleccionados(); track tag) {
-                <span>{{ tag }}</span>
-              }
-            </div>
-          </div>
-        </div>
-      </aside>
+    <section class="form-panel">
+      <app-crear-plato-form
+        [costoSugerido]="costoSugerido()"
+        [tiposPlato]="tiposPlato()"
+        [categoriasPlato]="categoriasPlato()"
+        [porcentajesPlatos]="porcentajesPlatos()"
+        [vegano]="vegano()"
+        [vegetariano]="vegetariano()"
+        [celiaco]="celiaco()"
+        [loading]="loading()"
+        [nombresExistentes]="nombresExistentes()"
+        (guardar)="onGuardar($event)"
+        (cancelar)="onCancelar()"
+        (toggleTag)="onToggleTag($event)">
+      </app-crear-plato-form>
+    </section>
 
-      <section class="form-panel" [class.is-hidden]="activeStep() === 1">
-        <app-crear-plato-form
-          [step]="activeStep() === 2 ? 2 : 0"
-          [previsualizarImagen]="previsualizarImagen()"
-          [errorImagen]="errorImagen()"
-          [costoSugerido]="costoSugerido()"
-          [tiposPlato]="tiposPlato()"
-          [categoriasPlato]="categoriasPlato()"
-          [porcentajesPlatos]="porcentajesPlatos()"
-          [vegano]="vegano()"
-          [vegetariano]="vegetariano()"
-          [celiaco]="celiaco()"
-          [loading]="loading()"
-          [nombresExistentes]="nombresExistentes()"
-          [resetVersion]="resetVersion()"
-          (guardar)="onGuardar($event)"
-          (continuar)="onContinuarDesdeFormulario()"
-          (volver)="onVolverPaso()"
-          (draftCambiado)="onDraftCambiado($event)"
-          (imagenSeleccionada)="onImagenSeleccionada($event)"
-          (toggleTag)="onToggleTag($event)">
-        </app-crear-plato-form>
-      </section>
-
-      <section class="recipe-panel" [class.is-hidden]="activeStep() !== 1">
-        <div class="recipe-step-card">
-          <app-detalle-receta
-            [ingredientesIniciales]="receta()"
-            [ingredientesDisponibles]="ingredientesDisponibles()"
-            (recetaCambiada)="onRecetaCambiada($event)">
-          </app-detalle-receta>
-          <div class="recipe-actions">
-            <app-boton label="Anterior" variante="outline" tamanio="md" (clicked)="onVolverPaso()">
-            </app-boton>
-            <div class="recipe-next">
-              @if (!recetaLista()) {
-                <span>
-                  @if (receta().length === 0) {
-                    Agregá al menos un ingrediente para continuar.
-                  } @else {
-                    {{ ingredientesSinCantidad() }} ingrediente{{ ingredientesSinCantidad() !== 1 ? 's' : '' }} sin cantidad.
-                  }
-                </span>
-              }
-              <app-boton label="Continuar a precio" variante="primary" tamanio="md" [disabled]="!recetaLista()" (clicked)="onContinuarDesdeReceta()">
-              </app-boton>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <aside class="summary-panel" [class.is-hidden]="activeStep() !== 2">
-        <div class="publication-card">
-          <div class="panel-heading publication-heading">
-            <span class="material-symbols-outlined">visibility</span>
-            <div>
-              <strong>Estado en carta</strong>
-              <p>{{ visible() ? 'Publicado apenas se guarde' : 'Oculto como borrador' }}</p>
-            </div>
-          </div>
-          <div class="publication-main">
-            <div>
-              <span class="publication-label">Publicación</span>
-              <strong>{{ visible() ? 'Visible en carta' : 'Borrador oculto' }}</strong>
-              <small>{{ visible() ? 'Los clientes podrán verlo al guardar.' : 'Quedará guardado sin mostrarse al cliente.' }}</small>
-            </div>
-            <app-toggle [active]="visible()" label="" (toggled)="onToggleVisible()">
-            </app-toggle>
-          </div>
-          <div class="publication-metrics">
-            <div>
-              <span>Ingredientes</span>
-              <strong>{{ receta().length }}</strong>
-            </div>
-            <div>
-              <span>Costo estimado</span>
-              <strong>${{ costoSugerido() }}</strong>
-            </div>
-            <div>
-              <span>Precio final</span>
-              <strong>{{ formDraft().precioVenta ? '$' + formDraft().precioVenta : '—' }}</strong>
-            </div>
-          </div>
-        </div>
-      </aside>
-    </div>
-  </section>
+    <section class="recipe-panel">
+      <app-detalle-receta
+        [ingredientesIniciales]="receta()"
+        [ingredientesDisponibles]="ingredientesDisponibles()"
+        (recetaCambiada)="onRecetaCambiada($event)">
+      </app-detalle-receta>
+    </section>
+  </div>
 </div>
 
 @if (mostrarExito()) {

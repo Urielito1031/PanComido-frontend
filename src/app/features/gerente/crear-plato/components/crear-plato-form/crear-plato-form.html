@@ -230,12 +230,11 @@
       </div>
     </div>
 
-    <!-- Botones de acción -->
-    <div class="d-flex justify-content-between gap-3 form-actions">
-      <app-boton label="Anterior" variante="outline" tamanio="md" (clicked)="onVolver()">
-      </app-boton>
-      <app-boton label="Guardar plato" variante="primary" tamanio="md" [disabled]="loading()" (clicked)="onGuardar()">
-      </app-boton>
-    </div>
-  }
+  <!-- Botones de acción -->
+  <div class="d-flex justify-content-end gap-3">
+    <app-boton label="Cancelar" variante="outline" tamanio="md" (clicked)="cancelar.emit()" class="cancel-btn">
+    </app-boton>
+    <app-boton label="GUARDAR" variante="success" tamanio="md" [disabled]="loading()" (clicked)="onGuardar()" class="save-btn">
+    </app-boton>
+  </div>
 </div>
