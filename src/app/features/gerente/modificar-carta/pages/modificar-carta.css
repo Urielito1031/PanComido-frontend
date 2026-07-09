@@ -228,6 +228,10 @@
 }
 
 .tour-trigger-btn {
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.15);
   border: none;
   color: #f7d627;
@@ -540,6 +544,7 @@
 
   .carta-toolbar-filtros {
     gap: 0.5rem;
+    flex-wrap: wrap;
   }
 
   .floating-navegacion-carta {
@@ -549,5 +554,33 @@
 
   .carta-skeleton-grid {
     grid-template-columns: 1fr;
+  }
+
+  /* Header buttons compact mobile */
+  ::ng-deep [acciones] {
+    flex-wrap: nowrap;
+    gap: 0.375rem;
+  }
+
+  .btn-premium-primary {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    border-radius: 6px;
+  }
+
+  .btn-premium-primary .btn-plus {
+    display: none;
+  }
+
+  .tour-trigger-btn {
+    padding: 5px;
+  }
+
+  .segmented-control {
+    padding: 3px;
+  }
+
+  .segmented-btn {
+    padding: 5px 10px;
   }
 }

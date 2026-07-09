@@ -1,0 +1,29 @@
+<div class="modal-overlay">
+  <div class="modal-content">
+    <button class="close-btn" type="button" (click)="close.emit()">X</button>
+    <div class="modal-icon">
+      <span class="material-symbols-outlined">delete</span>
+    </div>
+
+    <h2>Eliminar lote</h2>
+    <p>
+      Vas a eliminar el lote <strong>{{ lote().nombre }}</strong>
+      @if (insumoNombre()) {
+      del insumo <strong>{{ insumoNombre() }}</strong>
+      }.
+    </p>
+    <p class="warning-text">Esta acción no se puede deshacer.</p>
+
+    @if (errorAPI()) {
+    <div class="error-box">{{ errorAPI() }}</div>
+    }
+
+    <div class="modal-actions">
+      <button class="btn-cancelar" type="button" (click)="close.emit()" [disabled]="eliminando()">Cancelar</button>
+      <button class="btn-eliminar" type="button" (click)="confirm.emit()" [disabled]="eliminando()">
+        {{ eliminando() ? 'Eliminando...' : 'Eliminar' }}
+      </button>
+    </div>
+  </div>
+</div>
+

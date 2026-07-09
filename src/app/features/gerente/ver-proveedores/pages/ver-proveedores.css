@@ -1556,6 +1556,51 @@
   .form-hint {
     text-align: center;
   }
+
+  /* Header buttons responsive */
+  ::ng-deep .ver-proveedores-page .page-toolbar {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  ::ng-deep .ver-proveedores-page [acciones] {
+    width: 100%;
+    margin-left: 0;
+    display: grid;
+    grid-template-columns: 42px 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .tour-trigger-btn {
+    width: 42px;
+    min-width: 42px;
+    min-height: 40px;
+    flex: 0 0 42px;
+  }
+
+  .btn-premium-primary,
+  .btn-premium-secondary {
+    width: 100%;
+    min-width: 0;
+    padding-inline: 0.82rem;
+    font-size: 0.84rem;
+  }
+
+  .btn-premium-primary .material-symbols-outlined,
+  .btn-premium-secondary .material-symbols-outlined {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  ::ng-deep .ver-proveedores-page [acciones] {
+    grid-template-columns: 42px 1fr;
+  }
+
+  .btn-premium-primary,
+  .btn-premium-secondary {
+    grid-column: 2;
+  }
 }
 
 ::ng-deep .toolbar-actions {
@@ -1568,19 +1613,28 @@
 
 /* Premium Buttons */
 .btn-premium-primary {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0 1.05rem;
   background: #f59e0b;
   color: #ffffff;
   border: none;
-  border-radius: 10px;
-  padding: 8px 20px;
+  border-radius: 8px;
   box-shadow: 0 4px 12px rgba(245, 158, 11, 0.18);
   transition: all 0.2s ease;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
 }
 
 .btn-premium-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 18px rgba(245, 158, 11, 0.22);
+  background: #d97706;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(245, 158, 11, 0.22);
 }
 
 .btn-premium-primary:active {
@@ -1588,19 +1642,27 @@
 }
 
 .btn-premium-secondary {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0 1.05rem;
   background: #ffffff;
   color: #f59e0b;
   border: 1px solid rgba(245, 158, 11, 0.32);
-  border-radius: 10px;
-  padding: 8px 18px;
+  border-radius: 8px;
   box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05);
   transition: all 0.2s ease;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
 }
 
 .btn-premium-secondary:hover {
   background: rgba(245, 158, 11, 0.08);
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   box-shadow: 0 5px 12px rgba(245, 158, 11, 0.16);
 }
 

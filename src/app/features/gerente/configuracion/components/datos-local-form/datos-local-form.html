@@ -1,10 +1,19 @@
 <div class="d-flex gap-3 align-items-start flex-nowrap">
   <div class="logo-uploader" (click)="fileInput.click()">
     @if (previewUrl(); as url) {
-    <img [src]="url" alt="Logo preview" class="img-fluid w-100 h-100" style="object-fit: contain;" />
+    <img [src]="url" alt="Logo preview" class="img-fluid w-100 h-100" style="object-fit: contain;"
+      (error)="logoError.set(true)" [class.d-none]="logoError()" />
+    @if (logoError()) {
+    <div class="overlay-text">
+      <i class="bi bi-image text-white"></i>
+      <span class="label">Subir imagen</span>
+      <span class="hint">PNG o JPG, máx. 2MB</span>
+    </div>
+    } @else {
     <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1"
       style="padding: .1rem .35rem; border-radius: 50%; font-size: .75rem; line-height: 1;"
       (click)="removerImagen(); $event.stopPropagation()">×</button>
+    }
     } @else {
     <div class="overlay-text">
       <i class="bi bi-image text-white"></i>

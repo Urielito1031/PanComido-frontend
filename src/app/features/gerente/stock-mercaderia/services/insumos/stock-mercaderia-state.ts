@@ -12,6 +12,7 @@ import { GuardarBebidaPayload } from '../../components/editar-bebida-form/editar
 import { GuardarProductoPayload } from '../../components/producto-form/producto-form';
 import { forkJoin } from 'rxjs';
 import { BodegaState } from '../bodegas/bodega-state';
+import { LoteRequest } from '../../../../../core/models/dtos/requests/lote.request';
 
 
 @Injectable({
@@ -35,12 +36,18 @@ export class StockMercaderiaState {
   readonly #detalleInsumo = signal<InsumoDetalle | null>(null);
   readonly #costoBebida = signal<number>(0);
   readonly #error = signal<string | null>(null);
+  readonly #errorLote = signal<string | null>(null);
+  readonly #guardandoLote = signal<boolean>(false);
+  readonly #eliminandoLote = signal<boolean>(false);
 
   productos = this.#productos.asReadonly();
   lotes = this.#lotes.asReadonly();
   lotesCargados = this.#lotesCargados.asReadonly();
   cargando = this.#cargando.asReadonly();
   error = this.#error.asReadonly();
+  errorLote = this.#errorLote.asReadonly();
+  guardandoLote = this.#guardandoLote.asReadonly();
+  eliminandoLote = this.#eliminandoLote.asReadonly();
   unidadMedidas = this.#unidadMedidas.asReadonly();
   categoriasInsumos = this.#categoriasInsumos.asReadonly();
   porcentajesBebidas = this.#porcentajesBebidas.asReadonly();
@@ -82,6 +89,11 @@ export class StockMercaderiaState {
         this.#lotesCargados.set(true);
       }
     });
+  }
+
+  recargarLotes(): void {
+    this.#lotesCargados.set(false);
+    this.cargarLotes();
   }
 
   cargarCatalogos(): void {
@@ -168,6 +180,49 @@ export class StockMercaderiaState {
 
   limpiarError(): void {
     this.#error.set(null);
+    this.#errorLote.set(null);
+  }
+
+  guardarLote(id: number | null, request: LoteRequest, alFinalizar?: () => void): void {
+    this.#guardandoLote.set(true);
+    this.#errorLote.set(null);
+
+    const operacion = id
+      ? this.api.modificarLote(id, request)
+      : this.api.crearLote(request);
+
+    operacion.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.#guardandoLote.set(false);
+        this.recargarLotes();
+        this.cargarMercaderia();
+        this.bodegaState.cargarBodegasConInsumos(true);
+        if (alFinalizar) alFinalizar();
+      },
+      error: (err) => {
+        this.#guardandoLote.set(false);
+        this.#errorLote.set(err.error?.error ?? err.error?.mensaje ?? 'No se pudo guardar el lote. Intentá nuevamente.');
+      }
+    });
+  }
+
+  eliminarLote(id: number, alFinalizar?: () => void): void {
+    this.#eliminandoLote.set(true);
+    this.#errorLote.set(null);
+
+    this.api.eliminarLote(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.#eliminandoLote.set(false);
+        this.recargarLotes();
+        this.cargarMercaderia();
+        this.bodegaState.cargarBodegasConInsumos(true);
+        if (alFinalizar) alFinalizar();
+      },
+      error: (err) => {
+        this.#eliminandoLote.set(false);
+        this.#errorLote.set(err.error?.error ?? err.error?.mensaje ?? 'No se pudo eliminar el lote. Intentá nuevamente.');
+      }
+    });
   }
 
   eliminarProducto(id: number): void {

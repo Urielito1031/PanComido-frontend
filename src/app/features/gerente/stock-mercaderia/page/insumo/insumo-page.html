@@ -9,18 +9,27 @@
     </app-buscador>
 
     <div acciones class="d-flex gap-2 align-items-center">
-      <button type="button" class="tour-trigger-btn" (click)="iniciarTutorial()" title="Iniciar tutorial interactivo">
+      <button type="button" class="tour-trigger-btn" (click)="iniciarTutorial()" title="Iniciar tutorial interactivo"
+        aria-label="Iniciar tutorial interactivo">
         <span class="material-symbols-outlined">help</span>
       </button>
 
-      <button class="btn-premium-primary d-flex align-items-center gap-2" (click)="abrirModalCrear(modalFormulario)">
+      <button class="btn-premium-primary btn-nuevo-producto d-flex align-items-center gap-2"
+        (click)="abrirModalCrear(modalFormulario)">
         <span class="material-symbols-outlined">add</span>
         <span class="fw-semibold">Nuevo producto</span>
       </button>
 
-      <button class="btn-premium-primary d-flex align-items-center gap-2" (click)="abrirModalBodegaCrear(modalBodega)">
+      <button class="btn-premium-primary btn-nueva-bodega d-flex align-items-center gap-2"
+        (click)="abrirModalBodegaCrear(modalBodega)">
         <span class="material-symbols-outlined">add</span>
         <span class="fw-semibold">Nueva bodega</span>
+      </button>
+
+      <button class="btn-premium-primary btn-nuevo-lote d-flex align-items-center gap-2"
+        (click)="abrirModalLoteCrear(modalLote)">
+        <span class="material-symbols-outlined">add</span>
+        <span class="fw-semibold">Nuevo lote</span>
       </button>
     </div>
   </app-page-toolbar>
@@ -237,39 +246,50 @@
       <p>Probá cambiar la búsqueda o la categoría seleccionada.</p>
     </div>
     } @else {
-    <div class="fast-table-shell">
-      <table class="fast-table lots-table">
-        <thead>
-          <tr>
-            <th>Lote</th>
-            <th>Producto</th>
-            <th class="text-end">Cantidad</th>
-            <th>Bodega</th>
-            <th>Vencimiento</th>
-            <th>Estado</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (item of lotesPaginados(); track item.lote.id) {
-          <tr [class.row-danger]="item.estadoClase === 'danger'" [class.row-warning]="item.estadoClase === 'warning'">
-            <td>
-              <strong>{{ item.lote.nombre }}</strong>
-            </td>
-            <td>{{ item.producto?.nombre }}</td>
-            <td class="text-end">{{ item.lote.cantidad }} {{ item.unidad }}</td>
-            <td>{{ item.bodega }}</td>
-            <td>{{ item.lote.fechaVencimiento ? (item.lote.fechaVencimiento | date:'dd/MM/yyyy') : 'Sin fecha' }}</td>
-            <td>
-              <span class="fast-pill" [class.danger]="item.estadoClase === 'danger'"
-                [class.warning]="item.estadoClase === 'warning'" [class.success]="item.estadoClase === 'success'">
-                {{ item.estadoTexto }}
-              </span>
-            </td>
-          </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+    <section class="stock-grid lots-grid" aria-label="Listado de lotes">
+      <div class="stock-grid-head lots-grid-head" role="row">
+        <span>Lote</span>
+        <span>Producto</span>
+        <span class="text-end">Cantidad</span>
+        <span>Bodega</span>
+        <span>Vencimiento</span>
+        <span>Estado</span>
+        <span class="text-end">Acciones</span>
+      </div>
+
+      <div class="stock-rows-container lots-rows-container">
+        @for (item of lotesPaginados(); track item.lote.id) {
+        <div class="stock-row lots-row" [class.row-danger]="item.estadoClase === 'danger'"
+          [class.row-warning]="item.estadoClase === 'warning'">
+          <div class="stock-cell lots-cell" data-label="Lote">
+            <strong>{{ item.lote.nombre }}</strong>
+          </div>
+          <div class="stock-cell lots-cell" data-label="Producto">{{ item.producto?.nombre }}</div>
+          <div class="stock-cell lots-cell text-end" data-label="Cantidad">{{ item.lote.cantidad }} {{ item.unidad }}</div>
+          <div class="stock-cell lots-cell" data-label="Bodega">{{ item.bodega }}</div>
+          <div class="stock-cell lots-cell" data-label="Vencimiento">{{ item.lote.fechaVencimiento ? (item.lote.fechaVencimiento | date:'dd/MM/yyyy') : 'Sin fecha' }}</div>
+          <div class="stock-cell lots-cell" data-label="Estado">
+            <span class="fast-pill" [class.danger]="item.estadoClase === 'danger'"
+              [class.warning]="item.estadoClase === 'warning'" [class.success]="item.estadoClase === 'success'">
+              {{ item.estadoTexto }}
+            </span>
+          </div>
+          <div class="stock-cell lots-cell lot-action-cell" data-label="Acciones">
+            <div class="lot-actions">
+              <button type="button" class="lot-action-btn" (click)="abrirModalLoteEditar(modalLote, item.lote.id)"
+                title="Editar lote">
+                <span class="material-symbols-outlined">settings</span>
+              </button>
+              <button type="button" class="lot-action-btn danger" (click)="abrirModalEliminarLote(item.lote.id)"
+                title="Eliminar lote">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+    </section>
     }
     } @else if (tabSeleccionada() === 'bodegas' && !bodegaSeleccionadaId()) {
     <div class="stock-empty-state">
@@ -337,4 +357,18 @@
 <app-modal-eliminar-bodega [bodega]="b" [errorAPI]="bodegaState.errorMensaje()" (confirm)="confirmarEliminarBodega()"
   (close)="cerrarModalEliminarBodega()">
 </app-modal-eliminar-bodega>
+}
+
+<app-modal #modalLote [titulo]="loteEditandoId() ? 'Editar Lote' : 'Nuevo Lote'" [maxWidth]="620"
+  (cerrado)="limpiarEstadoModalLote()">
+  <app-lote-form [lote]="loteSeleccionado()" [insumos]="state.productos()" [bodegas]="bodegaState.bodegas()"
+    [errorAPI]="state.errorLote()" [guardando]="state.guardandoLote()" (cancelado)="modalLote.cerrar()"
+    (guardar)="guardarLote($event, modalLote)">
+  </app-lote-form>
+</app-modal>
+
+@if (loteAEliminar(); as lote) {
+<app-modal-eliminar-lote [lote]="lote" [insumoNombre]="nombreInsumoLoteAEliminar()" [errorAPI]="state.errorLote()"
+  [eliminando]="state.eliminandoLote()" (confirm)="confirmarEliminarLote()" (close)="cerrarModalEliminarLote()">
+</app-modal-eliminar-lote>
 }
