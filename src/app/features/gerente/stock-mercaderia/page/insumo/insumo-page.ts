@@ -15,14 +15,16 @@ import { EditarBebidaFormComponent, GuardarBebidaPayload } from '../../component
 import { ModalEliminarInsumoComponent } from '../../components/modal-eliminar-insumo/modal-eliminar-insumo';
 import { BodegaForm, GuardarBodegaPayload } from '../../components/bodega-form/bodega-form';
 import { ModalEliminarBodegaComponent } from '../../components/modal-eliminar-bodega/modal-eliminar-bodega';
-import { AppNotice } from '../../../../../shared/ui/app-notice/app-notice';
+import { LoteForm } from '../../components/lote-form/lote-form';
+import { ModalEliminarLoteComponent } from '../../components/modal-eliminar-lote/modal-eliminar-lote';
+import { LoteRequest } from '../../../../../core/models/dtos/requests/lote.request';
 
 type EstadoStockFiltro = 'todos' | 'criticos' | 'bajos' | 'ok';
 
 @Component({
   selector: 'app-insumo',
   standalone: true,
-  imports: [InsumoList, CommonModule, PageToolbar, Buscador, Dropdown, Modal, ProductoForm, EditarBebidaFormComponent, ModalEliminarInsumoComponent, BodegaForm, ModalEliminarBodegaComponent, AppNotice],
+  imports: [InsumoList, CommonModule, PageToolbar, Buscador, Dropdown, Modal, ProductoForm, EditarBebidaFormComponent, ModalEliminarInsumoComponent, BodegaForm, ModalEliminarBodegaComponent, LoteForm, ModalEliminarLoteComponent],
   templateUrl: './insumo-page.html',
   styleUrl: './insumo-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -107,6 +109,8 @@ export class InsumoPage implements OnInit {
   productoEliminandoId = signal<number | null>(null);
   bodegaEditandoId = signal<number | null>(null);
   bodegaEliminandoId = signal<number | null>(null);
+  loteEditandoId = signal<number | null>(null);
+  loteEliminandoId = signal<number | null>(null);
 
   bodegaSeleccionada = computed(() => {
     const id = this.bodegaEditandoId();
@@ -118,6 +122,24 @@ export class InsumoPage implements OnInit {
     const id = this.bodegaEliminandoId();
     if (!id) return null;
     return this.bodegaState.bodegas().find(b => b.id === id) || null;
+  });
+
+  loteSeleccionado = computed(() => {
+    const id = this.loteEditandoId();
+    if (!id) return null;
+    return this.state.lotes().find(l => l.id === id) || null;
+  });
+
+  loteAEliminar = computed(() => {
+    const id = this.loteEliminandoId();
+    if (!id) return null;
+    return this.state.lotes().find(l => l.id === id) || null;
+  });
+
+  nombreInsumoLoteAEliminar = computed(() => {
+    const lote = this.loteAEliminar();
+    if (!lote) return '';
+    return this.state.productos().find(p => p.id === lote.insumoId)?.nombre || '';
   });
 
   tituloModal = computed(() => {
@@ -283,6 +305,7 @@ export class InsumoPage implements OnInit {
 
   seleccionarLotes() {
     this.state.cargarLotes();
+    this.bodegaState.cargarBodegasConInsumos();
     this.tabSeleccionada.set('lotes');
     this.bodegaSeleccionadaId.set(null);
   }
@@ -466,6 +489,49 @@ export class InsumoPage implements OnInit {
     if (!id) return;
 
     this.bodegaState.eliminarBodega(id);
+  }
+
+  abrirModalLoteCrear(modal: Modal) {
+    this.loteEditandoId.set(null);
+    this.state.limpiarError();
+    modal.abrir();
+  }
+
+  abrirModalLoteEditar(modal: Modal, id: number) {
+    this.loteEditandoId.set(id);
+    this.state.limpiarError();
+    modal.abrir();
+  }
+
+  limpiarEstadoModalLote() {
+    this.loteEditandoId.set(null);
+    this.state.limpiarError();
+  }
+
+  guardarLote(payload: LoteRequest, modal: Modal) {
+    this.state.guardarLote(this.loteEditandoId(), payload, () => {
+      modal.cerrar();
+      this.limpiarEstadoModalLote();
+    });
+  }
+
+  abrirModalEliminarLote(id: number) {
+    this.state.limpiarError();
+    this.loteEliminandoId.set(id);
+  }
+
+  cerrarModalEliminarLote() {
+    this.loteEliminandoId.set(null);
+    this.state.limpiarError();
+  }
+
+  confirmarEliminarLote() {
+    const id = this.loteEliminandoId();
+    if (!id) return;
+
+    this.state.eliminarLote(id, () => {
+      this.loteEliminandoId.set(null);
+    });
   }
 
 }
