@@ -16,8 +16,8 @@
 
 .soft-input:focus {
   background-color: #ffffff;
-  border-color: #cbd5e1;
-  box-shadow: 0 0 0 4px rgba(203, 213, 225, 0.2);
+  border-color: #02596c;
+  box-shadow: 0 0 0 4px rgba(2, 89, 108, 0.15);
   outline: none;
 }
 
@@ -38,7 +38,7 @@
 .soft-input-group:focus-within .input-group-text,
 .soft-input-group:focus-within .soft-input {
   background-color: #ffffff;
-  border-color: #cbd5e1;
+  border-color: #02596c;
 }
 
 .cost-readonly-box {

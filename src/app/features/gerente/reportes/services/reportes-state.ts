@@ -23,7 +23,14 @@ export class ReportesState {
     const hasta  = new Date(this.fechaHasta());
     const hoy    = new Date();
     hoy.setHours(23, 59, 59, 999);
-    return desde <= hasta && hasta <= hoy;
+    
+    if (desde > hasta || hasta > hoy) return false;
+
+    const dUTC = Date.UTC(desde.getFullYear(), desde.getMonth(), desde.getDate());
+    const hUTC = Date.UTC(hasta.getFullYear(), hasta.getMonth(), hasta.getDate());
+    const diffDays = Math.floor((hUTC - dUTC) / (1000 * 60 * 60 * 24));
+
+    return diffDays <= 366;
   }
 
   setFechaDesde(valor: string): void {

@@ -117,8 +117,8 @@
 }
 
 .stock-breadcrumb-item.active {
-  background: rgba(188, 0, 18, 0.06);
-  color: #bc0012;
+  background: rgba(2, 89, 108, 0.06);
+  color: #02596C;
 }
 
 .breadcrumb-close {
@@ -200,21 +200,21 @@
   padding: 0 1.05rem;
   border: none;
   border-radius: 8px;
-  background: #bc0012;
+  background: #f38d00;
   color: #ffffff;
   font-weight: 700;
   font-size: 0.9rem;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(188, 0, 18, 0.18);
+  box-shadow: 0 4px 10px rgba(243, 141, 0, 0.18);
   transition: all 0.2s ease;
   font-family: inherit;
 }
 
 .btn-premium-primary:hover {
-  background: #a8041a;
+  background: #d37a00;
   color: #ffffff;
   transform: translateY(-1px);
-  box-shadow: 0 6px 14px rgba(188, 0, 18, 0.22);
+  box-shadow: 0 6px 14px rgba(243, 141, 0, 0.22);
 }
 
 .btn-premium-primary:active {
@@ -364,8 +364,8 @@
 }
 
 .clear-filters-btn:hover {
-  border-color: rgba(188, 0, 18, 0.2);
-  color: #bc0012;
+  border-color: rgba(2, 89, 108, 0.2);
+  color: #02596C;
 }
 
 .clear-filters-btn .material-symbols-outlined {
@@ -412,14 +412,14 @@
 }
 
 .stock-tab.active {
-  border-color: #bc0012;
-  background: #bc0012;
+  border-color: #02596C;
+  background: #02596C;
   color: #ffffff;
 }
 
 .stock-tab:hover:not(.active) {
-  border-color: rgba(188, 0, 18, 0.2);
-  color: #bc0012;
+  border-color: rgba(2, 89, 108, 0.2);
+  color: #02596C;
 }
 
 .stock-tab .material-symbols-outlined {
@@ -617,13 +617,13 @@
 }
 
 .categoria-pills-header:hover {
-  color: #bc0012;
+  color: #02596C;
 }
 
 .categoria-pills-header .header-icon {
   font-size: 1.25rem;
   margin-right: 6px;
-  color: #bc0012;
+  color: #02596C;
 }
 
 .categoria-pills-header .header-title {
@@ -636,7 +636,7 @@
 .categoria-pills-header .active-category-badge {
   font-size: 0.75rem;
   font-weight: 700;
-  background: #bc0012;
+  background: #02596C;
   color: #ffffff;
   padding: 2px 10px;
   border-radius: 8px;
@@ -654,7 +654,7 @@
 }
 
 .categoria-pills-header:hover .chevron-icon {
-  color: #bc0012;
+  color: #02596C;
 }
 
 .categoria-pills-bar {
@@ -689,13 +689,13 @@
 }
 
 .categoria-pill.activa {
-  background: #bc0012;
+  background: #02596C;
   border-color: transparent;
   color: #ffffff;
 }
 
 .categoria-pill.activa:hover {
-  background: #a8041a;
+  background: #014352;
 }
 
 /* State alert pills - preserved */

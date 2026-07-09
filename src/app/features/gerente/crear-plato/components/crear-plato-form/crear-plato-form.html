@@ -144,7 +144,18 @@
 
   <!-- Botones de acción -->
   <div class="d-flex justify-content-end gap-3">
-    <app-boton label="GUARDAR" variante="primary" tamanio="md" [disabled]="loading()" (clicked)="onGuardar()">
+    <app-boton label="Cancelar" variante="outline" tamanio="md" [disabled]="loading()" (clicked)="cancelar.emit()" class="cancel-btn">
+    </app-boton>
+    <app-boton
+      [label]="loading() ? 'GUARDANDO...' : 'GUARDAR'"
+      variante="success"
+      tamanio="md"
+      [disabled]="loading()"
+      (clicked)="onGuardar()"
+      class="save-btn">
+      @if (loading()) {
+        <span class="save-spinner" aria-hidden="true"></span>
+      }
     </app-boton>
   </div>
 </div>

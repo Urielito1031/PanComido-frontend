@@ -32,9 +32,8 @@ export interface CierreTurnoEncuesta {
 export interface CierreTurnoRendimiento {
   platosMasVendidos: RendimientoPlato[];
   insumosMasUsados: RendimientoInsumo[];
-  // Mocked for frontend logic:
   platosMenosVendidos?: RendimientoPlato[];
-  tiempoPromedioComandas?: number; // en minutos
+  tiempoPromedioComandas?: number;
   cantidadComensales?: number;
   resumenEncuestas?: CierreTurnoEncuesta;
 }
@@ -43,7 +42,7 @@ export interface CierreTurnoInfo {
   fecha: string;
   turnoLaboralId: number;
   nombreTurno: string;
-  horario?: string; // Franja horaria que cubre
+  horario?: string;
   resumenFinanciero: CierreTurnoResumen;
   desglosePagos: MetodoPagoInfo[];
   rendimientoTurno: CierreTurnoRendimiento;

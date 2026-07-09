@@ -6,12 +6,14 @@ export interface DatosLocal {
   colorPrincipal: string | null;
   colorSecundario: string | null;
   familiaTipograficaId: number | null;
+  linkResenaGoogleMaps: string | null;
 }
 
 export type DatosLocalEditables = Pick<DatosLocal,
-'nombre' | 
-'imagen' | 
-'colorPrincipal' | 
-'colorSecundario' | 
-'familiaTipograficaId'
+  'nombre' |
+  'imagen' |
+  'colorPrincipal' |
+  'colorSecundario' |
+  'familiaTipograficaId' |
+  'linkResenaGoogleMaps'
 >;

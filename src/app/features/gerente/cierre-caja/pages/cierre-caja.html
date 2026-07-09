@@ -151,7 +151,7 @@
         <div class="action-footer">
           <app-boton 
             label="Confirmar y Cerrar Turno" 
-            variante="primary" 
+            variante="success"
             tamanio="lg"
             [disabled]="state.loading() || (state.diferencia() !== 0 && !state.observacion().trim())"
             (clicked)="abrirConfirmacion()">
@@ -395,8 +395,8 @@
           <p class="text-danger fw-bold fs-7">¡Esta acción no se puede deshacer!</p>
         </div>
         <div class="cierre-modal-footer d-flex gap-2 justify-content-end">
-          <app-boton label="Cancelar" variante="outline" (clicked)="cerrarConfirmacion()"></app-boton>
-          <app-boton label="Confirmar Cierre" variante="danger" (clicked)="confirmarCierre()"></app-boton>
+          <app-boton label="Cancelar" variante="danger" (clicked)="cerrarConfirmacion()"></app-boton>
+          <app-boton label="Confirmar Cierre" variante="success" (clicked)="confirmarCierre()"></app-boton>
         </div>
       </div>
     </div>
@@ -545,4 +545,3 @@
   }
 
 </div>
-

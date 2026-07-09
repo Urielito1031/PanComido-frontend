@@ -4,17 +4,18 @@ import { FormsModule } from '@angular/forms';
 import { Plato, RecetaIngrediente } from '../../../../../core/models/domain/plato';
 import { Boton } from '../../../../../shared/ui/botones/boton/boton';
 import { ToggleComponent } from '../../../../../shared/ui/toggle/toggle';
-import { Buscador } from '../../../../../shared/ui/buscador/buscador';
+import { RecetaCompactaComponent } from '../../../../../shared/components/receta-compacta/receta-compacta';
 import { calcularCostoReceta, calcularPrecioConGanancia } from '../../../services/plato-cost';
 import { PlatoApiService, ItemDesplegableDto, IngredienteDisponibleDto } from '../../../services/plato.api';
 import { PorcentajeItem } from '../../../../../core/models/domain/porcentajes-ganancia';
 import { ArsCurrencyPipe } from '../../../../../shared/pipes/ars-currency.pipe';
 import { PriceNoteComponent } from '../../../../../shared/ui/price-note/price-note';
+import { normalizarUnidadMedida } from '../../../../../shared/utils/unidad-medida.util';
 
 @Component({
   selector: 'app-modal-editar-plato',
   standalone: true,
-  imports: [FormsModule, Boton, ToggleComponent, Buscador, ArsCurrencyPipe, PriceNoteComponent],
+  imports: [FormsModule, Boton, ToggleComponent, RecetaCompactaComponent, ArsCurrencyPipe, PriceNoteComponent],
   templateUrl: './modal-editar-plato.html',
   styleUrls: ['./modal-editar-plato.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -53,11 +54,7 @@ export class ModalEditarPlatoComponent {
   celiaco = computed(() => this.restriccionesSeleccionadas().includes(3));
 
   receta = signal<RecetaIngrediente[]>([]);
-  busqueda = signal<string>('');
   ingredientesDisponibles = signal<IngredienteDisponibleDto[]>([]);
-
-  ingredientesBase = computed(() => this.receta().filter(i => !i.opcional));
-  ingredientesOpcionales = computed(() => this.receta().filter(i => i.opcional));
 
   costo = computed(() => {
     return calcularCostoReceta(this.receta());
@@ -80,16 +77,6 @@ export class ModalEditarPlatoComponent {
     const venta = this.precioVenta() ?? 0;
     const costoVal = this.costo() ?? 0;
     return venta > 0 && costoVal > 0 && venta <= costoVal;
-  });
-
-  sugerencias = computed(() => {
-    const query = this.busqueda().toLowerCase().trim();
-    if (!query) return [];
-
-    return this.ingredientesDisponibles().filter(ing =>
-      ing.nombre.toLowerCase().includes(query) &&
-      !this.receta().some(selected => selected.id === ing.id)
-    );
   });
 
   constructor() {
@@ -115,7 +102,7 @@ export class ModalEditarPlatoComponent {
         const receta = p.receta ? JSON.parse(JSON.stringify(p.receta)) as RecetaIngrediente[] : [];
         this.receta.set(receta.map(ingrediente => ({
           ...ingrediente,
-          unidadMedida: this.normalizarUnidadMedida(ingrediente.unidadMedida)
+          unidadMedida: normalizarUnidadMedida(ingrediente.unidadMedida)
         })));
       }
     });
@@ -142,10 +129,6 @@ export class ModalEditarPlatoComponent {
 
     this.archivoImagen.set(archivo);
     this.imagen.set(URL.createObjectURL(archivo));
-  }
-
-  onSearchChanged(value: string) {
-    this.busqueda.set(value);
   }
 
   cargarDatosFormulario(): void {
@@ -190,49 +173,13 @@ export class ModalEditarPlatoComponent {
     this.toggleRestriccion(ids[tag]);
   }
 
-  agregarIngrediente(ingrediente: IngredienteDisponibleDto) {
-    const nuevo: RecetaIngrediente = {
-      id: ingrediente.id,
-      nombre: ingrediente.nombre,
-      cantidad: 0,
-      unidadMedida: this.normalizarUnidadMedida(ingrediente.unidadMedida),
-      costoUnitario: ingrediente.costoUnitario,
-      opcional: false
-    };
-
-    this.edicionActiva.set(true);
-    this.receta.update(items => [...items, nuevo]);
-    this.busqueda.set('');
-  }
-
-  eliminarIngrediente(id: string | number) {
-    this.edicionActiva.set(true);
-    this.receta.update(items => items.filter(item => item.id !== id));
-  }
-
-  toggleOpcional(id: string | number) {
-    this.edicionActiva.set(true);
-    this.receta.update(items => items.map(item => {
-      if (item.id === id) {
-        return { ...item, opcional: !item.opcional };
-      }
-      return item;
-    }));
-  }
-
-  onCantidadCambiada(ing: RecetaIngrediente) {
-    this.edicionActiva.set(true);
-    const cantidad = Number(ing.cantidad);
-    const cantidadValida = Number.isFinite(cantidad) && cantidad > 0 ? cantidad : 0;
-    this.receta.update(items => items.map(item =>
-      item.id === ing.id ? { ...item, cantidad: cantidadValida } : item
-    ));
-  }
-
-  onFocusCantidad(ing: RecetaIngrediente, event: FocusEvent): void {
-    if (ing.cantidad === 0) {
-      (event.target as HTMLInputElement).value = '';
+  onRecetaCambiada(ingredientes: RecetaIngrediente[]): void {
+    // El hijo reemite la receta inicial al cargarla (no es una edición real),
+    // por eso comparamos referencia antes de marcar "edición activa".
+    if (ingredientes !== this.receta()) {
+      this.edicionActiva.set(true);
     }
+    this.receta.set(ingredientes);
   }
 
   onCategoriaChange(value: string | null): void {
@@ -264,18 +211,5 @@ export class ModalEditarPlatoComponent {
 
   onClose() {
     this.close.emit();
-  }
-
-  private normalizarUnidadMedida(unidad: RecetaIngrediente['unidadMedida']): string {
-    const valor = typeof unidad === 'string' ? unidad : unidad?.nombre ?? '';
-    const normalizado = valor.trim().toLowerCase();
-
-    if (['kg', 'kilo', 'kilos', 'kilogramo', 'kilogramos'].includes(normalizado)) return 'KG';
-    if (['g', 'gr', 'gramo', 'gramos'].includes(normalizado)) return 'GR';
-    if (['l', 'lt', 'lts', 'litro', 'litros'].includes(normalizado)) return 'L';
-    if (['ml', 'mililitro', 'mililitros'].includes(normalizado)) return 'ML';
-    if (['un', 'u', 'unidad', 'unidades'].includes(normalizado)) return 'UN';
-
-    return valor.toUpperCase();
   }
 }

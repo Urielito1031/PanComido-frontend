@@ -59,8 +59,8 @@
   width: 2.8rem;
   height: 2.8rem;
   border-radius: 50%;
-  background: rgba(216, 8, 28, 0.08);
-  color: #d8081c;
+  background: rgba(2, 89, 108, 0.08);
+  color: #02596c;
   flex-shrink: 0;
 }
 
@@ -137,8 +137,8 @@
 }
 
 .diagnostico-box {
-  background: rgba(216, 8, 28, 0.035);
-  border: 1px solid rgba(216, 8, 28, 0.12);
+  background: rgba(2, 89, 108, 0.035);
+  border: 1px solid rgba(2, 89, 108, 0.12);
   border-radius: 8px;
   padding: 0.9rem 1rem;
   display: flex;
@@ -148,7 +148,7 @@
 }
 
 .diagnostico-box .material-symbols-outlined {
-  color: #d8081c;
+  color: #02596c;
   font-size: 1.35rem;
   margin-top: 0.1rem;
 }
@@ -174,7 +174,7 @@
 
 .skeleton-insight-icon {
   margin-top: 0.1rem;
-  color: #d8081c;
+  color: #02596c;
 }
 
 .skeleton-copy-block {
@@ -182,7 +182,7 @@
 }
 
 .skeleton-diagnostico-title {
-  color: #a8041a;
+  color: #02596c;
 }
 
 .skeleton-diagnostico-copy {
@@ -212,12 +212,12 @@
 }
 
 .skeleton-comparativa-box {
-  border-color: rgba(216, 8, 28, 0.1);
+  border-color: rgba(2, 89, 108, 0.1);
   background: #fffdf5;
 }
 
 .skeleton-comparativa-header {
-  color: #a8041a;
+  color: #02596c;
   opacity: 0.7;
 }
 
@@ -344,7 +344,7 @@
 
 .analisis-comparativa-box {
   background: #fffbeb;
-  border: 1px solid rgba(216, 8, 28, 0.15);
+  border: 1px solid rgba(2, 89, 108, 0.15);
   border-radius: 8px;
   padding: 0.9rem 1rem;
   display: flex;
@@ -357,7 +357,7 @@
   display: flex;
   align-items: center;
   gap: 0.45rem;
-  color: #a8041a;
+  color: #02596c;
   font-size: 0.8rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -384,7 +384,7 @@
 .comparativa-divider {
   font-size: 0.72rem;
   font-weight: 800;
-  color: #d8081c;
+  color: #02596c;
   padding: 0 0.5rem;
 }
 
@@ -504,7 +504,7 @@
 
 .sug-badge.impact.medio {
   background: #ccfbf1;
-  color: #a8041a;
+  color: #02596c;
   border: 1px solid rgba(15, 118, 110, 0.12);
 }
 
@@ -569,25 +569,25 @@
 }
 
 .sug-btn.primary {
-  background: #d8081c;
+  background: #3db955;
   color: #ffffff;
-  box-shadow: 0 2px 4px rgba(216, 8, 28, 0.12);
+  box-shadow: 0 2px 4px rgba(61, 185, 85, 0.12);
 }
 
 .sug-btn.primary:hover {
-  background: #a8041a;
-  box-shadow: 0 4px 8px rgba(216, 8, 28, 0.2);
+  background: #2ebb4e;
+  box-shadow: 0 4px 8px rgba(61, 185, 85, 0.2);
 }
 
 .sug-btn.secondary {
   background: #ffffff;
-  color: #d8081c;
-  border: 1px solid rgba(216, 8, 28, 0.25);
+  color: #02596c;
+  border: 1px solid rgba(2, 89, 108, 0.25);
 }
 
 .sug-btn.secondary:hover {
-  background: rgba(216, 8, 28, 0.04);
-  border-color: #d8081c;
+  background: rgba(2, 89, 108, 0.04);
+  border-color: #02596c;
 }
 
 .sug-btn.success-applied {
@@ -685,8 +685,8 @@
 
 .primary-btn {
   width: 100%;
-  background: #d8081c;
-  color: #fff;
+  background: #f3c010;
+  color: #0f172a;
   border: none;
   border-radius: 10px;
   padding: 0.8rem;
@@ -698,7 +698,7 @@
 }
 
 .primary-btn:hover {
-  background: #a8041a;
+  background: #d8aa0c;
 }
 
 .outline-btn {
@@ -791,8 +791,8 @@
   background: #f1f5f9;
   display: grid;
   place-items: center;
-  border: 1px dashed rgba(216, 8, 28, 0.25);
-  color: #d8081c;
+  border: 1px dashed rgba(2, 89, 108, 0.25);
+  color: #02596c;
 }
 
 .skeleton-badge-pulse {
@@ -802,4 +802,22 @@
 @keyframes badge-fade-pulse {
   0%, 100% { opacity: 0.6; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.02); }
+}
+
+.fallback-banner {
+  background-color: rgba(2, 89, 108, 0.05);
+  border: 1px solid rgba(2, 89, 108, 0.15);
+  border-radius: 8px;
+  color: #02596c;
+}
+
+.fallback-banner .material-symbols-outlined {
+  color: #02596c;
+}
+
+.ia-source-tag .badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
 }

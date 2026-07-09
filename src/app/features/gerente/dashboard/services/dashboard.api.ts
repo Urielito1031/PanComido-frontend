@@ -6,7 +6,7 @@ import { ApiService } from '../../../../core/services/api-service';
 import { DashboardInsumoVencimiento, DashboardRankingItem, PlatoAnalisis, DashboardAccionItem, EstadisticaMozo, IngredienteExcluidoStat, DashboardSatisfaccionMetricas } from '../../../../core/models/domain/dashboard';
 import { DashboardVencimientoDto } from '../../../../core/models/dtos/responses/dashboard-vencimiento.response';
 import { DashboardRendimientoResponseDto } from '../../../../core/models/dtos/responses/dashboard-rendimiento.response';
-import { mapVencimientoDtoToDomain, mapPlatoRendimientoDtoToDomain } from '../../../../infra/http/mappers/dashboard.mapper';
+import { mapVencimientoDtoToDomain, mapRendimientoDtoToDomain, PlatoRendimientoResponse } from '../../../../infra/http/mappers/dashboard.mapper';
 
 @Injectable({ providedIn: 'root' })
 export class DashboardApiService {
@@ -18,21 +18,13 @@ export class DashboardApiService {
     );
   }
 
-  getRendimientoComercial(desde: string, hasta: string): Observable<{ masVendidos: DashboardRankingItem[], menosVendidos: DashboardRankingItem[] }> {
+  getRendimientoComercial(desde: string, hasta: string): Observable<PlatoRendimientoResponse> {
     const params = new HttpParams()
       .set('desde', desde)
       .set('hasta', hasta);
 
     return this.api.get<DashboardRendimientoResponseDto>('gerente/dashboard/rendimiento', params).pipe(
-      map(res => {
-        const masVendidosDto = res.masVendidos || res.MasVendidos || [];
-        const menosVendidosDto = res.menosVendidos || res.MenosVendidos || [];
-        
-        return {
-          masVendidos: masVendidosDto.map(mapPlatoRendimientoDtoToDomain),
-          menosVendidos: menosVendidosDto.map(mapPlatoRendimientoDtoToDomain)
-        };
-      })
+      map(mapRendimientoDtoToDomain)
     );
   }
 

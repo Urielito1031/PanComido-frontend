@@ -1,5 +1,6 @@
 import { Injectable, inject, signal, computed, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { forkJoin } from 'rxjs';
 import { PlatoApiService, ItemDesplegableDto, IngredienteDisponibleDto } from '../../services/plato.api';
 import { CrearPlatoRequestDto } from '../../../../core/models/dtos/requests/crear-plato.request';
 import { RecetaIngrediente } from '../../../../core/models/domain/plato';
@@ -41,32 +42,39 @@ export class CrearPlatoState {
     return calcularCostoReceta(this.receta());
   });
 
+  resetFormulario(): void {
+    this.visible.set(true);
+    this.archivoImagen.set(null);
+    this.previsualizacionImagen.set(null);
+    this.errorImagen.set(false);
+    this.restriccionesSeleccionadas.set([]);
+    this.receta.set([]);
+    this.mostrarExito.set(false);
+    this.#loading.set(false);
+  }
+
   cargarDatosFormulario(): void {
     this.#loading.set(true);
-    
-    // Para simplificar la importacion temporalmente, uso forkJoin desde rxjs (si no está importado, lo importo)
-    // Asumiendo que rxjs ya se importa en el componente. Si no, agregaremos el import arriba.
-    import('rxjs').then(({ forkJoin }) => {
-      forkJoin({
-        form: this.api.getDatosFormulario(),
-        platos: this.api.getPlatos()
-      })
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (res) => {
-            this.tiposPlato.set(res.form.tiposPlato);
-            this.categoriasPlato.set(res.form.categoriasPlato);
-            this.restricciones.set(res.form.restricciones);
-            this.ingredientesDisponibles.set(res.form.ingredientes);
-            this.porcentajesPlatos.set(res.form.porcentajes.platos);
-            this.nombresExistentes.set(res.platos.map(p => p.nombre.toLowerCase().trim()));
-            this.#loading.set(false);
-          },
-          error: () => {
-            this.#loading.set(false);
-          }
-        });
-    });
+
+    forkJoin({
+      form: this.api.getDatosFormulario(),
+      platos: this.api.getPlatos()
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.tiposPlato.set(res.form.tiposPlato);
+          this.categoriasPlato.set(res.form.categoriasPlato);
+          this.restricciones.set(res.form.restricciones);
+          this.ingredientesDisponibles.set(res.form.ingredientes);
+          this.porcentajesPlatos.set(res.form.porcentajes?.platos ?? []);
+          this.nombresExistentes.set(res.platos.map(p => p.nombre.toLowerCase().trim()));
+          this.#loading.set(false);
+        },
+        error: () => {
+          this.#loading.set(false);
+        }
+      });
   }
 
   toggleRestriccion(id: number): void {

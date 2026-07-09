@@ -50,6 +50,16 @@
   min-width: 0;
 }
 
+.form-panel {
+  align-self: stretch;
+  display: flex;
+}
+
+.form-panel > * {
+  width: 100%;
+  display: flex;
+}
+
 .media-panel {
   display: grid;
   gap: 0.9rem;
@@ -109,8 +119,8 @@
 }
 
 .image-placeholder:hover {
-  background-color: rgba(216, 8, 28, 0.04);
-  border-color: rgba(216, 8, 28, 0.36);
+  background-color: rgba(2, 89, 108, 0.04);
+  border-color: rgba(2, 89, 108, 0.36);
 }
 
 .placeholder-icon {
@@ -131,17 +141,17 @@
   place-items: center;
   width: 34px;
   height: 34px;
-  border: 1px solid rgba(216, 8, 28, 0.16);
+  border: 1px solid rgba(2, 89, 108, 0.16);
   border-radius: 11px;
   background: rgba(255, 255, 255, 0.88);
-  color: var(--primary-red, #d8081c);
+  color: #02596c;
   box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
   cursor: pointer;
   transition: transform 0.16s ease, background 0.16s ease;
 }
 
 .edit-photo-icon:hover {
-  background: rgba(216, 8, 28, 0.08);
+  background: rgba(2, 89, 108, 0.08);
   transform: translateY(-1px);
 }
 
@@ -205,8 +215,8 @@
 
 .custom-input:focus {
   background-color: #ffffff;
-  border-color: rgba(216, 8, 28, 0.42);
-  box-shadow: 0 0 0 4px rgba(216, 8, 28, 0.08);
+  border-color: #02596c;
+  box-shadow: 0 0 0 4px rgba(2, 89, 108, 0.15);
   outline: none;
 }
 
@@ -246,14 +256,14 @@
 }
 
 .diet-tag-btn.active {
-  background-color: var(--primary-red, #d8081c);
+  background-color: #02596c;
   color: #ffffff;
-  box-shadow: 0 2px 5px rgba(216, 8, 28, 0.22);
+  box-shadow: 0 2px 5px rgba(2, 89, 108, 0.22);
 }
 
 /* === FOOTER BUTTONS === */
 ::ng-deep .save-btn .btn {
-  background-color: var(--primary-red, #d8081c) !important;
+  background-color: var(--status-success, #6abf3f) !important;
   color: #ffffff !important;
   font-weight: 700;
   font-size: 1rem;
@@ -261,19 +271,19 @@
   border-radius: 12px;
   border: none;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 10px rgba(216, 8, 28, 0.18);
+  box-shadow: 0 4px 10px rgba(106, 191, 63, 0.18);
 }
 
 ::ng-deep .save-btn .btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(216, 8, 28, 0.26);
-  background-color: #bc0012 !important;
+  box-shadow: 0 6px 15px rgba(106, 191, 63, 0.26);
+  background-color: #5aa832 !important;
 }
 
 ::ng-deep .cancel-btn .btn {
   background-color: #ffffff !important;
-  border: 1px solid #cbd5e1 !important;
-  color: #475569 !important;
+  border: 1px solid #a8041a !important;
+  color: #a8041a !important;
   font-weight: 600;
   font-size: 1rem;
   padding: 12px 32px;
@@ -282,15 +292,9 @@
 }
 
 ::ng-deep .cancel-btn .btn:hover {
-  background-color: #f8fafc !important;
-  color: #0f172a !important;
-  border-color: #94a3b8 !important;
-}
-
-.create-footer {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 1rem;
+  background-color: #fef2f2 !important;
+  color: #a8041a !important;
+  border-color: #a8041a !important;
 }
 
 @media (max-width: 1280px) {
@@ -316,13 +320,6 @@
     grid-column: auto;
   }
 
-  .create-footer {
-    justify-content: stretch;
-  }
-
-  .cancel-btn {
-    width: 100%;
-  }
 }
 
 .modal-overlay {
@@ -412,6 +409,3 @@
   box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 
-::ng-deep .visibility-toggle-wrapper app-toggle .custom-toggle.active {
-  background-color: var(--primary-red, #d8081c) !important;
-}

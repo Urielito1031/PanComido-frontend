@@ -128,7 +128,7 @@ export class CartaTourService {
       nextBtnText: 'Siguiente',
       prevBtnText: 'Anterior',
       doneBtnText: 'Entendido',
-      popoverClass: 'driverjs-theme',
+      popoverClass: 'driverjs-theme carta-tour-theme',
       overlayColor: 'rgba(15, 23, 42, 0.75)',
       steps: pasosActivos,
       onPopoverRender: (popover, { driver }) => {

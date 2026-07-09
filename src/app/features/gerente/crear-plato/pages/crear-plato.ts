@@ -1,9 +1,9 @@
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy, signal } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { Boton } from '../../../../shared/ui/botones/boton/boton';
 import { ToggleComponent } from '../../../../shared/ui/toggle/toggle';
-import { DetalleRecetaComponent } from '../components/detalle-receta/detalle-receta';
+import { DetalleRecetaComponent } from '../../../../shared/components/detalle-receta/detalle-receta';
 import { CrearPlatoFormComponent, PlatoFormData } from '../components/crear-plato-form/crear-plato-form';
 import { RecetaIngrediente } from '../../../../core/models/domain/plato';
 import { CrearPlatoState } from '../services/crear-plato.state';
@@ -46,12 +46,22 @@ export class CrearPlatoPage {
   loading = this.state.loading;
   nombresExistentes = this.state.nombresExistentes;
   errorImagen = this.state.errorImagen;
+  datosInicialesFormulario = signal<Partial<PlatoFormData>>({});
 
 
   constructor() {
+    this.state.resetFormulario();
     this.state.cargarDatosFormulario();
 
     const navState = this.location.getState() as PlatoIAState | null;
+    if (navState?.desde_ia) {
+      this.datosInicialesFormulario.set({
+        nombre: navState.nombre,
+        descripcion: navState.descripcion,
+        tiempoPreparacion: navState.tiempoPreparacion
+      });
+    }
+
     if (navState?.desde_ia && navState.ingredientes) {
       const ingredientes: RecetaIngrediente[] = navState.ingredientes.map(ing => ({
         id: ing.insumoId,

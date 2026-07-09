@@ -135,7 +135,8 @@ export class StockMercaderiaState {
         unidadDeMedidaId: payload.unidadDeMedidaId,
         cantidadInicial: payload.cantidadInicial!,
         bodegaId: payload.bodegaId!,
-        fechaVencimiento: payload.fechaVencimiento!
+        fechaVencimiento: payload.fechaVencimiento!,
+        esVisibleEnCarta: payload.esVisibleEnCarta
       };
 
       this.api.crear(request, payload.imagen).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({

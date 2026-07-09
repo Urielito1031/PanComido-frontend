@@ -11,6 +11,8 @@ import { DashboardApiService, DashboardResumenOperativoResponse } from './dashbo
 import { DashboardPreferencesService } from './dashboard-preferences.service';
 import { SignalRConexionService } from '../../../../core/services/hubs/base-hub-service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { ToastService } from '../../../../core/services/toast.service';
+import { toLocalISOString } from '../../../../core/utils/date.utils';
 import {
   diasDelPeriodo,
   diasPersonalizados,
@@ -40,6 +42,7 @@ export class DashboardStateService implements OnDestroy {
   private preferences = inject(DashboardPreferencesService);
   private signalR = inject(SignalRConexionService);
   private auth = inject(AuthService);
+  private toast = inject(ToastService);
 
   private _periodo = signal<DashboardPeriodo>('7d');
   private _fechaDesde = signal<string>('');
@@ -65,13 +68,10 @@ export class DashboardStateService implements OnDestroy {
   private _recordatoriosAdicionales = signal<DashboardAccionItem[]>([]);
   recordatoriosAdicionales = this._recordatoriosAdicionales.asReadonly();
 
-  readonly toastMensaje = signal<{ texto: string; tipo: 'exito' | 'info' } | null>(null);
+  readonly toastMensaje = this.toast.toastMensaje;
 
   mostrarToast(texto: string, tipo: 'exito' | 'info' = 'exito'): void {
-    this.toastMensaje.set({ texto, tipo });
-    setTimeout(() => {
-      this.toastMensaje.set(null);
-    }, 4000);
+    this.toast.mostrar(texto, tipo);
   }
 
   private idIntervaloPolling: any = null;
@@ -405,8 +405,8 @@ export class DashboardStateService implements OnDestroy {
   cargarDatos(): void {
     this.cargando.set(true);
     const { desde, hasta } = this.obtenerRangoFechas();
-    const desdeIso = desde.toISOString();
-    const hastaIso = hasta.toISOString();
+    const desdeIso = toLocalISOString(desde);
+    const hastaIso = toLocalISOString(hasta);
 
     forkJoin({
       vencimientos: this.api.getVencimientos().pipe(
@@ -621,7 +621,10 @@ export class DashboardStateService implements OnDestroy {
       },
       error: (err) => {
         console.error('Error al aplicar el descuento', err);
-        this.mostrarToast('No se pudo aplicar el descuento en el servidor', 'info');
+        const mensaje = err?.error?.error
+          || err?.error?.Error
+          || 'No se pudo aplicar el descuento en el servidor';
+        this.mostrarToast(mensaje, 'info');
       }
     });
   }

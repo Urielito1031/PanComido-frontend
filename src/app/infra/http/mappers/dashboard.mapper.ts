@@ -1,6 +1,11 @@
 import { DashboardRankingItem, DashboardInsumoVencimiento } from '../../../core/models/domain/dashboard';
-import { PlatoRendimientoDto } from '../../../core/models/dtos/responses/dashboard-rendimiento.response';
+import { PlatoRendimientoDto, DashboardRendimientoResponseDto } from '../../../core/models/dtos/responses/dashboard-rendimiento.response';
 import { DashboardVencimientoDto } from '../../../core/models/dtos/responses/dashboard-vencimiento.response';
+
+export interface PlatoRendimientoResponse {
+  masVendidos: DashboardRankingItem[];
+  menosVendidos: DashboardRankingItem[];
+}
 
 export function mapPlatoRendimientoDtoToDomain(dto: PlatoRendimientoDto): DashboardRankingItem {
   const nombre = dto.nombre || dto.Nombre || '';
@@ -11,6 +16,16 @@ export function mapPlatoRendimientoDtoToDomain(dto: PlatoRendimientoDto): Dashbo
     nombre: nombre,
     valor: parseInt(String(unidades).replace(/\D/g, '')) || 0,
     detalle: facturacion
+  };
+}
+
+export function mapRendimientoDtoToDomain(dto: DashboardRendimientoResponseDto): PlatoRendimientoResponse {
+  const masVendidosDto = dto.masVendidos || dto.MasVendidos || [];
+  const menosVendidosDto = dto.menosVendidos || dto.MenosVendidos || [];
+  
+  return {
+    masVendidos: masVendidosDto.map(mapPlatoRendimientoDtoToDomain),
+    menosVendidos: menosVendidosDto.map(mapPlatoRendimientoDtoToDomain)
   };
 }
 

@@ -91,6 +91,10 @@ export interface PlatoAnalisis {
     ventas: string;
   };
   tendencia: number[];
+  fuenteAnalisis?: 'ia' | 'fallback_local' | 'desconocida';
+  esFallbackLocal?: boolean;
+  analisisProvieneDeCache?: boolean;
+  mensajeFallback?: string | null;
 }
 
 export interface EstadisticaMozo {

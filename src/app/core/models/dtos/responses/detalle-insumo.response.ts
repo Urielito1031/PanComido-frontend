@@ -10,4 +10,6 @@ export interface DetalleInsumoResponseDto {
   unidadDeMedidaId: number;
   urlImagen: string | null;
   tipo: string;
+  esVisibleEnCarta: boolean;
+  costo: number;
 }

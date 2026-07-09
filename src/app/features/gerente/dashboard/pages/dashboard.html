@@ -474,8 +474,8 @@
       @if (state.configuracionFavoritos().length === 0 && !state.estaEditando()) {
         <div class="empty-favorites-state empty-favorites-state-full">
           <svg class="empty-favorites-icon" width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="60" cy="60" r="50" fill="#d8081c" opacity="0.08"/>
-            <path d="M60 25L71.5 48.5L97.5 52L78.5 70L83 96L60 83.5L37 96L41.5 70L22.5 52L48.5 48.5L60 25Z" fill="#d8081c" filter="drop-shadow(0px 8px 16px rgba(216, 8, 28, 0.16))"/>
+            <circle cx="60" cy="60" r="50" fill="#02596c" opacity="0.08"/>
+            <path d="M60 25L71.5 48.5L97.5 52L78.5 70L83 96L60 83.5L37 96L41.5 70L22.5 52L48.5 48.5L60 25Z" fill="#f3c010" filter="drop-shadow(0px 8px 16px rgba(243, 192, 16, 0.22))"/>
           </svg>
           <h2>Crea tu espacio de trabajo favorito</h2>
           <p>Organiza tus KPIs, reportes y gráficos prioritarios en un solo lugar para una gestión más rápida y personalizada.</p>
@@ -519,13 +519,31 @@
         <app-platos-menos-vendidos></app-platos-menos-vendidos>
       }
       @case ('insumos-vencer') {
-        <app-insumos-vencer></app-insumos-vencer>
+        @defer (on viewport) {
+          <app-insumos-vencer></app-insumos-vencer>
+        } @placeholder {
+          <div class="panel-card deferred-placeholder deferred-placeholder-medium">
+            <div class="skeleton-pulsing deferred-placeholder-block"></div>
+          </div>
+        }
       }
       @case ('radar-alergias') {
-        <app-radar-alergias></app-radar-alergias>
+        @defer (on viewport) {
+          <app-radar-alergias></app-radar-alergias>
+        } @placeholder {
+          <div class="panel-card deferred-placeholder deferred-placeholder-medium">
+            <div class="skeleton-pulsing deferred-placeholder-block"></div>
+          </div>
+        }
       }
       @case ('satisfaccion-comensal') {
-        <app-satisfaccion-comensal></app-satisfaccion-comensal>
+        @defer (on viewport) {
+          <app-satisfaccion-comensal></app-satisfaccion-comensal>
+        } @placeholder {
+          <div class="panel-card deferred-placeholder deferred-placeholder-medium">
+            <div class="skeleton-pulsing deferred-placeholder-block"></div>
+          </div>
+        }
       }
       @case ('mozos') {
         @defer (on viewport) {

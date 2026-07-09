@@ -10,4 +10,5 @@ export interface CrearInsumoRequest {
   cantidadInicial: number;
   bodegaId: number;
   fechaVencimiento: string;
+  esVisibleEnCarta?: boolean;
 }

@@ -39,9 +39,11 @@ export class CrearPlatoFormComponent {
   loading = input<boolean>(false);
 
   nombresExistentes = input<string[]>([]);
+  datosIniciales = input<Partial<PlatoFormData>>({});
 
   // Outputs
   guardar = output<PlatoFormData>();
+  cancelar = output<void>();
   toggleTag = output<'vegano' | 'vegetariano' | 'celiaco'>();
 
   // Form
@@ -72,6 +74,18 @@ export class CrearPlatoFormComponent {
       costoControl.setValue(costo);
       costoControl.markAsTouched();
     }
+  });
+
+  private readonly sincronizarDatosIniciales = effect(() => {
+    const datos = this.datosIniciales();
+    if (Object.keys(datos).length === 0) return;
+
+    this.platoForm.patchValue({
+      nombre: datos.nombre ?? this.platoForm.controls.nombre.value,
+      tiempoPreparacion: datos.tiempoPreparacion ?? this.platoForm.controls.tiempoPreparacion.value,
+      descripcion: datos.descripcion ?? this.platoForm.controls.descripcion.value
+    }, { emitEvent: true });
+    this.platoForm.markAsPristine();
   });
 
   // Signals derivados del form

@@ -10,14 +10,16 @@ import { Dropdown } from '../../../../shared/ui/dropdown/dropdown';
 import { ModalEditarPlatoComponent } from '../containers/modal-editar-plato/modal-editar-plato';
 import { PanelEditarBebidaComponent } from '../containers/panel-editar-bebida/panel-editar-bebida';
 import { PanelCrearBebidaComponent } from '../containers/panel-crear-bebida/panel-crear-bebida';
+import { PanelBebidaPreparadaComponent, GuardarBebidaPreparadaPayload } from '../containers/panel-bebida-preparada/panel-bebida-preparada';
 import { ModalEliminarPlatoComponent } from '../components/modal-eliminar-plato/modal-eliminar-plato';
 import { ModificarCartaStateService } from '../services/modificar-carta.state';
 import { CartaTourService } from '../services/carta-tour.service';
-import { esBebida } from '../services/modificar-carta.rules';
+import { esBebida, esBebidaPreparada } from '../services/modificar-carta.rules';
 import { GuardarBebidaPayload } from '../../stock-mercaderia/components/editar-bebida-form/editar-bebida-form';
 import { GuardarProductoPayload } from '../../stock-mercaderia/components/producto-form/producto-form';
 import { StockMercaderiaState } from '../../stock-mercaderia/services/insumos/stock-mercaderia-state';
 import { BodegaState } from '../../stock-mercaderia/services/bodegas/bodega-state';
+import { InsumoBebidaDisponible } from '../../../../core/models/domain/receta';
 
 @Component({
   selector: 'app-modificar-carta',
@@ -30,6 +32,7 @@ import { BodegaState } from '../../stock-mercaderia/services/bodegas/bodega-stat
     ModalEditarPlatoComponent,
     PanelEditarBebidaComponent,
     PanelCrearBebidaComponent,
+    PanelBebidaPreparadaComponent,
     ModalEliminarPlatoComponent
   ],
   templateUrl: './modificar-carta.html',
@@ -47,12 +50,24 @@ export class ModificarCartaComponent implements OnInit {
   readonly bodegaState = inject(BodegaState);
 
   layoutMode = signal<'grid' | 'list'>('grid');
-  isFloatingMenuOpen = signal(false);
   mostrarPanelCrearBebida = signal(false);
+  mostrarPanelCrearBebidaPreparada = signal(false);
   private platoPendienteEdicion = signal<string | null>(null);
   private scrollPosition = 0;
 
   categoriasBebida = computed(() => this.stockState.categoriasInsumos().filter(cat => cat.tipoAplica === 'Bebida'));
+
+  insumosBebidaParaReceta = computed<InsumoBebidaDisponible[]>(() => {
+    return this.stockState.productos()
+      .filter(insumo => insumo.categoriaIngrediente.tipoAplica === 'Bebida')
+      .map(insumo => ({
+        id: insumo.id,
+        nombre: insumo.nombre,
+        unidadMedida: insumo.unidadMedida.nombre,
+        costoUnitario: insumo.costo,
+        categoria: insumo.categoriaIngrediente.descripcion
+      }));
+  });
 
   // Exponer señales del State Service para que la plantilla HTML y los tests sigan funcionando sin cambios
   platos = this.state.platos;
@@ -64,6 +79,7 @@ export class ModificarCartaComponent implements OnInit {
   platoAEditar = this.state.platoAEditar;
   platoAEliminar = this.state.platoAEliminar;
   bebidaAEditar = this.state.bebidaAEditar;
+  bebidaPreparadaAEditar = this.state.bebidaPreparadaAEditar;
   selectedCategoria = this.state.selectedCategoria;
   loading = this.state.loading;
   categoriasDisponibles = this.state.categoriasDisponibles;
@@ -179,7 +195,10 @@ export class ModificarCartaComponent implements OnInit {
 
   onEditPlato(plato: Plato) {
     this.scrollPosition = window.scrollY;
-    if (esBebida(plato)) {
+    if (esBebidaPreparada(plato)) {
+      this.stockState.cargarMercaderia();
+      this.state.setBebidaPreparadaAEditar(plato);
+    } else if (esBebida(plato)) {
       this.state.setBebidaAEditar(plato);
     } else {
       this.state.setPlatoAEditar(plato);
@@ -231,16 +250,28 @@ export class ModificarCartaComponent implements OnInit {
     this.mostrarPanelCrearBebida.set(false);
   }
 
+  abrirPanelCrearBebidaPreparada() {
+    this.stockState.cargarMercaderia();
+    this.mostrarPanelCrearBebidaPreparada.set(true);
+  }
+
+  cerrarPanelCrearBebidaPreparada() {
+    this.mostrarPanelCrearBebidaPreparada.set(false);
+  }
+
+  onGuardarBebidaPreparadaNueva(payload: GuardarBebidaPreparadaPayload) {
+    this.state.crearBebidaPreparada(payload);
+    this.mostrarPanelCrearBebidaPreparada.set(false);
+  }
+
+  onGuardarBebidaPreparadaEditada(payload: GuardarBebidaPreparadaPayload) {
+    this.state.saveBebidaPreparada(payload);
+  }
+
   desplazarASeccion(id: string) {
     const element = this.documento.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }
-
-  desplazarAlPrincipio() {
-    if (typeof window !== 'undefined') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 

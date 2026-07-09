@@ -38,4 +38,7 @@ AGENTS.md
 
 .github/workflows
 docs/
+!docs/
+!docs/manual-implementacion.md
+!docs/manual-implementacion-backend.md
 implementation_plan.md
