@@ -24,7 +24,7 @@ import { AgregarInsumoPedidoComponent } from '../components/agregar-insumo-pedid
 @Component({
   selector: 'app-ver-proveedores',
   standalone: true,
-  imports: [DatePipe, FormsModule, ReactiveFormsModule, FontAwesomeModule, Buscador, Boton, Dropdown, PageToolbar, GlassCard, ProveedorListComponent, RouterModule, ArsCurrencyPipe, PriceNoteComponent, AgregarInsumoPedidoComponent],
+  imports: [DatePipe, FormsModule, ReactiveFormsModule, FontAwesomeModule, Buscador, Boton, PageToolbar, GlassCard, ProveedorListComponent, RouterModule, ArsCurrencyPipe, PriceNoteComponent, AgregarInsumoPedidoComponent],
   templateUrl: './ver-proveedores.html',
   styleUrls: ['./ver-proveedores.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
