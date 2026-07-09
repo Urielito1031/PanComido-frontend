@@ -16,8 +16,8 @@
 }
 
 .btn-icon-md {
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
 }
 
 .btn-success-custom {
@@ -32,4 +32,27 @@
 
 .text-success-custom {
   color: var(--status-success) !important;
+}
+
+/* Action column alignment */
+.fila-regla .col-2 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Table header alignment */
+.row.fw-bold.text-muted.small {
+  display: flex;
+  align-items: center;
+}
+
+/* Input alignment */
+.fila-regla input[type="number"] {
+  height: 38px;
+}
+
+/* Add row styling */
+.bg-light.rounded.border {
+  border-color: #e5e7eb !important;
 }

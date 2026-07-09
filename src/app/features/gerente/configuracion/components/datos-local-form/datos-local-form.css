@@ -43,7 +43,7 @@
 .logo-uploader {
   width: 130px;
   height: 130px;
-  background: linear-gradient(145deg, #1a4a2e, #1f5a37);
+  background: linear-gradient(145deg, #2d3748, #4a5568);
   cursor: pointer;
   border-radius: 12px;
   transition: transform 0.2s, box-shadow 0.2s;
@@ -54,7 +54,7 @@
 
 .logo-uploader:hover {
   transform: scale(1.02);
-  box-shadow: 0 4px 16px rgba(31, 90, 55, 0.35);
+  box-shadow: 0 4px 16px rgba(74, 85, 104, 0.35);
 }
 
 .logo-uploader:active {
