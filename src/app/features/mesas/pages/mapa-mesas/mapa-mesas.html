@@ -61,9 +61,7 @@
           <button type="button" class="btn-mesa cuadrada" (click)="state.agregarMesa(FormaMesa.Cuadrada)">+</button>
           <button type="button" class="btn-mesa horizontal" (click)="state.agregarMesa(FormaMesa.HorizontalLarga)">+</button>
           <button type="button" class="btn-mesa vertical" (click)="state.agregarMesa(FormaMesa.HorizontalAlta)">+</button>
-          <button type="button" class="btn-objeto-fijo ms-3" (click)="state.agregarObjetoFijo()">
-            <span class="material-symbols-outlined" style="font-size: 1.2rem;">add_box</span> Objeto Fijo
-          </button>
+
         </div>
       }
 
@@ -157,7 +155,7 @@
         <hr class="mb-4">
 
         <div class="d-flex flex-column gap-3">
-          @if (mesaMobileSeleccionada()!.estadoMesa === 'Disponible') {
+          @if (mesaMobileSeleccionada()!.estadoMesa === 'Disponible' || mesaMobileSeleccionada()!.estadoMesa === 'Reservada') {
             <button class="btn btn-success btn-lg py-3 fw-bold rounded-3" (click)="abrirMesaMobile()">ABRIR MESA</button>
             <button class="btn btn-dark btn-lg py-3 fw-bold rounded-3" (click)="deshabilitarMesaMobile()">DESHABILITAR</button>
           }

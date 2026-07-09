@@ -11,6 +11,7 @@ import { ItemPedido } from '../../../../core/models/domain/item-pedido';
 import { HeaderComensal } from '../../../../shared/ui/header-comensal/header-comensal';
 import { BotonComensal } from '../../../../shared/ui/botones/boton-comensal/boton-comensal';
 import { ResumenPedido } from '../../components/resumen-pedido/resumen-pedido';
+import { FilaVirtualState } from '../../services/fila-virtual.state';
 
 
 @Component({
@@ -30,6 +31,7 @@ export class DetallePedido implements OnInit, OnDestroy {
   @ViewChild(ModalConfirmacionPedido) modal!: ModalConfirmacionPedido;
 
   configuracionVisualState = inject(ConfiguracionVisualState);
+  filaVirtualState = inject(FilaVirtualState);
 
 
 
@@ -63,6 +65,10 @@ export class DetallePedido implements OnInit, OnDestroy {
 
 
 
+  volverACarta() {
+    this.router.navigate(['/comensal/ver-carta']);
+  }
+
   volver(): void {
     this.router.navigate(['/comensal/ver-carta']);
   }
@@ -73,11 +79,16 @@ export class DetallePedido implements OnInit, OnDestroy {
   readonly nombreComensalActual = sessionStorage.getItem('nombreComensal') ?? '';
 
   confirmarPedido(): void {
-    // Validación: debe haber comanda activa
-    // if (!this.comandaState.tieneComandaActiva()) {
-    //   alert('No hay mesa seleccionada. Por favor, escanea el QR de la mesa.');
-    //   return;
-    // }
+    const turnoId = this.filaVirtualState.turnoId();
+    
+    if (turnoId) {
+      if (this.pedidos().length === 0) return;
+      this.filaVirtualState.guardarPedidoPreArmado(turnoId, this.pedidos()).subscribe(() => {
+        this.router.navigate(['/comensal/estado-fila']);
+      });
+      return;
+    }
+
     const comandaId = this.comandaState.comandaId?.();
 
     if (!comandaId) {

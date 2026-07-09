@@ -1,8 +1,13 @@
 <app-header-comensal [showBack]="true" backRoute="/comensal/ver-carta" [title]="'Tu pedido'" />
 
 <div class="detalle-wrapper">
+  <div style="text-align: right; margin-bottom: 0.5rem; padding: 0 1rem;">
+    <a style="color: #16a34a; font-weight: bold; cursor: pointer; text-decoration: underline;" (click)="volverACarta()">
+      Volver a la carta
+    </a>
+  </div>
 
-  @if (!comandaState.tieneComandaActiva()) {
+  @if (!comandaState.tieneComandaActiva() && !filaVirtualState.turnoId()) {
     <div class="alerta-mesa">
       <span class="material-symbols-outlined">qr_code_scanner</span>
       <span>Escaneá el QR de la mesa para arrancar</span>
@@ -98,7 +103,7 @@
       <app-boton-comensal
         [backgroundColor]="configuracionVisualState.colorSecundario()"
         [textColor]="'#ffffff'"
-        [disabled]="!comandaState.tieneComandaActiva()"
+        [disabled]="!comandaState.tieneComandaActiva() && !filaVirtualState.turnoId()"
         (clicked)="confirmarPedido()">
         <div class="d-flex align-items-center justify-content-center gap-2">
           <span>Confirmar pedido</span>
@@ -106,13 +111,21 @@
         </div>
       </app-boton-comensal>
     }
+
+    @if (filaVirtualState.turnoId()) {
+      <div class="alerta-pre-armado" style="margin-top: 15px; font-size: 0.85rem; text-align: center; border: 1px solid #ccc; padding: 10px; border-radius: 8px;">
+        Tu pedido pre-armado será tenido en cuenta cuando se libere una mesa para ti, en el caso de que haya disponibilidad de los items enviaremos directamente el pedido a la cocina una vez escanees el qr de la mesa!
+      </div>
+    }
   </div>
 
 </div>
 
-<app-llamar-al-mozo [mesaId]="comandaState.mesaId() ?? 0" [enviando]="comensalState.enviando()"
-  [enviado]="comensalState.exito()" [error]="comensalState.error()" (llamadoMozo)="comensalState.solicitarMozo($event)"
-  (modalCerrado)="comensalState.limpiarEstado()" />
+@if (!filaVirtualState.turnoId()) {
+  <app-llamar-al-mozo [mesaId]="comandaState.mesaId() ?? 0" [enviando]="comensalState.enviando()"
+    [enviado]="comensalState.exito()" [error]="comensalState.error()" (llamadoMozo)="comensalState.solicitarMozo($event)"
+    (modalCerrado)="comensalState.limpiarEstado()" />
+}
 
 <app-modal-confirmacion-pedido #modal [cargando]="comandaState.cargando()" [error]="comandaState.error()"
   [estadoPedido]="comandaState.estadoPedido()" (confirmar)="comandaState.confirmarPedido()" />

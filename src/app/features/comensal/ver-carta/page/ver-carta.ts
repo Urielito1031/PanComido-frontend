@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 import { ComensalState } from '../../services/comensal-state';
 import { QRCodeComponent } from 'angularx-qrcode';
 import { Router } from '@angular/router';
+import { FilaVirtualState } from '../../services/fila-virtual.state';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -33,6 +34,7 @@ export class VerCarta implements OnDestroy {
   state = inject(CartaState);
   comensalState = inject(ComensalState);
   configuracionVisualState = inject(ConfiguracionVisualState);
+  filaVirtualState = inject(FilaVirtualState);
 
   mostrarFiltros = signal(false);
   mesaId = signal(1);
@@ -135,6 +137,10 @@ export class VerCarta implements OnDestroy {
 
   irAPedido(): void {
     this.router.navigate(['/comensal/detalle-pedido']);
+  }
+
+  irAEstadoFila() {
+    this.router.navigate(['/comensal/estado-fila']);
   }
 
   agregarAlPedido(item: ItemPedido): void {

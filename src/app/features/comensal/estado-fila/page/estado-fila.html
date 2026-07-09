@@ -1,0 +1,64 @@
+<div class="pantalla-completa">
+  <div class="header-mockup">
+    <div class="logo-circulo">
+      <img [src]="configVisual.logoUrl() || 'assets/images/logo/logo_el_ferroviario.png'" alt="Logo" onerror="this.style.display='none'">
+    </div>
+  </div>
+  
+  <div class="subheader-mockup">
+    <span class="material-symbols-outlined back-icon" (click)="abrirModalSalir()">arrow_back_ios_new</span>
+    <div class="badge-verde">Turno</div>
+  </div>
+
+  @if (estado(); as est) {
+  <div class="contenido-central">
+    <h2 class="titulo-turno">Número de turno</h2>
+    <h1 class="numero-grande">{{ est.numeroTurno ?? '18' }}</h1>
+
+    <div class="badge-amarillo">
+      <span class="material-symbols-outlined" style="font-size: 16px; margin-right: 4px;">person</span>
+      <span>{{ est.turnosAdelante ?? 0 }} adelante</span>
+    </div>
+
+    <!-- Conservamos las cajas que le gustaron al usuario -->
+    <div class="info-caja mt-4">
+      <span class="material-symbols-outlined info-icon">schedule</span>
+      <div class="info-texto">
+        <strong>ESPERA ESTIMADA</strong>
+        <span>{{ est.tiempoEstimadoMinutos ?? '0' }} minutos</span>
+      </div>
+    </div>
+
+    @if (pedidoState.pedidos().length > 0) {
+    <div class="info-caja mt-3">
+      <span class="material-symbols-outlined info-icon">restaurant_menu</span>
+      <div class="info-texto">
+        <strong>PEDIDO PRE-ARMADO</strong>
+        <span>{{ pedidoState.pedidos().length }} items - Total: ${{ totalPedido() | number:'1.0-0' }}</span>
+      </div>
+    </div>
+    }
+  </div>
+
+  <div class="botones-inferiores">
+    <button class="btn-outline" (click)="abrirModalSalir()">Salir</button>
+    <button class="btn-outline" (click)="accionPedido()">
+      {{ pedidoState.pedidos().length > 0 ? 'Ver pedido' : 'Realizar pedido' }}
+    </button>
+  </div>
+  }
+
+  <!-- Modal custom para salir -->
+  @if (mostrarModalSalir) {
+  <div class="modal-overlay">
+    <div class="modal-content">
+      <h3>¿Abandonar la fila?</h3>
+      <p>Estás a punto de salir de la fila virtual. Perderás tu lugar y si deseas volver tendrás que anotarte nuevamente.</p>
+      <div class="modal-botones">
+        <button class="btn-modal-cancel" (click)="cerrarModalSalir()">Cancelar</button>
+        <button class="btn-modal-confirm" (click)="confirmarSalir()">Salir de la fila</button>
+      </div>
+    </div>
+  </div>
+  }
+</div>

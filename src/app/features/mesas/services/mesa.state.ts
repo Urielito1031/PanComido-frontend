@@ -94,7 +94,8 @@ export class MesaState {
       estadoMesa: EstadoMesa.Disponible,
       dimensionMesa: { id: 0, forma },
       posicionXInicio: 15, posicionXFin: 15 + ancho,
-      posicionYInicio: 15, posicionYFin: 15 + alto
+      posicionYInicio: 15, posicionYFin: 15 + alto,
+      tipoElemento: 1
     };
 
     this.lectura.updateMesas(m => [...m, nuevaMesa]);
