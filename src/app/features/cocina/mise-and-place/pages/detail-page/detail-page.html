@@ -1,3 +1,7 @@
+@if (state.mensajeExito(); as msg) {
+  <div class="success-toast">{{ msg }}</div>
+}
+
 @if (cargando()) {
   <p class="loading-text">Cargando...</p>
 } @else if (error(); as err) {

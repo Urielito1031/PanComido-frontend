@@ -25,6 +25,8 @@
         <app-mise-and-place-card
           [item]="item"
           [destacado]="item.miseAndPlaceId === state.ultimoCreadoId()"
+          (editar)="onEditar($event)"
+          (eliminar)="onEliminar($event)"
         />
       } @empty {
         <div class="empty-state">
@@ -39,7 +41,7 @@
 @if (mostrarModal()) {
   <div class="modal-overlay" (click)="cerrarModal()">
     <div class="modal-content" (click)="$event.stopPropagation()">
-      <h2>Nuevo Mise and Place</h2>
+      <h2>{{ editandoItem() ? 'Editar Mise and Place' : 'Nuevo Mise and Place' }}</h2>
 
       @if (state.cargandoForm()) {
         <p class="loading-text">Cargando datos del formulario...</p>
@@ -50,6 +52,7 @@
           [bodegas]="state.bodegas()"
           [ingredientes]="state.ingredientesDisponibles()"
           [creando]="state.creando()"
+          [editarItem]="editandoItem()"
           (guardar)="onGuardar($event)"
           (cancelar)="cerrarModal()"
         />

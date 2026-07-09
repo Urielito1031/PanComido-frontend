@@ -2,7 +2,7 @@ import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core'
 import { MiseAndPlaceService } from './mise-and-place-service';
 import { BodegaLightDto, CategoriaLightDto, DatosFormularioMiseAndPlaceDto, IngredienteMiseAndPlaceResponseDto, MiseAndPlaceListadoDto, UnidadMedidaResponseDto } from '../../../../core/models/dtos/responses/mise-and-place.response';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CrearMiseAndPlaceDto } from '../../../../core/models/dtos/requests/mise-and-place.request';
+import { CrearMiseAndPlaceDto, ModificarMiseAndPlaceDto } from '../../../../core/models/dtos/requests/mise-and-place.request';
 
 @Injectable({
   providedIn: 'root',
@@ -99,6 +99,39 @@ export class MiseAndPlaceState {
       error: (err) => {
         this.#error.set(err.message);
         this.#creando.set(false);
+      },
+    });
+  }
+
+  modificar(id: number, dto: ModificarMiseAndPlaceDto): void {
+    this.#creando.set(true);
+    this.#error.set(null);
+
+    this.api.modificar(id, dto).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (item) => {
+        this.#creando.set(false);
+        this.#items.update(lista => lista.map(i => i.miseAndPlaceId === id ? item : i));
+        this.#mensajeExito.set(`${item.nombre} modificado correctamente`);
+        setTimeout(() => this.#mensajeExito.set(null), 3000);
+      },
+      error: (err) => {
+        this.#error.set(err.message);
+        this.#creando.set(false);
+      },
+    });
+  }
+
+  eliminar(id: number): void {
+    this.#error.set(null);
+
+    this.api.eliminar(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.#items.update(lista => lista.filter(i => i.miseAndPlaceId !== id));
+        this.#mensajeExito.set('Mise and Place eliminado');
+        setTimeout(() => this.#mensajeExito.set(null), 3000);
+      },
+      error: (err) => {
+        this.#error.set(err.message);
       },
     });
   }

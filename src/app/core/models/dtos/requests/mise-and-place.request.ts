@@ -13,3 +13,7 @@ export interface CrearMiseAndPlaceDto {
   bodegaId: number;
   ingredientes: MiseAndPlaceIngredienteDto[];
 }
+
+export interface ModificarMiseAndPlaceDto extends CrearMiseAndPlaceDto {
+  loteId: number;
+}

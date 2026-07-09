@@ -13,7 +13,7 @@ export class DetailPage implements OnInit {
   state = inject(MiseAndPlaceState);
   private route = inject(ActivatedRoute);
 
-  item = computed(() => 
+  item = computed(() =>
     this.state.items().find(
       i => i.loteId === Number(this.route.snapshot.paramMap.get('loteId'))
     )

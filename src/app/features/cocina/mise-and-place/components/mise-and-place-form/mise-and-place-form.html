@@ -94,7 +94,7 @@
   <div>
     <button type="button" (click)="cancelar.emit()">Cancelar</button>
     <button type="submit" [disabled]="form.invalid || creando()">
-      {{ creando() ? 'Guardando...' : 'Crear Mise and Place' }}
+      {{ creando() ? 'Guardando...' : editarItem() ? 'Guardar cambios' : 'Crear Mise and Place' }}
     </button>
   </div>
 </form>

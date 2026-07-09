@@ -173,3 +173,21 @@
   font-weight: 600;
   text-align: center;
 }
+
+.success-toast {
+  background-color: var(--status-success);
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: var(--border-radius-sm);
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 12px rgba(106, 191, 63, 0.3);
+  animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: center;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
