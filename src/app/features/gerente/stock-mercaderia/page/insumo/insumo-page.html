@@ -5,10 +5,7 @@
   </div>
 
   <app-page-toolbar>
-    <app-buscador
-      buscador
-      placeholder="Buscar ingrediente"
-      (busquedaCambiada)="termino.set($event)">
+    <app-buscador buscador placeholder="Buscar ingrediente" (busquedaCambiada)="termino.set($event)">
     </app-buscador>
 
     <div acciones class="d-flex gap-2 align-items-center">
@@ -16,42 +13,35 @@
         <span class="material-symbols-outlined">help</span>
       </button>
 
-      <button
-        class="btn-premium-primary d-flex align-items-center gap-2"
-        (click)="abrirModalCrear(modalFormulario)">
+      <button class="btn-premium-primary d-flex align-items-center gap-2" (click)="abrirModalCrear(modalFormulario)">
         <span class="material-symbols-outlined">add</span>
         <span class="fw-semibold">Nuevo producto</span>
+      </button>
+
+      <button class="btn-premium-primary d-flex align-items-center gap-2" (click)="abrirModalBodegaCrear(modalBodega)">
+        <span class="material-symbols-outlined">add</span>
+        <span class="fw-semibold">Nueva bodega</span>
       </button>
     </div>
   </app-page-toolbar>
 
+
+
   <!-- ─── Métricas de estado ─── -->
   <div class="stock-metrics-strip">
-    <button
-      class="metric neutral"
-      type="button"
-      [class.active]="estadoFiltro() === 'todos'"
+    <button class="metric neutral" type="button" [class.active]="estadoFiltro() === 'todos'"
       (click)="seleccionarEstado('todos')">
       <strong>{{ totalProductos() }}</strong> Total
     </button>
-    <button
-      class="metric danger"
-      type="button"
-      [class.active]="estadoFiltro() === 'criticos'"
+    <button class="metric danger" type="button" [class.active]="estadoFiltro() === 'criticos'"
       (click)="seleccionarEstado('criticos')">
       <strong>{{ productosCriticos() }}</strong> Críticos
     </button>
-    <button
-      class="metric warning"
-      type="button"
-      [class.active]="estadoFiltro() === 'bajos'"
+    <button class="metric warning" type="button" [class.active]="estadoFiltro() === 'bajos'"
       (click)="seleccionarEstado('bajos')">
       <strong>{{ productosBajos() }}</strong> Bajos
     </button>
-    <button
-      class="metric success"
-      type="button"
-      [class.active]="estadoFiltro() === 'ok'"
+    <button class="metric success" type="button" [class.active]="estadoFiltro() === 'ok'"
       (click)="seleccionarEstado('ok')">
       <strong>{{ productosOk() }}</strong> Ok
     </button>
@@ -59,259 +49,251 @@
 
   <!-- ─── Resumen ejecutivo ─── -->
   @if (productosCriticos() > 0 || productosBajos() > 0) {
-    <div class="stock-executive-summary" [class.has-criticos]="productosCriticos() > 0">
-      <span class="material-symbols-outlined">{{ productosCriticos() > 0 ? 'priority_high' : 'info' }}</span>
-      <div>
-        <strong>{{ productosCriticos() > 0 ? 'Atención requerida' : 'Stock bajo detectado' }}</strong>
-        <small>
-          @if (productosCriticos() > 0 && productosBajos() > 0) {
-            {{ productosCriticos() }} producto{{ productosCriticos() !== 1 ? 's' : '' }} por debajo del mínimo y {{ productosBajos() }} cerca del límite.
-          } @else if (productosCriticos() > 0) {
-            {{ productosCriticos() }} producto{{ productosCriticos() !== 1 ? 's' : '' }} por debajo del mínimo. Considerá reponer pronto.
-          } @else {
-            {{ productosBajos() }} producto{{ productosBajos() !== 1 ? 's' : '' }} cerca del stock mínimo.
-          }
-        </small>
-      </div>
+  <div class="stock-executive-summary" [class.has-criticos]="productosCriticos() > 0">
+    <span class="material-symbols-outlined">{{ productosCriticos() > 0 ? 'priority_high' : 'info' }}</span>
+    <div>
+      <strong>{{ productosCriticos() > 0 ? 'Atención requerida' : 'Stock bajo detectado' }}</strong>
+      <small>
+        @if (productosCriticos() > 0 && productosBajos() > 0) {
+        {{ productosCriticos() }} producto{{ productosCriticos() !== 1 ? 's' : '' }} por debajo del mínimo y {{
+        productosBajos() }} cerca del límite.
+        } @else if (productosCriticos() > 0) {
+        {{ productosCriticos() }} producto{{ productosCriticos() !== 1 ? 's' : '' }} por debajo del mínimo. Considerá
+        reponer pronto.
+        } @else {
+        {{ productosBajos() }} producto{{ productosBajos() !== 1 ? 's' : '' }} cerca del stock mínimo.
+        }
+      </small>
     </div>
+  </div>
   } @else if (totalProductos() > 0) {
-    <div class="stock-executive-summary summary-ok">
-      <span class="material-symbols-outlined">check_circle</span>
-      <div>
-        <strong>Todo en orden</strong>
-        <small>Todos los productos tienen stock suficiente.</small>
-      </div>
+  <div class="stock-executive-summary summary-ok">
+    <span class="material-symbols-outlined">check_circle</span>
+    <div>
+      <strong>Todo en orden</strong>
+      <small>Todos los productos tienen stock suficiente.</small>
     </div>
+  </div>
   }
 
   <!-- ─── Breadcrumb de contexto ─── -->
   @if (filtrosActivos() > 0) {
-    <div class="stock-breadcrumb">
-      <button class="stock-breadcrumb-item" [class.active]="!categoria() && estadoFiltro() === 'todos'" (click)="limpiarFiltros()">
-        Todos
-      </button>
-      @if (categoria()) {
-        <span class="stock-breadcrumb-sep">/</span>
-        <button class="stock-breadcrumb-item active" (click)="limpiarCategoria()">
-          {{ categoria() }}
-          <span class="material-symbols-outlined breadcrumb-close">close</span>
-        </button>
-      }
-      @if (estadoFiltro() !== 'todos') {
-        <span class="stock-breadcrumb-sep">/</span>
-        <button class="stock-breadcrumb-item active" (click)="seleccionarEstado('todos')">
-          {{ contextoListado() }}
-          <span class="material-symbols-outlined breadcrumb-close">close</span>
-        </button>
-      }
-    </div>
+  <div class="stock-breadcrumb">
+    <button class="stock-breadcrumb-item" [class.active]="!categoria() && estadoFiltro() === 'todos'"
+      (click)="limpiarFiltros()">
+      Todos
+    </button>
+    @if (categoria()) {
+    <span class="stock-breadcrumb-sep">/</span>
+    <button class="stock-breadcrumb-item active" (click)="limpiarCategoria()">
+      {{ categoria() }}
+      <span class="material-symbols-outlined breadcrumb-close">close</span>
+    </button>
+    }
+    @if (estadoFiltro() !== 'todos') {
+    <span class="stock-breadcrumb-sep">/</span>
+    <button class="stock-breadcrumb-item active" (click)="seleccionarEstado('todos')">
+      {{ contextoListado() }}
+      <span class="material-symbols-outlined breadcrumb-close">close</span>
+    </button>
+    }
+  </div>
   }
 
   <!-- Barra de filtro por categorías -->
   @if (categoriasConInfo().length > 0) {
-    <div class="categoria-pills-container" [class.colapsado]="categoriasColapsado()">
-      <button 
-        type="button" 
-        class="categoria-pills-header" 
-        (click)="categoriasColapsado.set(!categoriasColapsado())">
-        <span class="material-symbols-outlined header-icon">filter_list</span>
-        <span class="header-title">Categorías</span>
-        @if (categoria() !== null) {
-          <span class="header-badge active-category-badge">{{ categoria() }}</span>
-        }
-        <span class="spacer"></span>
-        <span class="material-symbols-outlined chevron-icon">
-          {{ categoriasColapsado() ? 'expand_more' : 'expand_less' }}
-        </span>
+  <div class="categoria-pills-container" [class.colapsado]="categoriasColapsado()">
+    <button type="button" class="categoria-pills-header" (click)="categoriasColapsado.set(!categoriasColapsado())">
+      <span class="material-symbols-outlined header-icon">filter_list</span>
+      <span class="header-title">Categorías</span>
+      @if (categoria() !== null) {
+      <span class="header-badge active-category-badge">{{ categoria() }}</span>
+      }
+      <span class="spacer"></span>
+      <span class="material-symbols-outlined chevron-icon">
+        {{ categoriasColapsado() ? 'expand_more' : 'expand_less' }}
+      </span>
+    </button>
+
+    @if (!categoriasColapsado()) {
+    <div class="categoria-pills-bar">
+      <button type="button" class="categoria-pill" [class.activa]="categoria() === null" (click)="limpiarCategoria()">
+        <span class="pill-label">Todos</span>
+        <span class="pill-count">{{ totalProductos() }}</span>
       </button>
 
-      @if (!categoriasColapsado()) {
-        <div class="categoria-pills-bar">
-          <button
-            type="button"
-            class="categoria-pill"
-            [class.activa]="categoria() === null"
-            (click)="limpiarCategoria()">
-            <span class="pill-label">Todos</span>
-            <span class="pill-count">{{ totalProductos() }}</span>
-          </button>
-
-          @for (cat of categoriasConInfo(); track cat.nombre) {
-            <button
-              type="button"
-              class="categoria-pill"
-              [class.activa]="categoria() === cat.nombre"
-              [class.alerta-critico]="cat.alerta === 'critico'"
-              [class.alerta-bajo]="cat.alerta === 'bajo'"
-              (click)="seleccionarCategoria(cat.nombre)">
-              <span class="pill-alerta-dot" [class.critico]="cat.alerta === 'critico'" [class.bajo]="cat.alerta === 'bajo'" [class.ok]="cat.alerta === 'ok'" [class.pulse]="cat.alerta === 'critico'"></span>
-              <span class="pill-label">{{ cat.nombre }}</span>
-              <span class="pill-count">{{ cat.total }}</span>
-              @if (categoria() === cat.nombre) {
-                <span class="material-symbols-outlined pill-close" (click)="limpiarCategoria(); $event.stopPropagation()">close</span>
-              }
-            </button>
-          }
-        </div>
+      @for (cat of categoriasConInfo(); track cat.nombre) {
+      <button type="button" class="categoria-pill" [class.activa]="categoria() === cat.nombre"
+        [class.alerta-critico]="cat.alerta === 'critico'" [class.alerta-bajo]="cat.alerta === 'bajo'"
+        (click)="seleccionarCategoria(cat.nombre)">
+        <span class="pill-alerta-dot" [class.critico]="cat.alerta === 'critico'" [class.bajo]="cat.alerta === 'bajo'"
+          [class.ok]="cat.alerta === 'ok'" [class.pulse]="cat.alerta === 'critico'"></span>
+        <span class="pill-label">{{ cat.nombre }}</span>
+        <span class="pill-count">{{ cat.total }}</span>
+        @if (categoria() === cat.nombre) {
+        <span class="material-symbols-outlined pill-close"
+          (click)="limpiarCategoria(); $event.stopPropagation()">close</span>
+        }
+      </button>
       }
     </div>
+    }
+  </div>
   }
 
   <section class="stock-panel">
     <div class="stock-list-header">
       <div>
         <span class="stock-kicker">Vista actual</span>
-        <h3>{{ contextoListado() }}</h3>
+        <div class="d-flex align-items-center gap-2">
+          <h3>{{ contextoListado() }}</h3>
+
+          @if (tabSeleccionada() === 'bodegas') {
+          @if (bodegaSeleccionadaId(); as bId) {
+          <button style="background:none; border:none; color:var(--text-muted); cursor:pointer; display:flex;"
+            (click)="abrirModalBodegaEditar(modalBodega, bId)" title="Modificar bodega">
+            <span class="material-symbols-outlined">settings</span>
+          </button>
+          <button
+            style="background:none; border:none; color:var(--danger-color, #dc3545); cursor:pointer; display:flex;"
+            (click)="abrirModalEliminarBodega(bId)" title="Eliminar bodega">
+            <span class="material-symbols-outlined">delete</span>
+          </button>
+          }
+          }
+        </div>
       </div>
 
       <div class="d-flex align-items-center gap-3">
         @if (totalPaginas() > 1) {
-          <div class="paginacion-header">
-            <button 
-              type="button" 
-              class="btn-paginacion-flecha" 
-              [disabled]="pagina() === 1" 
-              (click)="cambiarPagina(-1)" 
-              aria-label="Página anterior">
-              <span class="material-symbols-outlined">keyboard_arrow_left</span>
-            </button>
-            <span class="paginacion-texto">{{ pagina() }} / {{ totalPaginas() }}</span>
-            <button 
-              type="button" 
-              class="btn-paginacion-flecha" 
-              [disabled]="pagina() === totalPaginas()" 
-              (click)="cambiarPagina(1)" 
-              aria-label="Página siguiente">
-              <span class="material-symbols-outlined">keyboard_arrow_right</span>
-            </button>
-          </div>
+        <div class="paginacion-header">
+          <button type="button" class="btn-paginacion-flecha" [disabled]="pagina() === 1" (click)="cambiarPagina(-1)"
+            aria-label="Página anterior">
+            <span class="material-symbols-outlined">keyboard_arrow_left</span>
+          </button>
+          <span class="paginacion-texto">{{ pagina() }} / {{ totalPaginas() }}</span>
+          <button type="button" class="btn-paginacion-flecha" [disabled]="pagina() === totalPaginas()"
+            (click)="cambiarPagina(1)" aria-label="Página siguiente">
+            <span class="material-symbols-outlined">keyboard_arrow_right</span>
+          </button>
+        </div>
         }
 
         @if (filtrosActivos() > 0) {
-          <button class="clear-filters-btn" type="button" (click)="limpiarFiltros()">
-            <span class="material-symbols-outlined">filter_alt_off</span>
-            Limpiar filtros
-          </button>
+        <button class="clear-filters-btn" type="button" (click)="limpiarFiltros()">
+          <span class="material-symbols-outlined">filter_alt_off</span>
+          Limpiar filtros
+        </button>
         }
       </div>
     </div>
 
     <div class="stock-tabs">
-      <button
-        class="stock-tab"
-        type="button"
-        [class.active]="tabSeleccionada() === 'productos'"
+      <button class="stock-tab" type="button" [class.active]="tabSeleccionada() === 'productos'"
         (click)="seleccionarProductos()">
         <span class="material-symbols-outlined">category</span>
         Productos
       </button>
 
       <app-dropdown #dropdownBodegas>
-        <button
-          trigger
-          class="stock-tab"
-          type="button"
-          [class.active]="tabSeleccionada() === 'bodegas'">
+        <button trigger class="stock-tab" type="button" [class.active]="tabSeleccionada() === 'bodegas'">
           <span class="material-symbols-outlined">warehouse</span>
           {{ nombreBodegaSeleccionada() || 'Bodegas' }}
         </button>
         <div menu>
           <ul>
             @for(bodega of bodegaState.bodegas(); track bodega.id) {
-              <li (click)="seleccionarBodega(bodega.id); dropdownBodegas.cerrar()">
-                {{ bodega.nombre }}
-              </li>
+            <li (click)="seleccionarBodega(bodega.id); dropdownBodegas.cerrar()">
+              {{ bodega.nombre }}
+            </li>
             }
           </ul>
         </div>
       </app-dropdown>
 
-      <button
-        class="stock-tab"
-        type="button"
-        [class.active]="tabSeleccionada() === 'lotes'"
+      <button class="stock-tab" type="button" [class.active]="tabSeleccionada() === 'lotes'"
         (click)="seleccionarLotes()">
         <span class="material-symbols-outlined">event_repeat</span>
         Lotes
         @if (lotesCriticos() > 0) {
-          <span class="stock-tab-badge">{{ lotesCriticos() }}</span>
+        <span class="stock-tab-badge">{{ lotesCriticos() }}</span>
         }
       </button>
     </div>
 
     @if (tabSeleccionada() === 'lotes') {
-      <div class="lots-inline-summary" [class.has-alerts]="lotesCriticos() > 0">
-        <span class="material-symbols-outlined">event_upcoming</span>
-        <div>
-          <strong>{{ lotesCriticos() }} lotes urgentes</strong>
-          <span>Vencidos, vencen hoy o dentro de 7 días.</span>
-        </div>
+    <div class="lots-inline-summary" [class.has-alerts]="lotesCriticos() > 0">
+      <span class="material-symbols-outlined">event_upcoming</span>
+      <div>
+        <strong>{{ lotesCriticos() }} lotes urgentes</strong>
+        <span>Vencidos, vencen hoy o dentro de 7 días.</span>
       </div>
+    </div>
 
-      @if (lotesVista().length === 0) {
-        <div class="stock-empty-state">
-          <span class="material-symbols-outlined">event_busy</span>
-          <strong>No hay lotes para mostrar</strong>
-          <p>Probá cambiar la búsqueda o la categoría seleccionada.</p>
-        </div>
-      } @else {
-        <div class="fast-table-shell">
-          <table class="fast-table lots-table">
-            <thead>
-              <tr>
-                <th>Lote</th>
-                <th>Producto</th>
-                <th class="text-end">Cantidad</th>
-                <th>Bodega</th>
-                <th>Vencimiento</th>
-                <th>Estado</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (item of lotesPaginados(); track item.lote.id) {
-                <tr [class.row-danger]="item.estadoClase === 'danger'" [class.row-warning]="item.estadoClase === 'warning'">
-                  <td>
-                    <strong>{{ item.lote.nombre }}</strong>
-                  </td>
-                  <td>{{ item.producto?.nombre }}</td>
-                  <td class="text-end">{{ item.lote.cantidad }} {{ item.unidad }}</td>
-                  <td>{{ item.bodega }}</td>
-                  <td>{{ item.lote.fechaVencimiento ? (item.lote.fechaVencimiento | date:'dd/MM/yyyy') : 'Sin fecha' }}</td>
-                  <td>
-                    <span class="fast-pill" [class.danger]="item.estadoClase === 'danger'" [class.warning]="item.estadoClase === 'warning'" [class.success]="item.estadoClase === 'success'">
-                      {{ item.estadoTexto }}
-                    </span>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      }
-    } @else if (tabSeleccionada() === 'bodegas' && !bodegaSeleccionadaId()) {
-      <div class="stock-empty-state">
-        <span class="material-symbols-outlined">warehouse</span>
-        <strong>Elegí una bodega para ver su stock</strong>
-        <p>Esto evita mezclar existencias de distintos depósitos.</p>
-      </div>
-    } @else if (productosFiltrados().length === 0) {
-      <div class="stock-empty-state">
-        <span class="material-symbols-outlined">{{ filtrosActivos() > 0 ? 'search_off' : 'inventory_2' }}</span>
-        <strong>{{ filtrosActivos() > 0 ? 'Sin resultados' : 'No hay productos aún' }}</strong>
-        <p>{{ filtrosActivos() > 0 ? 'Probá cambiar los filtros o la búsqueda.' : 'Creá tu primer producto para empezar a controlar el stock.' }}</p>
-        @if (filtrosActivos() === 0) {
-          <button class="btn-premium-primary stock-empty-cta" (click)="abrirModalCrear(modalFormulario)">
-            <span class="material-symbols-outlined">add</span>
-            <span>Crear producto</span>
-          </button>
-        }
-      </div>
+    @if (lotesVista().length === 0) {
+    <div class="stock-empty-state">
+      <span class="material-symbols-outlined">event_busy</span>
+      <strong>No hay lotes para mostrar</strong>
+      <p>Probá cambiar la búsqueda o la categoría seleccionada.</p>
+    </div>
     } @else {
-      <app-insumo-list
-        [productos]="productosPaginados()"
-        (editar)="abrirModalEditar(modalFormulario, $event)"
-        (eliminar)="abrirModalEliminar($event)">
-      </app-insumo-list>
+    <div class="fast-table-shell">
+      <table class="fast-table lots-table">
+        <thead>
+          <tr>
+            <th>Lote</th>
+            <th>Producto</th>
+            <th class="text-end">Cantidad</th>
+            <th>Bodega</th>
+            <th>Vencimiento</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of lotesPaginados(); track item.lote.id) {
+          <tr [class.row-danger]="item.estadoClase === 'danger'" [class.row-warning]="item.estadoClase === 'warning'">
+            <td>
+              <strong>{{ item.lote.nombre }}</strong>
+            </td>
+            <td>{{ item.producto?.nombre }}</td>
+            <td class="text-end">{{ item.lote.cantidad }} {{ item.unidad }}</td>
+            <td>{{ item.bodega }}</td>
+            <td>{{ item.lote.fechaVencimiento ? (item.lote.fechaVencimiento | date:'dd/MM/yyyy') : 'Sin fecha' }}</td>
+            <td>
+              <span class="fast-pill" [class.danger]="item.estadoClase === 'danger'"
+                [class.warning]="item.estadoClase === 'warning'" [class.success]="item.estadoClase === 'success'">
+                {{ item.estadoTexto }}
+              </span>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    }
+    } @else if (tabSeleccionada() === 'bodegas' && !bodegaSeleccionadaId()) {
+    <div class="stock-empty-state">
+      <span class="material-symbols-outlined">warehouse</span>
+      <strong>Elegí una bodega para ver su stock</strong>
+      <p>Esto evita mezclar existencias de distintos depósitos.</p>
+    </div>
+    } @else if (productosFiltrados().length === 0) {
+    <div class="stock-empty-state">
+      <span class="material-symbols-outlined">{{ filtrosActivos() > 0 ? 'search_off' : 'inventory_2' }}</span>
+      <strong>{{ filtrosActivos() > 0 ? 'Sin resultados' : 'No hay productos aún' }}</strong>
+      <p>{{ filtrosActivos() > 0 ? 'Probá cambiar los filtros o la búsqueda.' : 'Creá tu primer producto para empezar a
+        controlar el stock.' }}</p>
+      @if (filtrosActivos() === 0) {
+      <button class="btn-premium-primary stock-empty-cta" (click)="abrirModalCrear(modalFormulario)">
+        <span class="material-symbols-outlined">add</span>
+        <span>Crear producto</span>
+      </button>
+      }
+    </div>
+    } @else {
+    <app-insumo-list [productos]="productosPaginados()" [mostrarAcciones]="tabSeleccionada() !== 'bodegas'"
+      (editar)="abrirModalEditar(modalFormulario, $event)" (eliminar)="abrirModalEliminar($event)">
+    </app-insumo-list>
     }
   </section>
 </section>
@@ -319,40 +301,40 @@
 <app-modal #modalFormulario [titulo]="tituloModal()" [maxWidth]="680" (cerrado)="limpiarEstadoModal()">
 
   @if (modalAbierto()) {
-    @if (esBebidaSeleccionada()) {
-      @if (detalleInsumo(); as detalle) {
-        <app-editar-bebida-form
-          [insumo]="detalle"
-          [costo]="costoBebida()"
-          [porcentajeGanancia]="porcentajeGananciaBebida()"
-          [error]="state.error()"
-          (cancelado)="modalFormulario.cerrar()"
-          (guardar)="guardarBebida($event, modalFormulario)">
-        </app-editar-bebida-form>
-      } @else {
-        <div class="text-center text-muted p-4">Cargando...</div>
-      }
-    } @else if (!productoEditandoId() || detalleInsumo()) {
-      <app-producto-form
-        [producto]="detalleInsumo()"
-        [bodegas]="bodegaState.bodegas()"
-        [categorias]="state.categoriasInsumos()"
-        [unidadesMedida]="state.unidadMedidas()"
-        [error]="state.error()"
-        (cancelado)="modalFormulario.cerrar()"
-        (guardar)="guardarCambios($event, modalFormulario)">
-      </app-producto-form>
-    } @else {
-      <div class="text-center text-muted p-4">Cargando...</div>
-    }
+  @if (esBebidaSeleccionada()) {
+  @if (detalleInsumo(); as detalle) {
+  <app-editar-bebida-form [insumo]="detalle" [costo]="costoBebida()" [porcentajeGanancia]="porcentajeGananciaBebida()"
+    [error]="state.error()" (cancelado)="modalFormulario.cerrar()" (guardar)="guardarBebida($event, modalFormulario)">
+  </app-editar-bebida-form>
+  } @else {
+  <div class="text-center text-muted p-4">Cargando...</div>
+  }
+  } @else if (!productoEditandoId() || detalleInsumo()) {
+  <app-producto-form [producto]="detalleInsumo()" [bodegas]="bodegaState.bodegas()"
+    [categorias]="state.categoriasInsumos()" [unidadesMedida]="state.unidadMedidas()" [error]="state.error()"
+    (cancelado)="modalFormulario.cerrar()" (guardar)="guardarCambios($event, modalFormulario)">
+  </app-producto-form>
+  } @else {
+  <div class="text-center text-muted p-4">Cargando...</div>
+  }
   }
 
 </app-modal>
 
 @if (insumoAEliminar(); as producto) {
-  <app-modal-eliminar-insumo
-    [producto]="producto"
-    (confirm)="confirmarEliminar()"
-    (close)="cerrarModalEliminar()">
-  </app-modal-eliminar-insumo>
+<app-modal-eliminar-insumo [producto]="producto" (confirm)="confirmarEliminar()" (close)="cerrarModalEliminar()">
+</app-modal-eliminar-insumo>
+}
+
+<app-modal #modalBodega [titulo]="bodegaEditandoId() ? 'Editar Bodega' : 'Nueva Bodega'" [maxWidth]="500"
+  (cerrado)="limpiarEstadoModalBodega()">
+  <app-bodega-form [bodega]="bodegaSeleccionada()" [tiposBodega]="bodegaState.tiposBodega()"
+    [errorAPI]="bodegaState.errorGuardar()" (cancelado)="modalBodega.cerrar()"
+    (guardar)="guardarBodega($event, modalBodega)">
+  </app-bodega-form>
+</app-modal>
+@if (bodegaAEliminar(); as b) {
+<app-modal-eliminar-bodega [bodega]="b" [errorAPI]="bodegaState.errorMensaje()" (confirm)="confirmarEliminarBodega()"
+  (close)="cerrarModalEliminarBodega()">
+</app-modal-eliminar-bodega>
 }

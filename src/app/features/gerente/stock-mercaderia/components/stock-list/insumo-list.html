@@ -11,10 +11,12 @@
       <span>Categoría</span>
       <span class="text-end">Stock</span>
       <span class="text-end">Mínimo</span>
-      <span class="text-end">Precio venta</span>
+      <span class="text-center">Costo</span>
       <span>Vencimiento</span>
       <span>Estado</span>
+      @if (mostrarAcciones()) {
       <span class="text-end">Acción</span>
+      }
     </div>
 
     <div class="stock-rows-container">
@@ -30,7 +32,7 @@
           <div class="stock-cell">{{ fila.categoria }}</div>
           <div class="stock-cell text-end strong-number">{{ fila.stock }}</div>
           <div class="stock-cell text-end">{{ fila.minimo }}</div>
-          <div class="stock-cell text-end">{{ fila.precioVentaFinal | arsCurrency }}</div>
+          <div class="stock-cell text-center">{{ fila.costo > 0 ? (fila.costo | arsCurrency) : '-' }}</div>
           <div class="stock-cell">{{ fila.vencimiento }}</div>
           <div class="stock-cell">
             <span
@@ -40,8 +42,10 @@
               [class.success]="fila.estado === 'success'"
             >
               {{ fila.estadoLabel }}
-            </span>
+            </span
+            >
           </div>
+          @if (mostrarAcciones()) {
           <div class="stock-cell action-cell">
             <button class="btn-icon" type="button" title="Editar producto" (click)="editar.emit(fila.id)">
               <span class="material-symbols-outlined" aria-hidden="true">settings</span>
@@ -50,6 +54,7 @@
               <span class="material-symbols-outlined" aria-hidden="true">delete</span>
             </button>
           </div>
+          }
         </div>
       }
     </div>

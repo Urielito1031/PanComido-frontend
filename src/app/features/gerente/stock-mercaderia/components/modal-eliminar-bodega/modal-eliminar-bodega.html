@@ -1,0 +1,30 @@
+<div class="modal-overlay" (click)="close.emit()">
+    <div class="modal-card shadow border p-4 text-center bg-white" (click)="$event.stopPropagation()">
+        <div class="modal-warning-icon mb-3">
+            <span class="material-symbols-outlined warning-icon"
+                style="color: #dc3545; font-size: 3rem;">delete_forever</span>
+        </div>
+        <h3 class="modal-title mb-2">¿Eliminar bodega?</h3>
+        <p class="modal-text text-muted mb-4">
+            ¿Está seguro de que desea eliminar <strong class="text-dark">{{ bodega().nombre }}</strong>? Esta acción no
+            se puede deshacer.
+            <br><br>
+            <small class="text-danger">Nota: No podrá eliminarla si contiene lotes de mercadería adentro.</small>
+        </p>
+        @if (errorAPI()) {
+        <div class="alert alert-danger p-2 mb-3 small text-start">
+            <i class="fa-solid fa-circle-exclamation me-1"></i> {{ errorAPI() }}
+        </div>
+        }
+        <div class="row g-2">
+            <div class="col-6">
+                <app-boton label="CANCELAR" variante="outline" tamanio="md" (clicked)="close.emit()"
+                    class="w-100 cancel-btn"></app-boton>
+            </div>
+            <div class="col-6">
+                <app-boton label="ELIMINAR" variante="danger" tamanio="md" (clicked)="confirm.emit()"
+                    class="w-100 delete-btn"></app-boton>
+            </div>
+        </div>
+    </div>
+</div>

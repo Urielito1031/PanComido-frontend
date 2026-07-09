@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, effect, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, effect, OnInit, viewChild } from '@angular/core';
 import { InsumoList } from '../../components/stock-list/insumo-list';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
@@ -13,13 +13,16 @@ import { ProductoForm, GuardarProductoPayload } from "../../components/producto-
 import { Insumo, LoteInsumo } from '../../../../../core/models/domain/insumo';
 import { EditarBebidaFormComponent, GuardarBebidaPayload } from '../../components/editar-bebida-form/editar-bebida-form';
 import { ModalEliminarInsumoComponent } from '../../components/modal-eliminar-insumo/modal-eliminar-insumo';
+import { BodegaForm, GuardarBodegaPayload } from '../../components/bodega-form/bodega-form';
+import { ModalEliminarBodegaComponent } from '../../components/modal-eliminar-bodega/modal-eliminar-bodega';
+import { AppNotice } from '../../../../../shared/ui/app-notice/app-notice';
 
 type EstadoStockFiltro = 'todos' | 'criticos' | 'bajos' | 'ok';
 
 @Component({
   selector: 'app-insumo',
   standalone: true,
-  imports: [InsumoList, CommonModule, PageToolbar, Buscador, Dropdown, Modal, ProductoForm, EditarBebidaFormComponent, ModalEliminarInsumoComponent],
+  imports: [InsumoList, CommonModule, PageToolbar, Buscador, Dropdown, Modal, ProductoForm, EditarBebidaFormComponent, ModalEliminarInsumoComponent, BodegaForm, ModalEliminarBodegaComponent, AppNotice],
   templateUrl: './insumo-page.html',
   styleUrl: './insumo-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -30,13 +33,13 @@ export class InsumoPage implements OnInit {
   protected bodegaState = inject(BodegaState);
   private route = inject(ActivatedRoute);
   private readonly tour = inject(StockTourService);
-  
+
   pagina = signal<number>(1);
   itemsPorPagina = 9;
 
   totalPaginas = computed(() => {
-    const totalItems = this.tabSeleccionada() === 'lotes' 
-      ? this.lotesVista().length 
+    const totalItems = this.tabSeleccionada() === 'lotes'
+      ? this.lotesVista().length
       : this.productosFiltrados().length;
     return Math.max(1, Math.ceil(totalItems / this.itemsPorPagina));
   });
@@ -51,6 +54,8 @@ export class InsumoPage implements OnInit {
     return this.lotesVista().slice(inicio, inicio + this.itemsPorPagina);
   });
 
+  modalBodega = viewChild<Modal>('modalBodega');
+
   constructor() {
     effect(() => {
       // Registrar dependencias de filtros y pestañas para resetear página
@@ -61,6 +66,27 @@ export class InsumoPage implements OnInit {
       this.bodegaSeleccionadaId();
 
       this.pagina.set(1);
+    }, { allowSignalWrites: true });
+
+    effect(() => {
+      const estado = this.bodegaState.estadoGuardar();
+      if (estado === 'success') {
+        this.modalBodega()?.cerrar();
+        this.limpiarEstadoModalBodega();
+        this.bodegaState.resetEstados();
+      }
+    });
+
+    effect(() => {
+      const estado = this.bodegaState.estadoEliminar();
+      if (estado === 'success') {
+        const idEliminado = this.bodegaEliminandoId();
+        if (idEliminado && this.bodegaSeleccionadaId() === idEliminado) {
+          this.seleccionarProductos();
+        }
+        this.bodegaEliminandoId.set(null);
+        this.bodegaState.resetEstados();
+      }
     }, { allowSignalWrites: true });
   }
 
@@ -75,12 +101,26 @@ export class InsumoPage implements OnInit {
   categoria = signal<string | null>(null);
   categoriasColapsado = signal<boolean>(true);
   estadoFiltro = signal<EstadoStockFiltro>('todos');
-  
+
   tabSeleccionada = signal<'productos' | 'bodegas' | 'lotes'>('productos');
   productoEditandoId = signal<number | null>(null);
   productoEliminandoId = signal<number | null>(null);
+  bodegaEditandoId = signal<number | null>(null);
+  bodegaEliminandoId = signal<number | null>(null);
 
-  tituloModal= computed(() => {
+  bodegaSeleccionada = computed(() => {
+    const id = this.bodegaEditandoId();
+    if (!id) return null;
+    return this.bodegaState.bodegas().find(b => b.id === id) || null;
+  });
+
+  bodegaAEliminar = computed(() => {
+    const id = this.bodegaEliminandoId();
+    if (!id) return null;
+    return this.bodegaState.bodegas().find(b => b.id === id) || null;
+  });
+
+  tituloModal = computed(() => {
     return this.productoEditandoId() ? 'Editar Insumo' : 'Nuevo Insumo'
   })
   modalAbierto = signal<boolean>(false);
@@ -141,11 +181,11 @@ export class InsumoPage implements OnInit {
     return 'Todos los productos';
   });
 
- productoSeleccionado = computed(() => {
-  const id = this.productoEditandoId();
-  if (!id) return null;
-  return this.state.productos().find(p => p.id === id) || null;
-});
+  productoSeleccionado = computed(() => {
+    const id = this.productoEditandoId();
+    if (!id) return null;
+    return this.state.productos().find(p => p.id === id) || null;
+  });
 
   esBebidaSeleccionada = computed(() => this.productoSeleccionado()?.categoriaIngrediente?.tipoAplica === 'Bebida');
 
@@ -160,7 +200,7 @@ export class InsumoPage implements OnInit {
 
 
   productosFiltrados = computed(() => {
-   let listaBase: Insumo[] = [];
+    let listaBase: Insumo[] = [];
 
     if (this.tabSeleccionada() === 'bodegas') {
       const bId = this.bodegaSeleccionadaId();
@@ -177,7 +217,7 @@ export class InsumoPage implements OnInit {
     }
     const busqueda = this.termino().toLowerCase();
     const cat = this.categoria();
-    
+
     if (busqueda) {
       listaBase = listaBase.filter(p => p.nombre.toLowerCase().includes(busqueda));
     }
@@ -185,7 +225,7 @@ export class InsumoPage implements OnInit {
       listaBase = listaBase.filter(p => p.categoriaIngrediente?.descripcion === cat);
     }
     listaBase = this.filtrarPorEstado(listaBase);
-    
+
     return listaBase;
   })
 
@@ -220,7 +260,7 @@ export class InsumoPage implements OnInit {
   bodegaSeleccionadaId = signal<number | null>(null);
   nombreBodegaSeleccionada = computed(() => {
     const id = this.bodegaSeleccionadaId();
-    if(!id) return null;
+    if (!id) return null;
     return this.bodegaState.bodegas().find(b => b.id === id)?.nombre || null;
   });
   seleccionarBodega(id: number) {
@@ -281,8 +321,9 @@ export class InsumoPage implements OnInit {
 
   ngOnInit() {
     this.state.cargarMercaderia();
-    this.bodegaState.cargarBodegas();
+    this.bodegaState.cargarBodegasConInsumos();
     this.state.cargarCatalogos();
+    this.bodegaState.cargarTiposBodega();
 
     this.route.fragment.subscribe(fragment => {
       if (fragment) {
@@ -389,5 +430,42 @@ export class InsumoPage implements OnInit {
 
     this.state.eliminarProducto(id);
     this.productoEliminandoId.set(null);
+
+    this.bodegaState.cargarBodegasConInsumos(true);
   }
+
+  abrirModalBodegaCrear(modal: Modal) {
+    this.bodegaEditandoId.set(null);
+    modal.abrir();
+  }
+
+  abrirModalBodegaEditar(modal: Modal, id: number) {
+    this.bodegaEditandoId.set(id);
+    modal.abrir();
+  }
+
+  limpiarEstadoModalBodega() {
+    this.bodegaEditandoId.set(null);
+  }
+
+  guardarBodega(payload: GuardarBodegaPayload, modal: Modal) {
+    this.bodegaState.guardarBodega(payload);
+  }
+
+  abrirModalEliminarBodega(id: number) {
+    this.bodegaEliminandoId.set(id);
+  }
+
+  cerrarModalEliminarBodega() {
+    this.bodegaEliminandoId.set(null);
+    this.bodegaState.resetEstados();
+  }
+
+  confirmarEliminarBodega() {
+    const id = this.bodegaEliminandoId();
+    if (!id) return;
+
+    this.bodegaState.eliminarBodega(id);
+  }
+
 }
