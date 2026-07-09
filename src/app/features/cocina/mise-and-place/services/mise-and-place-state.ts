@@ -18,6 +18,8 @@ export class MiseAndPlaceState {
   readonly #formData = signal<DatosFormularioMiseAndPlaceDto | null>(null);
   readonly #error = signal<string | null>(null);
   readonly #creando = signal<boolean>(false);
+  readonly #mensajeExito = signal<string | null>(null);
+  readonly #ultimoCreadoId = signal<number | null>(null);
 
   items = this.#items.asReadonly();
   cargando = this.#cargando.asReadonly();
@@ -25,6 +27,8 @@ export class MiseAndPlaceState {
   formData = this.#formData.asReadonly();
   error = this.#error.asReadonly();
   creando = this.#creando.asReadonly();
+  mensajeExito = this.#mensajeExito.asReadonly();
+  ultimoCreadoId = this.#ultimoCreadoId.asReadonly();
 
   itemsPorVencer = computed(() => {
      return this.#items().filter((i) => i.fechaVencimiento).sort(
@@ -85,6 +89,12 @@ export class MiseAndPlaceState {
       next: (item) => {
         this.#creando.set(false);
         this.#items.update(lista => [...lista, item]);
+        this.#ultimoCreadoId.set(item.miseAndPlaceId);
+        this.#mensajeExito.set(`${item.nombre} creado correctamente`);
+        setTimeout(() => {
+          this.#mensajeExito.set(null);
+          this.#ultimoCreadoId.set(null);
+        }, 3000);
       },
       error: (err) => {
         this.#error.set(err.message);

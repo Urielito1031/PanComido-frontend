@@ -1,4 +1,4 @@
-<a [routerLink]="[item().loteId]" class="card">
+<a [routerLink]="[item().loteId]" class="card" [class.destacado]="destacado()">
   <div class="card-header">
     <h3>{{ item().nombre }}</h3>
     <span class="badge">{{ item().categoria }}</span>
@@ -8,7 +8,7 @@
     <p><strong>Cantidad:</strong> {{ item().cantidad }} {{ item().unidadMedida }}</p>
     <p><strong>Ubicación:</strong> {{ item().bodega }}</p>
     @if (item().fechaVencimiento) {
-      <p><strong>Vence:</strong> {{ item().fechaVencimiento }}</p>
+      <p><strong>Vence:</strong> {{ item().fechaVencimiento | date:'dd-MM-yyyy' }}</p>
     }
   </div>
 
@@ -17,7 +17,7 @@
       <summary>Receta ({{ item().receta.length }} ingredientes)</summary>
       <ul>
         @for (ing of item().receta; track ing.ingredienteId) {
-          <li>{{ ing.nombreIngrediente }}: {{ ing.cantidad }}</li>
+          <li>{{ ing.nombreIngrediente }}: {{ ing.cantidad }} {{ ing.unidadMedida }}</li>
         }
       </ul>
     </details>

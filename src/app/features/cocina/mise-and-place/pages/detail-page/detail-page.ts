@@ -1,16 +1,17 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { MiseAndPlaceState } from '../../services/mise-and-place-state';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-detail-page',
-  imports: [],
+  imports: [DatePipe, RouterLink],
   templateUrl: './detail-page.html',
   styleUrl: './detail-page.css',
 })
-export class DetailPage {
+export class DetailPage implements OnInit {
   state = inject(MiseAndPlaceState);
-  route = inject(ActivatedRoute);
+  private route = inject(ActivatedRoute);
 
   item = computed(() => 
     this.state.items().find(
@@ -19,7 +20,6 @@ export class DetailPage {
   );
   cargando = this.state.cargando;
   error = this.state.error;
-
 
   ngOnInit(): void {
     this.state.cargarListado();

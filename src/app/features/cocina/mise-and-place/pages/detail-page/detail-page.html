@@ -1,22 +1,57 @@
 @if (cargando()) {
-  <p>Cargando...</p>
+  <p class="loading-text">Cargando...</p>
 } @else if (error(); as err) {
   <p class="error">{{ err }}</p>
 } @else if (item(); as i) {
-  <h1>{{ i.nombre }}</h1>
-  <p><strong>Cantidad:</strong> {{ i.cantidad }} {{ i.unidadMedida }}</p>
-  <p><strong>Categoría:</strong> {{ i.categoria }}</p>
-  <p><strong>Bodega:</strong> {{ i.bodega }}</p>
-  @if (i.fechaVencimiento) {
-    <p><strong>Vencimiento:</strong> {{ i.fechaVencimiento }}</p>
-  }
+  <div class="detail-container">
+    <a [routerLink]="['/staff/cocina/mise-and-place']" class="back-link">
+      ← Volver al listado
+    </a>
 
-  <h3>Receta</h3>
-  <ul>
-    @for (ing of i.receta; track ing.ingredienteId) {
-      <li>{{ ing.nombreIngrediente }}: {{ ing.cantidad }}</li>
-    }
-  </ul>
+    <div class="detail-card">
+      <div class="detail-header">
+        <p class="detail-kicker">Mise and Place</p>
+        <h1>{{ i.nombre }}</h1>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Cantidad</span>
+          <span class="info-value">{{ i.cantidad }} {{ i.unidadMedida }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Categoría</span>
+          <span class="info-value">{{ i.categoria }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Bodega</span>
+          <span class="info-value">{{ i.bodega }}</span>
+        </div>
+        @if (i.fechaVencimiento) {
+          <div class="info-item">
+            <span class="info-label">Vencimiento</span>
+            <span class="info-value">{{ i.fechaVencimiento | date:'dd-MM-yyyy' }}</span>
+          </div>
+        }
+      </div>
+
+      @if (i.receta.length > 0) {
+        <div class="receta-section">
+          <h2>Receta <span class="count-badge">{{ i.receta.length }} ingredientes</span></h2>
+          <ul class="receta-list">
+            @for (ing of i.receta; track ing.ingredienteId) {
+              <li>
+                <span class="receta-nombre">{{ ing.nombreIngrediente }}</span>
+                <span class="receta-cantidad">{{ ing.cantidad }} {{ ing.unidadMedida }}</span>
+              </li>
+            }
+          </ul>
+        </div>
+      } @else {
+        <p class="no-receta">Este preparado no tiene receta asociada.</p>
+      }
+    </div>
+  </div>
 } @else {
-  <p>Mise en Place no encontrado.</p>
+  <p class="loading-text">Mise and Place no encontrado.</p>
 }

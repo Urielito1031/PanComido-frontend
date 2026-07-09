@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
 import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CrearMiseAndPlaceDto } from '../../../../../core/models/dtos/requests/mise-and-place.request';
 import { BodegaLightDto, CategoriaLightDto, IngredienteMiseAndPlaceResponseDto, UnidadMedidaResponseDto } from '../../../../../core/models/dtos/responses/mise-and-place.response';
@@ -12,7 +12,7 @@ import { BodegaLightDto, CategoriaLightDto, IngredienteMiseAndPlaceResponseDto, 
 })
 export class MiseAndPlaceForm {
   private fb = inject(FormBuilder);
-  
+
   categorias = input.required<CategoriaLightDto[]>();
   unidadesMedida = input.required<UnidadMedidaResponseDto[]>();
   bodegas = input.required<BodegaLightDto[]>();
@@ -22,14 +22,15 @@ export class MiseAndPlaceForm {
   guardar = output<CrearMiseAndPlaceDto>();
   cancelar = output<void>();
 
+  submitted = signal(false);
   form = this.fb.group({
     nombre: ['', Validators.required],
     descripcion: [''],
-    cantidad: [0, [Validators.required, Validators.min(0.01)]],
+    cantidad: [null, [Validators.required, Validators.min(0.01)]],
     fechaVencimiento: ['', Validators.required],
-    unidadMedidaId: [0, Validators.required],
-    categoriaId: [0, Validators.required],
-    bodegaId: [0, Validators.required],
+    unidadMedidaId: [null, Validators.required],
+    categoriaId: [null, Validators.required],
+    bodegaId: [null, Validators.required],
     ingredientes: this.fb.array([]),
   });
 
@@ -44,8 +45,8 @@ export class MiseAndPlaceForm {
   agregarIngrediente(): void {
     this.ingredientesArray.push(
       this.fb.group({
-        ingredienteId: [0, Validators.required],
-        cantidad: [0, [Validators.required, Validators.min(0.01)]],
+        ingredienteId: [null, Validators.required],
+        cantidad: [null, [Validators.required, Validators.min(0.01)]],
       })
     );
   }
@@ -55,6 +56,8 @@ export class MiseAndPlaceForm {
   }
 
   onSubmit(): void {
+    this.submitted.set(true);
+    this.form.markAllAsTouched();
     if (this.form.invalid) return;
     this.guardar.emit(this.form.value as unknown as CrearMiseAndPlaceDto);
   }
