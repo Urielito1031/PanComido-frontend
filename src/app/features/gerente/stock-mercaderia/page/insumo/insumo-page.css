@@ -206,8 +206,9 @@
 }
 
 .tour-trigger-btn:hover {
-  border-color: rgba(2, 89, 108, 0.32);
-  background: rgba(2, 89, 108, 0.06);
+  border-color: rgba(255, 143, 0, 0.32);
+  background: rgba(255, 143, 0, 0.08);
+  color: #ff8f00;
 }
 
 .tour-trigger-btn .material-symbols-outlined {

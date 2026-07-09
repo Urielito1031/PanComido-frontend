@@ -1,8 +1,18 @@
-<aside class="sidebar" [class.collapsed]="isCollapsed() && !isHovered()" [class.cocina]="currentRole() === 'Cocina'"
- (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()">
+<!-- Backdrop for mobile -->
+@if (isMobile() && isMobileOpen()) {
+  <div class="sidebar-backdrop" (click)="closeMobile()"></div>
+}
+
+<aside 
+  class="sidebar" 
+  [class.collapsed]="isCollapsed() && !isHovered() && !isMobile()"
+  [class.cocina]="currentRole() === 'Cocina'"
+  [class.mobile-open]="isMobile() && isMobileOpen()"
+  (mouseenter)="onMouseEnter()" 
+  (mouseleave)="onMouseLeave()">
   <!-- Header con Logo -->
   <div class="sidebar-header">
-    @if (isExpanded()) {
+    @if (isExpanded() || (isMobile() && isMobileOpen())) {
       <img src="assets/images/logo/isologo-red.png" alt="Pan Comido" class="logo-full">
     } @else {
       <img src="assets/images/logo/iso-red.png" alt="Pan Comido" class="logo-icon">
@@ -21,21 +31,22 @@
             [class.expanded]="isSubmenuExpanded(item.label)"
             (click)="toggleSubmenu(item.label)">
             <fa-icon [icon]="getIconComponent(item.icon)" class="menu-icon"></fa-icon>
-            @if (isExpanded()) {
+            @if (isExpanded() || (isMobile() && isMobileOpen())) {
               <span class="menu-label">{{ item.label }}</span>
               <fa-icon [icon]="isSubmenuExpanded(item.label) ? faChevronDown : faChevronRight" class="expand-icon"></fa-icon>
             }
           </div>
 
           <!-- Submenú -->
-          @if (isSubmenuExpanded(item.label) && isExpanded()) {
+          @if (isSubmenuExpanded(item.label) && (isExpanded() || (isMobile() && isMobileOpen()))) {
             <div class="submenu">
               @for (child of item.children; track child.label) {
                 <a 
                   [routerLink]="child.route"
                   [fragment]="child.fragment"
                   class="submenu-item"
-                  [class.active]="isActive(child.route, child.fragment)">
+                  [class.active]="isActive(child.route, child.fragment)"
+                  (click)="closeMobile()">
                   @if (child.icon) {
                     <fa-icon [icon]="getIconComponent(child.icon)" class="submenu-icon"></fa-icon>
                   }
@@ -49,9 +60,10 @@
             [routerLink]="item.route" 
             class="menu-item"
             [class.active]="isActive(item.route)"
-            routerLinkActive="active">
+            routerLinkActive="active"
+            (click)="closeMobile()">
             <fa-icon [icon]="getIconComponent(item.icon)" class="menu-icon"></fa-icon>
-            @if (isExpanded()) {
+            @if (isExpanded() || (isMobile() && isMobileOpen())) {
               <span class="menu-label">{{ item.label }}</span>
             }
           </a>
@@ -65,9 +77,9 @@
 
   <!-- Footer con Perfil de Usuario -->
   <div class="sidebar-footer">
-    <div class="sidebar-datetime" [class.datetime-collapsed]="!isExpanded()" [attr.title]="formattedDate() + ' ' + formattedTime()">
+    <div class="sidebar-datetime" [class.datetime-collapsed]="!isExpanded() && !(isMobile() && isMobileOpen())" [attr.title]="formattedDate() + ' ' + formattedTime()">
       <fa-icon [icon]="faClock" class="datetime-icon"></fa-icon>
-      @if (isExpanded()) {
+      @if (isExpanded() || (isMobile() && isMobileOpen())) {
         <div class="datetime-info">
           <span class="datetime-time">{{ formattedTime() }}</span>
           <span class="datetime-date">{{ formattedDate() }}</span>
@@ -80,7 +92,7 @@
       <div class="avatar" [style.background-color]="userProfile().avatarColor">
         {{ userProfile().initials }}
       </div>
-      @if (isExpanded()) {
+      @if (isExpanded() || (isMobile() && isMobileOpen())) {
         <div class="user-info">
           <div class="user-name">{{ userProfile().name }}</div>
           <div class="user-role">{{ userProfile().role }}</div>

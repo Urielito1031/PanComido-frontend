@@ -34,6 +34,14 @@
   color: var(--status-success) !important;
 }
 
+.btn-edit-custom {
+  color: #e1c723 !important;
+}
+
+.btn-edit-custom:hover {
+  color: #e6c900 !important;
+}
+
 /* Action column alignment */
 .fila-regla .col-2 {
   display: flex;
@@ -55,4 +63,59 @@
 /* Add row styling */
 .bg-light.rounded.border {
   border-color: #e5e7eb !important;
+}
+
+/* ==========================================
+   Responsive - Tablet (768px)
+   ========================================== */
+@media (max-width: 768px) {
+  .btn-icon-sm {
+    width: 26px;
+    height: 26px;
+  }
+
+  .btn-icon-md {
+    width: 30px;
+    height: 30px;
+  }
+
+  .fila-regla input[type="number"] {
+    height: 36px;
+    font-size: 0.85rem;
+  }
+
+  .fila-regla .col-2 {
+    gap: 0.25rem;
+  }
+}
+
+/* ==========================================
+   Responsive - Mobile (576px)
+   ========================================== */
+@media (max-width: 576px) {
+  .btn-icon-sm {
+    width: 24px;
+    height: 24px;
+    font-size: 0.85rem;
+  }
+
+  .btn-icon-md {
+    width: 28px;
+    height: 28px;
+    font-size: 0.9rem;
+  }
+
+  .fila-regla input[type="number"] {
+    height: 34px;
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .fila-regla .col-2 {
+    gap: 0.15rem;
+  }
+
+  .bg-light.rounded.border {
+    padding: 0.5rem !important;
+  }
 }
