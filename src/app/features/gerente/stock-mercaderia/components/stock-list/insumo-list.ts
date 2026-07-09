@@ -27,6 +27,7 @@ export class InsumoList {
   productos = input.required<Insumo[]>();
   editar = output<number>();
   eliminar = output<number>();
+  mostrarAcciones = input<boolean>(true);
 
   private readonly dateFormatter = new Intl.DateTimeFormat('es-AR', {
     day: '2-digit',

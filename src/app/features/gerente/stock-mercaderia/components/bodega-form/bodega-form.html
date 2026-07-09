@@ -1,0 +1,41 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="producto-form">
+    <section class="form-section">
+        <div class="section-heading">
+            <span class="material-symbols-outlined">warehouse</span>
+            <div>
+                <strong>Datos de la Bodega</strong>
+                <small>Nombre e identificación del espacio.</small>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group full-width">
+                <label for="nombre">Nombre <span class="text-danger">*</span></label>
+                <input id="nombre" type="text" formControlName="nombre" class="form-control"
+                    placeholder="Ej: Cámara Frigorífica Norte">
+                @if (getError('nombre'); as error) { <div class="error-text">{{ error }}</div> }
+                @if (errorAPI()) { <div class="text-danger small mt-1"><i class="fa-solid fa-circle-exclamation me-1"></i> {{ errorAPI() }}</div> }
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group full-width">
+                <label for="tipoBodegaId">Tipo de Bodega <span class="text-danger">*</span></label>
+                <select id="tipoBodegaId" formControlName="tipoBodegaId" class="form-control">
+                    <option value="" disabled selected>Seleccione...</option>
+                    @for (tipo of tiposBodega(); track tipo.id) {
+                    <option [value]="tipo.id">{{ tipo.descripcion }}</option>
+                    }
+                </select>
+                @if (getError('tipoBodegaId'); as error) { <div class="error-text">{{ error }}</div> }
+            </div>
+        </div>
+    </section>
+
+    <div class="form-actions">
+        <button type="button" class="btn-cancelar" (click)="cancelado.emit()">Cancelar</button>
+        <button type="submit" class="btn-guardar" [disabled]="form.invalid">
+            {{ bodega() ? 'Guardar cambios' : 'Crear bodega' }}
+        </button>
+    </div>
+</form>

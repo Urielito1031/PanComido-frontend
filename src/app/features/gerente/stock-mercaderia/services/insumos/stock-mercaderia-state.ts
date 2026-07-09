@@ -11,6 +11,7 @@ import { PlatoApiService } from '../../../services/plato.api';
 import { GuardarBebidaPayload } from '../../components/editar-bebida-form/editar-bebida-form';
 import { GuardarProductoPayload } from '../../components/producto-form/producto-form';
 import { forkJoin } from 'rxjs';
+import { BodegaState } from '../bodegas/bodega-state';
 
 
 @Injectable({
@@ -22,6 +23,7 @@ export class StockMercaderiaState {
   private apiCategoriaInsumos = inject(CategoriaInsumoService);
   private platoApi = inject(PlatoApiService);
   private destroyRef = inject(DestroyRef);
+  private bodegaState = inject(BodegaState);
 
   readonly #productos = signal<Insumo[]>([]);
   readonly #lotes = signal<LoteInsumo[]>([]);
@@ -59,7 +61,7 @@ export class StockMercaderiaState {
         this.#cargando.set(false);
       },
       error: (err) => {
-        
+
         this.#cargando.set(false);
       }
     });
@@ -80,7 +82,7 @@ export class StockMercaderiaState {
     });
   }
 
-  cargarCatalogos(): void { 
+  cargarCatalogos(): void {
     forkJoin({
       categoriasRes: this.apiCategoriaInsumos.obtenerCategorias(),
       unidadesRes: this.apiUnidadMedida.obtenerUnidades()
@@ -89,7 +91,7 @@ export class StockMercaderiaState {
         this.#categoriasInsumos.set(response.categoriasRes);
         this.#unidadMedidas.set(response.unidadesRes);
       },
-      error: (err) => {}
+      error: (err) => { }
     });
   }
 
@@ -112,12 +114,12 @@ export class StockMercaderiaState {
         next: (actualizado) => {
           this.#productos.update(lista => lista.map(p => p.id === payload.id
             ? {
-                ...p,
-                nombre: actualizado.nombre,
-                precioVentaFinal: actualizado.precioVentaFinal ?? p.precioVentaFinal,
-                esPrecioManual: actualizado.esPrecioManual,
-                stockMinimo: actualizado.stockMinimo
-              }
+              ...p,
+              nombre: actualizado.nombre,
+              precioVentaFinal: actualizado.precioVentaFinal ?? p.precioVentaFinal,
+              esPrecioManual: actualizado.esPrecioManual,
+              stockMinimo: actualizado.stockMinimo
+            }
             : p));
           this.#cargando.set(false);
         },
@@ -146,6 +148,7 @@ export class StockMercaderiaState {
           this.#lotesCargados.set(false);
           if (lotesEstabanCargados) this.cargarLotes();
           this.#cargando.set(false);
+          this.bodegaState.cargarBodegasConInsumos(true);
         },
         error: () => this.#cargando.set(false)
       });
