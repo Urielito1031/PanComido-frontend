@@ -126,3 +126,21 @@
 .favorite-btn .material-symbols-outlined {
   font-size: 1.2rem;
 }
+
+@media (max-width: 768px) {
+  .mozo-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.65rem;
+  }
+
+  .mozo-metrics {
+    width: 100%;
+    justify-content: space-between;
+    gap: 0.6rem;
+  }
+
+  .mozo-metrics .metric {
+    text-align: left;
+  }
+}

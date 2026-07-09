@@ -720,6 +720,17 @@ h1 {
   align-items: stretch;
 }
 
+.grid-item > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+::ng-deep .dashboard-grid-container .panel-card {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
 /* Col spans */
 .col-span-1 { grid-column: span 1 / span 1; }
 .col-span-2 { grid-column: span 2 / span 2; }
@@ -1885,6 +1896,22 @@ h1 {
   .dashboard-page {
     padding: 1rem;
   }
+
+  ::ng-deep .dashboard-grid-container .panel-heading {
+    flex-wrap: wrap;
+    gap: 0.65rem;
+  }
+
+  ::ng-deep .dashboard-grid-container .panel-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .notifications-dropdown {
+    width: min(320px, calc(100vw - 2rem));
+    right: 0;
+  }
+
   .dashboard-header {
     flex-direction: column;
     gap: 0.85rem;
@@ -1930,6 +1957,22 @@ h1 {
   }
   .executive-summary-copy h2 {
     font-size: 1.15rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .notifications-dropdown {
+    right: -0.5rem;
+    width: min(320px, calc(100vw - 1.25rem));
+  }
+
+  .kpi-hero-rail {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+  }
+
+  .rail-marker {
+    white-space: normal;
   }
 }
 
