@@ -46,7 +46,7 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 0.7rem;
+  gap: 0.55rem;
   align-self: flex-start;
   padding-top: 0.45rem;
 }
@@ -1305,20 +1305,27 @@ h1 {
 .refresh-indicator-container {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.45rem;
+  min-height: 40px;
+  padding: 0.2rem 0.25rem 0.2rem 0.7rem;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.7);
 }
 
 .refresh-time {
   font-size: 0.72rem;
-  color: #94a3b8;
+  color: #64748b;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .refresh-btn {
-  width: 2.2rem;
-  height: 2.2rem;
-  border-radius: 50%;
-  border: 1px solid rgba(15, 23, 42, 0.06);
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid transparent;
   background: #ffffff;
   color: #64748b;
   display: grid;
@@ -1328,8 +1335,9 @@ h1 {
 }
 
 .refresh-btn:hover {
-  border-color: rgba(15, 23, 42, 0.12);
-  color: #d8081c;
+  border-color: rgba(255, 143, 0, 0.32);
+  color: #ff8f00;
+  background: rgba(255, 143, 0, 0.08);
 }
 
 .refresh-btn.spinning .material-symbols-outlined {
@@ -1342,9 +1350,10 @@ h1 {
 }
 
 .notifications-bubble-btn {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  border-radius: 8px;
   background: #ffffff;
   border: 1px solid rgba(15, 23, 42, 0.08);
   color: #475569;
@@ -1355,8 +1364,9 @@ h1 {
 }
 
 .notifications-bubble-btn:hover {
-  color: #d8081c;
-  background: #f8fafc;
+  color: #ff8f00;
+  border-color: rgba(255, 143, 0, 0.32);
+  background: rgba(255, 143, 0, 0.08);
 }
 
 .notifications-bubble-btn.has-unread {
@@ -1918,7 +1928,9 @@ h1 {
   }
   .header-status-actions {
     width: 100%;
-    justify-content: space-between;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.5rem;
     padding-top: 0;
   }
   .dashboard-toolbar-row-top,
@@ -1961,6 +1973,21 @@ h1 {
 }
 
 @media (max-width: 560px) {
+  .header-status-actions {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) 40px;
+  }
+
+  .refresh-indicator-container {
+    min-width: 0;
+    justify-content: space-between;
+  }
+
+  .refresh-time {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .notifications-dropdown {
     right: -0.5rem;
     width: min(320px, calc(100vw - 1.25rem));
@@ -2205,4 +2232,3 @@ h1 {
 ::ng-deep .radar-icon-wrapper.is-strongest .radar-vertex-icon {
   color: var(--primary-orange) !important;
 }
-
