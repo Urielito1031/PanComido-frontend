@@ -1,6 +1,6 @@
 export const ROLE_ROUTES: Record<string, string> = {
-  'Gerente': 'staff/gerente',
-  'Cocina': 'staff/cocina',
+  'Gerente': 'staff/gerente/mapa-de-mesas',
+  'Cocina': 'staff/cocina/comandas',
   'Mozo': 'staff/mozo',
 };
 

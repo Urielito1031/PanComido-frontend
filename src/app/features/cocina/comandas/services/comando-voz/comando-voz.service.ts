@@ -61,7 +61,7 @@ export class ComandoVozService {
     const ahora = Date.now();
     const matchAceptar = frase.match(/mesa (\d+) (aceptar|aceptada)/);
     const matchFinalizar = frase.match(/mesa (\d+) (finalizar|finalizada)/);
-    const matchLlamarMozo = frase.match(/mesa (\d+) llamar (mozo|al mozo)/);
+    const matchLlamarMozo = frase.match(/mesa (\d+) llamar (mo[sz]o|al mo[sz]o)/);
 
     const match = matchFinalizar ?? matchAceptar ?? matchLlamarMozo;
     if (!match) return;

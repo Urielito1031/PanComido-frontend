@@ -3,8 +3,8 @@
     <!-- PANEL IZQUIERDO: Generar cierre de caja -->
     <app-glass-card class="caja-panel">
       <div class="panel-header mb-4">
-        <h1 class="page-title mb-1">Cierre de Caja</h1>
-        <p class="page-subtitle mb-0">Generá el cierre de caja al finalizar cada turno</p>
+        <h1 class="page-title mb-1">Cierre de caja</h1>
+        <p class="page-subtitle mb-0">Genera el cierre de caja al finalizar cada turno</p>
       </div>
 
       @if (state.error(); as error) {
@@ -17,15 +17,15 @@
       <div class="cerrar-turno-actions mb-4">
         <app-boton
           label="Cerrar Turno Día"
-          variante="secondary"
-          tamanio="lg"
+          variante="primary"
+          tamanio="md"
           [disabled]="!state.turnoDiaId() || state.loading() || state.generando()"
           (clicked)="abrirCierre('dia')">
         </app-boton>
         <app-boton
           label="Cerrar Turno Noche"
-          variante="secondary"
-          tamanio="lg"
+          variante="primary"
+          tamanio="md"
           [disabled]="!state.turnoNocheId() || state.loading() || state.generando()"
           (clicked)="abrirCierre('noche')">
         </app-boton>
@@ -33,7 +33,7 @@
 
       @if (state.cierreGenerado(); as cierre) {
         <div class="cierre-resultado">
-          <h2 class="section-title mb-3">Último Cierre Generado</h2>
+          <h2 class="section-title mb-3">Último cierre generado</h2>
           <div class="turno-info-strip mb-4">
             <div class="info-item">
               <span class="material-symbols-outlined">calendar_today</span>
@@ -45,7 +45,7 @@
             <div class="info-item">
               <span class="material-symbols-outlined">schedule</span>
               <div>
-                <strong>Turno Cerrado</strong>
+                <strong>Turno cerrado</strong>
                 <span>{{ cierre.turnoLaboralNombre }}</span>
               </div>
             </div>
@@ -58,7 +58,7 @@
             </div>
           </div>
 
-          <h2 class="section-title mb-3">Resumen de Medios de Pago</h2>
+          <h2 class="section-title mb-3">Resumen de medios de pago</h2>
           <div class="desglose-list mb-4">
             @for (pago of cierre.detallePagos; track pago.metodoPagoId) {
               <div class="pago-card">
@@ -75,7 +75,7 @@
 
           <div class="summary-details-box p-3 mb-3">
             <div class="summary-row">
-              <span>Total Recaudado:</span>
+              <span>Total recaudado:</span>
               <strong>{{ cierre.totalRecaudado | arsCurrency }}</strong>
             </div>
           </div>
@@ -109,7 +109,7 @@
 
     <!-- PANEL DERECHO: Historial de cierres -->
     <app-glass-card class="historial-panel">
-      <h2 class="section-title mb-3">Historial de Cierres de Caja</h2>
+      <h2 class="section-title mb-3">Historial de cierres</h2>
       <div class="historial-wrapper">
         <table class="table-custom">
           <thead>
@@ -118,7 +118,7 @@
               <th>Turno</th>
               <th>Pagos</th>
               <th>Total</th>
-              <th>Diferencia</th>
+              <th>Diferencia en efectivo</th>
             </tr>
           </thead>
           <tbody>
@@ -148,7 +148,7 @@
     <div class="cierre-modal-overlay" (click)="cerrarModalCierre()">
       <div class="cierre-modal-card" (click)="$event.stopPropagation()">
         <div class="cierre-modal-header mb-3">
-          <h3 class="cierre-modal-title">Cerrar {{ tipo === 'dia' ? 'Turno Día' : 'Turno Noche' }}</h3>
+          <h3 class="cierre-modal-title">Cerrar {{ tipo === 'dia' ? 'turno día' : 'turno noche' }}</h3>
           <button class="cierre-modal-close" (click)="cerrarModalCierre()">×</button>
         </div>
         <div class="cierre-modal-body mb-4">
@@ -168,10 +168,11 @@
           <p class="text-danger fw-bold fs-7">¡Esta acción no se puede deshacer!</p>
         </div>
         <div class="cierre-modal-footer d-flex gap-2 justify-content-end">
-          <app-boton label="Cancelar" variante="danger" (clicked)="cerrarModalCierre()"></app-boton>
+          <app-boton label="Cancelar" variante="danger" tamanio="sm" (clicked)="cerrarModalCierre()"></app-boton>
           <app-boton
             label="Confirmar Cierre"
             variante="success"
+            tamanio="sm"
             [disabled]="state.generando()"
             (clicked)="confirmarCierre()">
           </app-boton>
@@ -185,7 +186,7 @@
     <div class="cierre-modal-overlay" (click)="cerrarDetalleCierre()">
       <div class="cierre-modal-card" (click)="$event.stopPropagation()">
         <div class="cierre-modal-header mb-3">
-          <h3 class="cierre-modal-title">Detalle Cierre – {{ detalle.turnoLaboralNombre }}</h3>
+          <h3 class="cierre-modal-title">Detalle cierre – {{ detalle.turnoLaboralNombre }}</h3>
           <button class="cierre-modal-close" (click)="cerrarDetalleCierre()">×</button>
         </div>
         <div class="cierre-modal-body mb-4">
@@ -210,7 +211,7 @@
             </div>
           </div>
 
-          <h3 class="subsection-title mb-2">Medios de Pago</h3>
+          <h3 class="subsection-title mb-2">Medios de pago</h3>
           <div class="desglose-list">
             @for (pago of detalle.detallePagos; track pago.metodoPagoId) {
               <div class="pago-card">
@@ -226,7 +227,7 @@
           </div>
         </div>
         <div class="cierre-modal-footer d-flex justify-content-end">
-          <app-boton label="Cerrar Ventana" variante="outline" (clicked)="cerrarDetalleCierre()"></app-boton>
+          <app-boton label="Cerrar" variante="outline" tamanio="sm" (clicked)="cerrarDetalleCierre()"></app-boton>
         </div>
       </div>
     </div>

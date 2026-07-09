@@ -379,7 +379,7 @@ export class VerProveedoresState {
     this.productoSeleccionadoId.set(producto.id);
     this.productoTexto.set(producto.nombre);
     this.cantidadProducto.set(0);
-    this.precioProductoManual.set(ultimoPrecioDeInsumo(this.#historialProveedor(), producto.id));
+    this.precioProductoManual.set(ultimoPrecioDeInsumo(this.#historialProveedor(), producto.id) ?? 0);
   }
 
   onProductoTextoChange(valor: string): void {
@@ -390,7 +390,7 @@ export class VerProveedoresState {
     if (encontrado) {
       this.productoSeleccionadoId.set(encontrado.id);
       this.cantidadProducto.set(0);
-      this.precioProductoManual.set(ultimoPrecioDeInsumo(this.#historialProveedor(), encontrado.id));
+      this.precioProductoManual.set(ultimoPrecioDeInsumo(this.#historialProveedor(), encontrado.id) ?? 0);
     } else {
       this.productoSeleccionadoId.set(null);
       this.precioProductoManual.set(null);
@@ -403,7 +403,7 @@ export class VerProveedoresState {
     const cantidad = this.cantidadProducto();
     const precio = this.precioProductoManual();
 
-    if (!nombre || cantidad === null || cantidad <= 0 || precio === null || precio <= 0) {
+    if (!nombre || cantidad === null || cantidad <= 0 || precio === null) {
       return;
     }
 

@@ -15,10 +15,9 @@
 }
 
 .cierre-layout {
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
+  display: flex;
+  flex-direction: column;
   gap: 1.5rem;
-  align-items: start;
 }
 
 /* Glassmorphism & Soft UI Container Overrides */
@@ -99,7 +98,7 @@
 /* Desglose List */
 .desglose-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 0.85rem;
 }
 
@@ -297,8 +296,7 @@
 
 ::ng-deep .cerrar-turno-actions app-boton .btn {
   width: 100%;
-  padding: 14px;
-  border-radius: 12px !important;
+  border-radius: 10px !important;
   font-weight: 800 !important;
 }
 
@@ -345,7 +343,7 @@
 ::ng-deep .cierre-caja-page app-boton .btn-orange {
   background-color: var(--primary-orange) !important;
   border-color: var(--primary-orange) !important;
-  color: #0f172a !important;
+  color: #ffffff !important;
 }
 
 ::ng-deep .cierre-caja-page app-boton .btn-primary:hover:not(:disabled),
@@ -458,13 +456,6 @@
 
 .table-custom tbody tr:hover {
   background: rgba(255, 255, 255, 0.4);
-}
-
-/* Responsive grid */
-@media (max-width: 1199.98px) {
-  .cierre-layout {
-    grid-template-columns: 1fr;
-  }
 }
 
 .table-row-clickable {

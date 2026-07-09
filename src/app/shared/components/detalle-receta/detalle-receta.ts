@@ -63,6 +63,11 @@ export class DetalleRecetaComponent {
   }
 
   agregarIngrediente(ingrediente: InsumoRecetaDisponible) {
+    if (this.ingredientesSeleccionados().some(item => item.id === ingrediente.id)) {
+      this.busqueda.set('');
+      return;
+    }
+
     const nuevo: RecetaIngrediente = {
       id: ingrediente.id,
       nombre: ingrediente.nombre,

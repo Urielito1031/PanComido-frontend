@@ -61,6 +61,14 @@
   scroll-snap-align: start;
 }
 
+.hint-voz {
+  margin: 0;
+  padding: 8px 16px 0;
+  color: #64748b;
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
 .empty-state {
   color: #64748b;
   font-size: 1rem;
@@ -108,6 +116,24 @@
   left: 50%;
   transform: translateX(-50%);
   background-color: #16a34a;
+  color: white;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  z-index: 2000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+
+.notificacion-aceptada {
+  position: fixed;
+  top: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #2563eb;
   color: white;
   padding: 10px 24px;
   border-radius: 8px;

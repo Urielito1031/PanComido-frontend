@@ -198,7 +198,7 @@ export class ConfiguracionState {
           if (err.status === 409) {
             return throwError(() => ({
               ...err,
-              mensajeTurno: err.error?.mensaje || 'No se pudo actualizar el horario: el turno tiene un cierre de caja pendiente.'
+              mensajeTurno: err.error?.error || err.error?.mensaje || 'No se pudo actualizar el horario: el turno tiene un cierre de caja pendiente.'
             }));
           }
           return throwError(() => err);
