@@ -13,6 +13,7 @@ import { EditarBebidaFormComponent, GuardarBebidaPayload } from '../../../stock-
 export class PanelEditarBebidaComponent {
   bebida = input.required<BebidaAEditar>();
   porcentajeGanancia = input<number>(0);
+  error = input<string | null>(null);
 
   guardar = output<GuardarBebidaPayload>();
   cerrar = output<void>();

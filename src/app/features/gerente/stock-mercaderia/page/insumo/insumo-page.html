@@ -325,6 +325,7 @@
           [insumo]="detalle"
           [costo]="costoBebida()"
           [porcentajeGanancia]="porcentajeGananciaBebida()"
+          [error]="state.error()"
           (cancelado)="modalFormulario.cerrar()"
           (guardar)="guardarBebida($event, modalFormulario)">
         </app-editar-bebida-form>
@@ -337,6 +338,7 @@
         [bodegas]="bodegaState.bodegas()"
         [categorias]="state.categoriasInsumos()"
         [unidadesMedida]="state.unidadMedidas()"
+        [error]="state.error()"
         (cancelado)="modalFormulario.cerrar()"
         (guardar)="guardarCambios($event, modalFormulario)">
       </app-producto-form>

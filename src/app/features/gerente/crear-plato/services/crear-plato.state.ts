@@ -37,6 +37,8 @@ export class CrearPlatoState {
 
   readonly #loading = signal<boolean>(false);
   loading = this.#loading.asReadonly();
+  readonly #error = signal<string | null>(null);
+  error = this.#error.asReadonly();
 
   costoSugerido = computed(() => {
     return calcularCostoReceta(this.receta());
@@ -130,6 +132,7 @@ export class CrearPlatoState {
          return;
         }
         this.#loading.set(true);
+        this.#error.set(null);
 
     const request: CrearPlatoRequestDto = {
       nombre: platoData.nombre,
@@ -156,9 +159,13 @@ export class CrearPlatoState {
           callback();
         },
         error: (err) => {
-          console.error('Error al crear plato:', err?.error?.error || err?.message || err);
           this.#loading.set(false);
+          this.#error.set(err.error?.error ?? 'No se pudo crear el plato. Intentá nuevamente.');
         }
       });
+  }
+
+  limpiarError(): void {
+    this.#error.set(null);
   }
 }

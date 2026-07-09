@@ -16,6 +16,7 @@ export class PanelCrearBebidaComponent {
   bodegas = input<Bodega[]>([]);
   categorias = input<CategoriaInsumo[]>([]);
   unidadesMedida = input<UnidadMedida[]>([]);
+  error = input<string | null>(null);
 
   guardar = output<GuardarProductoPayload>();
   cerrar = output<void>();

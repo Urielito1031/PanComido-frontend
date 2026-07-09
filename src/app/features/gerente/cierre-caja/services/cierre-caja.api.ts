@@ -2,8 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
-import { CierreTurnoDto, CierreConfirmadoDto, CierreHistorialDto } from '../../../../core/models/dtos/responses/cierre-caja.response';
-import { CierreCajaRequest } from '../../../../core/models/domain/cierre-caja';
+import { CierreCajaDto } from '../../../../core/models/dtos/responses/cierre-caja.response';
+import { GenerarCierreCajaRequest } from '../../../../core/models/domain/cierre-caja';
 
 @Injectable({
   providedIn: 'root'
@@ -12,15 +12,11 @@ export class CierreCajaApiService {
   private http = inject(HttpClient);
   private apiUrl = environment.apiUrl;
 
-  getTurno(): Observable<CierreTurnoDto> {
-    return this.http.get<CierreTurnoDto>(`${this.apiUrl}/api/cierre/turno`);
+  generarCierre(request: GenerarCierreCajaRequest): Observable<CierreCajaDto> {
+    return this.http.post<CierreCajaDto>(`${this.apiUrl}/cierre-caja/generar`, request);
   }
 
-  postCierre(request: CierreCajaRequest): Observable<CierreConfirmadoDto> {
-    return this.http.post<CierreConfirmadoDto>(`${this.apiUrl}/api/cierre`, request);
-  }
-
-  getHistorial(): Observable<CierreHistorialDto[]> {
-    return this.http.get<CierreHistorialDto[]>(`${this.apiUrl}/api/cierre/historial`);
+  getHistorial(): Observable<CierreCajaDto[]> {
+    return this.http.get<CierreCajaDto[]>(`${this.apiUrl}/cierre-caja`);
   }
 }
