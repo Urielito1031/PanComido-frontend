@@ -3,6 +3,9 @@ import { Router } from '@angular/router';
 import { BrowserMultiFormatReader } from '@zxing/browser';
 import { IScannerControls } from '@zxing/browser/esm/common/IScannerControls';
 import { HeaderComensal } from '../../../../shared/ui/header-comensal/header-comensal';
+import { FilaVirtualState } from '../../services/fila-virtual.state';
+import { ComandaState } from '../../services/comanda-state';
+import { inject } from '@angular/core';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -19,6 +22,9 @@ export class ScanQr implements AfterViewInit, OnDestroy {
   scanner = new BrowserMultiFormatReader();
   private controls: IScannerControls | null = null;
   private scanResult = false;
+  
+  filaVirtualState = inject(FilaVirtualState);
+  comandaState = inject(ComandaState);
 
   constructor(private router: Router) { }
 
@@ -42,18 +48,36 @@ async ngAfterViewInit() {
 
           console.log('QR leído:', texto);
 
+          if (texto.includes('/comensal/anotarse-fila/')) {
+            const parts = texto.split('/');
+            const restauranteId = parts[parts.length - 1];
+            this.router.navigate(['/comensal/anotarse-fila', restauranteId]);
+            return;
+          }
+
           const mesaId = parseInt(texto, 10);
 
           if (!Number.isInteger(mesaId)) {
             console.warn('QR inválido:', texto);
             return;
           }
+          
+          const turnoId = this.filaVirtualState.turnoId();
 
-          this.router.navigate([
-            '/comensal/mesa',
-            1,      // restauranteId
-            mesaId  // obtenido del QR
-          ]);
+          if (turnoId) {
+            const cantidad = this.filaVirtualState.estado()?.cantidadPersonas ?? 1;
+            const nombre = this.filaVirtualState.estado()?.nombreCliente ?? 'Comensal';
+            
+            this.comandaState.ocuparMesa(1, mesaId, cantidad, nombre, turnoId).subscribe(() => {
+              this.router.navigate(['/comensal/ver-carta']);
+            });
+          } else {
+            this.router.navigate([
+              '/comensal/mesa',
+              1,      // restauranteId
+              mesaId  // obtenido del QR
+            ]);
+          }
         }
       }
     );

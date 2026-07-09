@@ -58,7 +58,7 @@ export const COMENSAL_ROUTES: Routes = [
       },
       {
         path: 'encuesta',
-        loadComponent: () =>import('./encuesta-satisfaccion/page/encuesta').then((m) => m.Encuesta),
+        loadComponent: () => import('./encuesta-satisfaccion/page/encuesta').then((m) => m.Encuesta),
       },
       {
         path: 'mesa/:restauranteId/:mesaId',
@@ -69,11 +69,23 @@ export const COMENSAL_ROUTES: Routes = [
         loadComponent: () => import('./unirse-mesa/page/unirse-mesa').then((m) => m.UnirseMesa),
       },
       {
+        path: 'anotarse-fila/:restauranteId',
+        loadComponent: () => import('./anotarse-fila/page/anotarse-fila').then(m => m.AnotarseFila)
+      },
+      {
+        path: 'estado-fila',
+        loadComponent: () => import('./estado-fila/page/estado-fila').then(m => m.EstadoFila)
+      },
+      {
+        path: 'mesa-lista',
+        loadComponent: () => import('./mesa-lista/page/mesa-lista').then(m => m.MesaLista)
+      },
+      {
         path: '',
         redirectTo: 'escanear-mesa',
         pathMatch: 'full',
       },
-       {
+      {
         path: '**',
         redirectTo: 'escanear-mesa',
       }

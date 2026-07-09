@@ -7,21 +7,26 @@
     id="nombre"
     type="text"
     [(ngModel)]="nombreComensal"
+    [class.error-input]="nombreInvalido"
+    (input)="nombreInvalido = false"
     placeholder="Ingresá tu nombre">
+    
+  @if (nombreInvalido) {
+    <span class="error-texto">Por favor, ingresá tu nombre para continuar.</span>
+  }
 </div>
 
 <div class="cantidad-card">
   <h1>¿Cuántas personas son en tu grupo?</h1>
 
   <div class="cantidad-grid">
-    @for (numero of [].constructor(maxCantidad); track $index) {
+    @for (numero of [].constructor(maxCantidad()); track $index) {
       <div class="cantidad-item"
            [class.selected]="cantidadPersonas === $index + 1"
            (click)="seleccionarCantidad($index + 1)">
         {{ $index + 1 }}
       </div>
     }
-    <div class="cantidad-item plus" (click)="expandirOpciones()">+</div>
   </div>
 
   <div class="botones">

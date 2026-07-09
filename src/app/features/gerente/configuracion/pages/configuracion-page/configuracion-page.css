@@ -1,29 +1,282 @@
-.config-section-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 1rem;
+/* ==========================================
+   Configuracion Page Styles
+   ========================================== */
+
+/* Main Container */
+:host {
+  display: block;
+  background: var(--gray-50);
+  min-height: 100vh;
+  font-family: var(--font-family);
 }
+
+/* ==========================================
+   Config Card - Main container for each section
+   ========================================== */
+.config-card {
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);
+  transition: box-shadow 0.2s ease;
+}
+
+.config-card:hover {
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+}
+
+/* ==========================================
+   Section Titles
+   ========================================== */
+.config-section-title {
+  font-size: 1.15rem;
+  font-weight: 850;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+  margin-bottom: 1rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 2px solid rgba(15, 23, 42, 0.04);
+}
+
+/* ==========================================
+   Page Header
+   ========================================== */
+.page-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 850;
+  color: #0f172a;
+  margin: 0;
+}
+
+.page-subtitle {
+  font-size: 0.88rem;
+  color: #64748b;
+  margin: 0;
+}
+
+/* ==========================================
+   Custom Switch (Toggle)
+   ========================================== */
 .custom-switch .form-check-input {
   width: 3em;
   height: 1.5em;
   cursor: pointer;
+  border-radius: 999px;
+  border: 2px solid #d1d5db;
+  background-color: #e5e7eb;
+  transition: all 0.2s ease;
+  position: relative;
 }
+
 .custom-switch .form-check-input:checked {
   background-color: var(--status-success);
   border-color: var(--status-success);
 }
+
 .custom-switch .form-check-input:focus {
-  box-shadow: none;
+  box-shadow: 0 0 0 3px rgba(106, 191, 63, 0.2);
 }
+
+.custom-switch .form-check-input:hover {
+  border-color: #9ca3af;
+}
+
+.custom-switch .form-check-input:checked:hover {
+  border-color: #5aa533;
+}
+
+/* ==========================================
+   Custom Number Input
+   ========================================== */
 .custom-number-input {
-  border: 1px solid var(--primary-orange);
-  border-radius: 4px;
+  border: 1.5px solid var(--primary-orange);
+  border-radius: 8px;
   text-align: center;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 0.95rem;
   width: 70px;
+  height: 42px;
+  padding: 0.375rem 0.5rem;
+  background: #ffffff;
+  color: #0f172a;
+  transition: all 0.2s ease;
 }
+
+.custom-number-input:hover {
+  border-color: #d97a12;
+}
+
 .custom-number-input:focus {
   border-color: var(--primary-orange);
-  box-shadow: 0 0 0 0.2rem rgba(240, 143, 26, 0.25);
+  box-shadow: 0 0 0 3px rgba(240, 143, 26, 0.15);
+  outline: none;
+}
+
+.custom-number-input::placeholder {
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+/* Number input spin buttons */
+.custom-number-input::-webkit-outer-spin-button,
+.custom-number-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.custom-number-input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* ==========================================
+   Form Labels
+   ========================================== */
+.config-form-label {
+  display: block;
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+  margin-bottom: 0.5rem;
+}
+
+/* ==========================================
+   Validation States
+   ========================================== */
+.config-input-error {
+  border-color: #dc3545 !important;
+}
+
+.config-input-error:focus {
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15) !important;
+}
+
+.config-error-text {
+  color: #dc3545;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 0.35rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.config-error-text .material-symbols-outlined {
+  font-size: 0.9rem;
+}
+
+/* ==========================================
+   Helper Text
+   ========================================== */
+.config-helper-text {
+  color: #64748b;
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+  line-height: 1.4;
+}
+
+.config-helper-text a {
+  color: var(--primary-teal);
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.config-helper-text a:hover {
+  color: #014352;
+}
+
+/* ==========================================
+   Fila Virtual Toggle
+   ========================================== */
+.fila-virtual-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* ==========================================
+   Responsive - Tablet (768px)
+   ========================================== */
+@media (max-width: 768px) {
+  .config-card {
+    padding: 1rem;
+    border-radius: 10px;
+  }
+  
+  .config-section-title {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .page-title {
+    font-size: 1.25rem;
+  }
+
+  .page-subtitle {
+    font-size: 0.8rem;
+  }
+
+  .custom-number-input {
+    width: 60px;
+    height: 38px;
+    font-size: 0.9rem;
+  }
+
+  .fila-virtual-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+}
+
+/* ==========================================
+   Responsive - Mobile (576px)
+   ========================================== */
+@media (max-width: 576px) {
+  .config-card {
+    padding: 0.875rem;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+  }
+  
+  .config-section-title {
+    font-size: 0.95rem;
+    margin-bottom: 0.625rem;
+    padding-bottom: 0.375rem;
+  }
+
+  .page-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .page-title {
+    font-size: 1.15rem;
+  }
+
+  .page-subtitle {
+    font-size: 0.75rem;
+  }
+
+  .custom-number-input {
+    width: 55px;
+    height: 36px;
+    font-size: 0.85rem;
+    border-radius: 6px;
+  }
 }

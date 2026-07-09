@@ -7,7 +7,7 @@
   @if (!isEditorMode() && isSeleccionada()) {
     <div class="popup-acciones" [class.arriba]="abrirHaciaArriba()" (click)="$event.stopPropagation()">
 
-      @if (mesa().estadoMesa === 'Disponible') {
+      @if (mesa().estadoMesa === 'Disponible' || mesa().estadoMesa === 'Reservada') {
         <button type="button" class="btn-accion" (click)="$event.stopPropagation(); accionMenu.emit('ocupar')">Ocupar mesa</button>
         <button type="button" class="btn-accion" (click)="$event.stopPropagation(); accionMenu.emit('deshabilitar')">Deshabilitar</button>
       }

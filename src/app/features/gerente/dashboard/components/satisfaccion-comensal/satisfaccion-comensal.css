@@ -29,6 +29,7 @@
   padding: 1.5rem;
   flex: 1;
   min-height: 0;
+  align-items: start;
   box-sizing: border-box;
 }
 
@@ -239,7 +240,7 @@
 .google-column-premium {
   min-width: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   height: 100%;
 }
 
@@ -312,17 +313,19 @@
   align-items: center;
   gap: 1.5rem;
   width: 100%;
+  min-width: 0;
 }
 
 .google-percentage-block,
 .google-total-block {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .google-percentage-block strong {
   color: #0f172a;
-  font-size: 2.35rem;
+  font-size: clamp(1.75rem, 3.2vw, 2.35rem);
   font-weight: 900;
   line-height: 1;
 }
@@ -351,7 +354,7 @@
 
 .google-total-block .total-qty {
   color: #0f172a;
-  font-size: 1.85rem;
+  font-size: clamp(1.35rem, 2.6vw, 1.85rem);
   font-weight: 850;
   line-height: 1;
 }
@@ -414,6 +417,22 @@
   }
 }
 
+@media (max-width: 1280px) {
+  .satisfaction-content-split {
+    grid-template-columns: 1fr;
+    gap: 1.15rem;
+  }
+
+  .radar-and-metrics-section {
+    grid-template-columns: 1fr;
+    gap: 0.95rem;
+  }
+
+  .google-column-premium {
+    height: auto;
+  }
+}
+
 @media (max-width: 768px) {
   .satisfaction-content-split {
     grid-template-columns: 1fr;
@@ -422,6 +441,23 @@
   .axis-list-vertical {
     grid-template-columns: 1fr;
     gap: 0.5rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .google-value-wrapper-premium {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.65rem;
+  }
+
+  .google-divider-premium {
+    display: none;
+  }
+
+  .google-percentage-block strong,
+  .google-total-block .total-qty {
+    font-size: 1.55rem;
   }
 }
 
@@ -474,5 +510,33 @@
 
 .satisfaction-content-split.is-half-width .google-divider-premium {
   height: 28px;
+}
+
+:host-context(.col-span-6) .satisfaction-content-split,
+:host-context(.col-width-50) .satisfaction-content-split {
+  grid-template-columns: 1fr;
+  gap: 1.1rem;
+}
+
+:host-context(.col-span-6) .google-column-premium,
+:host-context(.col-width-50) .google-column-premium {
+  height: auto;
+}
+
+:host-context(.col-span-6) .google-rate-card-premium,
+:host-context(.col-width-50) .google-rate-card-premium {
+  max-width: none;
+}
+
+@media (max-width: 1200px) {
+  .google-value-wrapper-premium {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0.7rem;
+  }
+
+  .google-divider-premium {
+    display: none;
+  }
 }
 

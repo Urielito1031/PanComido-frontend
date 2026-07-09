@@ -1,10 +1,12 @@
-import { DestroyRef, inject, Component, ChangeDetectionStrategy } from '@angular/core';
+import { DestroyRef, inject, Component, ChangeDetectionStrategy, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { HeaderComensal } from '../../../../shared/ui/header-comensal/header-comensal';
 import { BotonComensal } from '../../../../shared/ui/botones/boton-comensal/boton-comensal';
 import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
 import { ComandaState } from '../../services/comanda-state';
+import { MesaComensalState } from '../../services/mesa-comensal-state';
+import { FilaVirtualState } from '../../services/fila-virtual.state';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -19,21 +21,20 @@ export class CantidadPersonas {
   private router = inject(Router);
   private comandaState = inject(ComandaState);
   private destroyRef = inject(DestroyRef);
+  private mesaState = inject(MesaComensalState);
+  private filaVirtualState = inject(FilaVirtualState);
 
   cantidadPersonas = 1;
-  maxCantidad = 5;
   configuracionVisualState = inject(ConfiguracionVisualState);
   cargando = this.comandaState.cargando;
-  nombreComensal = '';
+  
+  nombreComensal = this.filaVirtualState.estado()?.nombreCliente || '';
+  nombreInvalido = false;
 
   mesaId = Number(sessionStorage.getItem('mesaId'));
   restauranteId = Number(sessionStorage.getItem('restauranteId'));
 
-  expandirOpciones() {
-    if (this.maxCantidad < 10) {
-      this.maxCantidad = 10;
-    }
-  }
+  maxCantidad = computed(() => this.mesaState.cantidadMaximaComensales() ?? 6);
 
   seleccionarCantidad(numero: number) {
     this.cantidadPersonas = numero;
@@ -41,9 +42,11 @@ export class CantidadPersonas {
 
   aceptar() {
     if (!this.nombreComensal.trim()) {
-      alert('Ingresá tu nombre');
+      this.nombreInvalido = true;
       return;
     }
+    
+    this.nombreInvalido = false;
 
     this.comandaState
       .ocuparMesa(this.restauranteId, this.mesaId, this.cantidadPersonas, this.nombreComensal)

@@ -14,8 +14,8 @@ import { AuthService } from '../../core/services/auth.service';
 export class StaffLayout {
   private authService = inject(AuthService);
 
-  sidebar = viewChild(SidebarComponent);
-  mainContentCollapsed = computed(() => this.sidebar()?.isCollapsed() ?? true);
+  sidebarRef = viewChild.required<SidebarComponent>('sidebarRef');
+  mainContentCollapsed = computed(() => this.sidebarRef().isCollapsed() ?? true);
 
   currentRole = computed(() => this.authService.rol());
   

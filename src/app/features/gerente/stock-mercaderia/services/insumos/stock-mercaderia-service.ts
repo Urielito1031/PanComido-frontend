@@ -7,6 +7,7 @@ import { DetalleInsumoResponseDto } from '../../../../../core/models/dtos/respon
 import { LoteResponseDto } from '../../../../../core/models/dtos/responses/lote.response';
 import { CrearInsumoRequest } from '../../../../../core/models/dtos/requests/crear-insumo.request';
 import { ModificarInsumoRequestDto } from '../../../../../core/models/dtos/requests/modificar-insumo.request';
+import { LoteRequest } from '../../../../../core/models/dtos/requests/lote.request';
 
 import { mapInsumoDtoToDomain, mapDetalleInsumoDtoToDomain } from '../../../../../infra/http/mappers/insumo.mapper';
 
@@ -39,6 +40,18 @@ export class StockMercaderiaService {
         bodegaId: dto.bodegaId
       })))
     );
+  }
+
+  crearLote(request: LoteRequest): Observable<{ mensaje: string }> {
+    return this.api.post<{ mensaje: string }>('lote/crear', request);
+  }
+
+  modificarLote(id: number, request: LoteRequest): Observable<{ mensaje: string }> {
+    return this.api.put<{ mensaje: string }>(`lote/${id}`, request);
+  }
+
+  eliminarLote(id: number): Observable<{ mensaje: string }> {
+    return this.api.delete<{ mensaje: string }>(`lote/${id}`);
   }
 
   crear(producto: CrearInsumoRequest, imagen?: File): Observable<Insumo> {

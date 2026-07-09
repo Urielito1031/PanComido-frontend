@@ -14,20 +14,22 @@ export class ComandaService {
    * POST /mesa/comensal/{restauranteId}/{mesaId}/ocupar
    * Body: { cantidadComensales: number }
    */
- ocuparMesa(
-  restauranteId: number,
-  mesaId: number,
-  cantidadComensales: number,
-  nombreComensal: string
-): Observable<MesaOcuparResponse> {
+  ocuparMesa(
+    restauranteId: number,
+    mesaId: number,
+    cantidadComensales: number,
+    nombreComensal: string,
+    turnoId?: number
+  ): Observable<MesaOcuparResponse> {
 
-  return this.api.post<MesaOcuparResponse>(
-    `mesa/comensal/${restauranteId}/${mesaId}/ocupar`,
-    {
-      cantidadComensales,
-      nombreComensal
-    }
-  );
+    return this.api.post<MesaOcuparResponse>(
+      `mesa/comensal/${restauranteId}/${mesaId}/ocupar`,
+      {
+        cantidadComensales,
+        nombreComensal,
+        turnoId
+      }
+    );
 }
 
   /**

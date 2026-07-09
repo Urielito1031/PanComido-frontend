@@ -1,4 +1,4 @@
-import { Component, signal, computed, HostListener, inject, ChangeDetectionStrategy, input, output, OnInit, OnDestroy } from '@angular/core';
+import { Component, signal, computed, HostListener, inject, ChangeDetectionStrategy, input, output, OnInit, OnDestroy, HostBinding } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { MenuItem, UserProfile } from '../../../core/models/domain/menu-item';
@@ -83,6 +83,11 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   currentTime = signal(new Date());
   private timeIntervalId?: any;
+  private resizeObserver?: ResizeObserver;
+
+  // Mobile sidebar state
+  isMobile = signal(false);
+  isMobileOpen = signal(false);
 
   formattedTime = computed(() => {
     const d = this.currentTime();
@@ -145,6 +150,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
       },
       
       { label: 'Mapa de mesas', icon: 'faTableCells', route: '/staff/gerente/mapa-de-mesas', roles: ['Gerente'] },
+      { label: 'QR Fila Virtual', icon: 'faUsers', route: '/staff/gerente/qr-fila-virtual', roles: ['Gerente'] },
       { label: 'Cerrar Caja', icon: 'faReceipt', route: '/staff/gerente/caja', roles: ['Gerente'], dividerAfter: true },
       {
         label: 'Modificar Carta',
@@ -208,11 +214,14 @@ export class SidebarComponent implements OnInit, OnDestroy {
   });
 
   // Computed: Sidebar expandido si está hover o no colapsado
-  isExpanded = computed(() => !this.isCollapsed() || this.isHovered());
+  isExpanded = computed(() => !this.isCollapsed() || this.isHovered() || (this.isMobile() && this.isMobileOpen()));
 
   constructor(private router: Router) {}
 
   ngOnInit(): void {
+    // Check initial screen size
+    this.checkMobile();
+    
     // Auto-expandir el submenú del item activo al montar el sidebar
     const items = this.menuConfig[this.currentRole()] || [];
     items.forEach(item => {
@@ -235,15 +244,36 @@ export class SidebarComponent implements OnInit, OnDestroy {
     }
   }
 
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    this.checkMobile();
+  }
+
+  private checkMobile(): void {
+    const mobile = window.innerWidth < 768;
+    this.isMobile.set(mobile);
+    if (!mobile) {
+      this.isMobileOpen.set(false);
+    }
+  }
+
+  toggleMobile(): void {
+    this.isMobileOpen.update(v => !v);
+  }
+
+  closeMobile(): void {
+    this.isMobileOpen.set(false);
+  }
+
 
   onMouseEnter(): void {
-    if (this.isCollapsed()) {
+    if (this.isCollapsed() && !this.isMobile()) {
       this.isHovered.set(true);
     }
   }
 
   onMouseLeave(): void {
-    if (this.isCollapsed()) {
+    if (this.isCollapsed() && !this.isMobile()) {
       this.isHovered.set(false);
       this.expandedMenus.set([]);
     }

@@ -202,6 +202,21 @@
   display: block;
 }
 
+@media (max-width: 768px) {
+  .ranking-list {
+    grid-template-columns: 1fr;
+  }
+
+  .ranking-title strong,
+  .ranking-title small {
+    overflow-wrap: anywhere;
+  }
+
+  ::ng-deep .tooltip-trigger .tooltip-box {
+    width: min(240px, calc(100vw - 2rem));
+  }
+}
+
 ::ng-deep .tooltip-trigger:hover .tooltip-box {
   opacity: 1;
   transform: translateX(-50%) scale(1);
