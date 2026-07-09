@@ -11,6 +11,8 @@ import { PlatoApiService } from '../../../services/plato.api';
 import { GuardarBebidaPayload } from '../../components/editar-bebida-form/editar-bebida-form';
 import { GuardarProductoPayload } from '../../components/producto-form/producto-form';
 import { forkJoin } from 'rxjs';
+import { BodegaState } from '../bodegas/bodega-state';
+import { LoteRequest } from '../../../../../core/models/dtos/requests/lote.request';
 
 
 @Injectable({
@@ -22,6 +24,7 @@ export class StockMercaderiaState {
   private apiCategoriaInsumos = inject(CategoriaInsumoService);
   private platoApi = inject(PlatoApiService);
   private destroyRef = inject(DestroyRef);
+  private bodegaState = inject(BodegaState);
 
   readonly #productos = signal<Insumo[]>([]);
   readonly #lotes = signal<LoteInsumo[]>([]);
@@ -32,11 +35,19 @@ export class StockMercaderiaState {
   readonly #porcentajesBebidas = signal<PorcentajeItem[]>([]);
   readonly #detalleInsumo = signal<InsumoDetalle | null>(null);
   readonly #costoBebida = signal<number>(0);
+  readonly #error = signal<string | null>(null);
+  readonly #errorLote = signal<string | null>(null);
+  readonly #guardandoLote = signal<boolean>(false);
+  readonly #eliminandoLote = signal<boolean>(false);
 
   productos = this.#productos.asReadonly();
   lotes = this.#lotes.asReadonly();
   lotesCargados = this.#lotesCargados.asReadonly();
   cargando = this.#cargando.asReadonly();
+  error = this.#error.asReadonly();
+  errorLote = this.#errorLote.asReadonly();
+  guardandoLote = this.#guardandoLote.asReadonly();
+  eliminandoLote = this.#eliminandoLote.asReadonly();
   unidadMedidas = this.#unidadMedidas.asReadonly();
   categoriasInsumos = this.#categoriasInsumos.asReadonly();
   porcentajesBebidas = this.#porcentajesBebidas.asReadonly();
@@ -59,7 +70,7 @@ export class StockMercaderiaState {
         this.#cargando.set(false);
       },
       error: (err) => {
-        
+
         this.#cargando.set(false);
       }
     });
@@ -80,7 +91,12 @@ export class StockMercaderiaState {
     });
   }
 
-  cargarCatalogos(): void { 
+  recargarLotes(): void {
+    this.#lotesCargados.set(false);
+    this.cargarLotes();
+  }
+
+  cargarCatalogos(): void {
     forkJoin({
       categoriasRes: this.apiCategoriaInsumos.obtenerCategorias(),
       unidadesRes: this.apiUnidadMedida.obtenerUnidades()
@@ -89,12 +105,13 @@ export class StockMercaderiaState {
         this.#categoriasInsumos.set(response.categoriasRes);
         this.#unidadMedidas.set(response.unidadesRes);
       },
-      error: (err) => {}
+      error: (err) => { }
     });
   }
 
-  guardarProducto(payload: GuardarProductoPayload): void {
+  guardarProducto(payload: GuardarProductoPayload, alFinalizar?: () => void): void {
     this.#cargando.set(true);
+    this.#error.set(null);
 
     if (payload.id) {
       const request = {
@@ -112,16 +129,20 @@ export class StockMercaderiaState {
         next: (actualizado) => {
           this.#productos.update(lista => lista.map(p => p.id === payload.id
             ? {
-                ...p,
-                nombre: actualizado.nombre,
-                precioVentaFinal: actualizado.precioVentaFinal ?? p.precioVentaFinal,
-                esPrecioManual: actualizado.esPrecioManual,
-                stockMinimo: actualizado.stockMinimo
-              }
+              ...p,
+              nombre: actualizado.nombre,
+              precioVentaFinal: actualizado.precioVentaFinal ?? p.precioVentaFinal,
+              esPrecioManual: actualizado.esPrecioManual,
+              stockMinimo: actualizado.stockMinimo
+            }
             : p));
           this.#cargando.set(false);
+          if (alFinalizar) alFinalizar();
         },
-        error: () => this.#cargando.set(false)
+        error: (err) => {
+          this.#cargando.set(false);
+          this.#error.set(err.error?.error ?? 'No se pudo modificar el insumo. Intentá nuevamente.');
+        }
       });
     } else {
       const request = {
@@ -146,10 +167,62 @@ export class StockMercaderiaState {
           this.#lotesCargados.set(false);
           if (lotesEstabanCargados) this.cargarLotes();
           this.#cargando.set(false);
+          this.bodegaState.cargarBodegasConInsumos(true);
+          if (alFinalizar) alFinalizar();
         },
-        error: () => this.#cargando.set(false)
+        error: (err) => {
+          this.#cargando.set(false);
+          this.#error.set(err.error?.error ?? 'No se pudo crear el insumo. Intentá nuevamente.');
+        }
       });
     }
+  }
+
+  limpiarError(): void {
+    this.#error.set(null);
+    this.#errorLote.set(null);
+  }
+
+  guardarLote(id: number | null, request: LoteRequest, alFinalizar?: () => void): void {
+    this.#guardandoLote.set(true);
+    this.#errorLote.set(null);
+
+    const operacion = id
+      ? this.api.modificarLote(id, request)
+      : this.api.crearLote(request);
+
+    operacion.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.#guardandoLote.set(false);
+        this.recargarLotes();
+        this.cargarMercaderia();
+        this.bodegaState.cargarBodegasConInsumos(true);
+        if (alFinalizar) alFinalizar();
+      },
+      error: (err) => {
+        this.#guardandoLote.set(false);
+        this.#errorLote.set(err.error?.error ?? err.error?.mensaje ?? 'No se pudo guardar el lote. Intentá nuevamente.');
+      }
+    });
+  }
+
+  eliminarLote(id: number, alFinalizar?: () => void): void {
+    this.#eliminandoLote.set(true);
+    this.#errorLote.set(null);
+
+    this.api.eliminarLote(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.#eliminandoLote.set(false);
+        this.recargarLotes();
+        this.cargarMercaderia();
+        this.bodegaState.cargarBodegasConInsumos(true);
+        if (alFinalizar) alFinalizar();
+      },
+      error: (err) => {
+        this.#eliminandoLote.set(false);
+        this.#errorLote.set(err.error?.error ?? err.error?.mensaje ?? 'No se pudo eliminar el lote. Intentá nuevamente.');
+      }
+    });
   }
 
   eliminarProducto(id: number): void {
@@ -200,11 +273,12 @@ export class StockMercaderiaState {
     this.#costoBebida.set(0);
   }
 
-  guardarBebida(id: number, payload: GuardarBebidaPayload): void {
+  guardarBebida(id: number, payload: GuardarBebidaPayload, alFinalizar?: () => void): void {
     const detalle = this.#detalleInsumo();
     if (!detalle) return;
 
     this.#cargando.set(true);
+    this.#error.set(null);
     const request = {
       nombre: payload.nombre,
       descripcion: detalle.descripcion ?? undefined,
@@ -225,8 +299,12 @@ export class StockMercaderiaState {
             : p));
           this.#detalleInsumo.set(null);
           this.#cargando.set(false);
+          if (alFinalizar) alFinalizar();
         },
-        error: () => this.#cargando.set(false)
+        error: (err) => {
+          this.#cargando.set(false);
+          this.#error.set(err.error?.error ?? 'No se pudo modificar la bebida. Intentá nuevamente.');
+        }
       });
   }
 }

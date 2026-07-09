@@ -28,22 +28,16 @@ describe('CierreCajaApiService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('getTurno debería hacer un GET a api/cierre/turno', () => {
-    httpClientMock.get.mockReturnValue(of({}));
-    service.getTurno().subscribe();
-    expect(httpClientMock.get).toHaveBeenCalledWith(expect.stringContaining('api/cierre/turno'));
-  });
-
-  it('postCierre debería hacer un POST a api/cierre', () => {
-    const mockRequest: any = { empleadoId: 1, observacion: '' };
+  it('generarCierre debería hacer un POST a cierre-caja/generar', () => {
+    const mockRequest = { idTurnoLaboral: 1, conteoCaja: 1000 };
     httpClientMock.post.mockReturnValue(of({}));
-    service.postCierre(mockRequest).subscribe();
-    expect(httpClientMock.post).toHaveBeenCalledWith(expect.stringContaining('api/cierre'), mockRequest);
+    service.generarCierre(mockRequest).subscribe();
+    expect(httpClientMock.post).toHaveBeenCalledWith(expect.stringContaining('cierre-caja/generar'), mockRequest);
   });
 
-  it('getHistorial debería hacer un GET a api/cierre/historial', () => {
+  it('getHistorial debería hacer un GET a cierre-caja', () => {
     httpClientMock.get.mockReturnValue(of([]));
     service.getHistorial().subscribe();
-    expect(httpClientMock.get).toHaveBeenCalledWith(expect.stringContaining('api/cierre/historial'));
+    expect(httpClientMock.get).toHaveBeenCalledWith(expect.stringContaining('cierre-caja'));
   });
 });

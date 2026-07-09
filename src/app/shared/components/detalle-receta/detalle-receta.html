@@ -69,18 +69,21 @@
                 </button>
               </div>
 
-              @if (presetsCantidad(ing).length > 0) {
-                <div class="quantity-presets" aria-label="Accesos rápidos de cantidad">
-                  @for (preset of presetsCantidad(ing); track preset.label) {
-                    <button
-                      type="button"
-                      class="quantity-preset"
-                      (click)="aplicarPresetCantidad(ing, preset)">
-                      {{ preset.label }}
-                    </button>
-                  }
-                </div>
-              }
+              <div class="quantity-right-group">
+                @if (presetsCantidad(ing).length > 0) {
+                  <div class="quantity-presets" aria-label="Accesos rápidos de cantidad">
+                    @for (preset of presetsCantidad(ing); track preset.label) {
+                      <button
+                        type="button"
+                        class="quantity-preset"
+                        (click)="aplicarPresetCantidad(ing, preset)">
+                        {{ preset.label }}
+                      </button>
+                    }
+                  </div>
+                }
+                <span class="subtotal-value">${{ calcularCostoIngrediente(ing) }}</span>
+              </div>
             </div>
 
             <div class="quantity-meta-row">
@@ -91,7 +94,6 @@
               </div>
               <div class="quantity-cost-info d-flex flex-wrap gap-2 text-muted" style="font-size: 0.76rem;">
                 <span>Costo: <strong>${{ ing.costoUnitario }}</strong>/{{ ing.unidadMedida }}</span>
-                <span>Subtotal: <strong>${{ calcularCostoIngrediente(ing) }}</strong></span>
               </div>
             </div>
           </div>
@@ -140,18 +142,21 @@
                 </button>
               </div>
 
-              @if (presetsCantidad(ing).length > 0) {
-                <div class="quantity-presets" aria-label="Accesos rápidos de cantidad">
-                  @for (preset of presetsCantidad(ing); track preset.label) {
-                    <button
-                      type="button"
-                      class="quantity-preset"
-                      (click)="aplicarPresetCantidad(ing, preset)">
-                      {{ preset.label }}
-                    </button>
-                  }
-                </div>
-              }
+              <div class="quantity-right-group">
+                @if (presetsCantidad(ing).length > 0) {
+                  <div class="quantity-presets" aria-label="Accesos rápidos de cantidad">
+                    @for (preset of presetsCantidad(ing); track preset.label) {
+                      <button
+                        type="button"
+                        class="quantity-preset"
+                        (click)="aplicarPresetCantidad(ing, preset)">
+                        {{ preset.label }}
+                      </button>
+                    }
+                  </div>
+                }
+                <span class="subtotal-value">${{ calcularCostoIngrediente(ing) }}</span>
+              </div>
             </div>
 
             <div class="quantity-meta-row">
@@ -162,7 +167,6 @@
               </div>
               <div class="quantity-cost-info d-flex flex-wrap gap-2 text-muted" style="font-size: 0.76rem;">
                 <span>Costo: <strong>${{ ing.costoUnitario }}</strong>/{{ ing.unidadMedida }}</span>
-                <span>Subtotal: <strong>${{ calcularCostoIngrediente(ing) }}</strong></span>
               </div>
             </div>
           </div>

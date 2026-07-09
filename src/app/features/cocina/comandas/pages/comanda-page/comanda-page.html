@@ -6,11 +6,19 @@
   </div>
   }
 
+  @if (notificacionAceptada()) {
+  <div class="notificacion-aceptada">
+    ¡Comanda aceptada — Mesa {{ notificacionAceptada() }}!
+  </div>
+  }
+
   <details class="kds-section" open>
     <summary class="section-header bg-preparacion">
       EN PREPARACIÓN ({{ state.comandasEnPreparacion().length }})
       <span class="chevron">▼</span>
     </summary>
+
+    <p class="hint-voz">Activá el micrófono y decí "mesa [número] llamar mozo" para llamar al mozo.</p>
 
     <div class="cards-grid">
       @for (comanda of state.comandasEnPreparacion(); track comanda.id) {
@@ -27,6 +35,8 @@
       NUEVAS - Esperando aceptación ({{ state.comandasNuevas().length }})
       <span class="chevron">▼</span>
     </summary>
+
+    <p class="hint-voz">Activá el micrófono y decí "mesa [número] aceptar" para aceptar la comanda.</p>
 
     <div class="cards-scroll">
       @for (comanda of state.comandasNuevas(); track comanda.id) {

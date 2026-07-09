@@ -12,6 +12,18 @@
             <span class="material-symbols-outlined">call</span>
             {{ contactoProveedor(proveedor) }}
           </div>
+          @if (categoriasIngrediente(proveedor).length > 0) {
+            <div class="proveedor-categorias text-truncate">
+              <span class="material-symbols-outlined">sell</span>
+              {{ categoriasIngrediente(proveedor).join(', ') }}
+            </div>
+          }
+          @if (categoriasBebidaProveedor(proveedor).length > 0) {
+            <div class="proveedor-categorias text-truncate">
+              <span class="material-symbols-outlined">local_bar</span>
+              {{ categoriasBebidaProveedor(proveedor).join(', ') }}
+            </div>
+          }
         </div>
 
         <div class="proveedor-fecha">

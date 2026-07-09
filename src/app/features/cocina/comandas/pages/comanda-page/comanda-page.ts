@@ -6,6 +6,7 @@ import { BotonVoz } from '../../../../../shared/ui/botones/boton-voz/boton-voz';
 import { ComandaHubService } from '../../../../../core/services/hubs/comanda/comanda-hub-service';
 import { AuthService } from '../../../../../core/services/auth.service';
 import { LlamadoService } from '../../../../comensal/services/llamado.service';
+import { EstadoComandaId } from '../../../../../core/models/domain/comanda';
 
 const CATEGORIA_LLAMADO_COCINA = 8;
 
@@ -28,6 +29,7 @@ export class ComandaPage {
 
   restauranteId = this.auth.restauranteId;
   notificacionLlamado = signal<number | null>(null);
+  notificacionAceptada = signal<number | null>(null);
 
   constructor() {
     effect(() => {
@@ -47,6 +49,9 @@ export class ComandaPage {
         this.onLlamarMozo(comanda.mesaId);
       } else {
         this.state.modificarEstadoComanda(comanda.id, comando.nuevoEstadoId);
+        if (comando.accion === 'aceptar') {
+          this.mostrarNotificacionAceptada(comanda.numeroDeMesa);
+        }
       }
 
       untracked(() => this.vozService.comandoDetectado.set(null));
@@ -70,6 +75,13 @@ export class ComandaPage {
 
   procesarAccion(evento: { comandaId: number; estadoId: number }): void {
     this.state.modificarEstadoComanda(evento.comandaId, evento.estadoId);
+
+    if (evento.estadoId === EstadoComandaId.EnPreparacion) {
+      const numeroDeMesa = this.state.comandas().find(c => c.id === evento.comandaId)?.numeroDeMesa;
+      if (numeroDeMesa !== undefined) {
+        this.mostrarNotificacionAceptada(numeroDeMesa);
+      }
+    }
   }
 
   onLlamarMozo(mesaId: number): void {
@@ -85,5 +97,10 @@ export class ComandaPage {
         setTimeout(() => this.notificacionLlamado.set(null), 7000);
       }
     });
+  }
+
+  private mostrarNotificacionAceptada(numeroDeMesa: number): void {
+    this.notificacionAceptada.set(numeroDeMesa);
+    setTimeout(() => this.notificacionAceptada.set(null), 7000);
   }
 }

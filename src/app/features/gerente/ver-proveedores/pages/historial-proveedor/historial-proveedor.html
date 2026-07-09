@@ -139,7 +139,7 @@
                       <span class="fw-bold text-dark">Confirmar</span>
                     </app-boton>
                   } @else if (pedido.estado === 'Enviado') {
-                    <app-boton variante="teal" tamanio="sm" (clicked)="previsualizarRecepcion($event, pedido)">
+                    <app-boton class="btn-recibir-pedido" variante="teal" tamanio="sm" (clicked)="previsualizarRecepcion($event, pedido)">
                       <span class="fw-bold text-white">Recibir</span>
                     </app-boton>
                   }
@@ -225,7 +225,7 @@
         }
       } @else if (pedido.estado === 'Enviado') {
         <div class="pedido-modal-actions">
-          <app-boton variante="teal" tamanio="md" (clicked)="previsualizarRecepcion($event, pedido)">
+          <app-boton class="btn-recibir-pedido" variante="teal" tamanio="md" (clicked)="previsualizarRecepcion($event, pedido)">
             <span class="fw-bold text-white">Recibir pedido</span>
           </app-boton>
         </div>

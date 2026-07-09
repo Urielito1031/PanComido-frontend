@@ -50,6 +50,7 @@ export class ModificarCartaStateService {
   private _porcentajesBebidas = signal<PorcentajeItem[]>([]);
   private _bebidaAEditar = signal<BebidaAEditar | null>(null);
   private _bebidaPreparadaAEditar = signal<BebidaPreparada | null>(null);
+  private _error = signal<string | null>(null);
 
   // 2. Estado PÚBLICO
   searchTerm = this._searchTerm.asReadonly();
@@ -67,6 +68,7 @@ export class ModificarCartaStateService {
   porcentajesBebidas = this._porcentajesBebidas.asReadonly();
   bebidaAEditar = this._bebidaAEditar.asReadonly();
   bebidaPreparadaAEditar = this._bebidaPreparadaAEditar.asReadonly();
+  error = this._error.asReadonly();
 
   // 3. Variables Derivadas (Computed)
   tiposBebidaDisponibles = computed(() => {
@@ -266,11 +268,12 @@ export class ModificarCartaStateService {
       });
   }
 
-  saveBebida(payload: GuardarBebidaPayload): void {
+  saveBebida(payload: GuardarBebidaPayload, alFinalizar?: () => void): void {
     const target = this._bebidaAEditar();
     const detalle = target?.detalle;
     if (!target || !detalle) return;
 
+    this._error.set(null);
     const request = {
       nombre: payload.nombre,
       descripcion: detalle.descripcion ?? undefined,
@@ -284,17 +287,23 @@ export class ModificarCartaStateService {
 
     this.stockService.actualizarInsumoConImagen(target.id, request, payload.imagen)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(actualizado => {
-        this._platos.update(platos => platos.map(p => p.id === target.id
-          ? {
-              ...p,
-              nombre: actualizado.nombre,
-              precioVenta: actualizado.precioVentaFinal ?? p.precioVenta,
-              esPrecioManual: actualizado.esPrecioManual,
-              imagen: actualizado.urlImagen || p.imagen
-            }
-          : p));
-        this._bebidaAEditar.set(null);
+      .subscribe({
+        next: (actualizado) => {
+          this._platos.update(platos => platos.map(p => p.id === target.id
+            ? {
+                ...p,
+                nombre: actualizado.nombre,
+                precioVenta: actualizado.precioVentaFinal ?? p.precioVenta,
+                esPrecioManual: actualizado.esPrecioManual,
+                imagen: actualizado.urlImagen || p.imagen
+              }
+            : p));
+          this._bebidaAEditar.set(null);
+          if (alFinalizar) alFinalizar();
+        },
+        error: (err) => {
+          this._error.set(err.error?.error ?? 'No se pudo modificar la bebida. Intentá nuevamente.');
+        }
       });
   }
 
@@ -309,7 +318,8 @@ export class ModificarCartaStateService {
       .subscribe(detalle => this._bebidaPreparadaAEditar.set(detalle));
   }
 
-  crearBebidaPreparada(payload: GuardarBebidaPreparadaPayload): void {
+  crearBebidaPreparada(payload: GuardarBebidaPreparadaPayload, alFinalizar?: () => void): void {
+    this._error.set(null);
     const request = {
       nombre: payload.nombre,
       descripcion: payload.descripcion,
@@ -321,13 +331,22 @@ export class ModificarCartaStateService {
 
     this.bebidaPreparadaApi.crear(request, payload.imagen!)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.cargarPlatos());
+      .subscribe({
+        next: () => {
+          this.cargarPlatos();
+          if (alFinalizar) alFinalizar();
+        },
+        error: (err) => {
+          this._error.set(err.error?.error ?? 'No se pudo crear la bebida preparada. Intentá nuevamente.');
+        }
+      });
   }
 
-  saveBebidaPreparada(payload: GuardarBebidaPreparadaPayload): void {
+  saveBebidaPreparada(payload: GuardarBebidaPreparadaPayload, alFinalizar?: () => void): void {
     const target = this._bebidaPreparadaAEditar();
     if (!target) return;
 
+    this._error.set(null);
     const request = {
       nombre: payload.nombre,
       descripcion: payload.descripcion,
@@ -339,13 +358,20 @@ export class ModificarCartaStateService {
 
     this.bebidaPreparadaApi.modificar(target.id, request, payload.imagen)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this._bebidaPreparadaAEditar.set(null);
-        this.cargarPlatos();
+      .subscribe({
+        next: () => {
+          this._bebidaPreparadaAEditar.set(null);
+          this.cargarPlatos();
+          if (alFinalizar) alFinalizar();
+        },
+        error: (err) => {
+          this._error.set(err.error?.error ?? 'No se pudo modificar la bebida preparada. Intentá nuevamente.');
+        }
       });
   }
 
-  crearBebida(payload: GuardarProductoPayload): void {
+  crearBebida(payload: GuardarProductoPayload, alFinalizar?: () => void): void {
+    this._error.set(null);
     const request = {
       nombre: payload.nombre,
       descripcion: payload.descripcion,
@@ -363,7 +389,19 @@ export class ModificarCartaStateService {
 
     this.stockService.crear(request, payload.imagen)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.cargarPlatos());
+      .subscribe({
+        next: () => {
+          this.cargarPlatos();
+          if (alFinalizar) alFinalizar();
+        },
+        error: (err) => {
+          this._error.set(err.error?.error ?? 'No se pudo crear la bebida. Intentá nuevamente.');
+        }
+      });
+  }
+
+  limpiarError(): void {
+    this._error.set(null);
   }
 
   savePlato(updatedFields: Partial<Plato>, archivo?: File): void {
@@ -376,6 +414,7 @@ export class ModificarCartaStateService {
 
     if (!tipoPlatoId || !categoriaPlatoId) return;
 
+    this._error.set(null);
     const request = {
       nombre: updatedPlato.nombre,
       descripcion: updatedPlato.descripcion ?? '',
@@ -395,11 +434,16 @@ export class ModificarCartaStateService {
 
     this.api.modificarPlato(target.id, request, archivo)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(updated => {
-        this._platos.update(platos => platos.map(p => p.id === target.id
-          ? { ...p, ...updated, ...updatedPlato, imagen: updated.imagen || updatedPlato.imagen }
-          : p));
-        this._platoAEditar.set(null);
+      .subscribe({
+        next: (updated) => {
+          this._platos.update(platos => platos.map(p => p.id === target.id
+            ? { ...p, ...updated, ...updatedPlato, nombre: updated.nombre, imagen: updated.imagen || updatedPlato.imagen }
+            : p));
+          this._platoAEditar.set(null);
+        },
+        error: (err) => {
+          this._error.set(err.error?.error ?? 'No se pudo modificar el plato. Intentá nuevamente.');
+        }
       });
   }
 
@@ -420,6 +464,7 @@ export class ModificarCartaStateService {
     this._platoAEliminar.set(null);
     this._bebidaAEditar.set(null);
     this._bebidaPreparadaAEditar.set(null);
+    this._error.set(null);
   }
 
   toggleRecomendado(plato: Plato): void {

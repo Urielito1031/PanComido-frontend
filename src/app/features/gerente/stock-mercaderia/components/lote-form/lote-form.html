@@ -1,0 +1,66 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="producto-form">
+  <section class="form-section">
+    <div class="section-heading">
+      <span class="material-symbols-outlined">event_repeat</span>
+      <div>
+        <strong>Datos del lote</strong>
+        <small>Insumo, cantidad, vencimiento y bodega.</small>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group full-width">
+        <label for="insumoId">Insumo <span class="text-danger">*</span></label>
+        <select id="insumoId" formControlName="insumoId" class="form-control">
+          <option value="" disabled>Seleccione...</option>
+          @for (insumo of insumos(); track insumo.id) {
+          <option [value]="insumo.id">{{ insumo.nombre }}</option>
+          }
+        </select>
+        @if (getError('insumoId'); as error) { <div class="error-text">{{ error }}</div> }
+      </div>
+    </div>
+
+    <div class="form-row two-columns">
+      <div class="form-group">
+        <label for="cantidad">Cantidad <span class="text-danger">*</span></label>
+        <input id="cantidad" type="number" formControlName="cantidad" class="form-control" min="0.01" step="0.01"
+          (focus)="onFocusNumero($event)">
+        @if (getError('cantidad'); as error) { <div class="error-text">{{ error }}</div> }
+      </div>
+
+      <div class="form-group">
+        <label for="fechaVencimiento">Vencimiento <span class="text-danger">*</span></label>
+        <input id="fechaVencimiento" type="date" formControlName="fechaVencimiento" class="form-control">
+        @if (getError('fechaVencimiento'); as error) { <div class="error-text">{{ error }}</div> }
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group full-width">
+        <label for="bodegaId">Bodega <span class="text-danger">*</span></label>
+        <select id="bodegaId" formControlName="bodegaId" class="form-control">
+          <option value="" disabled>Seleccione...</option>
+          @for (bodega of bodegas(); track bodega.id) {
+          <option [value]="bodega.id">{{ bodega.nombre }}</option>
+          }
+        </select>
+        @if (getError('bodegaId'); as error) { <div class="error-text">{{ error }}</div> }
+      </div>
+    </div>
+
+    @if (errorAPI()) {
+    <div class="text-danger small mt-1">
+      <i class="fa-solid fa-circle-exclamation me-1"></i> {{ errorAPI() }}
+    </div>
+    }
+  </section>
+
+  <div class="form-actions">
+    <button type="button" class="btn-cancelar" (click)="cancelado.emit()" [disabled]="guardando()">Cancelar</button>
+    <button type="submit" class="btn-guardar" [disabled]="form.invalid || guardando()">
+      {{ guardando() ? 'Guardando...' : lote() ? 'Guardar cambios' : 'Crear lote' }}
+    </button>
+  </div>
+</form>
+

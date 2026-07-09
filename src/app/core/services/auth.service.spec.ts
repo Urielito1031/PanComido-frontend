@@ -170,10 +170,10 @@ describe('AuthService', () => {
       }));
       service['cargarSesion']();
 
-      expect(service.obtenerRutaHome()).toBe('staff/gerente');
+      expect(service.obtenerRutaHome()).toBe('staff/gerente/mapa-de-mesas');
     });
 
-    it('deberia retornar staff/cocina para rol Cocina', () => {
+    it('deberia retornar staff/cocina/comandas para rol Cocina', () => {
       localStorage.setItem('pancomido_token', crearTokenFake({
         sub: '1', name: 'C', email: 'c@test.com',
         role: 'Cocina', restauranteId: '1',
@@ -181,7 +181,7 @@ describe('AuthService', () => {
       }));
       service['cargarSesion']();
 
-      expect(service.obtenerRutaHome()).toBe('staff/cocina');
+      expect(service.obtenerRutaHome()).toBe('staff/cocina/comandas');
     });
 
     it('deberia retornar staff/mozo para rol Mozo', () => {

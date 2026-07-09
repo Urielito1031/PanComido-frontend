@@ -37,6 +37,7 @@ export class PanelBebidaPreparadaComponent {
   bebidaPreparada = input<BebidaPreparada | null>(null);
   insumosDisponibles = input<InsumoBebidaDisponible[]>([]);
   porcentajesBebidas = input<PorcentajeItem[]>([]);
+  error = input<string | null>(null);
 
   guardar = output<GuardarBebidaPreparadaPayload>();
   cerrar = output<void>();
@@ -88,10 +89,13 @@ export class PanelBebidaPreparadaComponent {
     return venta > 0 && costoVal > 0 && venta <= costoVal;
   });
 
+  hayCantidadesInvalidas = computed(() => this.receta().some(item => !(item.cantidad > 0)));
+
   puedeGuardar = computed(() => {
     if (!this.nombre().trim()) return false;
     if (this.precioVenta() === null || this.precioVenta()! <= 0) return false;
     if (this.receta().length === 0) return false;
+    if (this.hayCantidadesInvalidas()) return false;
     if (!this.bebidaPreparada() && !this.archivoImagen()) return false;
     return true;
   });

@@ -1,78 +1,115 @@
 import { Injectable, computed, inject, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { forkJoin } from 'rxjs';
 import { CierreCajaApiService } from './cierre-caja.api';
 import { CierreCajaMapper } from '../../../../infra/http/mappers/cierre-caja.mapper';
-import { CierreHistorial, CierreTurnoInfo } from '../../../../core/models/domain/cierre-caja';
-import { environment } from '../../../../../environments/environment';
-import { BrowserNavigationService } from '../../../../core/services/browser-navigation.service';
+import { CierreCaja } from '../../../../core/models/domain/cierre-caja';
+import { ConfiguracionService } from '../../configuracion/services/configuracion-service';
+import { TurnoLaboral } from '../../../../core/models/domain/turno-laboral';
+
+export type TipoTurnoCierre = 'dia' | 'noche';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CierreCajaStateService {
   private api = inject(CierreCajaApiService);
+  private configuracionApi = inject(ConfiguracionService);
   private destroyRef = inject(DestroyRef);
-  private browserNavigation = inject(BrowserNavigationService);
 
   // Signals
-  private _datosTurno = signal<CierreTurnoInfo | null>(null);
-  private _historial = signal<CierreHistorial[]>([]);
+  private _turnos = signal<TurnoLaboral[]>([]);
+  private _historial = signal<CierreCaja[]>([]);
+  private _cierreGenerado = signal<CierreCaja | null>(null);
+  private _cierreDetalle = signal<CierreCaja | null>(null);
+  private _turnoSeleccionado = signal<TipoTurnoCierre | null>(null);
+  private _conteoCaja = signal<number>(0);
   private _loading = signal<boolean>(false);
-  private _efectivoContado = signal<number>(0);
-  private _observacion = signal<string>('');
-  private _cierreConfirmado = signal<boolean>(false);
-  private _cierreSeleccionadoId = signal<number | null>(null);
-  
-  // Shift selection & details modals signals
-  private _turnoIdSeleccionado = signal<number>(2);
-  private _cierreDetalle = signal<CierreHistorial | null>(null);
-  private _mostrarConfirmacion = signal<boolean>(false);
-  
-  // Platos details modal signals
-  private _modalPlatosTipo = signal<'mas' | 'menos' | null>(null);
-  private _mostrarEncuestasDetalle = signal<boolean>(false);
+  private _generando = signal<boolean>(false);
+  private _error = signal<string | null>(null);
 
   // Public Computed
-  public datosTurno = computed(() => this._datosTurno());
   public historial = computed(() => this._historial());
-  public loading = computed(() => this._loading());
-  public efectivoContado = computed(() => this._efectivoContado());
-  public observacion = computed(() => this._observacion());
-  public cierreConfirmado = computed(() => this._cierreConfirmado());
-  public cierreSeleccionadoId = computed(() => this._cierreSeleccionadoId());
-  
-  public turnoIdSeleccionado = computed(() => this._turnoIdSeleccionado());
+  public cierreGenerado = computed(() => this._cierreGenerado());
   public cierreDetalle = computed(() => this._cierreDetalle());
-  public mostrarConfirmacion = computed(() => this._mostrarConfirmacion());
-  public modalPlatosTipo = computed(() => this._modalPlatosTipo());
-  public mostrarEncuestasDetalle = computed(() => this._mostrarEncuestasDetalle());
+  public turnoSeleccionado = computed(() => this._turnoSeleccionado());
+  public conteoCaja = computed(() => this._conteoCaja());
+  public loading = computed(() => this._loading());
+  public generando = computed(() => this._generando());
+  public error = computed(() => this._error());
 
-  public efectivoEsperado = computed(() => {
-    const turno = this._datosTurno();
-    return turno ? turno.resumenFinanciero.efectivoEsperado : 0;
-  });
-
-  public diferencia = computed(() => {
-    const esperado = this.efectivoEsperado();
-    const contado = this._efectivoContado();
-    return contado - esperado;
-  });
+  public turnoDiaId = computed(() => this._turnos().find(t => !t.esNocturno)?.id ?? null);
+  public turnoNocheId = computed(() => this._turnos().find(t => t.esNocturno)?.id ?? null);
 
   // Actions
-  cambiarTurnoId(id: number): void {
-    this._turnoIdSeleccionado.set(id);
-    this.cargarDatos();
+  cargarDatos(): void {
+    this._loading.set(true);
+    this._error.set(null);
+
+    forkJoin({
+      turnos: this.configuracionApi.obtenerTurnos(),
+      historial: this.api.getHistorial()
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ turnos, historial }) => {
+          this._turnos.set(turnos);
+          this._historial.set(CierreCajaMapper.toDomainList(historial));
+          this._loading.set(false);
+        },
+        error: () => {
+          this._loading.set(false);
+          this._error.set('No se pudieron cargar los datos de cierre de caja.');
+        }
+      });
   }
 
-  abrirConfirmacion(): void {
-    this._mostrarConfirmacion.set(true);
+  abrirCierre(tipo: TipoTurnoCierre): void {
+    this._turnoSeleccionado.set(tipo);
+    this._conteoCaja.set(0);
+    this._error.set(null);
   }
 
-  cerrarConfirmacion(): void {
-    this._mostrarConfirmacion.set(false);
+  cerrarModalCierre(): void {
+    this._turnoSeleccionado.set(null);
   }
 
-  abrirDetalleCierre(cierre: CierreHistorial): void {
+  setConteoCaja(valor: number): void {
+    this._conteoCaja.set(valor);
+  }
+
+  confirmarCierre(): void {
+    const tipo = this._turnoSeleccionado();
+    const idTurnoLaboral = tipo === 'dia' ? this.turnoDiaId() : this.turnoNocheId();
+    if (!tipo || !idTurnoLaboral) return;
+
+    this._generando.set(true);
+    this._error.set(null);
+
+    this.api.generarCierre({ idTurnoLaboral, conteoCaja: this._conteoCaja() })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (dto) => {
+          this._cierreGenerado.set(CierreCajaMapper.toDomain(dto));
+          this._turnoSeleccionado.set(null);
+          this._generando.set(false);
+          this.cargarHistorial();
+        },
+        error: (err) => {
+          this._generando.set(false);
+          const mensajeBackend = err.error?.error || err.error?.mensaje;
+          if (err.status === 409) {
+            this._error.set(mensajeBackend || 'El turno todavía está en curso, no se puede cerrar todavía.');
+          } else if (err.status === 404) {
+            this._error.set(mensajeBackend || 'No se encontró el turno.');
+          } else {
+            this._error.set(mensajeBackend || 'No se pudo generar el cierre de caja. Intentá nuevamente.');
+          }
+        }
+      });
+  }
+
+  abrirDetalleCierre(cierre: CierreCaja): void {
     this._cierreDetalle.set(cierre);
   }
 
@@ -80,101 +117,12 @@ export class CierreCajaStateService {
     this._cierreDetalle.set(null);
   }
 
-  abrirModalPlatos(tipo: 'mas' | 'menos'): void {
-    this._modalPlatosTipo.set(tipo);
-  }
-
-  cerrarModalPlatos(): void {
-    this._modalPlatosTipo.set(null);
-  }
-
-  abrirEncuestasDetalle(): void {
-    this._mostrarEncuestasDetalle.set(true);
-  }
-
-  cerrarEncuestasDetalle(): void {
-    this._mostrarEncuestasDetalle.set(false);
-  }
-
-  cargarDatos(): void {
-    this._loading.set(true);
-    
-    // Cargar Turno Actual
-    this.api.getTurno()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (dto) => {
-          const domainData = CierreCajaMapper.toDomainTurnoInfo(dto);
-          this._datosTurno.set(domainData);
-          this._efectivoContado.set(domainData.resumenFinanciero.efectivoEsperado);
-          this._loading.set(false);
-        },
-        error: (err) => {
-          console.error('Error cargando turno:', err);
-          this._loading.set(false);
-        }
-      });
-
-    // Cargar Historial
+  private cargarHistorial(): void {
     this.api.getHistorial()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (dtos) => {
-          this._historial.set(CierreCajaMapper.toDomainHistorialList(dtos));
-        },
-        error: (err) => {
-          console.error('Error cargando historial:', err);
-        }
+        next: (dtos) => this._historial.set(CierreCajaMapper.toDomainList(dtos)),
+        error: () => {}
       });
-  }
-
-  setEfectivoContado(valor: number): void {
-    this._efectivoContado.set(valor);
-  }
-
-  setObservacion(valor: string): void {
-    this._observacion.set(valor);
-  }
-
-  confirmarCierre(): void {
-    const turno = this._datosTurno();
-    if (!turno) return;
-
-    this._loading.set(true);
-    this._mostrarConfirmacion.set(false); // Close confirmation modal
-
-    const dif = this.diferencia();
-    const sobrante = dif > 0 ? dif : 0;
-    
-    this.api.postCierre({
-      restauranteId: 1, // default
-      turnoLaboralId: turno.turnoLaboralId,
-      efectivoContado: this.efectivoContado(),
-      diferencia: dif,
-      sobrante: sobrante,
-      observacion: this.observacion()
-    })
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe({
-      next: (res) => {
-        this._cierreConfirmado.set(true);
-        this._cierreSeleccionadoId.set(res.cierreId);
-        this.cargarDatos(); // Refresh historial
-      },
-      error: (err) => {
-        console.error('Error al confirmar cierre:', err);
-        this._loading.set(false);
-      },
-      complete: () => {
-        this._loading.set(false);
-      }
-    });
-  }
-
-  imprimirReporte(id?: number): void {
-    const cierreId = id || this._cierreSeleccionadoId();
-    if (cierreId) {
-      this.browserNavigation.abrirEnNuevaPestana(`${environment.apiUrl}/api/cierre/${cierreId}/reporte-pdf`);
-    }
   }
 }

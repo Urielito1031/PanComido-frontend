@@ -17,14 +17,17 @@ export class DatosLocalForm {
   readonly archivoCambiar = output<File | null>();
 
   previewUrl = signal<string | null>(null);
+  logoError = signal<boolean>(false);
 
   constructor() {
     effect(() => {
       const imagen = this.datosLocal().imagen;
       if (imagen && !imagen.startsWith('data:')) {
         this.previewUrl.set(imagen);
+        this.logoError.set(false);
       } else if (imagen && imagen.startsWith('data:')) {
         this.previewUrl.set(imagen);
+        this.logoError.set(false);
       }
     });
   }
@@ -39,6 +42,7 @@ export class DatosLocalForm {
     const reader = new FileReader();
     reader.onload = () => {
       this.previewUrl.set(reader.result as string);
+      this.logoError.set(false);
 
       this.datosLocalChange.emit({imagen: reader.result as string});
     };

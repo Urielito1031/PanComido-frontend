@@ -64,6 +64,7 @@
         <app-proveedor-list
           [proveedores]="proveedoresFiltrados()"
           [proveedorSeleccionadoId]="proveedorSeleccionadoId()"
+          [categoriasBebida]="categoriasBebidaNombres()"
           (seleccionar)="seleccionarProveedor($event)"
           (crearPedido)="abrirPedido($event)"
           (verHistorial)="abrirHistorial($event)"
@@ -112,6 +113,20 @@
               <strong>{{ proveedor.email }}</strong>
             </span>
           }
+          @if (categoriasIngredienteProveedor(proveedor).length > 0) {
+            <span class="provider-meta-item">
+              <span class="material-symbols-outlined">sell</span>
+              Ingredientes:
+              <strong>{{ categoriasIngredienteProveedor(proveedor).join(', ') }}</strong>
+            </span>
+          }
+          @if (categoriasBebidaProveedor(proveedor).length > 0) {
+            <span class="provider-meta-item">
+              <span class="material-symbols-outlined">local_bar</span>
+              Bebidas:
+              <strong>{{ categoriasBebidaProveedor(proveedor).join(', ') }}</strong>
+            </span>
+          }
         </div>
 
         @if (pedidosListosParaRecibir().length > 0) {
@@ -120,6 +135,7 @@
               Hay {{ pedidosListosParaRecibir().length }} pedido(s) enviado(s) listos para recibir.
             </div>
             <app-boton
+              class="btn-recibir-pedido"
               label="Recibir pedido"
               variante="teal"
               tamanio="sm"
@@ -263,13 +279,17 @@
                   <div class="field-group price-display-field">
                     <span>Precio del proveedor</span>
                     <div class="price-display">
-                      @if (precioProductoManual(); as precio) {
-                        <span class="price-value">{{ precio | arsCurrency }}</span>
+                      @if (precioProductoManual() !== null) {
+                        <span class="price-value">{{ precioProductoManual() | arsCurrency }}</span>
                       } @else {
                         <span class="price-no-data">Sin historial de precio</span>
                       }
                     </div>
-                    <app-price-note text="Último precio de compra registrado para este proveedor." [compact]="true" />
+                    @if (precioProductoManual() === 0) {
+                      <app-price-note text="Sin historial de precio con este proveedor: se carga $0 por defecto." [compact]="true" />
+                    } @else {
+                      <app-price-note text="Último precio de compra registrado para este proveedor." [compact]="true" />
+                    }
                   </div>
 
                   <!-- Cantidad con stepper -->
@@ -321,7 +341,7 @@
                 <button
                   type="button"
                   class="add-item-btn"
-                  [disabled]="!productoTexto().trim() || !precioProductoManual() || !cantidadProducto() || cantidadProducto()! <= 0"
+                  [disabled]="!productoTexto().trim() || precioProductoManual() === null || !cantidadProducto() || cantidadProducto()! <= 0"
                   (click)="agregarItemPedido()">
                   <span class="material-symbols-outlined">add</span>
                   Añadir
@@ -502,6 +522,9 @@
                 <span class="fw-bold">{{ isAgregarInsumoOpen() ? 'Ocultar insumos' : 'Agregar insumos' }}</span>
               </app-boton>
               <app-boton variante="success" tamanio="md" (clicked)="confirmarPedido($event, pedido)">
+
+
+
                 <span class="fw-bold text-dark">Confirmar pedido</span>
               </app-boton>
             </div>
@@ -572,16 +595,36 @@
             </div>
           </div>
 
-          <ul class="category-list">
-            @for (cat of categoriasDisponiblesEdicion(); track cat.id) {
-              <li>
-                <label class="category-checkbox">
-                  <input type="checkbox" [checked]="categoriaSeleccionadaEdicion(cat.id)" (change)="toggleCategoriaEdicion(cat)">
-                  <span class="checkbox-pill">{{ cat.descripcion }}</span>
-                </label>
-              </li>
-            }
-          </ul>
+          @if (categoriasIngredienteEdicion().length > 0) {
+            <div class="category-group">
+              <span class="category-group-title">Ingredientes</span>
+              <ul class="category-list">
+                @for (cat of categoriasIngredienteEdicion(); track cat.id) {
+                  <li>
+                    <label class="category-checkbox">
+                      <input type="checkbox" [checked]="categoriaSeleccionadaEdicion(cat.id)" (change)="toggleCategoriaEdicion(cat)">
+                      <span class="checkbox-pill">{{ cat.descripcion }}</span>
+                    </label>
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+          @if (categoriasBebidaEdicion().length > 0) {
+            <div class="category-group">
+              <span class="category-group-title">Bebidas</span>
+              <ul class="category-list">
+                @for (cat of categoriasBebidaEdicion(); track cat.id) {
+                  <li>
+                    <label class="category-checkbox">
+                      <input type="checkbox" [checked]="categoriaSeleccionadaEdicion(cat.id)" (change)="toggleCategoriaEdicion(cat)">
+                      <span class="checkbox-pill">{{ cat.descripcion }}</span>
+                    </label>
+                  </li>
+                }
+              </ul>
+            </div>
+          }
 
           @if (categoriaIdsEdicion().length === 0) {
             <span class="error-text">Debes seleccionar al menos una categoría.</span>

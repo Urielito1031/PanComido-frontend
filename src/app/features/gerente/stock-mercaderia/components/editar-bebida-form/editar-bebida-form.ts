@@ -25,6 +25,7 @@ export class EditarBebidaFormComponent {
   insumo = input<InsumoDetalle | null>(null);
   costo = input<number>(0);
   porcentajeGanancia = input<number>(0);
+  error = input<string | null>(null);
 
   guardar = output<GuardarBebidaPayload>();
   cancelado = output<void>();
@@ -60,6 +61,12 @@ export class EditarBebidaFormComponent {
       this.imagenArchivo.set(null);
       this.esPrecioManualOriginal.set(detalle.esPrecioManual);
       this.precioVentaTocado.set(false);
+    });
+
+    effect(() => {
+      if (this.error()) {
+        this.nombre.set('');
+      }
     });
   }
 

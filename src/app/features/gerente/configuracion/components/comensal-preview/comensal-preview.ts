@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { DatosLocal } from '../../../../../core/models/domain/datos-local';
 import { FamiliaTipografica } from '../../../../../core/models/domain/familia-tipografica';
 import { CartaState } from '../../../../comensal/ver-carta/service/carta-state';
@@ -24,6 +24,8 @@ export class ComensalPreviewComponent {
   readonly familiasTipograficas = input<FamiliaTipografica[]>([]);
 
   private readonly cartaState = inject(CartaState);
+
+  logoError = signal<boolean>(false);
 
   readonly familiaActual = computed(() => {
     const id = this.datosLocal().familiaTipograficaId;
@@ -74,6 +76,11 @@ export class ComensalPreviewComponent {
         this._ultimoCargadoId = id;
         this.cartaState.cargarCarta(id);
       }
+    });
+
+    effect(() => {
+      const logoUrl = this.datosLocal().imagen;
+      this.logoError.set(false);
     });
   }
 

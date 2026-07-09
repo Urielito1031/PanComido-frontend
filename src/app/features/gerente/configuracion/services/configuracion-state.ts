@@ -3,7 +3,7 @@ import { ConfiguracionService } from './configuracion-service';
 import { DatosLocal } from '../../../../core/models/domain/datos-local';
 import { MetodoPago } from '../../../../core/models/domain/metodo-pago';
 import { TurnoLaboral } from '../../../../core/models/domain/turno-laboral';
-import { forkJoin, of } from 'rxjs';
+import { forkJoin, of, catchError, throwError } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FamiliaTipografica } from '../../../../core/models/domain/familia-tipografica';
 import { FilaVirtual } from '../../../../core/models/domain/fila-virtual';
@@ -193,7 +193,17 @@ export class ConfiguracionState {
     forkJoin({
       datosLocal: this.api.actualizarDatosLocal(datosLocal,archivo),
       metodosPago: this.api.actualizarMetodosPago(metodosPago),
-      turnos: this.api.actualizarTurnos(turnos),
+      turnos: this.api.actualizarTurnos(turnos).pipe(
+        catchError((err) => {
+          if (err.status === 409) {
+            return throwError(() => ({
+              ...err,
+              mensajeTurno: err.error?.error || err.error?.mensaje || 'No se pudo actualizar el horario: el turno tiene un cierre de caja pendiente.'
+            }));
+          }
+          return throwError(() => err);
+        })
+      ),
       filaVirtual: this.api.actualizarFilaVirtual(filaVirtual),
       porcentajes: this.api.actualizarPorcentajes(porcentajes),
       datosTransferencia: datosTransferencia ? this.api.actualizarDatosTransferencia(datosTransferencia) : of(null),
@@ -217,9 +227,9 @@ export class ConfiguracionState {
         this.#guardando.set(false);
         this.#exito.set('Configuración guardada correctamente');
       },
-      error: () =>{
+      error: (err: any) =>{
         this.#guardando.set(false);
-        this.#error.set("No se pudo guardar la condfiguración. Revisá los datos e intentá nuevamente")
+        this.#error.set(err?.mensajeTurno ?? "No se pudo guardar la configuración. Revisá los datos e intentá nuevamente")
       }
     })
   }

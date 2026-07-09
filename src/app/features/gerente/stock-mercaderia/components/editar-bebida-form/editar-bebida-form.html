@@ -7,6 +7,9 @@
       placeholder="Ej: Coca-Cola 500ml"
       [ngModel]="nombre()"
       (ngModelChange)="nombre.set($event)">
+    @if (error()) {
+      <small class="text-danger fw-bold d-block mt-1" style="font-size: 0.75rem;">{{ error() }}</small>
+    }
   </div>
 
   <div class="mb-4">
