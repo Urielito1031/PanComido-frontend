@@ -1,0 +1,227 @@
+:host {
+  display: block;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+form > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+label {
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--gray-600);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+label.required::after {
+  content: ' *';
+  color: var(--primary-red, #dc2626);
+  font-size: 0.9rem;
+}
+
+input, select, textarea {
+  padding: 0.65rem 0.85rem;
+  border: 1.5px solid var(--gray-300);
+  border-radius: var(--border-radius-sm);
+  font-size: 0.95rem;
+  color: var(--gray-800);
+  background-color: #ffffff;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+  font-family: inherit;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary-red);
+  box-shadow: 0 0 0 3px rgba(216, 8, 28, 0.12);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+fieldset {
+  border: 1px solid var(--gray-200);
+  border-radius: var(--border-radius-md);
+  padding: 1.25rem;
+  margin: 0;
+  background-color: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
+legend {
+  font-weight: 800;
+  color: var(--gray-800);
+  padding: 0 0.5rem 0 0;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+fieldset > div[formArrayName] {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.ingrediente-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.5rem;
+  background-color: var(--gray-50);
+  padding: 0.75rem;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--gray-200);
+}
+
+.ingrediente-row select {
+  flex: 2;
+  min-width: 0;
+}
+
+.ingrediente-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.ingrediente-row button {
+  background: none;
+  border: 1.5px solid var(--gray-300);
+  border-radius: 6px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--gray-500);
+  transition: all 200ms ease;
+  flex-shrink: 0;
+  margin-top: 0;
+}
+
+.ingrediente-row button:hover {
+  background-color: var(--primary-red);
+  border-color: var(--primary-red);
+  color: white;
+}
+
+.ingrediente-row .field-error {
+  flex-basis: 100%;
+  padding: 0.35rem 0.5rem;
+  background-color: rgba(216, 8, 28, 0.06);
+  border-radius: 4px;
+  border-left: 3px solid var(--primary-red);
+  margin-top: 0.25rem;
+}
+
+.btn-agregar {
+  background: none;
+  color: var(--primary-red);
+  border: 1.5px dashed var(--gray-300);
+  padding: 0.65rem 1rem;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: all 200ms ease;
+  width: 100%;
+}
+
+.btn-agregar:hover {
+  border-color: var(--primary-red);
+  background-color: rgba(216, 8, 28, 0.04);
+}
+
+form > div:last-child {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--gray-200);
+  margin-top: 0.5rem;
+}
+
+form > div:last-child button {
+  padding: 0.7rem 1.75rem;
+  border-radius: var(--border-radius-sm);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+form > div:last-child button[type="button"] {
+  background: none;
+  color: var(--gray-600);
+  border: 1.5px solid var(--gray-300);
+}
+
+form > div:last-child button[type="button"]:hover {
+  background-color: var(--gray-100);
+  color: var(--gray-900);
+  border-color: var(--gray-400);
+}
+
+form > div:last-child button[type="submit"] {
+  background-color: var(--primary-red);
+  color: white;
+  border: none;
+  box-shadow: 0 3px 8px rgba(216, 8, 28, 0.2);
+}
+
+form > div:last-child button[type="submit"]:hover:not([disabled]) {
+  background-color: var(--status-danger);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 12px rgba(216, 8, 28, 0.3);
+}
+
+form > div:last-child button[type="submit"][disabled] {
+  background-color: rgba(216, 8, 28, 0.35);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.field-error {
+  color: var(--primary-red, #dc2626);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+@media (min-width: 900px) {
+  form {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr;
+    column-gap: 2.5rem;
+    row-gap: 1rem;
+    align-items: start;
+  }
+
+  form > div:not(:last-child) {
+    grid-column: 1;
+  }
+
+  fieldset {
+    grid-column: 2;
+    grid-row: 1 / span 10;
+  }
+
+  form > div:last-child {
+    grid-column: 1 / -1;
+  }
+}
