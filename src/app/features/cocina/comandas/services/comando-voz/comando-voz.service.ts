@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 
 export interface ComandoVoz {
   mesaNumero: number;
-  accion: 'aceptar' | 'finalizar' | 'llamar-mozo';
+  accion: 'aceptar' | 'llamar-mozo';
   nuevoEstadoId: number
   timestamp: number;
 }
@@ -24,6 +24,32 @@ export class ComandoVozService {
 
   private ultimoComando: { accion: string; mesaNumero: number; timestamp: number } | null = null;
   private readonly COOLDOWN_MS = 3000;
+
+  private readonly UNIDADES = ['cero', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
+  private readonly ESPECIALES: Record<string, number> = {
+    diez: 10, once: 11, doce: 12, trece: 13, catorce: 14, quince: 15,
+    dieciseis: 16, diecisiete: 17, dieciocho: 18, diecinueve: 19,
+    veinte: 20, veintiuno: 21, veintidos: 22, veintitres: 23, veinticuatro: 24,
+    veinticinco: 25, veintiseis: 26, veintisiete: 27, veintiocho: 28, veintinueve: 29,
+  };
+  private readonly DECENAS: Record<string, number> = {
+    treinta: 30, cuarenta: 40, cincuenta: 50, sesenta: 60, setenta: 70, ochenta: 80, noventa: 90,
+  };
+
+  private normalizarNumeros(frase: string): string {
+    const sinTildes = frase.normalize('NFD').replace(/[̀-ͯ]/g, '');
+    const conCompuestos = sinTildes.replace(
+      /\b(treinta|cuarenta|cincuenta|sesenta|setenta|ochenta|noventa) y (uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve)\b/g,
+      (_, decena, unidad) => String(this.DECENAS[decena] + this.UNIDADES.indexOf(unidad))
+    );
+    return conCompuestos
+      .replace(/\b(cien|ciento)\b/g, '100')
+      .replace(/\b[a-z]+\b/g, palabra =>
+        palabra in this.ESPECIALES ? String(this.ESPECIALES[palabra]) :
+        palabra in this.DECENAS ? String(this.DECENAS[palabra]) :
+        this.UNIDADES.includes(palabra) ? String(this.UNIDADES.indexOf(palabra)) : palabra
+      );
+  }
 
   private iniciarEscuchaApi() {
     const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -57,16 +83,21 @@ export class ComandoVozService {
     };
 
   }
-  private procesarFrase(frase: string) {
+  private procesarFrase(fraseOriginal: string) {
+    const frase = this.normalizarNumeros(fraseOriginal);
+    console.log('[voz] frase escuchada:', fraseOriginal, '-> normalizada:', frase);
     const ahora = Date.now();
-    const matchAceptar = frase.match(/mesa (\d+) (aceptar|aceptada)/);
-    const matchFinalizar = frase.match(/mesa (\d+) (finalizar|finalizada)/);
-    const matchLlamarMozo = frase.match(/mesa (\d+) llamar (mo[sz]o|al mo[sz]o)/);
+    const matchAceptar =
+      frase.match(/mesa (\d+) (?:aceptar(?: comanda)?|aceptada)/) ??
+      frase.match(/aceptar comanda mesa (\d+)/);
+    const matchLlamarMozo =
+      frase.match(/mesa (\d+) llamar (?:al )?mo[sz]o/) ??
+      frase.match(/llamar (?:al )?mo[sz]o mesa (\d+)/);
 
-    const match = matchFinalizar ?? matchAceptar ?? matchLlamarMozo;
+    const match = matchAceptar ?? matchLlamarMozo;
     if (!match) return;
 
-    const accion = matchFinalizar ? 'finalizar' : matchAceptar ? 'aceptar' : 'llamar-mozo';
+    const accion = matchAceptar ? 'aceptar' : 'llamar-mozo';
     const mesaNumero = Number(match[1]);
 
     if (this.ultimoComando?.accion === accion &&
@@ -75,14 +106,7 @@ export class ComandoVozService {
 
     this.ultimoComando = { accion, mesaNumero, timestamp: ahora };
 
-    if (matchFinalizar) {
-      this.comandoDetectado.set({
-        mesaNumero: Number(matchFinalizar[1]),
-        accion: 'finalizar',
-        nuevoEstadoId: 4, // EstadoComandaId.Finalizada
-        timestamp: Date.now(),
-      });
-    } else if (matchAceptar) {
+    if (matchAceptar) {
       this.comandoDetectado.set({
         mesaNumero: Number(matchAceptar[1]),
         accion: 'aceptar',

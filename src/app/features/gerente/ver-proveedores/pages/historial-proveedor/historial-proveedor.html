@@ -107,7 +107,7 @@
         </div>
       } @else {
         <div class="history-list">
-          @for (pedido of historialProveedor(); track pedido.id) {
+          @for (pedido of historialOrdenado(); track pedido.id) {
             <article class="history-card" (click)="abrirDetallePedido(pedido)">
               <div class="history-card-main">
                 <div class="history-card-content">
@@ -136,7 +136,7 @@
                   <span class="history-detail-hint">Ver detalle</span>
                   @if (pedido.estado === 'Pendiente') {
                     <app-boton variante="success" tamanio="sm" (clicked)="confirmarPedido($event, pedido)">
-                      <span class="fw-bold text-dark">Confirmar</span>
+                      <span class="fw-bold text-white">Confirmar</span>
                     </app-boton>
                   } @else if (pedido.estado === 'Enviado') {
                     <app-boton class="btn-recibir-pedido" variante="teal" tamanio="sm" (clicked)="previsualizarRecepcion($event, pedido)">
@@ -187,10 +187,12 @@
           <span class="info-label">Ítems</span>
           <strong>{{ pedido.items.length }}</strong>
         </article>
-        <article class="pedido-modal-info pedido-modal-full">
-          <span class="info-label">Observación</span>
-          <strong>{{ pedido.observacion }}</strong>
-        </article>
+        @if (pedido.observacion) {
+          <article class="pedido-modal-info pedido-modal-full">
+            <span class="info-label">Observación</span>
+            <strong>{{ pedido.observacion }}</strong>
+          </article>
+        }
       </div>
 
       <div class="pedido-modal-items">
@@ -212,11 +214,11 @@
 
       @if (pedido.estado === 'Pendiente') {
         <div class="pedido-modal-actions">
-          <app-boton variante="outline" tamanio="md" (clicked)="agregarIngredientes()">
-            <span class="fw-bold">{{ isAgregarIngredientesOpen() ? 'Ocultar insumos' : 'Agregar insumos' }}</span>
+          <app-boton class="btn-agregar-insumos" variante="outline" tamanio="md" (clicked)="agregarIngredientes()">
+            <span class="fw-bold text-white">{{ isAgregarIngredientesOpen() ? 'Ocultar insumos' : 'Agregar insumos' }}</span>
           </app-boton>
           <app-boton variante="success" tamanio="md" (clicked)="confirmarPedido($event, pedido)">
-            <span class="fw-bold text-dark">Confirmar pedido</span>
+            <span class="fw-bold text-white">Confirmar pedido</span>
           </app-boton>
         </div>
 
@@ -319,7 +321,7 @@
             <span class="fw-bold">Cancelar</span>
           </app-boton>
           <app-boton variante="success" tamanio="md" [disabled]="recepcionItems().length === 0" (clicked)="recibirPedido()">
-            <span class="fw-bold text-dark">Confirmar recepción</span>
+            <span class="fw-bold text-white">Confirmar recepción</span>
           </app-boton>
         </div>
       </div>

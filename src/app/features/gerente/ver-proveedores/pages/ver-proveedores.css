@@ -58,8 +58,8 @@
 }
 
 .counter-pill {
-  background: rgba(188, 0, 18, 0.08);
-  color: #bc0012;
+  background: rgba(2, 89, 108, 0.08);
+  color: #02596c;
 }
 
 .counter-pill.small {
@@ -229,6 +229,11 @@
   box-shadow: 0 3px 8px rgba(2, 89, 108, 0.22);
 }
 
+.detail-tab-pedido.active {
+  background: #f59e0b;
+  box-shadow: 0 3px 8px rgba(245, 158, 11, 0.22);
+}
+
 .history-overview {
   padding-top: 1rem;
 }
@@ -254,10 +259,12 @@
   font-size: 1rem;
 }
 
-.soft-link-btn:hover {
-  border-color: rgba(188, 0, 18, 0.24);
-  background: rgba(188, 0, 18, 0.06);
-  color: #bc0012;
+.soft-link-btn:hover,
+.soft-link-btn:focus-visible,
+.soft-link-btn:active {
+  border-color: rgba(245, 158, 11, 0.32);
+  background: rgba(245, 158, 11, 0.08);
+  color: #f59e0b;
   transform: translateY(-1px);
 }
 
@@ -322,7 +329,7 @@
 
 .add-product-selection-row {
   display: grid;
-  grid-template-columns: minmax(180px, 1fr) minmax(150px, 0.7fr) minmax(280px, 1.4fr);
+  grid-template-columns: minmax(180px, 1fr) minmax(180px, 1fr) minmax(220px, 1fr);
   gap: 0.75rem;
   align-items: start;
 }
@@ -339,8 +346,8 @@
   gap: 0.05rem;
   padding: 0.46rem 0.72rem;
   border-radius: 10px;
-  border: 1px solid rgba(188, 0, 18, 0.16);
-  background: rgba(188, 0, 18, 0.06);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #ffffff;
 }
 
 .selected-product-display strong {
@@ -361,11 +368,6 @@
   font-weight: 700;
 }
 
-.selected-product-display.empty {
-  background: #ffffff;
-  border-color: rgba(15, 23, 42, 0.08);
-}
-
 /* Price display (read only) */
 .price-display-field {
   min-width: 0;
@@ -376,15 +378,15 @@
   display: flex;
   align-items: center;
   padding: 0 12px;
-  background: rgba(188, 0, 18, 0.04);
-  border: 1px solid rgba(188, 0, 18, 0.12);
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
   border-radius: 10px;
 }
 
 .price-value {
   font-weight: 800;
   font-size: 1rem;
-  color: #bc0012;
+  color: #0f172a;
 }
 
 .price-no-data {
@@ -663,7 +665,7 @@
 .cart-row-subtotal {
   font-weight: 800;
   font-size: 0.9rem;
-  color: #bc0012;
+  color: #0f172a;
   min-width: 56px;
   text-align: right;
 }
@@ -761,7 +763,7 @@
 .total-value {
   font-size: 1.35rem;
   font-weight: 900;
-  color: #bc0012;
+  color: #0f172a;
 }
 
 .field-group {
@@ -771,6 +773,10 @@
   font-size: 0.9rem;
   font-weight: 700;
   color: #374151;
+}
+
+.field-group:focus-within > span:first-of-type {
+  color: #02596c;
 }
 
 .product-field {
@@ -867,8 +873,8 @@
 
 .custom-input:focus {
   background-color: #ffffff;
-  border-color: rgba(188, 0, 18, 0.36);
-  box-shadow: 0 0 0 3px rgba(188, 0, 18, 0.12);
+  border-color: rgba(2, 89, 108, 0.36);
+  box-shadow: 0 0 0 3px rgba(2, 89, 108, 0.12);
   outline: none;
 }
 
@@ -1038,6 +1044,32 @@
 ::ng-deep .btn-recibir-pedido .btn-teal:hover:not(:disabled) {
   background-color: #d97706;
   border-color: #d97706;
+}
+
+::ng-deep .btn-agregar-insumos .btn-outline {
+  background-color: #f59e0b !important;
+  border-color: #f59e0b !important;
+  color: #ffffff !important;
+}
+
+::ng-deep .btn-agregar-insumos .btn-outline:hover {
+  background-color: #d97706 !important;
+  border-color: #d97706 !important;
+  color: #ffffff !important;
+}
+
+::ng-deep .cancel-btn .btn {
+  border-radius: 10px;
+  font-weight: 600;
+  border: 1px solid #a8041a !important;
+  background: white !important;
+  color: #a8041a !important;
+}
+
+::ng-deep .cancel-btn .btn:hover {
+  background: #fef2f2 !important;
+  border-color: #a8041a !important;
+  color: #a8041a !important;
 }
 
 .empty-state-panel {
@@ -1270,8 +1302,8 @@
   justify-content: center;
   flex: 0 0 auto;
   border-radius: 12px;
-  background: rgba(188, 0, 18, 0.1);
-  color: #bc0012;
+  background: rgba(2, 89, 108, 0.1);
+  color: #02596c;
   font-size: 1.25rem;
 }
 
@@ -1297,8 +1329,7 @@
   background: #fef2f2;
 }
 
-.category-list,
-.category-chips {
+.category-list {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
@@ -1331,35 +1362,30 @@
   pointer-events: none;
 }
 
-.checkbox-pill,
-.chip {
+.checkbox-pill {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
   border-radius: 999px;
   font-size: 0.86rem;
   font-weight: 800;
-}
-
-.checkbox-pill {
   cursor: pointer;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(2, 89, 108, 0.32);
   background: #ffffff;
-  color: #475569;
+  color: #02596c;
   padding: 0.42rem 0.78rem;
   transition: all 0.18s ease;
 }
 
 .checkbox-pill:hover {
-  border-color: rgba(188, 0, 18, 0.24);
-  color: #bc0012;
+  border-color: #02596c;
+  background: rgba(2, 89, 108, 0.06);
   transform: translateY(-1px);
 }
 
-.category-checkbox input:checked + .checkbox-pill,
-.chip {
+.category-checkbox input:checked + .checkbox-pill {
   border-color: transparent;
-  background: #bc0012;
+  background: #02596c;
   color: #ffffff;
 }
 
@@ -1372,27 +1398,6 @@
 
 .add-category .custom-input {
   max-width: 360px;
-}
-
-.chip {
-  padding: 0.34rem 0.5rem 0.34rem 0.72rem;
-}
-
-.chip-remove {
-  width: 22px;
-  height: 22px;
-  border: none;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-  cursor: pointer;
-}
-
-.chip-remove .material-symbols-outlined {
-  font-size: 0.95rem;
 }
 
 .modal-footer-actions {
@@ -1500,7 +1505,7 @@
   }
 
   .add-product-selection-row {
-    grid-template-columns: minmax(0, 1fr) minmax(140px, 0.7fr) minmax(240px, 1.3fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(200px, 1fr);
   }
 }
 
@@ -1626,8 +1631,7 @@
 .pedido-modal-info,
 .delete-modal-icon,
 .section-icon,
-.checkbox-pill,
-.chip {
+.checkbox-pill {
   border-radius: 10px;
 }
 
@@ -1640,7 +1644,6 @@
 .add-item-btn,
 .cart-remove-btn,
 .pedido-modal-close,
-.chip-remove,
 .danger-action-btn,
 .btn-premium-primary,
 .btn-premium-secondary {

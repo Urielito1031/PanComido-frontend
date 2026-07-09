@@ -62,11 +62,31 @@
 }
 
 .hint-voz {
-  margin: 0;
-  padding: 8px 16px 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px 0;
+}
+
+.hint-voz-label {
   color: #64748b;
-  font-size: 0.85rem;
-  font-style: italic;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-right: 4px;
+}
+
+.voz-chip {
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 2px solid var(--primary-teal, #02596c);
+  border-radius: 999px;
+  padding: 7px 18px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .empty-state {
@@ -133,7 +153,7 @@
   top: 72px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: #2563eb;
+  background-color: #dc2626;
   color: white;
   padding: 10px 24px;
   border-radius: 8px;

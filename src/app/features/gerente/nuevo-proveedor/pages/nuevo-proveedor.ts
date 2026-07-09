@@ -1,7 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { Boton } from '../../../../shared/ui/botones/boton/boton';
@@ -13,7 +11,7 @@ import { CategoriaInsumo } from '../../../../core/models/domain/categoria-insumo
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-nuevo-proveedor',
   standalone: true,
-  imports: [ReactiveFormsModule, FontAwesomeModule, Boton],
+  imports: [ReactiveFormsModule, Boton],
   templateUrl: './nuevo-proveedor.html',
   styleUrls: ['./nuevo-proveedor.css']
 })
@@ -24,7 +22,7 @@ export class NuevoProveedorComponent implements OnInit {
 
   readonly proveedorForm = this.fb.nonNullable.group({
     nombre: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(80)]],
-    telefono: ['', [Validators.pattern(/^\s*\+?[0-9\s-]{7,18}\s*$/)]],
+    telefono: ['', [Validators.required, Validators.pattern(/^\s*\+?[0-9\s-]{7,18}\s*$/)]],
   });
 
   readonly categorias = this.state.categorias;
@@ -35,9 +33,7 @@ export class NuevoProveedorComponent implements OnInit {
   readonly errorCategorias = this.state.errorCategorias;
   readonly errorGuardado = this.state.errorGuardado;
 
-  readonly faTrash = faTrash;
   readonly intentoGuardar = signal(false);
-  readonly busquedaCategoria = signal('');
 
   ngOnInit(): void {
     this.state.resetearFormulario();
@@ -56,22 +52,16 @@ export class NuevoProveedorComponent implements OnInit {
   readonly puedeGuardar = computed(() => this.formStatus() === 'VALID' && this.categoriaIds().length > 0 && !this.guardando());
   readonly nombrePreview = computed(() => this.formValue().nombre?.trim() || 'Sin nombre');
   readonly telefonoPreview = computed(() => this.formValue().telefono?.trim() || 'Sin WhatsApp');
-  readonly categoriasFiltradas = computed(() => {
-    const query = this.busquedaCategoria().trim().toLowerCase();
-    if (!query) return this.categoriasDisponibles();
-    return this.categoriasDisponibles().filter(categoria => categoria.descripcion.toLowerCase().includes(query));
-  });
+  readonly telefonoRevisado = computed(() =>
+    !!this.formValue().telefono?.trim() && this.proveedorForm.get('telefono')?.valid === true
+  );
   readonly categoriasIngredienteFiltradas = computed(() =>
-    this.categoriasFiltradas().filter(categoria => categoria.tipoAplica !== 'Bebida')
+    this.categoriasDisponibles().filter(categoria => categoria.tipoAplica !== 'Bebida')
   );
   readonly categoriasBebidaFiltradas = computed(() =>
-    this.categoriasFiltradas().filter(categoria => categoria.tipoAplica === 'Bebida')
+    this.categoriasDisponibles().filter(categoria => categoria.tipoAplica === 'Bebida')
   );
   readonly resumenListo = computed(() => this.puedeGuardar());
-
-  onBusquedaCategoriaChange(valor: string): void {
-    this.busquedaCategoria.set(valor);
-  }
 
   toggleCategoria(categoria: CategoriaInsumo): void {
     this.state.toggleCategoria(categoria);
@@ -79,10 +69,6 @@ export class NuevoProveedorComponent implements OnInit {
 
   categoriaSeleccionada(id: number): boolean {
     return this.categoriaIds().includes(id);
-  }
-
-  removerCategoria(id: number): void {
-    this.state.removerCategoria(id);
   }
 
   reintentarCategorias(): void {
