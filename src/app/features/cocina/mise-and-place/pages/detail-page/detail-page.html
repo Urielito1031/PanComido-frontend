@@ -1,0 +1,22 @@
+@if (cargando()) {
+  <p>Cargando...</p>
+} @else if (error(); as err) {
+  <p class="error">{{ err }}</p>
+} @else if (item(); as i) {
+  <h1>{{ i.nombre }}</h1>
+  <p><strong>Cantidad:</strong> {{ i.cantidad }} {{ i.unidadMedida }}</p>
+  <p><strong>Categoría:</strong> {{ i.categoria }}</p>
+  <p><strong>Bodega:</strong> {{ i.bodega }}</p>
+  @if (i.fechaVencimiento) {
+    <p><strong>Vencimiento:</strong> {{ i.fechaVencimiento }}</p>
+  }
+
+  <h3>Receta</h3>
+  <ul>
+    @for (ing of i.receta; track ing.ingredienteId) {
+      <li>{{ ing.nombreIngrediente }}: {{ ing.cantidad }}</li>
+    }
+  </ul>
+} @else {
+  <p>Mise en Place no encontrado.</p>
+}

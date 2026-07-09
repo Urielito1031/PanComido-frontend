@@ -1,0 +1,77 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <div>
+    <label>Nombre</label>
+    <input formControlName="nombre" placeholder="Ej: Papa cortada en bastones" />
+  </div>
+
+  <div>
+    <label>Descripción</label>
+    <textarea formControlName="descripcion" rows="2"></textarea>
+  </div>
+
+  <div>
+    <label>Categoría</label>
+    <select formControlName="categoriaId">
+      <option value="0">Seleccionar...</option>
+      @for (cat of categorias(); track cat.id) {
+        <option [value]="cat.id">{{ cat.descripcion }}</option>
+      }
+    </select>
+  </div>
+
+  <div>
+    <label>Unidad de medida</label>
+    <select formControlName="unidadMedidaId">
+      <option value="0">Seleccionar...</option>
+      @for (um of unidadesMedida(); track um.id) {
+        <option [value]="um.id">{{ um.nombre }}</option>
+      }
+    </select>
+  </div>
+
+  <div>
+    <label>Cantidad</label>
+    <input type="number" formControlName="cantidad" min="0.01" step="0.01" />
+  </div>
+
+  <div>
+    <label>Vencimiento</label>
+    <input type="date" formControlName="fechaVencimiento" />
+  </div>
+
+  <div>
+    <label>Bodega</label>
+    <select formControlName="bodegaId">
+      <option value="0">Seleccionar...</option>
+      @for (bod of bodegas(); track bod.id) {
+        <option [value]="bod.id">{{ bod.nombre }}</option>
+      }
+    </select>
+  </div>
+
+  <fieldset>
+    <legend>Receta (ingredientes que componen este preparado)</legend>
+
+    @for (grupo of ingredientesArray.controls; track $index) {
+      <div [formGroupName]="$index">
+        <select formControlName="ingredienteId">
+          <option value="0">Seleccionar...</option>
+          @for (ing of ingredientes(); track ing.id) {
+            <option [value]="ing.id">{{ ing.nombre }} ({{ ing.unidadMedida }})</option>
+          }
+        </select>
+        <input type="number" formControlName="cantidad" step="0.01" />
+        <button type="button" (click)="quitarIngrediente($index)">X</button>
+      </div>
+    }
+
+    <button type="button" (click)="agregarIngrediente()">+ Agregar ingrediente</button>
+  </fieldset>
+
+  <div>
+    <button type="button" (click)="cancelar.emit()">Cancelar</button>
+    <button type="submit" [disabled]="form.invalid || creando()">
+      {{ creando() ? 'Guardando...' : 'Crear Mise en Place' }}
+    </button>
+  </div>
+</form>

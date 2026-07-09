@@ -1,0 +1,25 @@
+<a [routerLink]="[item().loteId]" class="card">
+  <div class="card-header">
+    <h3>{{ item().nombre }}</h3>
+    <span class="badge">{{ item().categoria }}</span>
+  </div>
+
+  <div class="card-body">
+    <p><strong>Cantidad:</strong> {{ item().cantidad }} {{ item().unidadMedida }}</p>
+    <p><strong>Ubicación:</strong> {{ item().bodega }}</p>
+    @if (item().fechaVencimiento) {
+      <p><strong>Vence:</strong> {{ item().fechaVencimiento }}</p>
+    }
+  </div>
+
+  @if (item().receta.length > 0) {
+    <details>
+      <summary>Receta ({{ item().receta.length }} ingredientes)</summary>
+      <ul>
+        @for (ing of item().receta; track ing.ingredienteId) {
+          <li>{{ ing.nombreIngrediente }}: {{ ing.cantidad }}</li>
+        }
+      </ul>
+    </details>
+  }
+</a>

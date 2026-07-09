@@ -1,0 +1,40 @@
+<div class="page-header">
+  <h1>Mise en Place</h1>
+  <button (click)="abrirModal()">+ Nuevo preparado</button>
+</div>
+
+@if (state.cargando()) {
+  <p>Cargando...</p>
+} @else if (state.error(); as err) {
+  <p class="error">{{ err }}</p>
+} @else {
+  <div class="grid">
+    @for (item of state.items(); track item.loteId) {
+      <app-mise-and-place-card [item]="item" />
+    } @empty {
+      <p>No hay preparados activos.</p>
+    }
+  </div>
+}
+
+@if (mostrarModal()) {
+  <div class="modal-overlay" (click)="cerrarModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h2>Nuevo Mise en Place</h2>
+
+      @if (state.cargandoForm()) {
+        <p>Cargando datos del formulario...</p>
+      } @else {
+        <app-mise-and-place-form
+          [categorias]="state.categorias()"
+          [unidadesMedida]="state.unidadesMedida()"
+          [bodegas]="state.bodegas()"
+          [ingredientes]="state.ingredientesDisponibles()"
+          [creando]="state.creando()"
+          (guardar)="onGuardar($event)"
+          (cancelar)="cerrarModal()"
+        />
+      }
+    </div>
+  </div>
+}
