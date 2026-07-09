@@ -40,6 +40,8 @@ export class CrearPlatoFormComponent {
 
   nombresExistentes = input<string[]>([]);
   datosIniciales = input<Partial<PlatoFormData>>({});
+  hayCantidadesInvalidas = input<boolean>(false);
+  error = input<string | null>(null);
 
   // Outputs
   guardar = output<PlatoFormData>();
@@ -138,7 +140,7 @@ export class CrearPlatoFormComponent {
   });
 
   onGuardar(): void {
-    if (this.platoForm.invalid) {
+    if (this.platoForm.invalid || this.hayCantidadesInvalidas()) {
       this.platoForm.markAllAsTouched();
       return;
     }

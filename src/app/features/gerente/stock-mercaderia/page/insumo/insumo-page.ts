@@ -396,21 +396,24 @@ export class InsumoPage implements OnInit {
     this.productoEditandoId.set(null);
     this.modalAbierto.set(false);
     this.state.limpiarDetalleInsumo();
+    this.state.limpiarError();
   }
 
   guardarCambios(payload: GuardarProductoPayload, modal: Modal) {
-    this.state.guardarProducto(payload);
-    modal.cerrar();
-    this.limpiarEstadoModal();
+    this.state.guardarProducto(payload, () => {
+      modal.cerrar();
+      this.limpiarEstadoModal();
+    });
   }
 
   guardarBebida(payload: GuardarBebidaPayload, modal: Modal) {
     const id = this.productoEditandoId();
     if (!id) return;
 
-    this.state.guardarBebida(id, payload);
-    modal.cerrar();
-    this.limpiarEstadoModal();
+    this.state.guardarBebida(id, payload, () => {
+      modal.cerrar();
+      this.limpiarEstadoModal();
+    });
   }
 
   abrirModalEliminar(id: number) {

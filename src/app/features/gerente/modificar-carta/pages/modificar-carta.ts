@@ -215,7 +215,7 @@ export class ModificarCartaComponent implements OnInit {
   }
 
   onSaveBebida(payload: GuardarBebidaPayload) {
-    this.state.saveBebida(payload);
+    this.state.saveBebida(payload, () => this.onCloseModals());
   }
 
   onConfirmDelete() {
@@ -243,11 +243,11 @@ export class ModificarCartaComponent implements OnInit {
 
   cerrarPanelCrearBebida() {
     this.mostrarPanelCrearBebida.set(false);
+    this.state.limpiarError();
   }
 
   onGuardarBebidaNueva(payload: GuardarProductoPayload) {
-    this.state.crearBebida(payload);
-    this.mostrarPanelCrearBebida.set(false);
+    this.state.crearBebida(payload, () => this.mostrarPanelCrearBebida.set(false));
   }
 
   abrirPanelCrearBebidaPreparada() {
@@ -257,11 +257,11 @@ export class ModificarCartaComponent implements OnInit {
 
   cerrarPanelCrearBebidaPreparada() {
     this.mostrarPanelCrearBebidaPreparada.set(false);
+    this.state.limpiarError();
   }
 
   onGuardarBebidaPreparadaNueva(payload: GuardarBebidaPreparadaPayload) {
-    this.state.crearBebidaPreparada(payload);
-    this.mostrarPanelCrearBebidaPreparada.set(false);
+    this.state.crearBebidaPreparada(payload, () => this.mostrarPanelCrearBebidaPreparada.set(false));
   }
 
   onGuardarBebidaPreparadaEditada(payload: GuardarBebidaPreparadaPayload) {

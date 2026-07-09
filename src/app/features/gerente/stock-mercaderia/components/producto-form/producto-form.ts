@@ -1,4 +1,4 @@
-import { Component, inject, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, effect, inject, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InsumoDetalle } from '../../../../../core/models/domain/insumo';
 import { Bodega } from '../../../../../core/models/domain/bodega';
@@ -50,6 +50,7 @@ export class ProductoForm {
   categorias = input<CategoriaInsumo[]>([]);
   unidadesMedida = input<UnidadMedida[]>([]);
   nombrePlaceholder = input<string>('Ej: Tomate perita');
+  error = input<string | null>(null);
   guardar = output<GuardarProductoPayload>();
   cancelado = output<void>();
 
@@ -57,6 +58,14 @@ export class ProductoForm {
   imagenPreview = signal<string | null>(null);
   archivoImagen = signal<File | null>(null);
   visibleEnCarta = signal<boolean>(true);
+
+  constructor() {
+    effect(() => {
+      if (this.error()) {
+        this.form?.get('nombre')?.setValue('');
+      }
+    });
+  }
 
   ngOnInit() {
     this.initForm();
@@ -158,15 +167,6 @@ export class ProductoForm {
     }
 
     this.guardar.emit(payload);
-    this.form.reset({
-      stockMinimo: 0,
-      stockRecomendado: 0,
-      precioVentaFinal: 0,
-      stockInicial: 0
-    });
-    this.archivoImagen.set(null);
-    this.imagenPreview.set(null);
-    this.visibleEnCarta.set(true);
   }
 
   getError(campo: string): string | null {

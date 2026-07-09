@@ -148,6 +148,33 @@ export class VerProveedoresComponent implements OnInit {
     return this.state.categoriasInsumo();
   }
 
+  categoriasIngredienteEdicion(): CategoriaInsumo[] {
+    return this.categoriasDisponiblesEdicion().filter(categoria => categoria.tipoAplica !== 'Bebida');
+  }
+
+  categoriasBebidaEdicion(): CategoriaInsumo[] {
+    return this.categoriasDisponiblesEdicion().filter(categoria => categoria.tipoAplica === 'Bebida');
+  }
+
+  categoriasBebidaNombres(): string[] {
+    return this.state.categoriasInsumo()
+      .filter(categoria => categoria.tipoAplica === 'Bebida')
+      .map(categoria => categoria.descripcion);
+  }
+
+  private esCategoriaBebida(nombre: string): boolean {
+    const normalizado = nombre.toLowerCase().trim();
+    return this.categoriasBebidaNombres().some(bebida => bebida.toLowerCase().trim() === normalizado);
+  }
+
+  categoriasIngredienteProveedor(proveedor: Proveedor): string[] {
+    return (proveedor.categorias ?? []).filter(categoria => !this.esCategoriaBebida(categoria));
+  }
+
+  categoriasBebidaProveedor(proveedor: Proveedor): string[] {
+    return (proveedor.categorias ?? []).filter(categoria => this.esCategoriaBebida(categoria));
+  }
+
   categoriaSeleccionadaEdicion(categoriaId: number): boolean {
     return this.categoriaIdsEdicion().includes(categoriaId);
   }

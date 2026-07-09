@@ -57,6 +57,8 @@
         [loading]="loading()"
         [nombresExistentes]="nombresExistentes()"
         [datosIniciales]="datosInicialesFormulario()"
+        [hayCantidadesInvalidas]="hayCantidadesInvalidas()"
+        [error]="error()"
         (guardar)="onGuardar($event)"
         (cancelar)="onCancelar()"
         (toggleTag)="onToggleTag($event)">

@@ -302,20 +302,30 @@
 
   @if (modalAbierto()) {
   @if (esBebidaSeleccionada()) {
-  @if (detalleInsumo(); as detalle) {
-  <app-editar-bebida-form [insumo]="detalle" [costo]="costoBebida()" [porcentajeGanancia]="porcentajeGananciaBebida()"
-    (cancelado)="modalFormulario.cerrar()" (guardar)="guardarBebida($event, modalFormulario)">
-  </app-editar-bebida-form>
-  } @else {
-  <div class="text-center text-muted p-4">Cargando...</div>
-  }
+    @if (detalleInsumo(); as detalle) {
+      <app-editar-bebida-form
+        [insumo]="detalle"
+        [costo]="costoBebida()"
+        [porcentajeGanancia]="porcentajeGananciaBebida()"
+        [error]="state.error()"
+        (cancelado)="modalFormulario.cerrar()"
+        (guardar)="guardarBebida($event, modalFormulario)">
+      </app-editar-bebida-form>
+    } @else {
+      <div class="text-center text-muted p-4">Cargando...</div>
+    }
   } @else if (!productoEditandoId() || detalleInsumo()) {
-  <app-producto-form [producto]="detalleInsumo()" [bodegas]="bodegaState.bodegas()"
-    [categorias]="state.categoriasInsumos()" [unidadesMedida]="state.unidadMedidas()"
-    (cancelado)="modalFormulario.cerrar()" (guardar)="guardarCambios($event, modalFormulario)">
-  </app-producto-form>
+    <app-producto-form
+      [producto]="detalleInsumo()"
+      [bodegas]="bodegaState.bodegas()"
+      [categorias]="state.categoriasInsumos()"
+      [unidadesMedida]="state.unidadMedidas()"
+      [error]="state.error()"
+      (cancelado)="modalFormulario.cerrar()"
+      (guardar)="guardarCambios($event, modalFormulario)">
+    </app-producto-form>
   } @else {
-  <div class="text-center text-muted p-4">Cargando...</div>
+    <div class="text-center text-muted p-4">Cargando...</div>
   }
   }
 

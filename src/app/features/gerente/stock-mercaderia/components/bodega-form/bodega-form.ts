@@ -43,6 +43,12 @@ export class BodegaForm {
       } else {
         this.form.reset({ nombre: '', tipoBodegaId: '' });
       }
+    }, { allowSignalWrites: true });
+
+    effect(() => {
+      if (this.errorAPI()) {
+        this.form.get('nombre')?.setValue('');
+      }
     });
   }
 

@@ -25,6 +25,7 @@ export class ModalEditarPlatoComponent {
   private destroyRef = inject(DestroyRef);
 
   plato = input.required<Plato>();
+  error = input<string | null>(null);
   save = output<{ plato: Partial<Plato>; imagen?: File }>();
   close = output<void>();
 
@@ -78,6 +79,8 @@ export class ModalEditarPlatoComponent {
     const costoVal = this.costo() ?? 0;
     return venta > 0 && costoVal > 0 && venta <= costoVal;
   });
+
+  hayCantidadesInvalidas = computed(() => this.receta().some(item => !(item.cantidad > 0)));
 
   constructor() {
     this.cargarDatosFormulario();
@@ -188,7 +191,7 @@ export class ModalEditarPlatoComponent {
   }
 
   onSave() {
-    if (!this.nombre().trim() || this.precioVenta() === null || this.precioVenta()! <= 0 || this.costo() === null || this.costo()! <= 0 || !this.tipoPlatoId() || !this.categoriaPlatoId()) {
+    if (!this.nombre().trim() || this.precioVenta() === null || this.precioVenta()! <= 0 || this.costo() === null || this.costo()! <= 0 || !this.tipoPlatoId() || !this.categoriaPlatoId() || this.hayCantidadesInvalidas()) {
       return;
     }
     this.save.emit({

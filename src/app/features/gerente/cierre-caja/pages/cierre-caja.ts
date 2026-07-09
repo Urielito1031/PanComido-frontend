@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CierreCajaStateService } from '../services/cierre-caja.state';
+import { CierreCajaStateService, TipoTurnoCierre } from '../services/cierre-caja.state';
 import { GlassCard } from '../../../../shared/ui/glass-card/glass-card';
 import { Boton } from '../../../../shared/ui/botones/boton/boton';
 import { ArsCurrencyPipe } from '../../../../shared/pipes/ars-currency.pipe';
+import { CierreCaja } from '../../../../core/models/domain/cierre-caja';
 
 @Component({
   selector: 'app-cierre-caja',
@@ -27,64 +28,27 @@ export class CierreCajaComponent implements OnInit {
     this.state.cargarDatos();
   }
 
-  onEfectivoContadoChange(valor: number): void {
-    this.state.setEfectivoContado(valor || 0);
+  abrirCierre(tipo: TipoTurnoCierre): void {
+    this.state.abrirCierre(tipo);
   }
 
-  onObservacionChange(valor: string): void {
-    this.state.setObservacion(valor || '');
+  cerrarModalCierre(): void {
+    this.state.cerrarModalCierre();
   }
 
-  onTurnoChange(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    this.state.cambiarTurnoId(Number(select.value));
-  }
-
-  abrirConfirmacion(): void {
-    this.state.abrirConfirmacion();
-  }
-
-  cerrarConfirmacion(): void {
-    this.state.cerrarConfirmacion();
-  }
-
-  abrirDetalleCierre(cierre: any): void {
-    this.state.abrirDetalleCierre(cierre);
-  }
-
-  cerrarDetalleCierre(): void {
-    this.state.cerrarDetalleCierre();
-  }
-
-  abrirModalPlatos(tipo: 'mas' | 'menos'): void {
-    this.state.abrirModalPlatos(tipo);
-  }
-
-  cerrarModalPlatos(): void {
-    this.state.cerrarModalPlatos();
-  }
-
-  abrirEncuestasDetalle(): void {
-    this.state.abrirEncuestasDetalle();
-  }
-
-  cerrarEncuestasDetalle(): void {
-    this.state.cerrarEncuestasDetalle();
+  onConteoCajaChange(valor: number): void {
+    this.state.setConteoCaja(valor || 0);
   }
 
   confirmarCierre(): void {
     this.state.confirmarCierre();
   }
 
-  imprimirReporte(id?: number): void {
-    this.state.imprimirReporte(id);
+  abrirDetalleCierre(cierre: CierreCaja): void {
+    this.state.abrirDetalleCierre(cierre);
   }
 
-  getEstadoClase(estado: string): string {
-    const e = estado?.toLowerCase() || '';
-    if (e.includes('cuadra')) return 'estado-cuadrada';
-    if (e.includes('sobrante')) return 'estado-sobrante';
-    if (e.includes('falta')) return 'estado-faltante';
-    return '';
+  cerrarDetalleCierre(): void {
+    this.state.cerrarDetalleCierre();
   }
 }

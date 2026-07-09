@@ -17,6 +17,7 @@
           [insumo]="detalle"
           [costo]="bebida().costo"
           [porcentajeGanancia]="porcentajeGanancia()"
+          [error]="error()"
           (guardar)="guardar.emit($event)"
           (cancelado)="onClose()">
         </app-editar-bebida-form>

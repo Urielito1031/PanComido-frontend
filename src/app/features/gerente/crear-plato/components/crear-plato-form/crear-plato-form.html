@@ -1,4 +1,8 @@
 <div class="form-card" [formGroup]="platoForm">
+  @if (error()) {
+    <div class="alert alert-danger py-2 px-3 mb-3">{{ error() }}</div>
+  }
+
   <!-- Nombre -->
   <div class="mb-3">
     <label class="form-label font-bold">Nombre <strong class="field-required">*</strong></label>
@@ -142,6 +146,13 @@
     </button>
   </div>
 
+  @if (hayCantidadesInvalidas()) {
+    <small class="text-danger fw-bold d-flex align-items-center gap-1 mb-3" style="font-size: 0.75rem;">
+      <span class="material-symbols-outlined" style="font-size: 1rem;">warning</span>
+      Todos los ingredientes de la receta deben tener una cantidad mayor a 0.
+    </small>
+  }
+
   <!-- Botones de acción -->
   <div class="d-flex justify-content-end gap-3">
     <app-boton label="Cancelar" variante="outline" tamanio="md" [disabled]="loading()" (clicked)="cancelar.emit()" class="cancel-btn">
@@ -150,7 +161,7 @@
       [label]="loading() ? 'GUARDANDO...' : 'GUARDAR'"
       variante="success"
       tamanio="md"
-      [disabled]="loading()"
+      [disabled]="loading() || hayCantidadesInvalidas()"
       (clicked)="onGuardar()"
       class="save-btn">
       @if (loading()) {
