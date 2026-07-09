@@ -72,7 +72,7 @@ export class CrearPlatoFormComponent {
     const costo = this.costoSugerido();
     const costoControl = this.platoForm.controls.costo;
 
-    if (costo > 0 && costoControl.value !== costo) {
+    if (costoControl.value !== costo) {
       costoControl.setValue(costo);
       costoControl.markAsTouched();
     }
@@ -113,10 +113,17 @@ export class CrearPlatoFormComponent {
 
   private readonly sincronizarPrecioVentaAutocalculado = effect(() => {
     const costo = this.formValue()?.costo ?? 0;
-    const precioCalculado = this.precioConGanancia();
     const precioVentaControl = this.platoForm.controls.precioVenta;
 
-    if (precioVentaControl.dirty || costo <= 0 || precioCalculado == null) return;
+    if (costo <= 0) {
+      if (precioVentaControl.value !== 0) {
+        precioVentaControl.setValue(0);
+      }
+      return;
+    }
+
+    const precioCalculado = this.precioConGanancia();
+    if (precioVentaControl.dirty || precioCalculado == null) return;
 
     if (precioVentaControl.value !== precioCalculado) {
       precioVentaControl.setValue(precioCalculado);

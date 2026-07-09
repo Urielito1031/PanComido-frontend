@@ -298,13 +298,15 @@ span.flatpickr-weekday {
   color: #d8081c !important;
 }
 
-.driver-popover.carta-tour-theme .driver-popover-next-btn {
+.driver-popover.carta-tour-theme .driver-popover-next-btn,
+.driver-popover.proveedores-tour-theme .driver-popover-next-btn {
   background-color: #f7d627 !important;
   color: #0f172a !important;
   border: 1px solid #f7d627 !important;
 }
 
-.driver-popover.carta-tour-theme .driver-popover-next-btn:hover {
+.driver-popover.carta-tour-theme .driver-popover-next-btn:hover,
+.driver-popover.proveedores-tour-theme .driver-popover-next-btn:hover {
   background-color: #e0bf1f !important;
   border-color: #e0bf1f !important;
 }

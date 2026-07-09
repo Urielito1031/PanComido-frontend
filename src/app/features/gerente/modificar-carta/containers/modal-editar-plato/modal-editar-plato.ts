@@ -112,9 +112,18 @@ export class ModalEditarPlatoComponent {
 
     effect(() => {
       const costoVal = this.costo();
-      const precioCalculado = this.precioConGanancia();
 
-      if (!this.edicionActiva() || this.precioEsManual() || costoVal <= 0 || precioCalculado == null) return;
+      if (!this.edicionActiva()) return;
+
+      if (costoVal <= 0) {
+        if (this.precioVenta() !== 0) {
+          this.precioVenta.set(0);
+        }
+        return;
+      }
+
+      const precioCalculado = this.precioConGanancia();
+      if (this.precioEsManual() || precioCalculado == null) return;
 
       if (this.precioVenta() !== precioCalculado) {
         this.precioVenta.set(precioCalculado);

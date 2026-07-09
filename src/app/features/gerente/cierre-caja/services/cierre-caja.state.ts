@@ -97,12 +97,13 @@ export class CierreCajaStateService {
         },
         error: (err) => {
           this._generando.set(false);
+          const mensajeBackend = err.error?.error || err.error?.mensaje;
           if (err.status === 409) {
-            this._error.set(err.error?.mensaje || 'El turno todavía está en curso, no se puede cerrar todavía.');
+            this._error.set(mensajeBackend || 'El turno todavía está en curso, no se puede cerrar todavía.');
           } else if (err.status === 404) {
-            this._error.set(err.error?.mensaje || 'No se encontró el turno.');
+            this._error.set(mensajeBackend || 'No se encontró el turno.');
           } else {
-            this._error.set(err.error?.mensaje || 'No se pudo generar el cierre de caja. Intentá nuevamente.');
+            this._error.set(mensajeBackend || 'No se pudo generar el cierre de caja. Intentá nuevamente.');
           }
         }
       });

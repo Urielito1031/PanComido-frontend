@@ -88,6 +88,51 @@
   filter: brightness(0) saturate(100%) invert(56%) sepia(100%) saturate(900%) hue-rotate(0deg) brightness(108%);
 }
 
+/* ===== VARIANTE COCINA (naranja en lugar de rojo) ===== */
+.sidebar.cocina .menu-item:hover {
+  color: var(--primary-orange, #f08f1a);
+}
+
+.sidebar.cocina .menu-item.active {
+  background-color: var(--gray-50, #f9fafb);
+  color: var(--primary-orange, #f08f1a);
+}
+
+.sidebar.cocina .menu-item.active .menu-icon {
+  color: var(--primary-orange, #f08f1a);
+}
+
+.sidebar.cocina .submenu-item:hover {
+  color: var(--primary-orange, #f08f1a);
+  background-color: rgba(240, 143, 26, 0.04);
+}
+
+.sidebar.cocina .submenu-item.active {
+  color: var(--primary-orange, #f08f1a);
+}
+
+.sidebar.cocina .submenu-item.active::before {
+  background-color: var(--primary-orange, #f08f1a);
+  box-shadow: 0 0 0 4px rgba(240, 143, 26, 0.1);
+}
+
+.sidebar.cocina .datetime-icon {
+  color: var(--primary-orange, #f08f1a);
+}
+
+.sidebar.cocina .avatar {
+  background-color: #fed7aa !important;
+  color: var(--primary-orange, #f08f1a);
+}
+
+.sidebar.cocina .user-name {
+  color: var(--primary-orange, #f08f1a);
+}
+
+.sidebar.cocina .logout-btn {
+  color: var(--primary-orange, #f08f1a);
+}
+
 /* ===== NAVEGACIÓN ===== */
 .sidebar-nav {
   flex: 1;

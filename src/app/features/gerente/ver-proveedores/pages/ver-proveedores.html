@@ -279,13 +279,17 @@
                   <div class="field-group price-display-field">
                     <span>Precio del proveedor</span>
                     <div class="price-display">
-                      @if (precioProductoManual(); as precio) {
-                        <span class="price-value">{{ precio | arsCurrency }}</span>
+                      @if (precioProductoManual() !== null) {
+                        <span class="price-value">{{ precioProductoManual() | arsCurrency }}</span>
                       } @else {
                         <span class="price-no-data">Sin historial de precio</span>
                       }
                     </div>
-                    <app-price-note text="Último precio de compra registrado para este proveedor." [compact]="true" />
+                    @if (precioProductoManual() === 0) {
+                      <app-price-note text="Sin historial de precio con este proveedor: se carga $0 por defecto." [compact]="true" />
+                    } @else {
+                      <app-price-note text="Último precio de compra registrado para este proveedor." [compact]="true" />
+                    }
                   </div>
 
                   <!-- Cantidad con stepper -->
@@ -337,7 +341,7 @@
                 <button
                   type="button"
                   class="add-item-btn"
-                  [disabled]="!productoTexto().trim() || !precioProductoManual() || !cantidadProducto() || cantidadProducto()! <= 0"
+                  [disabled]="!productoTexto().trim() || precioProductoManual() === null || !cantidadProducto() || cantidadProducto()! <= 0"
                   (click)="agregarItemPedido()">
                   <span class="material-symbols-outlined">add</span>
                   Añadir
