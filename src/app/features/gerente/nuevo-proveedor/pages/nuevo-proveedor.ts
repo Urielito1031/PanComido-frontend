@@ -61,6 +61,12 @@ export class NuevoProveedorComponent implements OnInit {
     if (!query) return this.categoriasDisponibles();
     return this.categoriasDisponibles().filter(categoria => categoria.descripcion.toLowerCase().includes(query));
   });
+  readonly categoriasIngredienteFiltradas = computed(() =>
+    this.categoriasFiltradas().filter(categoria => categoria.tipoAplica !== 'Bebida')
+  );
+  readonly categoriasBebidaFiltradas = computed(() =>
+    this.categoriasFiltradas().filter(categoria => categoria.tipoAplica === 'Bebida')
+  );
   readonly resumenListo = computed(() => this.puedeGuardar());
 
   onBusquedaCategoriaChange(valor: string): void {

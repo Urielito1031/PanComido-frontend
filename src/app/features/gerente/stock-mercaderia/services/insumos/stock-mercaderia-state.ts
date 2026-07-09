@@ -32,11 +32,13 @@ export class StockMercaderiaState {
   readonly #porcentajesBebidas = signal<PorcentajeItem[]>([]);
   readonly #detalleInsumo = signal<InsumoDetalle | null>(null);
   readonly #costoBebida = signal<number>(0);
+  readonly #error = signal<string | null>(null);
 
   productos = this.#productos.asReadonly();
   lotes = this.#lotes.asReadonly();
   lotesCargados = this.#lotesCargados.asReadonly();
   cargando = this.#cargando.asReadonly();
+  error = this.#error.asReadonly();
   unidadMedidas = this.#unidadMedidas.asReadonly();
   categoriasInsumos = this.#categoriasInsumos.asReadonly();
   porcentajesBebidas = this.#porcentajesBebidas.asReadonly();
@@ -93,8 +95,9 @@ export class StockMercaderiaState {
     });
   }
 
-  guardarProducto(payload: GuardarProductoPayload): void {
+  guardarProducto(payload: GuardarProductoPayload, alFinalizar?: () => void): void {
     this.#cargando.set(true);
+    this.#error.set(null);
 
     if (payload.id) {
       const request = {
@@ -120,8 +123,12 @@ export class StockMercaderiaState {
               }
             : p));
           this.#cargando.set(false);
+          if (alFinalizar) alFinalizar();
         },
-        error: () => this.#cargando.set(false)
+        error: (err) => {
+          this.#cargando.set(false);
+          this.#error.set(err.error?.error ?? 'No se pudo modificar el insumo. Intentá nuevamente.');
+        }
       });
     } else {
       const request = {
@@ -146,10 +153,18 @@ export class StockMercaderiaState {
           this.#lotesCargados.set(false);
           if (lotesEstabanCargados) this.cargarLotes();
           this.#cargando.set(false);
+          if (alFinalizar) alFinalizar();
         },
-        error: () => this.#cargando.set(false)
+        error: (err) => {
+          this.#cargando.set(false);
+          this.#error.set(err.error?.error ?? 'No se pudo crear el insumo. Intentá nuevamente.');
+        }
       });
     }
+  }
+
+  limpiarError(): void {
+    this.#error.set(null);
   }
 
   eliminarProducto(id: number): void {
@@ -200,11 +215,12 @@ export class StockMercaderiaState {
     this.#costoBebida.set(0);
   }
 
-  guardarBebida(id: number, payload: GuardarBebidaPayload): void {
+  guardarBebida(id: number, payload: GuardarBebidaPayload, alFinalizar?: () => void): void {
     const detalle = this.#detalleInsumo();
     if (!detalle) return;
 
     this.#cargando.set(true);
+    this.#error.set(null);
     const request = {
       nombre: payload.nombre,
       descripcion: detalle.descripcion ?? undefined,
@@ -225,8 +241,12 @@ export class StockMercaderiaState {
             : p));
           this.#detalleInsumo.set(null);
           this.#cargando.set(false);
+          if (alFinalizar) alFinalizar();
         },
-        error: () => this.#cargando.set(false)
+        error: (err) => {
+          this.#cargando.set(false);
+          this.#error.set(err.error?.error ?? 'No se pudo modificar la bebida. Intentá nuevamente.');
+        }
       });
   }
 }

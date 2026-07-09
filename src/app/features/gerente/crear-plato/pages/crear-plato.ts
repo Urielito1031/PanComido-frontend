@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy, signal, computed } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { Boton } from '../../../../shared/ui/botones/boton/boton';
@@ -46,7 +46,10 @@ export class CrearPlatoPage {
   loading = this.state.loading;
   nombresExistentes = this.state.nombresExistentes;
   errorImagen = this.state.errorImagen;
+  error = this.state.error;
   datosInicialesFormulario = signal<Partial<PlatoFormData>>({});
+
+  hayCantidadesInvalidas = computed(() => this.receta().some(item => !(item.cantidad > 0)));
 
 
   constructor() {

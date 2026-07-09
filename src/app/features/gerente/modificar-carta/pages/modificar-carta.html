@@ -270,6 +270,7 @@
     @defer (on idle) {
       <app-modal-editar-plato
         [plato]="platoAEditar()!"
+        [error]="state.error()"
         (save)="onSavePlato($event)"
         (close)="onCloseModals()">
       </app-modal-editar-plato>
@@ -281,6 +282,7 @@
       <app-panel-editar-bebida
         [bebida]="bebida"
         [porcentajeGanancia]="porcentajeGananciaBebida()"
+        [error]="state.error()"
         (guardar)="onSaveBebida($event)"
         (cerrar)="onCloseModals()">
       </app-panel-editar-bebida>
@@ -303,6 +305,7 @@
         [bodegas]="bodegaState.bodegas()"
         [categorias]="categoriasBebida()"
         [unidadesMedida]="stockState.unidadMedidas()"
+        [error]="state.error()"
         (guardar)="onGuardarBebidaNueva($event)"
         (cerrar)="cerrarPanelCrearBebida()">
       </app-panel-crear-bebida>
@@ -314,6 +317,7 @@
       <app-panel-bebida-preparada
         [insumosDisponibles]="insumosBebidaParaReceta()"
         [porcentajesBebidas]="porcentajesBebidas()"
+        [error]="state.error()"
         (guardar)="onGuardarBebidaPreparadaNueva($event)"
         (cerrar)="cerrarPanelCrearBebidaPreparada()">
       </app-panel-bebida-preparada>
@@ -326,6 +330,7 @@
         [bebidaPreparada]="bebidaPreparada"
         [insumosDisponibles]="insumosBebidaParaReceta()"
         [porcentajesBebidas]="porcentajesBebidas()"
+        [error]="state.error()"
         (guardar)="onGuardarBebidaPreparadaEditada($event)"
         (cerrar)="onCloseModals()">
       </app-panel-bebida-preparada>

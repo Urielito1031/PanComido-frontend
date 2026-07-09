@@ -1,67 +1,22 @@
-export interface CierreTurnoResumen {
-  efectivoEsperado: number;
-  totalRecaudado: number;
-  totalOperaciones: number;
-}
-
-export interface MetodoPagoInfo {
+export interface DetallePagoCierre {
   metodoPagoId: number;
-  nombre: string;
-  esperado: number;
-  operaciones: number;
-}
-
-export interface RendimientoPlato {
-  nombre: string;
-  cantidad: number;
+  metodoPagoNombre: string;
+  cantidadPagos: number;
   total: number;
 }
 
-export interface RendimientoInsumo {
-  nombre: string;
-  cantidad: number;
-  unidad: string;
-}
-
-export interface CierreTurnoEncuesta {
-  calificacionPromedio: number;
-  totalEncuestas: number;
-  comentarioDestacado: string;
-}
-
-export interface CierreTurnoRendimiento {
-  platosMasVendidos: RendimientoPlato[];
-  insumosMasUsados: RendimientoInsumo[];
-  platosMenosVendidos?: RendimientoPlato[];
-  tiempoPromedioComandas?: number;
-  cantidadComensales?: number;
-  resumenEncuestas?: CierreTurnoEncuesta;
-}
-
-export interface CierreTurnoInfo {
+export interface CierreCaja {
   fecha: string;
   turnoLaboralId: number;
-  nombreTurno: string;
-  horario?: string;
-  resumenFinanciero: CierreTurnoResumen;
-  desglosePagos: MetodoPagoInfo[];
-  rendimientoTurno: CierreTurnoRendimiento;
-}
-
-export interface CierreCajaRequest {
-  restauranteId: number;
-  turnoLaboralId: number;
-  efectivoContado: number;
+  turnoLaboralNombre: string;
+  cantidadTotalDePagos: number;
+  totalRecaudado: number;
+  detallePagos: DetallePagoCierre[];
   diferencia: number;
   sobrante: number;
-  observacion: string;
 }
 
-export interface CierreHistorial {
-  id: number;
-  fecha: string;
-  turno: string;
-  total: number;
-  diferencia: number;
-  estado: string;
+export interface GenerarCierreCajaRequest {
+  idTurnoLaboral: number;
+  conteoCaja: number;
 }
