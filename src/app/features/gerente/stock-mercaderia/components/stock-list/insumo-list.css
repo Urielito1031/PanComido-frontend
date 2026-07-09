@@ -94,6 +94,10 @@
   text-align: right;
 }
 
+.text-center {
+  text-align: center;
+}
+
 /* Status pills */
 .fast-pill {
   width: 76px;
@@ -300,7 +304,7 @@
   }
 
   .stock-cell:nth-child(5)::before {
-    content: "Precio";
+    content: "Costo";
     color: #64748b;
     font-size: 0.72rem;
     font-weight: 700;
