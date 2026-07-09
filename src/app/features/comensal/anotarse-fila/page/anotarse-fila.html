@@ -1,0 +1,31 @@
+<div class="pantalla-completa">
+  <div class="header-mockup">
+    <div class="logo-circulo">
+      <img [src]="configVisual.logoUrl() || 'assets/images/logo/logo_el_ferroviario.png'" alt="Logo" onerror="this.style.display='none'">
+    </div>
+    <div class="badge-verde">Fila virtual</div>
+  </div>
+
+  <div class="contenido-central">
+    <h2 class="titulo-pregunta">¿Cuántas personas<br>son en tu grupo?</h2>
+    
+    <div class="grilla-cantidades">
+      @for (n of [1,2,3,4,5]; track n) {
+        <button (click)="seleccionarCantidad(n)" [class.activo]="cantidad === n && !mostrarInputCantidad">{{n}}</button>
+      }
+      @if (!mostrarInputCantidad) {
+        <button (click)="activarInputCantidad()" [class.activo]="cantidad > 5">+</button>
+      } @else {
+        <input type="number" [(ngModel)]="cantidad" min="6" class="input-cantidad" />
+      }
+    </div>
+
+    <input type="text" [(ngModel)]="nombre" placeholder="Ezequiel" class="input-nombre" />
+  </div>
+
+  <div class="botones-inferiores">
+    <button class="btn-anotarme" [disabled]="!nombre || !cantidad" (click)="anotarme()">
+      Anotarme a la fila
+    </button>
+  </div>
+</div>

@@ -157,7 +157,7 @@
         <hr class="mb-4">
 
         <div class="d-flex flex-column gap-3">
-          @if (mesaMobileSeleccionada()!.estadoMesa === 'Disponible') {
+          @if (mesaMobileSeleccionada()!.estadoMesa === 'Disponible' || mesaMobileSeleccionada()!.estadoMesa === 'Reservada') {
             <button class="btn btn-success btn-lg py-3 fw-bold rounded-3" (click)="abrirMesaMobile()">ABRIR MESA</button>
             <button class="btn btn-dark btn-lg py-3 fw-bold rounded-3" (click)="deshabilitarMesaMobile()">DESHABILITAR</button>
           }

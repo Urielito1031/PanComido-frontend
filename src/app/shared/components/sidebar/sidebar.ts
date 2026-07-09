@@ -145,6 +145,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
       },
       
       { label: 'Mapa de mesas', icon: 'faTableCells', route: '/staff/gerente/mapa-de-mesas', roles: ['Gerente'] },
+      { label: 'QR Fila Virtual', icon: 'faUsers', route: '/staff/gerente/qr-fila-virtual', roles: ['Gerente'] },
       { label: 'Cerrar Caja', icon: 'faReceipt', route: '/staff/gerente/caja', roles: ['Gerente'], dividerAfter: true },
       {
         label: 'Modificar Carta',

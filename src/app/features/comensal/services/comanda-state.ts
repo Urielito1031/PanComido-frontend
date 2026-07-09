@@ -62,7 +62,8 @@ export class ComandaState {
     restauranteId: number,
     mesaId: number,
     cantidadComensales: number,
-    nombreComensal: string
+    nombreComensal: string,
+    turnoId?: number
   ): Observable<any> {
     this.#restauranteId.set(restauranteId);
     this.#mesaId.set(mesaId);
@@ -73,7 +74,8 @@ export class ComandaState {
       restauranteId,
       mesaId,
       cantidadComensales,
-      nombreComensal
+      nombreComensal,
+      turnoId
     ).pipe(
       tap(response => {
         this.#restauranteId.set(restauranteId);

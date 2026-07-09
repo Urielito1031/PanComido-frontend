@@ -63,5 +63,9 @@ export const GERENTE_ROUTES: Routes = [
   {
     path: 'reportes',
     loadComponent: () => import('./reportes/pages/reportes-page/reportes-page').then(m => m.ReportesPage)
+  },
+  {
+    path: 'qr-fila-virtual',
+    loadComponent: () => import('./qr-fila-virtual/page/qr-fila-virtual').then(m => m.QrFilaVirtualPage)
   }
 ];

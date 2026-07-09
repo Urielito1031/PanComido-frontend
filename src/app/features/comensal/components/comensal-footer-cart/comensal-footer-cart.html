@@ -11,16 +11,18 @@
       <span class="cart-total">$ {{ total() | number:'1.0-0' }}</span>
     </button>
 
-    <div class="mozo-wrapper">
-      <app-llamar-al-mozo 
-        [mesaId]="mesaId()"
-        [enviando]="enviando()"
-        [enviado]="enviado()"
-        [error]="error()"
-        (llamadoMozo)="llamadoMozo.emit($event)"
-        (modalCerrado)="modalCerrado.emit()"
-      />
-    </div>
+    @if (!filaVirtualState.turnoId()) {
+      <div class="mozo-wrapper">
+        <app-llamar-al-mozo 
+          [mesaId]="mesaId()"
+          [enviando]="enviando()"
+          [enviado]="enviado()"
+          [error]="error()"
+          (llamadoMozo)="llamadoMozo.emit($event)"
+          (modalCerrado)="modalCerrado.emit()"
+        />
+      </div>
+    }
 
   </div>
 </footer>

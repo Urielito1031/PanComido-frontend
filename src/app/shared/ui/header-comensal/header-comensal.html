@@ -1,31 +1,40 @@
 <header class="header">
   <div class="header-left">
     @if (showBack()) {
-    <div class="back text-white" (click)="onBack()">←</div>
+    <div class="back" (click)="onBack()"><span class="material-symbols-outlined">arrow_back_ios_new</span></div>
     }
     <div class="logo">
       @if (configuracionVisualState.logoUrl(); as url) {
-        <img [src]="url" alt="Logo" />
+        <img [src]="url" alt="Logo" onerror="this.style.display='none'" />
       } @else {
-        <span class="material-symbols-outlined" style="color:#ffffff;font-size:1.5rem;">restaurant</span>
+        <div class="logo-placeholder"></div>
       }
     </div>
   </div>
 
   @if (title()) {
-  <div class="title">{{ title() }}</div>
+  <div class="title" [style.cursor]="showBack() || backRoute() ? 'pointer' : 'default'" (click)="(showBack() || backRoute()) && onBack()">
+    {{ title() }}
+  </div>
   }
 
   <div class="header-right">
-    @if (tieneSesion()) {
-    <div class="badge-info">
-  <span class="material-symbols-outlined">person</span>
+    @if (!ocultarBadgeFila() && filaVirtualState.estado(); as estFila) {
+      <div class="badge-info" style="background-color: #fde047; color: #000; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 4px;" (click)="irAEstadoFila()">
+        Turno {{ estFila.numeroTurno }} - <span class="material-symbols-outlined" style="font-size: 16px;">person</span> {{ estFila.turnosAdelante }} adelante
+      </div>
+      <div class="icon-btn" (click)="abrirCompartir()" title="Compartir turno">
+        <span class="material-symbols-outlined">group_add</span>
+      </div>
+    } @else if (tieneSesion()) {
+      <div class="badge-info">
+        <span class="material-symbols-outlined">person</span>
         <span>{{ cantidadPersonas }}</span>
-    </div>
-    <div class="badge-info">Mesa {{ mesaId }}</div>
-    <div class="icon-btn" (click)="abrirCompartir()" title="Compartir mesa">
-      <span class="material-symbols-outlined">group_add</span>
-    </div>
+      </div>
+      <div class="badge-info">Mesa {{ mesaId }}</div>
+      <div class="icon-btn" (click)="abrirCompartir()" title="Compartir mesa">
+        <span class="material-symbols-outlined">group_add</span>
+      </div>
     }
     @if (showClose()) {
     <div class="close" (click)="onClose()">✕</div>

@@ -3,6 +3,8 @@ import { Router } from '@angular/router';
 import { QRCodeComponent } from 'angularx-qrcode';
 import { ConfiguracionVisualState } from '../../../features/comensal/services/visual/configuracion-visual-state';
 
+import { FilaVirtualState } from '../../../features/comensal/services/fila-virtual.state';
+
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-header-comensal',
@@ -14,6 +16,7 @@ import { ConfiguracionVisualState } from '../../../features/comensal/services/vi
 export class HeaderComensal {
   private router = inject(Router);
   configuracionVisualState = inject(ConfiguracionVisualState);
+  filaVirtualState = inject(FilaVirtualState);
   readonly mesaId = Number(sessionStorage.getItem('mesaId')) || null;
   readonly cantidadPersonas = Number(sessionStorage.getItem('cantidadPersonas')) || null;
 
@@ -21,12 +24,17 @@ export class HeaderComensal {
   backRoute = input<string | null>(null);
   showClose = input(false);
   title = input<string>('');
+  ocultarBadgeFila = input(false);
 
   back = output<void>();
   close = output<void>();
 
   popupAbierto = signal(false);
   urlInvitacion = signal('');
+
+  irAEstadoFila() {
+    this.router.navigate(['/comensal/estado-fila']);
+  }
 
   onBack(): void {
     const route = this.backRoute();
