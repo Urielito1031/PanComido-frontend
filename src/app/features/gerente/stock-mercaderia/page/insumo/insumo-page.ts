@@ -321,7 +321,7 @@ export class InsumoPage implements OnInit {
 
   ngOnInit() {
     this.state.cargarMercaderia();
-    this.bodegaState.cargarBodegas();
+    this.bodegaState.cargarBodegasConInsumos();
     this.state.cargarCatalogos();
     this.bodegaState.cargarTiposBodega();
 

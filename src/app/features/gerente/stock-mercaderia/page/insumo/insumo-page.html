@@ -19,7 +19,7 @@
       </button>
 
       <button class="btn-premium-primary d-flex align-items-center gap-2" (click)="abrirModalBodegaCrear(modalBodega)">
-        <span class="material-symbols-outlined">warehouse</span>
+        <span class="material-symbols-outlined">add</span>
         <span class="fw-semibold">Nueva bodega</span>
       </button>
     </div>
@@ -302,30 +302,20 @@
 
   @if (modalAbierto()) {
   @if (esBebidaSeleccionada()) {
-    @if (detalleInsumo(); as detalle) {
-      <app-editar-bebida-form
-        [insumo]="detalle"
-        [costo]="costoBebida()"
-        [porcentajeGanancia]="porcentajeGananciaBebida()"
-        [error]="state.error()"
-        (cancelado)="modalFormulario.cerrar()"
-        (guardar)="guardarBebida($event, modalFormulario)">
-      </app-editar-bebida-form>
-    } @else {
-      <div class="text-center text-muted p-4">Cargando...</div>
-    }
-  } @else if (!productoEditandoId() || detalleInsumo()) {
-    <app-producto-form
-      [producto]="detalleInsumo()"
-      [bodegas]="bodegaState.bodegas()"
-      [categorias]="state.categoriasInsumos()"
-      [unidadesMedida]="state.unidadMedidas()"
-      [error]="state.error()"
-      (cancelado)="modalFormulario.cerrar()"
-      (guardar)="guardarCambios($event, modalFormulario)">
-    </app-producto-form>
+  @if (detalleInsumo(); as detalle) {
+  <app-editar-bebida-form [insumo]="detalle" [costo]="costoBebida()" [porcentajeGanancia]="porcentajeGananciaBebida()"
+    [error]="state.error()" (cancelado)="modalFormulario.cerrar()" (guardar)="guardarBebida($event, modalFormulario)">
+  </app-editar-bebida-form>
   } @else {
-    <div class="text-center text-muted p-4">Cargando...</div>
+  <div class="text-center text-muted p-4">Cargando...</div>
+  }
+  } @else if (!productoEditandoId() || detalleInsumo()) {
+  <app-producto-form [producto]="detalleInsumo()" [bodegas]="bodegaState.bodegas()"
+    [categorias]="state.categoriasInsumos()" [unidadesMedida]="state.unidadMedidas()" [error]="state.error()"
+    (cancelado)="modalFormulario.cerrar()" (guardar)="guardarCambios($event, modalFormulario)">
+  </app-producto-form>
+  } @else {
+  <div class="text-center text-muted p-4">Cargando...</div>
   }
   }
 

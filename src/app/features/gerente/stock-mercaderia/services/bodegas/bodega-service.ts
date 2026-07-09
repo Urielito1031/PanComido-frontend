@@ -2,7 +2,8 @@ import { inject, Injectable } from '@angular/core';
 import { ApiService } from '../../../../../core/services/api-service';
 import { Bodega } from '../../../../../core/models/domain/bodega';
 import { TipoBodega } from '../../../../../core/models/domain/tipo-bodega';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
+import { mapInsumoDtoToDomain } from '../../../../../infra/http/mappers/insumo.mapper';
 
 @Injectable({
   providedIn: 'root',
@@ -17,7 +18,12 @@ export class BodegaService {
     return this.api.get<Bodega[]>(this.endpoint);
   }
   obtenerBodegasConInsumos(): Observable<Bodega[]> {
-    return this.api.get<Bodega[]>(`${this.endpoint}/con-insumos`);
+    return this.api.get<any[]>(`${this.endpoint}/con-insumos`).pipe(
+      map(bodegas => bodegas.map(b => ({
+        ...b,
+        insumos: b.insumos ? b.insumos.map((i: any) => mapInsumoDtoToDomain(i)) : []
+      })))
+    );
   }
   obtenerBodegaPorId(id: number): Observable<Bodega> {
     return this.api.get<Bodega>(`${this.endpoint}/${id}`);

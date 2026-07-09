@@ -10,7 +10,7 @@ interface StockRow {
   categoria: string;
   stock: string;
   minimo: string;
-  precioVentaFinal: number;
+  costo: number;
   vencimiento: string;
   estado: StockStatus;
   estadoLabel: string;
@@ -45,7 +45,7 @@ export class InsumoList {
       categoria: item.categoriaIngrediente?.descripcion || 'Sin categoría',
       stock: `${item.stockActual} ${unidad}`.trim(),
       minimo: `${item.stockMinimo} ${unidad}`.trim(),
-      precioVentaFinal: item.precioVentaFinal ?? 0,
+      costo: item.costo ?? 0,
       vencimiento: this.formatearFecha(item.vencimiento),
       estado,
       estadoLabel: this.estadoLabel(estado),
