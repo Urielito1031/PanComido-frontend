@@ -73,7 +73,7 @@ export class VerProveedoresComponent implements OnInit {
 
   proveedorForm = this.fb.group({
     nombre: ['', [Validators.required, Validators.minLength(3)]],
-    telefono: ['', [Validators.pattern(/^\+?[0-9\s-]{7,15}$/)]],
+    telefono: ['', [Validators.required, Validators.pattern(/^\+?[0-9\s-]{7,15}$/)]],
   });
 
   faCheck = faCheck;
@@ -187,10 +187,6 @@ export class VerProveedoresComponent implements OnInit {
     );
   }
 
-  removerCategoriaEdicion(categoriaId: number): void {
-    this.categoriaIdsEdicion.update(categorias => categorias.filter(item => item !== categoriaId));
-  }
-
   private idsDesdeCategorias(categorias: string[]): number[] {
     const nombres = new Set(categorias.map(categoria => categoria.toLowerCase().trim()));
     return this.state.categoriasInsumo()
@@ -267,6 +263,13 @@ export class VerProveedoresComponent implements OnInit {
 
   onProductoTextoChange(valor: string): void {
     this.state.onProductoTextoChange(valor);
+  }
+
+  onFocusProducto(event: FocusEvent): void {
+    if (this.productoTexto().trim()) {
+      (event.target as HTMLInputElement).value = '';
+      this.onProductoTextoChange('');
+    }
   }
 
   agregarItemPedido(): void {

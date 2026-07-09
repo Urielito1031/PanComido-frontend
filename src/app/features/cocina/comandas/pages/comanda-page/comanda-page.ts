@@ -31,6 +31,20 @@ export class ComandaPage {
   notificacionLlamado = signal<number | null>(null);
   notificacionAceptada = signal<number | null>(null);
 
+  readonly comandosAceptar = [
+    'mesa [número] aceptar',
+    'mesa [número] aceptada',
+    'mesa [número] aceptar comanda',
+    'aceptar comanda mesa [número]',
+  ];
+
+  readonly comandosLlamarMozo = [
+    'mesa [número] llamar mozo',
+    'mesa [número] llamar al mozo',
+    'llamar mozo mesa [número]',
+    'llamar al mozo mesa [número]',
+  ];
+
   constructor() {
     effect(() => {
       const comando = this.vozService.comandoDetectado();

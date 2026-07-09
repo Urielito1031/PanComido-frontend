@@ -51,6 +51,10 @@ export class HistorialProveedorComponent implements OnInit {
     this.historialProveedor().reduce((total, pedido) => total + pedido.items.length, 0)
   );
 
+  historialOrdenado = computed(() =>
+    [...this.historialProveedor()].sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
+  );
+
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
