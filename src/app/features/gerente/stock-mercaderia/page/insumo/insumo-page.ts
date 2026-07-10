@@ -15,14 +15,13 @@ import { EditarBebidaFormComponent, GuardarBebidaPayload } from '../../component
 import { ModalEliminarInsumoComponent } from '../../components/modal-eliminar-insumo/modal-eliminar-insumo';
 import { BodegaForm, GuardarBodegaPayload } from '../../components/bodega-form/bodega-form';
 import { ModalEliminarBodegaComponent } from '../../components/modal-eliminar-bodega/modal-eliminar-bodega';
-import { AppNotice } from '../../../../../shared/ui/app-notice/app-notice';
 
 type EstadoStockFiltro = 'todos' | 'criticos' | 'bajos' | 'ok';
 
 @Component({
   selector: 'app-insumo',
   standalone: true,
-  imports: [InsumoList, CommonModule, PageToolbar, Buscador, Dropdown, Modal, ProductoForm, EditarBebidaFormComponent, ModalEliminarInsumoComponent, BodegaForm, ModalEliminarBodegaComponent, AppNotice],
+  imports: [InsumoList, CommonModule, PageToolbar, Buscador, Dropdown, Modal, ProductoForm, EditarBebidaFormComponent, ModalEliminarInsumoComponent, BodegaForm, ModalEliminarBodegaComponent],
   templateUrl: './insumo-page.html',
   styleUrl: './insumo-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

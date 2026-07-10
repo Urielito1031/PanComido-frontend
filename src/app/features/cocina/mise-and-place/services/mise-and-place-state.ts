@@ -1,8 +1,9 @@
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { MiseAndPlaceService } from './mise-and-place-service';
 import { BodegaLightDto, CategoriaLightDto, DatosFormularioMiseAndPlaceDto, IngredienteMiseAndPlaceResponseDto, MiseAndPlaceListadoDto, UnidadMedidaResponseDto } from '../../../../core/models/dtos/responses/mise-and-place.response';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CrearMiseAndPlaceDto, ModificarMiseAndPlaceDto } from '../../../../core/models/dtos/requests/mise-and-place.request';
+import { CrearMiseAndPlaceDto, ModificarMiseAndPlaceDto, ProducirMiseAndPlaceDto } from '../../../../core/models/dtos/requests/mise-and-place.request';
 
 @Injectable({
   providedIn: 'root',
@@ -29,6 +30,32 @@ export class MiseAndPlaceState {
   creando = this.#creando.asReadonly();
   mensajeExito = this.#mensajeExito.asReadonly();
   ultimoCreadoId = this.#ultimoCreadoId.asReadonly();
+
+  #limpiarDecimales(texto: string): string {
+    return texto.replace(/\b(\d+\.\d{5,})\b/g, (_, num) => {
+      const n = parseFloat(num);
+      return Number.isFinite(n) ? n.toFixed(4) : num;
+    });
+  }
+
+  #errorMsg(err: HttpErrorResponse): string {
+    if (typeof err.error === 'object' && err.error !== null) {
+      const body = err.error as Record<string, unknown>;
+      if (typeof body['error'] === 'string') return this.#limpiarDecimales(body['error'] as string);
+      if (typeof body['mensaje'] === 'string') return this.#limpiarDecimales(body['mensaje'] as string);
+      const errors = body['errors'] as Record<string, string[]>;
+      if (errors && typeof errors === 'object') {
+        const msgs = Object.values(errors).flat().filter(Boolean);
+        if (msgs.length > 0) return this.#limpiarDecimales(msgs.join('; '));
+      }
+    }
+    if (typeof err.error === 'string') {
+      const match = err.error.match(/(?:Exception|Error):\s*(.+?)(?:\r?\n|$)/);
+      if (match) return this.#limpiarDecimales(match[1].trim());
+      return this.#limpiarDecimales(err.error.split('\r\n')[0].split('\n')[0].trim());
+    }
+    return err.statusText || err.message;
+  }
 
   itemsPorVencer = computed(() => {
      return this.#items().filter((i) => i.fechaVencimiento).sort(
@@ -60,7 +87,7 @@ export class MiseAndPlaceState {
         this.#cargando.set(false);
       },
       error: (err) => {
-        this.#error.set(err.message);
+        this.#error.set(this.#errorMsg(err));
         this.#cargando.set(false);
       }
     });
@@ -75,13 +102,13 @@ export class MiseAndPlaceState {
         this.#cargandoForm.set(false);
       },
       error: (err) => {
-        this.#error.set(err.message);
+        this.#error.set(this.#errorMsg(err));
         this.#cargandoForm.set(false);
       }
     });
   }
 
-  crear(dto: CrearMiseAndPlaceDto): void {
+  crear(dto: CrearMiseAndPlaceDto, onComplete?: (error?: string) => void): void {
     this.#creando.set(true);
     this.#error.set(null);
 
@@ -95,15 +122,18 @@ export class MiseAndPlaceState {
           this.#mensajeExito.set(null);
           this.#ultimoCreadoId.set(null);
         }, 3000);
+        onComplete?.();
       },
       error: (err) => {
-        this.#error.set(err.message);
+        const msg = this.#errorMsg(err);
+        this.#error.set(msg);
         this.#creando.set(false);
+        onComplete?.(msg);
       },
     });
   }
 
-  modificar(id: number, dto: ModificarMiseAndPlaceDto): void {
+  modificar(id: number, dto: ModificarMiseAndPlaceDto, onComplete?: (error?: string) => void): void {
     this.#creando.set(true);
     this.#error.set(null);
 
@@ -113,25 +143,51 @@ export class MiseAndPlaceState {
         this.#items.update(lista => lista.map(i => i.miseAndPlaceId === id ? item : i));
         this.#mensajeExito.set(`${item.nombre} modificado correctamente`);
         setTimeout(() => this.#mensajeExito.set(null), 3000);
+        onComplete?.();
       },
       error: (err) => {
-        this.#error.set(err.message);
+        const msg = this.#errorMsg(err);
+        this.#error.set(msg);
         this.#creando.set(false);
+        onComplete?.(msg);
       },
     });
   }
 
-  eliminar(id: number): void {
+  eliminar(id: number, onComplete?: (error?: string) => void): void {
     this.#error.set(null);
 
     this.api.eliminar(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => {
+      next: (response) => {
         this.#items.update(lista => lista.filter(i => i.miseAndPlaceId !== id));
-        this.#mensajeExito.set('Mise and Place eliminado');
+        this.#mensajeExito.set(response.mensaje);
         setTimeout(() => this.#mensajeExito.set(null), 3000);
+        onComplete?.();
       },
       error: (err) => {
-        this.#error.set(err.message);
+        const msg = this.#errorMsg(err);
+        this.#error.set(msg);
+        onComplete?.(msg);
+      },
+    });
+  }
+
+  producir(id: number, dto: ProducirMiseAndPlaceDto, onComplete?: (error?: string) => void): void {
+    this.#creando.set(true);
+    this.#error.set(null);
+
+    this.api.producir(id, dto).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (response) => {
+        this.#creando.set(false);
+        this.#mensajeExito.set(response.mensaje);
+        this.cargarListado();
+        setTimeout(() => this.#mensajeExito.set(null), 3000);
+        onComplete?.();
+      },
+      error: (err) => {
+        const msg = this.#errorMsg(err);
+        this.#creando.set(false);
+        onComplete?.(msg);
       },
     });
   }

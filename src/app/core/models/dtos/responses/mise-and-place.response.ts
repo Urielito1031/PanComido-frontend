@@ -33,6 +33,7 @@ export interface RecetaItemDto {
   nombreIngrediente: string;
   cantidad: number;
   unidadMedida: string;
+  costoUnitario: number;
 }
 
 export interface MiseAndPlaceListadoDto {
@@ -46,5 +47,8 @@ export interface MiseAndPlaceListadoDto {
   unidadMedida: string;
   categoria: string;
   bodega: string;
+  rendimientoBase?: number;
+  costoUnitario: number;
+  costo: number;
   receta: RecetaItemDto[];
 }
