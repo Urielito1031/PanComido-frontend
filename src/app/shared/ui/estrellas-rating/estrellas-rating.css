@@ -1,4 +1,4 @@
-.star-rating {
+.estrella-rating {
   display: flex;
   gap: 0.25rem;
   align-items: center;
@@ -15,7 +15,7 @@
 }
 
 .estrella .material-symbols-outlined {
-  font-size: 2rem;
+  font-size: 2.75rem;
   transition: color 0.15s ease;
 }
 

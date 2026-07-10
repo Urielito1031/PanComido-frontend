@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -17,6 +17,7 @@ export class ResetPassword implements OnInit {
   token = '';
   enviando = false;
   mensajeError = '';
+  mensajeExito = '';
 
   passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9\s]).{8,}$/;
   forbiddenCharsRegex = /^[^"';]+$/;
@@ -25,7 +26,8 @@ export class ResetPassword implements OnInit {
     private fb: FormBuilder, 
     private route: ActivatedRoute,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {
     this.resetForm = this.fb.group({
       contrasena: ['', [
@@ -59,15 +61,21 @@ export class ResetPassword implements OnInit {
     if (this.resetForm.valid && this.email && this.token) {
       this.enviando = true;
       this.mensajeError = '';
+      this.mensajeExito = '';
       const nuevaContrasena = this.resetForm.value.contrasena;
 
       this.authService.ejecutarReset(this.email, this.token, nuevaContrasena).subscribe({
-        next: () => {
-          this.router.navigate(['/login']);
+        next: (res: any) => {
+          this.mensajeExito = res?.mensaje || 'Contraseña actualizada exitosamente. Redirigiendo...';
+          this.cdr.markForCheck();
+          setTimeout(() => {
+            this.router.navigate(['/login']);
+          }, 2500);
         },
-        error: () => {
-          this.mensajeError = 'Ocurrió un error o el enlace ya expiró. Volvé a solicitar uno nuevo.';
+        error: (err: any) => {
+          this.mensajeError = err?.error?.error || err?.error?.Error || 'Ocurrió un error o el enlace ya expiró. Volvé a solicitar uno nuevo.';
           this.enviando = false;
+          this.cdr.markForCheck();
         }
       });
     }

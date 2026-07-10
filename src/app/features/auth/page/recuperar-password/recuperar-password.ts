@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -16,7 +16,7 @@ export class RecuperarPassword {
   enviando = false;
   mensajeExito = '';
 
-  constructor(private fb: FormBuilder, private authService: AuthService) {
+  constructor(private fb: FormBuilder, private authService: AuthService, private cdr: ChangeDetectorRef) {
     this.recuperarForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]]
     });
@@ -27,16 +27,14 @@ export class RecuperarPassword {
       this.enviando = true;
       this.authService.solicitarRecuperacion(this.recuperarForm.value.email).subscribe({
         next: () => {
-          setTimeout(() => {
-            this.mensajeExito = '¡Listo! Revisá tu casilla de correo para restablecer tu contraseña (revisá si está en la carpeta de spam si no lo encontrás).';
-            this.enviando = false;
-          }, 2000);
+          this.mensajeExito = '¡Listo! Revisá tu casilla de correo para restablecer tu contraseña (revisá si está en la carpeta de spam si no lo encontrás).';
+          this.enviando = false;
+          this.cdr.markForCheck();
         },
         error: () => {
-          setTimeout(() => {
-            this.mensajeExito = '¡Listo! Revisá tu casilla de correo para restablecer tu contraseña (revisá si está en la carpeta de spam si no lo encontrás).';
-            this.enviando = false;
-          }, 2000);
+          this.mensajeExito = '¡Listo! Revisá tu casilla de correo para restablecer tu contraseña (revisá si está en la carpeta de spam si no lo encontrás).';
+          this.enviando = false;
+          this.cdr.markForCheck();
         }
       });
     }
