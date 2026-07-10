@@ -1,0 +1,29 @@
+@let i = item();
+
+<div class="panel-overlay" (click)="onClose()">
+  <div class="side-panel" (click)="$event.stopPropagation()">
+    <div class="panel-header">
+      <h2 class="panel-title">Editar {{ i.nombre }}</h2>
+      <button type="button" class="btn-close-panel" (click)="onClose()" title="Cerrar">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="panel-body">
+      @if (state.cargandoForm()) {
+        <div class="form-loading">Cargando...</div>
+      } @else {
+        <app-mise-and-place-form
+          [categorias]="state.categorias()"
+          [unidadesMedida]="state.unidadesMedida()"
+          [ingredientes]="state.ingredientesDisponibles()"
+          [creando]="guardando()"
+          [editarItem]="i"
+          [errorGuardar]="errorGuardar()"
+          (guardar)="onGuardar($event)"
+          (cancelar)="onClose()">
+        </app-mise-and-place-form>
+      }
+    </div>
+  </div>
+</div>

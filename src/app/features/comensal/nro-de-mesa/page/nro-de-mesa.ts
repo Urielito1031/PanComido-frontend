@@ -36,6 +36,6 @@ export class NroDeMesa implements OnInit {
   }
 
   volverAtras() {
-    this.router.navigate(['/comensal/escanear-mesa']);
+    this.router.navigate(['/comensal/escanear']);
   }
 }

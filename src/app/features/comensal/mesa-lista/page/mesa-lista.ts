@@ -29,7 +29,7 @@ export class MesaLista {
   mostrarModalSalir = false;
 
   escanearQR() {
-    this.router.navigate(['/comensal/escanear-mesa']);
+    this.router.navigate(['/comensal/escanear']);
   }
 
   salir() {
