@@ -47,8 +47,11 @@ export class PagoConfirmado {
   }
 
   ngOnInit() {
-    const status = this.route.snapshot.queryParams['status'];
-    const metodo = this.route.snapshot.queryParams['metodo'];
+    let statusParam = this.route.snapshot.queryParams['status'];
+    let metodoParam = this.route.snapshot.queryParams['metodo'];
+
+    const status = Array.isArray(statusParam) ? statusParam[0] : statusParam;
+    const metodo = Array.isArray(metodoParam) ? metodoParam[0] : metodoParam;
 
     if (status === 'approved') {
       // MP redirige apenas termina el checkout, pero la confirmación real llega por webhook al backend
