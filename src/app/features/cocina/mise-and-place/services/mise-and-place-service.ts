@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { ApiService } from '../../../../core/services/api-service';
 import { Observable } from 'rxjs';
 import { DatosFormularioMiseAndPlaceDto, MiseAndPlaceListadoDto } from '../../../../core/models/dtos/responses/mise-and-place.response';
-import { CrearMiseAndPlaceDto } from '../../../../core/models/dtos/requests/mise-and-place.request';
+import { CrearMiseAndPlaceDto, ModificarMiseAndPlaceDto, ProducirMiseAndPlaceDto } from '../../../../core/models/dtos/requests/mise-and-place.request';
 
 @Injectable({
   providedIn: 'root',
@@ -25,6 +25,18 @@ export class MiseAndPlaceService {
 
   crear(dto: CrearMiseAndPlaceDto): Observable<MiseAndPlaceListadoDto>{
     return this.api.post<MiseAndPlaceListadoDto>(`${this.endpoint}/crear`, dto);
+  }
+
+  modificar(id: number, dto: ModificarMiseAndPlaceDto): Observable<MiseAndPlaceListadoDto>{
+    return this.api.put<MiseAndPlaceListadoDto>(`${this.endpoint}/${id}`, dto);
+  }
+
+  eliminar(id: number): Observable<{ mensaje: string }>{
+    return this.api.delete<{ mensaje: string }>(`${this.endpoint}/${id}`);
+  }
+
+  producir(id: number, dto: ProducirMiseAndPlaceDto): Observable<{ mensaje: string }>{
+    return this.api.post<{ mensaje: string }>(`${this.endpoint}/${id}/producir`, dto);
   }
 
 }
