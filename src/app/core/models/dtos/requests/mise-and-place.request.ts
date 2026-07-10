@@ -6,24 +6,20 @@ export interface MiseAndPlaceIngredienteDto {
 export interface CrearMiseAndPlaceDto {
   nombre: string;
   descripcion: string;
-  cantidad: number;
-  rendimientoBase: number;
-  fechaVencimiento: string;
   unidadMedidaId: number;
   categoriaId: number;
-  bodegaId: number;
+  stockMinimo: number;
+  stockRecomendado: number;
   ingredientes: MiseAndPlaceIngredienteDto[];
 }
 
 export interface ModificarMiseAndPlaceDto {
-  loteId: number;
   nombre: string;
   descripcion: string;
-  rendimientoBase: number;
-  fechaVencimiento: string;
   unidadMedidaId: number;
   categoriaId: number;
-  bodegaId: number;
+  stockMinimo: number;
+  stockRecomendado: number;
   ingredientes: MiseAndPlaceIngredienteDto[];
 }
 

@@ -47,7 +47,8 @@ export interface MiseAndPlaceListadoDto {
   unidadMedida: string;
   categoria: string;
   bodega: string;
-  rendimientoBase?: number;
+  stockMinimo: number;
+  stockRecomendado: number;
   costoUnitario: number;
   costo: number;
   receta: RecetaItemDto[];

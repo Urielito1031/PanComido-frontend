@@ -6,7 +6,7 @@
 .mp-page h1 {
   margin: 0 0 0.75rem;
   color: #0f172a;
-  font-size: 2rem;
+  font-size: 2.38rem;
   font-weight: 900;
   line-height: 1.1;
 }
@@ -69,7 +69,7 @@
   background: #f38d00;
   color: #ffffff;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 1.07rem;
   cursor: pointer;
   box-shadow: 0 4px 10px rgba(243, 141, 0, 0.18);
   transition: all 0.2s ease;
@@ -84,7 +84,7 @@
 
 .btn-premium-primary .material-symbols-outlined {
   color: #ffffff;
-  font-size: 1.2rem;
+  font-size: 1.43rem;
 }
 
 .mp-metrics-strip {
@@ -105,7 +105,7 @@
   border-radius: 8px;
   background: #f1f5f9;
   color: #475569;
-  font-size: 0.78rem;
+  font-size: 0.92rem;
   font-weight: 700;
   white-space: nowrap;
   cursor: pointer;
@@ -175,7 +175,7 @@
   border-radius: 6px;
   background: #ffffff;
   color: #475569;
-  font-size: 0.72rem;
+  font-size: 0.86rem;
   font-weight: 700;
   white-space: nowrap;
   cursor: pointer;
@@ -189,9 +189,33 @@
 }
 
 .cat-chip.active {
-  background: rgba(2, 89, 108, 0.08);
-  border-color: rgba(2, 89, 108, 0.25);
-  color: #02596C;
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.25);
+  color: #0f172a;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+
+.metric,
+.cat-chip {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.metric::-moz-focus-inner,
+.cat-chip::-moz-focus-inner {
+  border: 0;
+}
+
+.metric:focus,
+.metric:active,
+.cat-chip:focus,
+.cat-chip:active {
+  outline: none;
+}
+
+.metric:focus-visible,
+.cat-chip:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.15);
 }
 
 .mp-executive-summary {
@@ -224,7 +248,7 @@
 }
 
 .mp-executive-summary .material-symbols-outlined {
-  font-size: 1.3rem;
+  font-size: 1.54rem;
   color: #b8860b;
   flex-shrink: 0;
 }
@@ -236,13 +260,13 @@
 
 .mp-executive-summary strong {
   color: #0f172a;
-  font-size: 0.9rem;
+  font-size: 1.07rem;
   font-weight: 800;
 }
 
 .mp-executive-summary small {
   color: #475569;
-  font-size: 0.82rem;
+  font-size: 0.98rem;
   font-weight: 500;
   line-height: 1.35;
 }
@@ -264,7 +288,7 @@
   border-radius: 6px;
   background: transparent;
   color: #64748b;
-  font-size: 0.82rem;
+  font-size: 0.98rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -281,7 +305,7 @@
 }
 
 .breadcrumb-close {
-  font-size: 0.85rem;
+  font-size: 1.01rem;
   opacity: 0.6;
   cursor: pointer;
 }
@@ -292,7 +316,7 @@
 
 .mp-breadcrumb-sep {
   color: #cbd5e1;
-  font-size: 0.75rem;
+  font-size: 0.89rem;
 }
 
 .mp-panel {
@@ -312,65 +336,55 @@
 }
 
 .mp-grid {
-  min-width: 1070px;
+  min-width: 1280px;
   width: 100%;
   background: #ffffff;
 }
 
 .mp-grid-head,
 .mp-row {
-  min-width: 1070px;
+  min-width: 1280px;
   width: 100%;
   display: grid;
-  grid-template-columns: 2fr 1fr 1.3fr 1.3fr 1.1fr 1.2fr 280px;
+  grid-template-columns: 2fr 0.85fr 0.85fr 1.2fr 1.2fr 0.9fr 1fr 370px;
   align-items: center;
 }
 
 .mp-grid-head {
-  min-height: 44px;
+  min-height: 46px;
   padding-right: 0.5rem;
-  background: #0f172a;
-  color: #94a3b8;
-  font-size: 0.68rem;
-  font-weight: 800;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 0.86rem;
+  font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  border-radius: 10px 10px 0 0;
 }
 
 .mp-grid-head span {
   padding: 0 1rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
-  color: #e2e8f0;
-}
-
-.mp-grid-head span:last-child {
-  color: #f38d00;
 }
 
 .mp-rows-container {
   width: 100%;
-  min-width: 1040px;
+  min-width: 1250px;
   background: #ffffff;
 }
 
 .mp-row {
-  height: 52px;
+  height: 66px;
   border-top: 1px solid rgba(15, 23, 42, 0.06);
   border-left: 4px solid transparent;
   color: #334155;
-  font-size: 0.85rem;
+  font-size: 1.05rem;
   transition: background 0.12s ease;
-  cursor: pointer;
 }
 
 .mp-row:hover {
   background: #f8fafc;
-}
-
-.costo-val {
-  color: #02596C;
-  font-weight: 800;
 }
 
 .mp-row.row-danger {
@@ -416,7 +430,7 @@
 }
 
 .prod-cat {
-  font-size: 0.68rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: #64748b;
   line-height: 1.2;
@@ -437,14 +451,14 @@
 
 .fast-pill {
   width: auto;
-  min-width: 76px;
-  min-height: 28px;
+  min-width: 84px;
+  min-height: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.24rem 0.55rem;
+  padding: 0.3rem 0.6rem;
   border-radius: 8px;
-  font-size: 0.76rem;
+  font-size: 0.9rem;
   font-weight: 700;
   line-height: 1;
   white-space: nowrap;
@@ -479,9 +493,9 @@
 .act-btn {
   display: inline-flex;
   align-items: center;
-  padding: 0.25rem 0.55rem;
+  padding: 0.3rem 0.6rem;
   border-radius: 6px;
-  font-size: 0.72rem;
+  font-size: 0.86rem;
   font-weight: 800;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -547,20 +561,20 @@
 
 .mp-empty-state .material-symbols-outlined {
   color: #cbd5e1;
-  font-size: 2.25rem;
+  font-size: 2.67rem;
 }
 
 .mp-empty-state strong {
   color: #0f172a;
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 1.13rem;
 }
 
 .mp-empty-state p {
   max-width: 28rem;
   margin: 0;
   color: #94a3b8;
-  font-size: 0.85rem;
+  font-size: 1.01rem;
 }
 
 .mp-empty-cta {
@@ -577,7 +591,7 @@
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 1.07rem;
   box-shadow: 0 4px 16px rgba(5, 150, 105, 0.3);
   z-index: 2000;
   animation: toastSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -606,7 +620,7 @@
 
 :host ::ng-deep app-modal .modal-header h3 {
   color: #0f172a !important;
-  font-size: 1.12rem !important;
+  font-size: 1.33rem !important;
   font-weight: 800 !important;
 }
 
@@ -678,7 +692,7 @@
 .modal-head h2 {
   margin: 0;
   color: #0f172a;
-  font-size: 1.05rem;
+  font-size: 1.24rem;
   font-weight: 800;
 }
 
@@ -702,7 +716,7 @@
 }
 
 .modal-close-btn .material-symbols-outlined {
-  font-size: 1.25rem;
+  font-size: 1.49rem;
 }
 
 .modal-body {
@@ -712,7 +726,7 @@
 .modal-body p {
   margin: 0 0 0.35rem;
   color: #334155;
-  font-size: 0.92rem;
+  font-size: 1.09rem;
   line-height: 1.5;
 }
 
@@ -731,7 +745,7 @@
   border-radius: 8px;
   color: #a8041a;
   font-weight: 700;
-  font-size: 0.82rem;
+  font-size: 0.98rem;
   line-height: 1.4;
 }
 
@@ -743,7 +757,7 @@
   border-radius: 8px;
   color: #02596C;
   font-weight: 700;
-  font-size: 0.82rem;
+  font-size: 0.98rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -787,7 +801,7 @@
 }
 
 .mf-label {
-  font-size: 0.72rem;
+  font-size: 0.86rem;
   font-weight: 700;
   color: #475569;
   text-transform: uppercase;
@@ -805,7 +819,7 @@
   padding: 0.6rem 0.8rem;
   border: 1.5px solid rgba(15, 23, 42, 0.1);
   border-radius: 8px;
-  font-size: 0.9rem;
+  font-size: 1.07rem;
   background: #f8fafc;
   transition: all 0.2s ease;
   box-sizing: border-box;
@@ -820,7 +834,7 @@
 }
 
 .mf-err {
-  font-size: 0.72rem;
+  font-size: 0.86rem;
   font-weight: 600;
   color: #a8041a;
 }
@@ -831,7 +845,7 @@
   padding: 0.55rem 1.1rem;
   border-radius: 8px;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 1.01rem;
   color: #64748b;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -850,7 +864,7 @@
   padding: 0.55rem 1.25rem;
   border-radius: 8px;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 1.01rem;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 4px 10px rgba(243, 141, 0, 0.18);
@@ -877,7 +891,7 @@
   padding: 0.55rem 1.25rem;
   border-radius: 8px;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 1.01rem;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 4px 10px rgba(168, 4, 26, 0.18);
@@ -940,13 +954,13 @@
     width: 100%;
     min-width: 0;
     height: auto;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 1fr 1fr;
     grid-template-areas:
-      "product action"
-      "stock   status"
-      "cost    status"
-      "unit    status"
-      "expiry  count";
+      "product     product"
+      "cantidad    minimo"
+      "unidad      vencimiento"
+      "ingredientes costo"
+      "action      action";
     gap: 0.4rem 0.7rem;
     align-items: center;
     margin: 0.44rem 0;
@@ -964,19 +978,35 @@
 
   .mp-cell {
     padding: 0;
-    font-size: 0.84rem;
+    font-size: 1rem;
   }
 
-  .mp-cell:nth-child(1) { grid-area: product; }
-  .mp-cell:nth-child(2) { grid-area: stock; display: inline-flex; align-items: baseline; gap: 0.35rem; text-align: left; }
-  .mp-cell:nth-child(2)::before { content: "Cant."; color: #64748b; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; }
-  .mp-cell:nth-child(3) { grid-area: unit; color: #64748b; }
-  .mp-cell:nth-child(4) { grid-area: expiry; justify-self: start; }
-  .mp-cell:nth-child(5) { grid-area: count; justify-self: end; display: inline-flex; align-items: baseline; gap: 0.35rem; }
-  .mp-cell:nth-child(5)::before { content: "Ings."; color: #64748b; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; }
-  .mp-cell:nth-child(6) { grid-area: cost; display: inline-flex; align-items: baseline; gap: 0.35rem; text-align: left; }
-  .mp-cell:nth-child(6)::before { content: "Costo"; color: #64748b; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; }
-  .mp-cell:nth-child(7) { grid-area: action; justify-self: end; }
+  .product-cell { grid-area: product; }
+
+  .cantidad-cell,
+  .minimo-cell,
+  .unidad-cell,
+  .vencimiento-cell,
+  .ingredientes-cell,
+  .costo-cell {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    text-align: left;
+    justify-content: flex-start;
+  }
+
+  .cantidad-cell { grid-area: cantidad; }
+  .cantidad-cell::before { content: "Cant."; color: #64748b; font-size: 0.86rem; font-weight: 700; text-transform: uppercase; }
+  .minimo-cell { grid-area: minimo; }
+  .minimo-cell::before { content: "Mín."; color: #64748b; font-size: 0.86rem; font-weight: 700; text-transform: uppercase; }
+  .unidad-cell { grid-area: unidad; color: #64748b; }
+  .vencimiento-cell { grid-area: vencimiento; }
+  .ingredientes-cell { grid-area: ingredientes; }
+  .ingredientes-cell::before { content: "Ings."; color: #64748b; font-size: 0.86rem; font-weight: 700; text-transform: uppercase; }
+  .costo-cell { grid-area: costo; }
+  .costo-cell::before { content: "Costo"; color: #64748b; font-size: 0.86rem; font-weight: 700; text-transform: uppercase; }
+  .action-cell { grid-area: action; justify-self: stretch; }
 
   .product-cell strong {
     display: block;
@@ -984,7 +1014,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: 0.96rem;
+    font-size: 1.14rem;
   }
 
   .action-cell {
@@ -997,11 +1027,11 @@
     min-width: 68px;
     min-height: 26px;
     padding-inline: 0.58rem;
-    font-size: 0.72rem;
+    font-size: 0.86rem;
   }
 
   .act-btn {
     padding: 0.25rem 0.45rem;
-    font-size: 0.72rem;
+    font-size: 0.86rem;
   }
 }

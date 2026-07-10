@@ -20,7 +20,7 @@ export class PagoConfirmado {
   private comandaState = inject(ComandaState);
   private comandaHub = inject(ComandaHubService);
 
-  metodoPago = signal<'efectivo' | 'tarjeta' | 'transferencia' | null>(null);
+  metodoPago = signal<'efectivo' | 'tarjeta' | 'transferencia' | 'mercadopago' | null>(null);
   pagoExitoso = signal(true);
   error = signal(false);
 
@@ -35,7 +35,13 @@ export class PagoConfirmado {
         if(Number(modificada.estado)=== EstadoComandaId.Finalizada){
 
           this.comandaState.consultarEstado();
-        } 
+        }
+      }
+    });
+    effect(() => {
+      const rechazado = this.comandaHub.pagoRechazado();
+      if (rechazado) {
+        this.router.navigate(['/comensal/pago-checkout'], { queryParams: { error: 'mp' } });
       }
     });
   }
@@ -45,9 +51,10 @@ export class PagoConfirmado {
     const metodo = this.route.snapshot.queryParams['metodo'];
 
     if (status === 'approved') {
-      // pago con Mercado Pago ya confirmado: se puede calificar directamente
-      this.router.navigate(['/comensal/encuesta']);
-      return;
+      // MP redirige apenas termina el checkout, pero la confirmación real llega por webhook al backend
+      this.pagoExitoso.set(true);
+      this.metodoPago.set('mercadopago');
+      this.comandaState.consultarEstado();
     } else if (status === 'failure' || (status && status !== 'approved')) {
       this.pagoExitoso.set(false);
       this.error.set(true);
@@ -72,9 +79,21 @@ export class PagoConfirmado {
         return 'Se acercará a la brevedad a tu mesa para realizar el cobro con tarjeta.';
       case 'transferencia':
         return 'Confirmará la recepción de tu transferencia a la brevedad.';
+      case 'mercadopago':
+        return 'Estamos confirmando tu pago con Mercado Pago, esto puede tardar unos segundos.';
       default:
         return 'Se acercará a la brevedad a tu mesa para realizar el cobro en efectivo.';
     }
+  }
+
+  tituloEspera(): string {
+    return this.metodoPago() === 'mercadopago' ? 'Confirmando tu pago...' : '¡El mozo fue notificado!';
+  }
+
+  subtituloConfirmacionPendiente(): string {
+    return this.metodoPago() === 'mercadopago'
+      ? 'Podrás calificar tu experiencia en cuanto se confirme el pago.'
+      : 'Podrás calificar tu experiencia una vez que el pago sea confirmado por el mozo.';
   }
   ngOnDestroy(){
     this.comandaHub.desconectarEscucha();
@@ -82,7 +101,7 @@ export class PagoConfirmado {
 
   volverInicio(): void {
     this.comandaState.limpiarEstado();
-    this.router.navigate(['/comensal/escanear-mesa']);
+    this.router.navigate(['/comensal/escanear']);
   }
 
   puntuarPlatos(): void {

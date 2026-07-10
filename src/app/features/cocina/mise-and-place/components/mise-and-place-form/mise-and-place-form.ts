@@ -1,34 +1,33 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, OnDestroy, output, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { FormArray, FormBuilder, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
-import { Subscription } from 'rxjs';
+import { Buscador } from '../../../../../shared/ui/buscador/buscador';
 import { CrearMiseAndPlaceDto } from '../../../../../core/models/dtos/requests/mise-and-place.request';
-import { BodegaLightDto, CategoriaLightDto, IngredienteMiseAndPlaceResponseDto, MiseAndPlaceListadoDto, UnidadMedidaResponseDto } from '../../../../../core/models/dtos/responses/mise-and-place.response';
+import { CategoriaLightDto, IngredienteMiseAndPlaceResponseDto, MiseAndPlaceListadoDto, UnidadMedidaResponseDto } from '../../../../../core/models/dtos/responses/mise-and-place.response';
 
 @Component({
   selector: 'app-mise-and-place-form',
-  imports: [ReactiveFormsModule, DecimalPipe],
+  imports: [ReactiveFormsModule, DecimalPipe, Buscador],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './mise-and-place-form.html',
   styleUrl: './mise-and-place-form.css',
 })
-export class MiseAndPlaceForm implements OnDestroy {
+export class MiseAndPlaceForm {
   private fb = inject(FormBuilder);
-  private valueChangesSub: Subscription | null = null;
 
   categorias = input.required<CategoriaLightDto[]>();
   unidadesMedida = input.required<UnidadMedidaResponseDto[]>();
-  bodegas = input.required<BodegaLightDto[]>();
   ingredientes = input.required<IngredienteMiseAndPlaceResponseDto[]>();
   creando = input(false);
   editarItem = input<MiseAndPlaceListadoDto | null>(null);
+  errorGuardar = input<string | null>(null);
 
   guardar = output<CrearMiseAndPlaceDto>();
   cancelar = output<void>();
 
   submitted = signal(false);
   errorDuplicado = signal<string | null>(null);
-  mostrarAyudaRendimiento = signal(false);
+  busqueda = signal('');
 
   #arrayMinLength(min: number) {
     return (array: AbstractControl): ValidationErrors | null => {
@@ -40,12 +39,10 @@ export class MiseAndPlaceForm implements OnDestroy {
   form = this.fb.group({
     nombre: ['', Validators.required],
     descripcion: [''],
-    cantidad: [null as number | null, [Validators.required, Validators.min(0.01)]],
-    rendimientoBase: [null as number | null, [Validators.required, Validators.min(0.01)]],
-    fechaVencimiento: ['', Validators.required],
     unidadMedidaId: [null as number | null, Validators.required],
     categoriaId: [null as number | null, Validators.required],
-    bodegaId: [null as number | null, Validators.required],
+    stockMinimo: [0, [Validators.min(0)]],
+    stockRecomendado: [0, [Validators.min(0)]],
     ingredientes: this.fb.array([], [this.#arrayMinLength(1)]),
   });
 
@@ -54,21 +51,10 @@ export class MiseAndPlaceForm implements OnDestroy {
   }
 
   constructor() {
-    this.valueChangesSub = this.ingredientesArray.valueChanges.subscribe(() => {
-      const calc = this.rendimientoCalculado;
-      if (calc !== null) {
-        this.form.get('rendimientoBase')?.setValue(calc, { emitEvent: false });
-      }
-    });
-
     effect(() => {
       const item = this.editarItem();
       untracked(() => this.#poblarFormulario(item));
     });
-  }
-
-  ngOnDestroy(): void {
-    this.valueChangesSub?.unsubscribe();
   }
 
   #poblarFormulario(item: MiseAndPlaceListadoDto | null | undefined): void {
@@ -78,70 +64,21 @@ export class MiseAndPlaceForm implements OnDestroy {
     this.ingredientesArray.clear();
 
     if (item) {
-      this.form.get('cantidad')?.clearValidators();
-      this.form.get('cantidad')?.updateValueAndValidity();
-
       this.form.patchValue({
         nombre: item.nombre,
         descripcion: item.descripcion,
-        cantidad: 0,
-        rendimientoBase: item.rendimientoBase ?? 1,
-        fechaVencimiento: item.fechaVencimiento ?? '',
         unidadMedidaId: this.#buscarId(item.unidadMedida, this.unidadesMedida()),
         categoriaId: this.#buscarId(item.categoria, this.categorias()),
-        bodegaId: this.#buscarId(item.bodega, this.bodegas()),
+        stockMinimo: item.stockMinimo ?? 0,
+        stockRecomendado: item.stockRecomendado ?? 0,
       });
 
       for (const ing of item.receta) {
         this.agregarFila(ing.ingredienteId, ing.cantidad);
       }
     } else {
-      this.agregarFila();
-      this.form.get('rendimientoBase')?.setValue(1);
+      this.form.patchValue({ stockMinimo: 0, stockRecomendado: 0 });
     }
-  }
-
-  get rendimientoCalculado() {
-    const grupos = this.ingredientesArray.controls;
-    let total = 0;
-    for (const g of grupos) {
-      const val = g.get('cantidad')?.value;
-      if (val && !isNaN(val)) total += Number(val);
-    }
-    return total > 0 ? total : null;
-  }
-
-  get tandas() {
-    const cant = this.form.get('cantidad')?.value;
-    const rend = this.form.get('rendimientoBase')?.value;
-    if (!cant || !rend || rend <= 0) return null;
-    return cant / rend;
-  }
-
-  get consumoPreview(): { nombre: string; porTanda: number; total: number; um: string }[] {
-    const tandasVal = this.tandas;
-    if (!tandasVal) return [];
-
-    const grupos = this.ingredientesArray.controls;
-    const result: { nombre: string; porTanda: number; total: number; um: string }[] = [];
-
-    for (const g of grupos) {
-      const id = g.get('ingredienteId')?.value;
-      const cantPorTanda = g.get('cantidad')?.value;
-      if (!id || !cantPorTanda) continue;
-
-      const info = this.infoIngrediente(id);
-      if (!info) continue;
-
-      result.push({
-        nombre: info.nombre,
-        porTanda: Number(cantPorTanda),
-        total: Number(cantPorTanda) * tandasVal,
-        um: info.unidadMedida,
-      });
-    }
-
-    return result;
   }
 
   #buscarId(valor: string, lista: { id: number; nombre?: string; descripcion?: string }[]): number | null {
@@ -167,12 +104,26 @@ export class MiseAndPlaceForm implements OnDestroy {
     return this.ingredientes().find(i => i.id === id);
   }
 
-  ingredientesDisponiblesParaFila(index: number): IngredienteMiseAndPlaceResponseDto[] {
+  onSearchChanged(value: string): void {
+    this.busqueda.set(value);
+  }
+
+  sugerencias(): IngredienteMiseAndPlaceResponseDto[] {
+    const query = this.busqueda().toLowerCase().trim();
+    if (!query) return [];
+
     const seleccionados = this.ingredientesArray.controls
-      .map((c, i) => i !== index ? c.get('ingredienteId')?.value : null)
+      .map(c => c.get('ingredienteId')?.value)
       .filter(v => v != null);
 
-    return this.ingredientes().filter(ing => !seleccionados.includes(ing.id));
+    return this.ingredientes().filter(ing =>
+      ing.nombre.toLowerCase().includes(query) && !seleccionados.includes(ing.id)
+    );
+  }
+
+  agregarIngrediente(ing: IngredienteMiseAndPlaceResponseDto): void {
+    this.agregarFila(ing.id);
+    this.busqueda.set('');
   }
 
   onSubmit(): void {

@@ -59,7 +59,7 @@ export class Encuesta {
   }
   irAlInicio():void { 
     this.#comandaState.limpiarEstado();
-    this.#router.navigate(['/comensal/escanear-mesa']);
+    this.#router.navigate(['/comensal/escanear']);
   }
   abrirResena(): void { 
     const link = this.linkResena();

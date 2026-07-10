@@ -1,10 +1,10 @@
 import { Component, computed, inject, OnInit, signal, viewChild } from '@angular/core';
-import { Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { MiseAndPlaceState } from '../../services/mise-and-place-state';
-import { CrearMiseAndPlaceDto, ModificarMiseAndPlaceDto, ProducirMiseAndPlaceDto } from '../../../../../core/models/dtos/requests/mise-and-place.request';
+import { CrearMiseAndPlaceDto, ProducirMiseAndPlaceDto } from '../../../../../core/models/dtos/requests/mise-and-place.request';
 import { MiseAndPlaceForm } from '../../components/mise-and-place-form/mise-and-place-form';
+import { MiseAndPlaceOffcanvas } from '../../components/mise-and-place-offcanvas/mise-and-place-offcanvas';
 import { MiseAndPlaceListadoDto } from '../../../../../core/models/dtos/responses/mise-and-place.response';
 import { PageToolbar } from '../../../../../shared/ui/page-toolbar/page-toolbar';
 import { Buscador } from '../../../../../shared/ui/buscador/buscador';
@@ -15,19 +15,19 @@ type FiltroEstado = 'todos' | 'por-vencer' | 'proximo' | 'sin-fecha';
 
 @Component({
   selector: 'app-list-page',
-  imports: [MiseAndPlaceForm, ReactiveFormsModule, DatePipe, DecimalPipe, PageToolbar, Buscador, Modal, UnidadNormalizadaPipe],
+  imports: [MiseAndPlaceForm, MiseAndPlaceOffcanvas, ReactiveFormsModule, DatePipe, DecimalPipe, PageToolbar, Buscador, Modal, UnidadNormalizadaPipe],
   templateUrl: './list-page.html',
   styleUrl: './list-page.css',
 })
 export class ListPage implements OnInit {
   state = inject(MiseAndPlaceState);
-  private router = inject(Router);
   private fb = inject(FormBuilder);
 
   modalFormulario = viewChild.required<Modal>('modalFormulario');
-  editandoItem = signal<MiseAndPlaceListadoDto | null>(null);
   guardando = signal(false);
   errorGuardar = signal<string | null>(null);
+
+  itemSeleccionado = signal<MiseAndPlaceListadoDto | null>(null);
 
   termino = signal('');
   estadoFiltro = signal<FiltroEstado>('todos');
@@ -98,12 +98,16 @@ export class ListPage implements OnInit {
     this.state.cargarListado();
   }
 
-  irADetalle(loteId: number): void {
-    this.router.navigate(['/staff/cocina/mise-and-place', loteId]);
+  abrirOffcanvas(item: MiseAndPlaceListadoDto): void {
+    this.state.cargarFormData();
+    this.itemSeleccionado.set(item);
+  }
+
+  cerrarOffcanvas(): void {
+    this.itemSeleccionado.set(null);
   }
 
   abrirModal(): void {
-    this.editandoItem.set(null);
     this.errorGuardar.set(null);
     this.guardando.set(false);
     this.state.cargarFormData();
@@ -112,54 +116,22 @@ export class ListPage implements OnInit {
 
   cerrarModal(): void {
     this.modalFormulario().cerrar();
-    this.editandoItem.set(null);
     this.guardando.set(false);
     this.errorGuardar.set(null);
-  }
-
-  onEditar(item: MiseAndPlaceListadoDto): void {
-    this.editandoItem.set(item);
-    this.errorGuardar.set(null);
-    this.guardando.set(false);
-    this.state.cargarFormData();
-    this.modalFormulario().abrir();
   }
 
   onGuardar(dto: CrearMiseAndPlaceDto): void {
     this.errorGuardar.set(null);
     this.guardando.set(true);
 
-    const editando = this.editandoItem();
-    if (editando) {
-      const modDto: ModificarMiseAndPlaceDto = {
-        loteId: editando.loteId,
-        nombre: dto.nombre,
-        descripcion: dto.descripcion,
-        rendimientoBase: dto.rendimientoBase,
-        fechaVencimiento: dto.fechaVencimiento,
-        unidadMedidaId: dto.unidadMedidaId,
-        categoriaId: dto.categoriaId,
-        bodegaId: dto.bodegaId,
-        ingredientes: dto.ingredientes,
-      };
-      this.state.modificar(editando.miseAndPlaceId, modDto, (error) => {
-        if (error) {
-          this.errorGuardar.set(error);
-          this.guardando.set(false);
-        } else {
-          this.cerrarModal();
-        }
-      });
-    } else {
-      this.state.crear(dto, (error) => {
-        if (error) {
-          this.errorGuardar.set(error);
-          this.guardando.set(false);
-        } else {
-          this.cerrarModal();
-        }
-      });
-    }
+    this.state.crear(dto, (error) => {
+      if (error) {
+        this.errorGuardar.set(error);
+        this.guardando.set(false);
+      } else {
+        this.cerrarModal();
+      }
+    });
   }
 
   abrirModalEliminar(item: MiseAndPlaceListadoDto): void {
