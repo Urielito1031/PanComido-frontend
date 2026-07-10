@@ -43,6 +43,15 @@ export class EstadoFila implements OnInit {
       if (mesaLista) {
         this.router.navigate(['/comensal/mesa-lista']);
       }
+      
+      const msgExp = this.state.turnoExpirado();
+      if (msgExp) {
+        alert("Turno Expirado\n\n" + msgExp);
+        sessionStorage.removeItem('filaVirtualTurnoId');
+        sessionStorage.removeItem('filaVirtualEstado');
+        this.state.turnoExpirado.set(null);
+        this.router.navigate(['/comensal/anotarse-fila/1']);
+      }
     });
   }
 
