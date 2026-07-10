@@ -5,6 +5,11 @@
     <a style="color: #16a34a; font-weight: bold; cursor: pointer; text-decoration: underline;" (click)="volverACarta()">
       Volver a la carta
     </a>
+    @if (esMozo()) {
+    <a style="color: #16a34a; font-weight: bold; cursor: pointer; text-decoration: underline; margin-left: 1rem;" (click)="volverAMesas()">
+      Volver a mesas
+    </a>
+    }
   </div>
 
   @if (!comandaState.tieneComandaActiva() && !filaVirtualState.turnoId()) {

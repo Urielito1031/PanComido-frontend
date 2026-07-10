@@ -42,6 +42,7 @@ export class CrearPlatoFormComponent {
   datosIniciales = input<Partial<PlatoFormData>>({});
   hayCantidadesInvalidas = input<boolean>(false);
   error = input<string | null>(null);
+  ocultarPrecios = input<boolean>(false);
 
   // Outputs
   guardar = output<PlatoFormData>();
@@ -67,6 +68,21 @@ export class CrearPlatoFormComponent {
     }
     return null;
   }
+
+  private readonly sincronizarValidadoresPrecios = effect(() => {
+    const costoControl = this.platoForm.controls.costo;
+    const precioVentaControl = this.platoForm.controls.precioVenta;
+
+    if (this.ocultarPrecios()) {
+      costoControl.clearValidators();
+      precioVentaControl.clearValidators();
+    } else {
+      costoControl.setValidators([Validators.required, Validators.min(0.01)]);
+      precioVentaControl.setValidators([Validators.required, Validators.min(0.01)]);
+    }
+    costoControl.updateValueAndValidity({ emitEvent: false });
+    precioVentaControl.updateValueAndValidity({ emitEvent: false });
+  });
 
   private readonly sincronizarCostoAutocalculado = effect(() => {
     const costo = this.costoSugerido();

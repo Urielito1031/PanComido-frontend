@@ -489,7 +489,7 @@
 
 .quantity-presets {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: 0.35rem;
 }
 
@@ -1037,13 +1037,15 @@
 }
 
 ::ng-deep .btn-recibir-pedido .btn-teal {
-  background-color: #f59e0b;
-  border-color: #f59e0b;
+  background-color: #f59e0b !important;
+  border-color: #f59e0b !important;
+  color: #ffffff !important;
 }
 
 ::ng-deep .btn-recibir-pedido .btn-teal:hover:not(:disabled) {
-  background-color: #d97706;
-  border-color: #d97706;
+  background-color: #d97706 !important;
+  border-color: #d97706 !important;
+  color: #ffffff !important;
 }
 
 ::ng-deep .btn-agregar-insumos .btn-outline {

@@ -40,12 +40,14 @@
   </div>
 
   <div class="d-flex flex-column gap-2 mt-auto">
+    <app-boton label="Ver carta / agregar pedido" variante="teal" tamanio="md" class="w-100" (clicked)="verCarta.emit()" />
+
     <span class="text-muted fw-medium" style="font-size: 0.85rem;">Cobrar pedido con:</span>
     <div class="d-flex gap-2">
-      <app-boton label="Efectivo" variante="success" tamanio="sm" class="flex-fill" (clicked)="cobrar.emit(metodoPagoId.Efectivo)" />
-      <app-boton label="Tarjeta" variante="primary" tamanio="sm" class="flex-fill" (clicked)="cobrar.emit(metodoPagoId.Tarjeta)" />
-      <app-boton label="Transferencia" variante="teal" tamanio="sm" class="flex-fill" (clicked)="cobrar.emit(metodoPagoId.Transferencia)" />
+      <app-boton label="Efectivo" variante="orange" tamanio="sm" class="flex-fill" (clicked)="cobrar.emit(metodoPagoId.Efectivo)" />
+      <app-boton label="Tarjeta" variante="orange" tamanio="sm" class="flex-fill" (clicked)="cobrar.emit(metodoPagoId.Tarjeta)" />
+      <app-boton label="Transferencia" variante="orange" tamanio="sm" class="flex-fill" (clicked)="cobrar.emit(metodoPagoId.Transferencia)" />
     </div>
-    <button type="button" class="btn btn-outline-info w-100 py-2 rounded" (click)="cerrarMesa.emit()">Cerrar mesa</button>
+    <app-boton label="Cerrar mesa" variante="danger" tamanio="md" class="w-100" (clicked)="cerrarMesa.emit()" />
   </div>
 </div>

@@ -95,6 +95,17 @@
   width: 100%;
 }
 
+.btn-orange {
+  background-color: var(--primary-orange, #f08f1a);
+  border-color: var(--primary-orange, #f08f1a);
+  color: white;
+}
+
+.btn-orange:hover:not(:disabled) {
+  background-color: #d67d0f;
+  border-color: #d67d0f;
+}
+
 .btn-outline {
   background-color: #ffffff;
   border: 1px solid var(--gray-300, #d1d5db);

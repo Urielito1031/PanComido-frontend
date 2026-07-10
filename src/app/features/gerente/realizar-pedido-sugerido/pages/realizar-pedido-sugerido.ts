@@ -94,10 +94,6 @@ export class RealizarPedidoSugeridoComponent implements OnInit {
     this.state.onCantidadCambiada(proveedorId, item, val);
   }
 
-  onPrecioCambiado(proveedorId: string | number, item: SugerenciaPedidoItem, val: number | null): void {
-    this.state.onPrecioCambiado(proveedorId, item, val);
-  }
-
   nombreUnidad(unidadMedida: UnidadMedida | string | null | undefined): string {
     if (!unidadMedida) return '';
     return typeof unidadMedida === 'string' ? unidadMedida : unidadMedida.nombre;
@@ -109,14 +105,6 @@ export class RealizarPedidoSugeridoComponent implements OnInit {
 
   totalEstimado(): number {
     return this.proveedoresFiltrados().reduce((total, proveedor) => total + this.montoProveedor(proveedor.id), 0);
-  }
-
-  pedidosListos(): number {
-    return this.proveedoresFiltrados().filter(proveedor => this.itemsProveedor(proveedor.id).length > 0).length;
-  }
-
-  proveedoresAltaPrioridad(): number {
-    return this.proveedoresFiltrados().filter(proveedor => this.prioridadProveedor(proveedor.id).tone === 'danger').length;
   }
 
   prioridadProveedor(proveedorId: string | number): { label: string; tone: 'danger' | 'warning' | 'success'; detail: string } {
@@ -153,7 +141,7 @@ export class RealizarPedidoSugeridoComponent implements OnInit {
     const criticos = items.filter(item => this.itemEsCritico(item)).length;
 
     if (criticos > 0 && historicos > 0) {
-      return `Reposicion prioriza ${criticos} critico${criticos === 1 ? '' : 's'} y reconoce ${historicos} compra${historicos === 1 ? '' : 's'} habitual${historicos === 1 ? '' : 'es'}.`;
+      return `Reposición  prioriza ${criticos} crítico${criticos === 1 ? '' : 's'} y reconoce ${historicos} compra${historicos === 1 ? '' : 's'} habitual${historicos === 1 ? '' : 'es'}.`;
     }
 
     if (criticos > 0) return `Reposicion detecto ${criticos} insumo${criticos === 1 ? '' : 's'} con stock critico.`;
@@ -169,14 +157,8 @@ export class RealizarPedidoSugeridoComponent implements OnInit {
       return motivos;
     }
 
-    if (this.itemEsCritico(item)) {
-      motivos.push({ label: 'Stock critico', tone: 'danger' });
-    } else if (this.itemBajoMinimo(item)) {
+    if (this.itemBajoMinimo(item)) {
       motivos.push({ label: 'Bajo minimo', tone: 'warning' });
-    }
-
-    if (this.tieneHistorialProveedor(proveedorId, item.productoId)) {
-      motivos.push({ label: 'Compra habitual', tone: 'success' });
     }
 
     if (motivos.length === 0) motivos.push({ label: 'Sugerido por stock', tone: 'neutral' });
@@ -199,7 +181,7 @@ export class RealizarPedidoSugeridoComponent implements OnInit {
     return original !== null && Math.abs(original - item.cantidadSugerida) > 0.0001;
   }
 
-  private itemEsCritico(item: SugerenciaPedidoItem): boolean {
+  itemEsCritico(item: SugerenciaPedidoItem): boolean {
     return item.estadoStock?.toLowerCase().includes('crit') || item.stockActual <= 0;
   }
 

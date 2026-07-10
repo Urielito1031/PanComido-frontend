@@ -54,20 +54,26 @@
           [step]="cantidadPaso"
           [placeholder]="cantidadPlaceholder"
           (input)="onCantidadChange($event)">
+        @if (presetsCantidad().length > 0) {
+          <div class="quantity-presets" aria-label="Accesos rápidos de cantidad">
+            @for (preset of presetsCantidad(); track preset.label) {
+              <button
+                type="button"
+                class="quantity-preset"
+                [class.smart]="preset.source === 'history'"
+                [title]="preset.source === 'history' ? 'Cantidad frecuente para este proveedor e insumo' : 'Cantidad base sugerida'"
+                (click)="sumarCantidadPreset(preset.value)">
+                {{ preset.label }}
+                @if (preset.source === 'history') {
+                  <span class="preset-dot"></span>
+                }
+              </button>
+            }
+          </div>
+        }
         @if (equivalenciaCantidad(); as equivalencia) {
           <strong class="quantity-equivalence">{{ equivalencia }}</strong>
         }
-      </label>
-
-      <label>
-        <span>Precio c/u</span>
-        <input
-          type="number"
-          class="form-control"
-          min="0"
-          placeholder="0"
-          [value]="precio() ?? ''"
-          (input)="onPrecioChange($event)">
       </label>
     </div>
   } @else {

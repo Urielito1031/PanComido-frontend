@@ -7,6 +7,7 @@ import { DetalleRecetaComponent } from '../../../../shared/components/detalle-re
 import { CrearPlatoFormComponent, PlatoFormData } from '../components/crear-plato-form/crear-plato-form';
 import { RecetaIngrediente } from '../../../../core/models/domain/plato';
 import { CrearPlatoState } from '../services/crear-plato.state';
+import { AuthService } from '../../../../core/services/auth.service';
 
 interface PlatoIAState {
   desde_ia: boolean;
@@ -28,6 +29,9 @@ export class CrearPlatoPage {
   private readonly router = inject(Router);
   private readonly location = inject(Location);
   private readonly state = inject(CrearPlatoState);
+  private readonly auth = inject(AuthService);
+
+  readonly esCocina = computed(() => this.auth.rol() === 'Cocina');
 
   visible = this.state.visible;
   previsualizarImagen = this.state.previsualizacionImagen;
@@ -54,6 +58,9 @@ export class CrearPlatoPage {
 
   constructor() {
     this.state.resetFormulario();
+    if (this.esCocina()) {
+      this.state.visible.set(false);
+    }
     this.state.cargarDatosFormulario();
 
     const navState = this.location.getState() as PlatoIAState | null;

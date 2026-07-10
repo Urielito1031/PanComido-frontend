@@ -20,6 +20,7 @@
     }
   </div>
 
+  @if (!ocultarPrecios()) {
   <!-- Costo, Ganancia & Venta -->
   <div class="row g-3 mb-3">
     <div class="col-4">
@@ -63,31 +64,31 @@
     <strong>Advertencia comercial:</strong> El precio de venta es menor o igual al costo de preparación del plato.
   </div>
   }
+  }
 
-  <!-- Tiempo de preparación -->
-  <div class="mb-3">
-    <label class="form-label font-bold">Tiempo de preparación <strong class="field-required">*</strong></label>
-    <div class="input-group prep-time-group">
-      <span class="input-group-text">
-        <span class="material-symbols-outlined text-muted">schedule</span>
-      </span>
-      <input type="number" class="form-control custom-input border-start-0"
-        [class.is-invalid]="platoForm.get('tiempoPreparacion')?.touched && platoForm.get('tiempoPreparacion')?.invalid"
-        formControlName="tiempoPreparacion">
-      <span class="input-group-text bg-white border-start-0 text-muted">minutos</span>
-    </div>
-    @if (tiempoPreparacionLegible()) {
-    <span class="time-readable-hint">{{ tiempoPreparacionLegible() }}</span>
-    }
-    @if (platoForm.get('tiempoPreparacion')?.touched && platoForm.get('tiempoPreparacion')?.hasError('min')) {
-    <span class="error-text">Debe ser al menos 1 minuto.</span>
-    }
-  </div>
-
-  <!-- Tipo y categoría -->
+  <!-- Tiempo de preparación, tipo y categoría -->
   <div class="row g-3 mb-3">
-    <div class="col-6">
-      <label class="form-label font-bold">Tipo de plato <strong class="field-required">*</strong></label>
+    <div class="col-5">
+      <label class="form-label font-bold prep-time-label">Tiempo de preparación <strong class="field-required">*</strong></label>
+      <div class="input-group prep-time-group">
+        <span class="input-group-text">
+          <span class="material-symbols-outlined text-muted">schedule</span>
+        </span>
+        <input type="number" class="form-control custom-input border-start-0"
+          [class.is-invalid]="platoForm.get('tiempoPreparacion')?.touched && platoForm.get('tiempoPreparacion')?.invalid"
+          formControlName="tiempoPreparacion">
+        <span class="input-group-text bg-white border-start-0 text-muted">minutos</span>
+      </div>
+      @if (tiempoPreparacionLegible()) {
+      <span class="time-readable-hint">{{ tiempoPreparacionLegible() }}</span>
+      }
+      @if (platoForm.get('tiempoPreparacion')?.touched && platoForm.get('tiempoPreparacion')?.hasError('min')) {
+      <span class="error-text">Debe ser al menos 1 minuto.</span>
+      }
+    </div>
+
+    <div class="col-4">
+      <label class="form-label font-bold nowrap-label">Tipo de plato <strong class="field-required">*</strong></label>
       <div class="select-wrapper">
         <select class="form-select custom-input"
           [class.is-invalid]="platoForm.get('tipoPlatoId')?.touched && platoForm.get('tipoPlatoId')?.invalid"
@@ -103,8 +104,8 @@
       }
     </div>
 
-    <div class="col-6">
-      <label class="form-label font-bold">Categoría <strong class="field-required">*</strong></label>
+    <div class="col-3">
+      <label class="form-label font-bold nowrap-label">Categoría <strong class="field-required">*</strong></label>
       <div class="select-wrapper">
         <select class="form-select custom-input"
           [class.is-invalid]="platoForm.get('categoriaPlatoId')?.touched && platoForm.get('categoriaPlatoId')?.invalid"

@@ -1,5 +1,6 @@
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Observable, tap, catchError, throwError } from 'rxjs';
 import { EstadoMesa, Mesa, MesaOcupar } from '../../../core/models/domain/mesa';
 import { MesaService } from '../services/mesa.service';
 import { SignalRConexionService } from '../../../core/services/hubs/base-hub-service';
@@ -83,15 +84,19 @@ export class MesaLecturaState {
   seleccionarMesa(id: number | null): void {
     this.#mesaSeleccionada.update(actual => actual === id ? null : id);
   }
-  ocuparMesa(mesaId:number,cantidadComensales:number):void{
-    this.api.ocuparMesa(mesaId, cantidadComensales).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (response: MesaOcupar) => {
+  ocuparMesa(mesaId: number, cantidadComensales: number): Observable<MesaOcupar> {
+    return this.api.ocuparMesa(mesaId, cantidadComensales).pipe(
+      tap((response: MesaOcupar) => {
         this.#mesas.update(mesas => mesas.map(m => m.id === mesaId ? response.mesa : m));
         this.#mesaSeleccionada.set(null);
         this.mostrarNotificacion('Mesa ocupada exitosamente', 'exito');
-      },
-      error: () => this.mostrarNotificacion('Error al ocupar la mesa', 'error')
-    });
+      }),
+      catchError(err => {
+        this.mostrarNotificacion('Error al ocupar la mesa', 'error');
+        return throwError(() => err);
+      }),
+      takeUntilDestroyed(this.destroyRef)
+    );
   }
 
   cambiarEstadoMesa(id: number, nuevoEstado: EstadoMesa): void {

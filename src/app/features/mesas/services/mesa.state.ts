@@ -23,7 +23,7 @@ export class MesaState {
   // Métodos que delega a MesaLecturaState
   cargarMesas(): void { this.lectura.cargarMesas(); }
   seleccionarMesa(id: number | null): void { this.lectura.seleccionarMesa(id); }
-  ocuparMesa(mesaId: number, comensales: number): void { this.lectura.ocuparMesa(mesaId, comensales); }
+  ocuparMesa(mesaId: number, comensales: number): void { this.lectura.ocuparMesa(mesaId, comensales).subscribe(); }
   cambiarEstadoMesa(id: number, estado: EstadoMesa): void { this.lectura.cambiarEstadoMesa(id, estado); }
   mostrarNotificacion(mensaje: string, tipo: 'exito' | 'error' | 'info'): void { this.lectura.mostrarNotificacion(mensaje, tipo); }
 

@@ -679,6 +679,107 @@
   margin-top: 0.5rem;
 }
 
+/* ─── Bodegas: acordeón ─── */
+.bodegas-accordion-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0 1rem 1rem;
+}
+
+.bodega-accordion {
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 8px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.bodega-accordion-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0.9rem;
+  cursor: pointer;
+  list-style: none;
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 0.92rem;
+  user-select: none;
+}
+
+.bodega-accordion-summary::-webkit-details-marker {
+  display: none;
+}
+
+.bodega-accordion-summary .bodega-icon {
+  color: #02596C;
+  font-size: 1.2rem;
+}
+
+.bodega-nombre {
+  margin-right: 2px;
+}
+
+.bodega-accordion-actions {
+  display: inline-flex;
+  gap: 0.35rem;
+  margin-left: auto;
+}
+
+.bodega-accordion-actions button {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 8px;
+  background: #ffffff;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.bodega-accordion-actions button .material-symbols-outlined {
+  font-size: 1.1rem;
+}
+
+.bodega-accordion-actions button:hover {
+  background: #1691ac;
+  border-color: #1691ac;
+  color: #ffffff;
+}
+
+.bodega-accordion-actions button:last-child {
+  border-color: rgba(188, 0, 18, 0.2);
+  color: #bc0012;
+}
+
+.bodega-accordion-actions button:last-child:hover {
+  background: #bc0012;
+  border-color: #bc0012;
+  color: #ffffff;
+}
+
+.bodega-chevron {
+  color: #64748b;
+  transition: transform 0.2s ease;
+}
+
+.bodega-accordion[open] .bodega-chevron {
+  transform: rotate(180deg);
+}
+
+.bodega-accordion[open] .bodega-accordion-summary {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.bodega-empty-state {
+  min-height: auto;
+  margin: 0;
+  border: none;
+  padding: 1.25rem;
+}
+
 /* ─── Categorías Pills ─── */
 .categoria-pills-container {
   display: flex;
@@ -690,26 +791,12 @@
   margin-bottom: 0.75rem;
 }
 
-.categoria-pills-container.colapsado {
-  padding-bottom: 0.5rem;
-}
-
 .categoria-pills-header {
   display: flex;
   align-items: center;
   width: 100%;
-  border: none;
-  background: transparent;
-  padding: 0;
-  cursor: pointer;
   color: #334155;
-  outline: none;
   user-select: none;
-  font-family: inherit;
-}
-
-.categoria-pills-header:hover {
-  color: #02596C;
 }
 
 .categoria-pills-header .header-icon {
@@ -735,20 +822,6 @@
   margin-left: 10px;
 }
 
-.categoria-pills-header .spacer {
-  flex-grow: 1;
-}
-
-.categoria-pills-header .chevron-icon {
-  font-size: 1.4rem;
-  color: #64748b;
-  transition: color 0.15s ease;
-}
-
-.categoria-pills-header:hover .chevron-icon {
-  color: #02596C;
-}
-
 .categoria-pills-bar {
   display: flex;
   flex-wrap: wrap;
@@ -762,10 +835,10 @@
   align-items: center;
   gap: 6px;
   padding: 6px 13px;
-  background: #f1f5f9;
-  border: 1.5px solid transparent;
+  background: #ffffff;
+  border: 1.5px solid #02596C;
   border-radius: 8px;
-  color: #475569;
+  color: #02596C;
   font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
@@ -776,18 +849,19 @@
 }
 
 .categoria-pill:hover {
-  background: #e2e8f0;
-  color: #0f172a;
+  background: rgba(2, 89, 108, 0.08);
+  color: #02596C;
 }
 
 .categoria-pill.activa {
   background: #02596C;
-  border-color: transparent;
+  border-color: #02596C;
   color: #ffffff;
 }
 
 .categoria-pill.activa:hover {
   background: #014352;
+  border-color: #014352;
 }
 
 /* State alert pills - preserved */
@@ -814,7 +888,6 @@
 
 .pill-alerta-dot.critico { background: #a8041a; }
 .pill-alerta-dot.bajo    { background: #b8860b; }
-.pill-alerta-dot.ok      { background: #15803d; }
 
 .pill-alerta-dot.pulse {
   animation: dotPulse 2s infinite;

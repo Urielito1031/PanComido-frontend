@@ -139,7 +139,7 @@
               label="Recibir pedido"
               variante="teal"
               tamanio="sm"
-              (clicked)="mostrarHistorial(proveedor)">
+              (clicked)="previsualizarRecepcion($event, pedidosListosParaRecibir()[0])">
             </app-boton>
           </div>
         }
@@ -665,4 +665,6 @@
       </div>
     </div>
   }
+
+  <app-recepcion-pedido-modal />
 </div>

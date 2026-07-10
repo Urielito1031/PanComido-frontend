@@ -46,12 +46,14 @@
   font-weight: 600;
 }
 
-.prep-time-group {
-  max-width: 300px;
+.prep-time-group .custom-input {
+  min-width: 60px;
+  flex: 1 1 auto;
 }
 
-.prep-time-group .custom-input {
-  max-width: 92px;
+.prep-time-label,
+.nowrap-label {
+  white-space: nowrap;
 }
 
 .time-readable-hint {

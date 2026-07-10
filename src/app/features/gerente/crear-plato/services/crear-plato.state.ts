@@ -131,6 +131,12 @@ export class CrearPlatoState {
          console.error('Falta seleccionar la imagen del plato');
          return;
         }
+
+        if (this.receta().length === 0) {
+          this.#error.set('El plato debe tener al menos un ingrediente.');
+          return;
+        }
+
         this.#loading.set(true);
         this.#error.set(null);
 

@@ -1,4 +1,4 @@
-import { Component, HostListener, inject, signal, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
+import { Component, HostListener, inject, signal, computed, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { Buscador } from '../../../../../app/shared/ui/buscador/buscador';
 import { ListaPlatosComensalComponent } from '../components/lista-platos-comensal/lista-platos-comensal';
 import { PedidoState } from '../../services/pedido.state';
@@ -12,6 +12,7 @@ import { ComensalState } from '../../services/comensal-state';
 import { QRCodeComponent } from 'angularx-qrcode';
 import { Router } from '@angular/router';
 import { FilaVirtualState } from '../../services/fila-virtual.state';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -35,6 +36,9 @@ export class VerCarta implements OnDestroy {
   comensalState = inject(ComensalState);
   configuracionVisualState = inject(ConfiguracionVisualState);
   filaVirtualState = inject(FilaVirtualState);
+  private auth = inject(AuthService);
+
+  esMozo = computed(() => this.auth.rol() === 'Mozo');
 
   mostrarFiltros = signal(false);
   mesaId = signal(1);
@@ -141,6 +145,10 @@ export class VerCarta implements OnDestroy {
 
   irAEstadoFila() {
     this.router.navigate(['/comensal/estado-fila']);
+  }
+
+  volverAMesas(): void {
+    this.router.navigateByUrl('/staff/mozo/mis-mesas');
   }
 
   agregarAlPedido(item: ItemPedido): void {

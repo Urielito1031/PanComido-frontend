@@ -21,4 +21,5 @@ export class ComandaDetalleUiComponent {
   cerrar = output<void>();
   cobrar = output<MetodoPagoId>();
   cerrarMesa = output<void>();
+  verCarta = output<void>();
 }
