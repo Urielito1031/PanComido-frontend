@@ -21,13 +21,13 @@ describe('ScanQr', () => {
       // simulamos lectura de QR
       setTimeout(() => {
         cb({
-          getText: () => '15'
+          getText: () => 'http://localhost:4200/comensal/mesa/1/15'
         });
       }, 0);
 
-      return {
+      return Promise.resolve({
         stop: stopMock
-      };
+      });
     });
 
     vi.spyOn(BrowserMultiFormatReader, 'listVideoInputDevices')
