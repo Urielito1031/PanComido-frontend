@@ -36,7 +36,6 @@ Thumbs.db
 
 AGENTS.md
 
-.github/workflows
 docs/
 !docs/
 !docs/manual-implementacion.md

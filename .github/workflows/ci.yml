@@ -1,0 +1,66 @@
+name: prueba-ci
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  # ==========================================
+  # JOB 1: FRONTEND (Angular)
+  # ==========================================
+  frontend-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' 
+          cache: 'npm' # Optimización de caché nativa de GitHub
+          cache-dependency-path: './package-lock.json'
+          
+      - name: Instalar dependencias
+        # 'ci' es obligatorio en pipelines: es más rápido y estricto que 'install'
+        run: npm ci 
+        
+      - name: Ejecutar pruebas (Headless)
+        run: npm run test:ci
+
+
+  # ==========================================
+  # JOB 2: DEPLOY FRONTEND (Netlify)
+  # ==========================================
+  deploy-frontend:
+    needs: [frontend-tests] # Regla estricta: solo despliega si los tests pasaron
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: './package-lock.json'
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Compilar Producción (ng build)
+        run: npm run build
+
+      - name: Desplegar a Netlify
+        uses: nwtgck/actions-netlify@v3.0
+        with:
+          publish-dir: './dist/frontend/browser'
+          production-branch: main
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Deploy Frontend Automático 🚀"
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
