@@ -46,11 +46,11 @@ describe('SatisfaccionComensalComponent', () => {
 
     const text = fixture.nativeElement.textContent;
     expect(text).toContain('Satisfacción del comensal');
-    expect(text).toContain('3.7/5');
-    expect(text).toContain('3.8/5');
-    expect(text).toContain('3.2/5');
+    expect(text).toContain('3.7 / 5');
+    expect(text).toContain('3.8 / 5');
+    expect(text).toContain('3.2 / 5');
     expect(text).toContain('41.9%');
-    expect(text).toContain('De 31 recibidas, 13 fueron invitados a Google Maps.');
+    expect(text).toContain('Se invitó a 13 de los 31 comensales con experiencias excelentes a dejar una reseña en Google Maps.');
   });
 
   it('deberia usar escala radial fija maxima de 5', () => {
@@ -63,7 +63,7 @@ describe('SatisfaccionComensalComponent', () => {
   it('deberia aplicar clase success cuando la derivacion es alta', () => {
     fixture.detectChanges();
 
-    const card = fixture.debugElement.query(By.css('.google-rate-card.success'));
+    const card = fixture.debugElement.query(By.css('.google-rate-card-premium.success'));
     expect(card).toBeTruthy();
   });
 

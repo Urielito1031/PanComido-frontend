@@ -27,6 +27,7 @@ export class SatisfaccionComensalComponent {
   readonly escalaMaxima = 5;
   readonly centro = 130;
   readonly radioMaximo = 82;
+  readonly extensionRadioIconos = 20.5;
 
   readonly metricas = computed(() => this.state.satisfaccionComensal());
 
@@ -68,16 +69,20 @@ export class SatisfaccionComensalComponent {
   }
 
   obtenerRadio(valor: number): number {
-    // Si es para graficar datos de encuestas limitamos a escalaMaxima (5)
-    // Pero si es para ubicar los iconos externos (valor > 5) permitimos que pase de largo
-    const v = valor > this.escalaMaxima ? valor : this.normalizarValor(valor);
-    return (v / this.escalaMaxima) * this.radioMaximo;
+    return (this.normalizarValor(valor) / this.escalaMaxima) * this.radioMaximo;
   }
 
   obtenerPunto(valor: number, index: number): RadarPoint {
+    return this.puntoDesdeRadio(this.obtenerRadio(valor), index);
+  }
+
+  obtenerPuntoIcono(index: number): RadarPoint {
+    return this.puntoDesdeRadio(this.radioMaximo + this.extensionRadioIconos, index);
+  }
+
+  private puntoDesdeRadio(radio: number, index: number): RadarPoint {
     const totalEjes = Math.max(this.ejes().length, 3);
     const angulo = (-90 + (360 / totalEjes) * index) * (Math.PI / 180);
-    const radio = this.obtenerRadio(valor);
 
     return {
       x: Math.round((this.centro + Math.cos(angulo) * radio) * 100) / 100,

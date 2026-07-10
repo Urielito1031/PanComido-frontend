@@ -13,6 +13,9 @@ describe('MiseAndPlaceForm', () => {
 
     fixture = TestBed.createComponent(MiseAndPlaceForm);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('categorias', []);
+    fixture.componentRef.setInput('unidadesMedida', []);
+    fixture.componentRef.setInput('ingredientes', []);
     await fixture.whenStable();
   });
 

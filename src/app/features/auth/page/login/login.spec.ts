@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal, WritableSignal } from '@angular/core';
+import { provideRouter } from '@angular/router';
 import { Login } from './login';
 import { AuthState } from '../../auth-state';
 
@@ -28,6 +29,7 @@ describe('Login', () => {
       imports: [Login],
       providers: [
         { provide: AuthState, useValue: crearAuthStateMock() },
+        provideRouter([]),
       ],
     }).compileComponents();
 

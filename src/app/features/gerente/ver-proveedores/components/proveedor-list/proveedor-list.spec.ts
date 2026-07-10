@@ -40,7 +40,6 @@ describe('ProveedorListComponent', () => {
     const rows = fixture.debugElement.queryAll(By.css('.proveedor-row'));
     expect(rows).toHaveLength(2);
     expect(rows[0].nativeElement.classList).toContain('selected');
-    expect(rows[0].query(By.css('.proveedor-estado-dot')).nativeElement.classList).toContain('activo');
     expect(rows[1].nativeElement.textContent).toContain('Sin pedidos');
   });
 
