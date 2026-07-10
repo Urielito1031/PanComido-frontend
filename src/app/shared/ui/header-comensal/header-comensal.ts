@@ -25,6 +25,7 @@ export class HeaderComensal {
   showClose = input(false);
   title = input<string>('');
   ocultarBadgeFila = input(false);
+  ocultarInfoMesa = input(false);
 
   back = output<void>();
   close = output<void>();

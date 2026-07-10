@@ -87,6 +87,6 @@ describe('NroDeMesa', () => {
   it('debería volver a escanear mesa', () => {
     component.volverAtras();
 
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/comensal/escanear-mesa']);
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/comensal/escanear']);
   });
 });

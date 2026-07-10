@@ -10,7 +10,7 @@
       </div>
 
       @if (esperandoConfirmacion()) {
-        <h2 class="pago-titulo">¡El mozo fue notificado!</h2>
+        <h2 class="pago-titulo">{{ tituloEspera() }}</h2>
         <p class="pago-subtitulo">{{ mensajeEspera() }}</p>
         <div class="spinner mt-4" style="width: 2rem; height: 2rem; border-width: 2px;"></div>
       } @else {
@@ -38,7 +38,7 @@
             Volver al inicio
           </app-boton-comensal>
         } @else {
-          <p class="pago-subtitulo mb-3" style="font-size: 0.9rem;">Podrás calificar tu experiencia una vez que el pago sea confirmado por el mozo.</p>
+          <p class="pago-subtitulo mb-3" style="font-size: 0.9rem;">{{ subtituloConfirmacionPendiente() }}</p>
         }
       </div>
     } @else if (error()) {

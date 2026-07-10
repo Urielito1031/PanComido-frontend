@@ -11,7 +11,7 @@ export const COMENSAL_ROUTES: Routes = [
           import('./seleccionar-mesa/page/seleccionar-mesa').then((m) => m.SeleccionarMesa),
       },
       {
-        path: 'escanear-mesa',
+        path: 'escanear',
         loadComponent: () => import('./escanear-mesa/page/escanear-mesa').then((m) => m.ScanQr),
       },
       {
@@ -82,12 +82,12 @@ export const COMENSAL_ROUTES: Routes = [
       },
       {
         path: '',
-        redirectTo: 'escanear-mesa',
+        redirectTo: 'escanear',
         pathMatch: 'full',
       },
       {
         path: '**',
-        redirectTo: 'escanear-mesa',
+        redirectTo: 'escanear',
       }
     ],
   },

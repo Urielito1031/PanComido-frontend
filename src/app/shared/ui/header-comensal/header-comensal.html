@@ -19,22 +19,24 @@
   }
 
   <div class="header-right">
-    @if (!ocultarBadgeFila() && filaVirtualState.estado(); as estFila) {
-      <div class="badge-info" style="background-color: #fde047; color: #000; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 4px;" (click)="irAEstadoFila()">
-        Turno {{ estFila.numeroTurno }} - <span class="material-symbols-outlined" style="font-size: 16px;">person</span> {{ estFila.turnosAdelante }} adelante
-      </div>
-      <div class="icon-btn" (click)="abrirCompartir()" title="Compartir turno">
-        <span class="material-symbols-outlined">group_add</span>
-      </div>
-    } @else if (tieneSesion()) {
-      <div class="badge-info">
-        <span class="material-symbols-outlined">person</span>
-        <span>{{ cantidadPersonas }}</span>
-      </div>
-      <div class="badge-info">Mesa {{ mesaId }}</div>
-      <div class="icon-btn" (click)="abrirCompartir()" title="Compartir mesa">
-        <span class="material-symbols-outlined">group_add</span>
-      </div>
+    @if (!ocultarInfoMesa()) {
+      @if (!ocultarBadgeFila() && filaVirtualState.estado(); as estFila) {
+        <div class="badge-info" style="background-color: #fde047; color: #000; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 4px;" (click)="irAEstadoFila()">
+          Turno {{ estFila.numeroTurno }} - <span class="material-symbols-outlined" style="font-size: 16px;">person</span> {{ estFila.turnosAdelante }} adelante
+        </div>
+        <div class="icon-btn" (click)="abrirCompartir()" title="Compartir turno">
+          <span class="material-symbols-outlined">group_add</span>
+        </div>
+      } @else if (tieneSesion()) {
+        <div class="badge-info">
+          <span class="material-symbols-outlined">person</span>
+          <span>{{ cantidadPersonas }}</span>
+        </div>
+        <div class="badge-info">Mesa {{ mesaId }}</div>
+        <div class="icon-btn" (click)="abrirCompartir()" title="Compartir mesa">
+          <span class="material-symbols-outlined">group_add</span>
+        </div>
+      }
     }
     @if (showClose()) {
     <div class="close" (click)="onClose()">✕</div>
