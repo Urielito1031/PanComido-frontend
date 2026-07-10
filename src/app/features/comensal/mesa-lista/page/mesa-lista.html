@@ -13,7 +13,7 @@
   <div class="contenido-central">
     <div class="tarjeta-blanca">
       <div class="texto-tarjeta">¡Tu mesa esta lista!</div>
-      <div class="texto-tarjeta bold">Mesa {{ mesaAsignada()?.mesaId || 8 }} · {{ estadoFila()?.cantidadPersonas || 2 }} personas</div>
+      <div class="texto-tarjeta bold">Mesa {{ mesaAsignada()?.mesaId || estadoFila()?.mesaAsignadaId }} · {{ estadoFila()?.cantidadPersonas || 2 }} personas</div>
       
       <div class="separador"></div>
       
@@ -22,7 +22,7 @@
     </div>
 
     <div class="alerta-verde">
-      ¡Tienes {{ mesaAsignada()?.minutosParaOcupar || 3 }} minutos máximo para escanear el qr y ocupar la mesa!
+      ¡Tienes {{ mesaAsignada()?.minutosParaOcupar || estadoFila()?.minutosRestantesParaOcupar || 7 }} minutos máximo para escanear el qr y ocupar la mesa!
     </div>
   </div>
 
