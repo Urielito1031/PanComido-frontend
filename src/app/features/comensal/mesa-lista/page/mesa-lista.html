@@ -1,0 +1,46 @@
+<div class="pantalla-completa">
+  <div class="top-logo">
+    <div class="logo-circulo">
+      <img [src]="configVisual.logoUrl() || 'assets/images/logo/logo_el_ferroviario.png'" alt="Logo" onerror="this.style.display='none'">
+    </div>
+  </div>
+
+  <div class="header-mockup">
+    <div class="back-arrow" (click)="salir()">&lt;</div>
+    <div class="badge-verde">Mesa Lista</div>
+  </div>
+
+  <div class="contenido-central">
+    <div class="tarjeta-blanca">
+      <div class="texto-tarjeta">¡Tu mesa esta lista!</div>
+      <div class="texto-tarjeta bold">Mesa {{ mesaAsignada()?.mesaId || 8 }} · {{ estadoFila()?.cantidadPersonas || 2 }} personas</div>
+      
+      <div class="separador"></div>
+      
+      <div class="texto-tarjeta">Pedido pre-armado</div>
+      <div class="texto-tarjeta">{{ pedidoState.pedidos().length }} items - total: {{ totalPedido() | currency:'ARS':'symbol-narrow':'1.0-0' }}</div>
+    </div>
+
+    <div class="alerta-verde">
+      ¡Tienes {{ mesaAsignada()?.minutosParaOcupar || 3 }} minutos máximo para escanear el qr y ocupar la mesa!
+    </div>
+  </div>
+
+  <div class="botones-inferiores">
+    <button class="btn-outline" (click)="salir()">Salir</button>
+    <button class="btn-outline" (click)="escanearQR()">Escanear QR</button>
+  </div>
+
+  @if (mostrarModalSalir) {
+  <div class="modal-overlay">
+    <div class="modal-content">
+      <h3>¿Abandonar mesa?</h3>
+      <p>Estás a punto de salir. Perderás tu reserva de mesa y si deseas volver tendrás que anotarte nuevamente.</p>
+      <div class="modal-botones">
+        <button class="btn-modal-cancel" (click)="cerrarModalSalir()">Cancelar</button>
+        <button class="btn-modal-confirm" (click)="confirmarSalir()">Salir</button>
+      </div>
+    </div>
+  </div>
+  }
+</div>

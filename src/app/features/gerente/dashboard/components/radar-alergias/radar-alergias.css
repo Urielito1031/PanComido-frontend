@@ -174,3 +174,15 @@
   padding: 0.38rem 0.8rem;
   border-radius: 8px;
 }
+
+@media (max-width: 768px) {
+  .item-meta,
+  .item-footer {
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .ingredient-name {
+    overflow-wrap: anywhere;
+  }
+}

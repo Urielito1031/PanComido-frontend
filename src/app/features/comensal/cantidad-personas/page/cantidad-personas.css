@@ -101,6 +101,19 @@
   color: #999;
 }
 
+.error-input {
+  border-color: #d32f2f !important;
+  box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.2) !important;
+}
+
+.error-texto {
+  color: #d32f2f;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 4px;
+  text-align: left;
+}
+
 @media (max-width: 480px) {
   .cantidad-card {
     padding: 24px 20px;

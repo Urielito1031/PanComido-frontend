@@ -6,7 +6,7 @@
 
 .historial-toolbar-shell,
 .historial-layout {
-  max-width: 1080px;
+  max-width: 1280px;
   margin-inline: auto;
 }
 
@@ -26,6 +26,18 @@
 ::ng-deep .btn-recibir-pedido .btn-teal:hover:not(:disabled) {
   background-color: #d97706;
   border-color: #d97706;
+}
+
+::ng-deep .btn-agregar-insumos .btn-outline {
+  background-color: #f59e0b !important;
+  border-color: #f59e0b !important;
+  color: #ffffff !important;
+}
+
+::ng-deep .btn-agregar-insumos .btn-outline:hover {
+  background-color: #d97706 !important;
+  border-color: #d97706 !important;
+  color: #ffffff !important;
 }
 
 .historial-toolbar-shell ::ng-deep .toolbar-search {
@@ -124,6 +136,7 @@
 
 .history-list {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.85rem;
   margin-top: 1rem;
 }
@@ -205,7 +218,7 @@
 }
 
 .history-detail-hint {
-  color: #bc0012;
+  color: #f59e0b;
   font-size: 0.82rem;
   font-weight: 900;
   white-space: nowrap;
@@ -226,8 +239,8 @@
 }
 
 .counter-pill {
-  background: rgba(188, 0, 18, 0.08);
-  color: #bc0012;
+  background: rgba(2, 89, 108, 0.08);
+  color: #02596c;
 }
 
 .estado-pill {
@@ -312,8 +325,8 @@
   align-items: center;
   justify-content: center;
   border-radius: 7px;
-  background: rgba(188, 0, 18, 0.08);
-  color: #bc0012;
+  background: rgba(2, 89, 108, 0.08);
+  color: #02596c;
   font-size: 0.95rem;
 }
 
@@ -367,12 +380,16 @@
 }
 
 .provider-summary-item.amount {
-  border-color: rgba(188, 0, 18, 0.14);
-  background: rgba(188, 0, 18, 0.05);
+  border-color: rgba(2, 89, 108, 0.18);
+  background: rgba(2, 89, 108, 0.06);
+}
+
+.provider-summary-item.amount span {
+  color: #02596c;
 }
 
 .provider-summary-item.amount strong {
-  color: #bc0012;
+  color: #0f172a;
 }
 
 .pedido-modal-overlay {
@@ -570,6 +587,10 @@
 
   .provider-summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .history-list {
+    grid-template-columns: 1fr;
   }
 
   .history-card-main {

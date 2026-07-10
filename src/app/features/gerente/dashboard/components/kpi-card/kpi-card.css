@@ -217,3 +217,18 @@
   align-items: center;
   gap: 0.5rem;
 }
+
+@media (max-width: 768px) {
+  .kpi-card-top,
+  .kpi-meta {
+    flex-wrap: wrap;
+  }
+
+  .kpi-change {
+    white-space: normal;
+  }
+
+  .kpi-value {
+    overflow-wrap: anywhere;
+  }
+}

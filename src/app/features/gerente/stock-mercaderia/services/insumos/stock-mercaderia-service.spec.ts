@@ -137,5 +137,47 @@ describe('StockMercaderiaService', () => {
 
       expect(mockApiService.delete).toHaveBeenCalledWith('insumo/7');
     });
+
+    it('crearLote() debería hacer POST al endpoint de lotes', () => {
+      const request = {
+        insumoId: 1,
+        cantidad: 10,
+        fechaVencimiento: '2026-08-15',
+        bodegaId: 2
+      };
+      mockApiService.post.mockReturnValue(of({ mensaje: 'Lote creado exitosamente.' }));
+
+      service.crearLote(request).subscribe(result => {
+        expect(result.mensaje).toBe('Lote creado exitosamente.');
+      });
+
+      expect(mockApiService.post).toHaveBeenCalledWith('lote/crear', request);
+    });
+
+    it('modificarLote() debería hacer PUT al endpoint de lotes', () => {
+      const request = {
+        insumoId: 1,
+        cantidad: 8,
+        fechaVencimiento: '2026-09-01',
+        bodegaId: 2
+      };
+      mockApiService.put.mockReturnValue(of({ mensaje: 'Lote modificado exitosamente.' }));
+
+      service.modificarLote(3, request).subscribe(result => {
+        expect(result.mensaje).toBe('Lote modificado exitosamente.');
+      });
+
+      expect(mockApiService.put).toHaveBeenCalledWith('lote/3', request);
+    });
+
+    it('eliminarLote() debería hacer DELETE al endpoint de lotes', () => {
+      mockApiService.delete.mockReturnValue(of({ mensaje: 'Lote eliminado exitosamente.' }));
+
+      service.eliminarLote(3).subscribe(result => {
+        expect(result.mensaje).toBe('Lote eliminado exitosamente.');
+      });
+
+      expect(mockApiService.delete).toHaveBeenCalledWith('lote/3');
+    });
   });
 });

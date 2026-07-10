@@ -18,7 +18,12 @@
       <span class="chevron">▼</span>
     </summary>
 
-    <p class="hint-voz">Activá el micrófono y decí "mesa [número] llamar mozo" para llamar al mozo.</p>
+    <div class="hint-voz">
+      <span class="hint-voz-label">Comandos por voz:</span>
+      @for (comando of comandosLlamarMozo; track comando) {
+      <span class="voz-chip">{{ comando }}</span>
+      }
+    </div>
 
     <div class="cards-grid">
       @for (comanda of state.comandasEnPreparacion(); track comanda.id) {
@@ -36,7 +41,12 @@
       <span class="chevron">▼</span>
     </summary>
 
-    <p class="hint-voz">Activá el micrófono y decí "mesa [número] aceptar" para aceptar la comanda.</p>
+    <div class="hint-voz">
+      <span class="hint-voz-label">Comandos por voz:</span>
+      @for (comando of comandosAceptar; track comando) {
+      <span class="voz-chip">{{ comando }}</span>
+      }
+    </div>
 
     <div class="cards-scroll">
       @for (comanda of state.comandasNuevas(); track comanda.id) {

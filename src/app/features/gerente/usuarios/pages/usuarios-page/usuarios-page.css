@@ -482,9 +482,10 @@
 
 /* Tour trigger button */
 .tour-trigger-btn {
-  width: 38px;
-  height: 38px;
-  border-radius: 11px;
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  border-radius: 8px;
   border: 1px solid rgba(15, 23, 42, 0.08);
   background: #ffffff;
   color: #64748b;
@@ -496,9 +497,9 @@
 }
 
 .tour-trigger-btn:hover {
-  background: rgba(2, 89, 108, 0.04);
-  color: var(--primary-teal);
-  border-color: rgba(2, 89, 108, 0.2);
+  background: rgba(255, 143, 0, 0.08);
+  color: #ff8f00;
+  border-color: rgba(255, 143, 0, 0.32);
   transform: translateY(-1px);
 }
 
@@ -664,6 +665,4 @@
 ::ng-deep [acciones] {
   margin-left: auto;
 }
-
-
 

@@ -1,8 +1,13 @@
 <div class="header-top">
-    <div class="header-top-inner">
+    <div class="header-top-inner" style="display: flex; align-items: center;">
+      @if (filaVirtualState.estado()) {
+        <div class="back" (click)="irAEstadoFila()" style="cursor: pointer; display: flex; align-items: center; color: white; margin-right: 12px;">
+          <span class="material-symbols-outlined" style="font-size: 20px;">arrow_back_ios_new</span>
+        </div>
+      }
       <div class="logo-container">
         @if (configuracionVisualState.logoUrl(); as url) {
-          <img [src]="url" alt="Logo" class="logo-img" />
+          <img [src]="url" alt="Logo" class="logo-img" onerror="this.style.display='none'" />
         } @else {
           <div class="logo-placeholder">
             <span class="material-symbols-outlined">restaurant</span>
@@ -10,11 +15,17 @@
         }
       </div>
       <div class="mesa-info-container">
-        <div class="badge-info">
-          <span class="material-symbols-outlined">person</span>
-          <span>{{ cantidadPersonas() }}</span>
-        </div>
-        <div class="badge-info">Mesa {{ mesaId() }}</div>
+        @if (filaVirtualState.estado(); as estFila) {
+          <div class="badge-info" style="background-color: #fde047; color: #000; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px;" (click)="irAEstadoFila()">
+            Turno {{ estFila.numeroTurno }} - <span class="material-symbols-outlined" style="font-size: 16px;">person</span> {{ estFila.turnosAdelante }} adelante
+          </div>
+        } @else {
+          <div class="badge-info">
+            <span class="material-symbols-outlined">person</span>
+            <span>{{ cantidadPersonas() }}</span>
+          </div>
+          <div class="badge-info">Mesa {{ mesaId() }}</div>
+        }
         <div class="invite-btn" (click)="abrirCompartir()" title="Invitar a la mesa">
           <span class="material-symbols-outlined">group_add</span>
         </div>

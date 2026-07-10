@@ -442,13 +442,42 @@
 @media (max-width: 768px) {
   .sidebar {
     width: 280px;
+    transform: translateX(-100%);
+  }
+
+  .sidebar.mobile-open {
     transform: translateX(0);
   }
 
   .sidebar.collapsed {
-    width: 80px;
+    width: 280px;
+    transform: translateX(-100%);
+  }
+
+  .sidebar.collapsed.mobile-open {
     transform: translateX(0);
   }
+}
+
+/* Backdrop for mobile overlay */
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1699;
+  animation: fadeIn 0.2s ease;
+}
+
+@media (max-width: 768px) {
+  .sidebar-backdrop {
+    display: block;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* Fix avatar overflow in collapsed state */

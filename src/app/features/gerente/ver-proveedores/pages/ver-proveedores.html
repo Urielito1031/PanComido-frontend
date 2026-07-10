@@ -149,7 +149,7 @@
             <span class="material-symbols-outlined">history</span>
             Historial
           </button>
-          <button type="button" class="detail-tab" [class.active]="panelModo() === 'pedido'" (click)="abrirPedido(proveedor)">
+          <button type="button" class="detail-tab detail-tab-pedido" [class.active]="panelModo() === 'pedido'" (click)="abrirPedido(proveedor)">
             <span class="material-symbols-outlined">add_shopping_cart</span>
             Nuevo pedido
           </button>
@@ -215,10 +215,6 @@
                 <h3 class="section-title mb-1">Nuevo pedido</h3>
                 <p class="section-subtitle mb-0">para <strong>{{ proveedor.nombre }}</strong></p>
               </div>
-              <button type="button" class="soft-link-btn" (click)="mostrarHistorial()">
-                <span class="material-symbols-outlined">history</span>
-                Ver resumen
-              </button>
             </div>
 
             <!-- Cinta de búsqueda de producto -->
@@ -232,7 +228,8 @@
                     class="form-control custom-input"
                     placeholder="Escribí el nombre del insumo"
                     [ngModel]="productoTexto()"
-                    (ngModelChange)="onProductoTextoChange($event)">
+                    (ngModelChange)="onProductoTextoChange($event)"
+                    (focus)="onFocusProducto($event)">
 
                   @if (productoTexto().trim().length > 0 && !productoSeleccionadoId()) {
                     <div class="predictive-list">
@@ -430,7 +427,7 @@
                 </div>
                 <app-boton
                   label="Crear pedido"
-                  variante="primary"
+                  variante="success"
                   tamanio="md"
                   [disabled]="pedidoItems().length === 0"
                   (clicked)="enviarPedido()">
@@ -491,10 +488,12 @@
               <strong>{{ pedido.items.length }}</strong>
             </article>
 
-            <article class="pedido-modal-info pedido-modal-full">
-              <span class="info-label">Observación</span>
-              <strong>{{ pedido.observacion }}</strong>
-            </article>
+            @if (pedido.observacion) {
+              <article class="pedido-modal-info pedido-modal-full">
+                <span class="info-label">Observación</span>
+                <strong>{{ pedido.observacion }}</strong>
+              </article>
+            }
           </div>
 
           <div class="pedido-modal-items">
@@ -518,14 +517,14 @@
 
           @if (pedido.estado === 'Pendiente') {
             <div class="pedido-modal-actions">
-              <app-boton variante="outline" tamanio="md" (clicked)="isAgregarInsumoOpen.set(!isAgregarInsumoOpen())">
-                <span class="fw-bold">{{ isAgregarInsumoOpen() ? 'Ocultar insumos' : 'Agregar insumos' }}</span>
+              <app-boton class="btn-agregar-insumos" variante="outline" tamanio="md" (clicked)="isAgregarInsumoOpen.set(!isAgregarInsumoOpen())">
+                <span class="fw-bold text-white">{{ isAgregarInsumoOpen() ? 'Ocultar insumos' : 'Agregar insumos' }}</span>
               </app-boton>
               <app-boton variante="success" tamanio="md" (clicked)="confirmarPedido($event, pedido)">
 
 
 
-                <span class="fw-bold text-dark">Confirmar pedido</span>
+                <span class="fw-bold text-white">Confirmar pedido</span>
               </app-boton>
             </div>
 
@@ -575,10 +574,13 @@
             </label>
 
             <label class="field-group field-span-2">
-              <span>WhatsApp</span>
+              <span>WhatsApp <strong class="field-required">*</strong></span>
               <input type="text" class="form-control custom-input" formControlName="telefono"
                 placeholder="Ej. +54 11 5555-1234"
                 [class.is-invalid]="proveedorForm.get('telefono')?.touched && proveedorForm.get('telefono')?.invalid">
+              @if (proveedorForm.get('telefono')?.touched && proveedorForm.get('telefono')?.hasError('required')) {
+                <span class="error-text">El WhatsApp es obligatorio.</span>
+              }
               @if (proveedorForm.get('telefono')?.touched && proveedorForm.get('telefono')?.hasError('pattern')) {
                 <span class="error-text">Formato de teléfono inválido.</span>
               }
@@ -590,7 +592,7 @@
           <div class="section-heading compact">
             <span class="section-icon material-symbols-outlined">category</span>
             <div>
-              <h4 class="section-title mb-0">Categorías</h4>
+              <h4 class="section-title mb-0">Categorías <strong class="field-required">*</strong></h4>
               <p class="section-subtitle mb-0">Se usan para filtrar y sugerir insumos.</p>
             </div>
           </div>
@@ -628,27 +630,14 @@
 
           @if (categoriaIdsEdicion().length === 0) {
             <span class="error-text">Debes seleccionar al menos una categoría.</span>
-          } @else {
-            <div class="category-chips">
-              @for (c of categoriasDisponiblesEdicion(); track c.id) {
-                @if (categoriaSeleccionadaEdicion(c.id)) {
-                <span class="chip">
-                  <span class="chip-label">{{ c.descripcion }}</span>
-                  <button type="button" class="chip-remove" [attr.aria-label]="'Eliminar ' + c.descripcion" (click)="removerCategoriaEdicion(c.id)">
-                    <span class="material-symbols-outlined">close</span>
-                  </button>
-                </span>
-                }
-              }
-            </div>
           }
         </section>
 
         <div class="modal-footer-actions">
           <span class="form-hint">Los campos marcados con * son obligatorios.</span>
           <div class="footer-buttons">
-            <app-boton label="Cancelar" variante="outline" tamanio="md" (clicked)="cerrarEditarProveedor()"></app-boton>
-            <app-boton label="Guardar cambios" variante="primary" tamanio="md" [disabled]="proveedorForm.invalid || categoriaIdsEdicion().length === 0" (clicked)="guardarEdicionProveedor()"></app-boton>
+            <app-boton class="cancel-btn" label="Cancelar" variante="outline" tamanio="md" (clicked)="cerrarEditarProveedor()"></app-boton>
+            <app-boton label="Guardar cambios" variante="success" tamanio="md" [disabled]="proveedorForm.invalid || categoriaIdsEdicion().length === 0" (clicked)="guardarEdicionProveedor()"></app-boton>
           </div>
         </div>
       </form>

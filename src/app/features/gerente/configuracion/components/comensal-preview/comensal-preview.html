@@ -5,8 +5,9 @@
     <!-- Header (replica .header-top de ver-carta) -->
     <div class="header" [style.background-color]="colorPrimario()">
       <div class="logo-container">
-        @if (logo()) {
-          <img [src]="logo()" alt="Logo local" class="header-logo" />
+        @if (logo() && !logoError()) {
+          <img [src]="logo()" alt="Logo local" class="header-logo"
+            (error)="logoError.set(true)" />
         } @else {
           <div class="mock-logo">
             <i class="bi bi-shop"></i>
