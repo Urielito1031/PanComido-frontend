@@ -63,6 +63,14 @@ export class AuthService {
     this.router.navigate(['/login']);
   }
 
+  solicitarRecuperacion(email: string): Observable<any> {
+    return this.api.post<any>('autenticacion/solicitar-recuperacion', { email });
+  }
+
+  ejecutarReset(email: string, token: string, contrasenia: string): Observable<any> {
+    return this.api.post<any>('autenticacion/ejecutar-recuperacion', { email, token, nuevaContrasenia: contrasenia });
+  }
+
   tieneRoles(roles: string[]): boolean {
     return roles.includes(this.rolActual());
   }
