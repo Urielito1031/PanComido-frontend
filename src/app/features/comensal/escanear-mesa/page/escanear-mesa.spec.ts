@@ -70,7 +70,7 @@ describe('ScanQr', () => {
     ]);
   });
 
- 
+
 
   it('debería cerrar scanner', () => {
     const stop = vi.fn();
