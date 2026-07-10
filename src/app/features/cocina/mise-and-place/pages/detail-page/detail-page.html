@@ -1,57 +1,159 @@
+@if (state.mensajeExito(); as msg) {
+  <div class="success-toast">{{ msg }}</div>
+}
+
 @if (cargando()) {
-  <p class="loading-text">Cargando...</p>
+  <div class="loading-wrap">
+    <div class="loading-pulse"></div>
+    <p>Cargando detalle...</p>
+  </div>
 } @else if (error(); as err) {
-  <p class="error">{{ err }}</p>
+  <div class="error-box">{{ err }}</div>
 } @else if (item(); as i) {
-  <div class="detail-container">
+  <div class="page-wrap">
     <a [routerLink]="['/staff/cocina/mise-and-place']" class="back-link">
-      ← Volver al listado
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Volver
     </a>
 
-    <div class="detail-card">
-      <div class="detail-header">
-        <p class="detail-kicker">Mise and Place</p>
-        <h1>{{ i.nombre }}</h1>
+    <div class="hero">
+      <div class="hero-bg"></div>
+      <div class="hero-body">
+        <div class="hero-idx">
+          <span class="hero-badge">{{ i.categoria }}</span>
+          @if (i.bodega; as bod) {
+            <span class="hero-badge sec">{{ bod }}</span>
+          }
+        </div>
+
+        <h1 class="hero-title">{{ i.nombre }}</h1>
+
+        @if (i.descripcion) {
+          <p class="hero-desc">{{ i.descripcion }}</p>
+        }
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-icon">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <rect x="1" y="7" width="4" height="10" rx="1" stroke="#64748b" stroke-width="1.5"/>
+            <rect x="7" y="3" width="4" height="14" rx="1" stroke="#64748b" stroke-width="1.5"/>
+            <rect x="13" y="1" width="4" height="16" rx="1" stroke="#64748b" stroke-width="1.5"/>
+          </svg>
+        </span>
+        <span class="stat-body">
+          <span class="stat-label">Stock actual</span>
+          <span class="stat-row">
+            <span class="stat-value lg">{{ i.cantidad }}</span>
+            <span class="stat-unit">{{ i.unidadMedida | unidadNormalizada }}</span>
+          </span>
+        </span>
       </div>
 
-      <div class="info-grid">
-        <div class="info-item">
-          <span class="info-label">Cantidad</span>
-          <span class="info-value">{{ i.cantidad }} {{ i.unidadMedida }}</span>
+      <div class="stat-card">
+        <span class="stat-icon">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <circle cx="9" cy="9" r="7.5" stroke="#64748b" stroke-width="1.5"/>
+            <path d="M9 5V9L12 12" stroke="#64748b" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span class="stat-body">
+          <span class="stat-label">Vencimiento</span>
+          @if (i.fechaVencimiento; as f) {
+            @let ec = estadoVenc(f);
+            <span class="stat-value" [class.venc-ok]="ec === 'ok'" [class.venc-warn]="ec === 'warn'" [class.venc-bad]="ec === 'bad'">
+              {{ f | date:'dd/MM/yyyy' }}
+            </span>
+          } @else {
+            <span class="stat-value muted">Sin fecha</span>
+          }
+        </span>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-icon">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M2 16L16 2" stroke="#64748b" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="5" cy="13" r="2" stroke="#64748b" stroke-width="1.5"/>
+            <circle cx="13" cy="5" r="2" stroke="#64748b" stroke-width="1.5"/>
+          </svg>
+        </span>
+        <span class="stat-body">
+          <span class="stat-label">Costo unitario</span>
+          @if (i.costoUnitario > 0) {
+            <span class="stat-value costo">${{ i.costoUnitario | number:'1.2-2' }}</span>
+          } @else {
+            <span class="stat-value muted">-</span>
+          }
+        </span>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-icon">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <rect x="1" y="9" width="16" height="7" rx="2" stroke="#64748b" stroke-width="1.5"/>
+            <path d="M4 9V6C4 3.79086 5.79086 2 8 2H10C12.2091 2 14 3.79086 14 6V9" stroke="#64748b" stroke-width="1.5"/>
+          </svg>
+        </span>
+        <span class="stat-body">
+          <span class="stat-label">Costo total lote</span>
+          @if (i.costo > 0) {
+            <span class="stat-value costo">${{ i.costo | number:'1.2-2' }}</span>
+          } @else {
+            <span class="stat-value muted">-</span>
+          }
+        </span>
+      </div>
+    </div>
+
+    <div class="receta-card">
+      <div class="receta-head">
+        <div class="receta-head-left">
+          <h2>Receta</h2>
+          <span class="receta-count">{{ i.receta.length }} ingredientes</span>
         </div>
-        <div class="info-item">
-          <span class="info-label">Categoría</span>
-          <span class="info-value">{{ i.categoria }}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Bodega</span>
-          <span class="info-value">{{ i.bodega }}</span>
-        </div>
-        @if (i.fechaVencimiento) {
-          <div class="info-item">
-            <span class="info-label">Vencimiento</span>
-            <span class="info-value">{{ i.fechaVencimiento | date:'dd-MM-yyyy' }}</span>
-          </div>
-        }
+        <span class="receta-total">
+          @if (costoTotalReceta(); as ct) {
+            Total: <strong>${{ ct | number:'1.2-2' }}</strong>
+          }
+        </span>
       </div>
 
       @if (i.receta.length > 0) {
-        <div class="receta-section">
-          <h2>Receta <span class="count-badge">{{ i.receta.length }} ingredientes</span></h2>
-          <ul class="receta-list">
-            @for (ing of i.receta; track ing.ingredienteId) {
-              <li>
-                <span class="receta-nombre">{{ ing.nombreIngrediente }}</span>
-                <span class="receta-cantidad">{{ ing.cantidad }} {{ ing.unidadMedida }}</span>
-              </li>
-            }
-          </ul>
+        <div class="ing-grid">
+          @for (ing of i.receta; track ing.ingredienteId; let idx = $index) {
+            <div class="ing-card" style="--idx: {{ idx }}">
+              <div class="ing-bar" [style.width.%]="maxPorcentaje() ? (ing.cantidad / maxPorcentaje()! * 100) : 0"></div>
+              <div class="ing-body">
+                <div class="ing-top">
+                  <span class="ing-name">{{ ing.nombreIngrediente }}</span>
+                  <span class="ing-amount">{{ ing.cantidad }} <small>{{ ing.unidadMedida | unidadNormalizada }}</small></span>
+                </div>
+                @if (ing.costoUnitario > 0) {
+                  <div class="ing-cost">
+                    <span class="ing-cost-unit">${{ ing.costoUnitario | number:'1.2-2' }}/ud</span>
+                    <span class="ing-cost-dash"></span>
+                    <span class="ing-cost-sub">${{ ing.cantidad * ing.costoUnitario | number:'1.2-2' }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
         </div>
       } @else {
-        <p class="no-receta">Este preparado no tiene receta asociada.</p>
+        <div class="ing-empty">
+          <p>Este preparado no tiene ingredientes asociados.</p>
+        </div>
       }
     </div>
   </div>
 } @else {
-  <p class="loading-text">Mise and Place no encontrado.</p>
+  <div class="loading-wrap">
+    <div class="loading-pulse"></div>
+    <p>Preparado no encontrado.</p>
+  </div>
 }
