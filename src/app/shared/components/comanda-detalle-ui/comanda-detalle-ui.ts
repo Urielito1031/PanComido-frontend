@@ -1,7 +1,8 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Boton } from '../../ui/botones/boton/boton';
 import { MetodoPagoId } from '../../../core/models/domain/metodo-pago';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-comanda-detalle-ui',
@@ -17,6 +18,8 @@ export class ComandaDetalleUiComponent {
   total = input.required<number>();
 
   readonly metodoPagoId = MetodoPagoId;
+  private authService = inject(AuthService);
+  esGerente = this.authService.rol() === 'Gerente';
 
   cerrar = output<void>();
   cobrar = output<MetodoPagoId>();
