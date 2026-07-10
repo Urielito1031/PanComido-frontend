@@ -47,7 +47,7 @@ describe('RadarAlergiasComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.debugElement.query(By.css('.ingredient-name')).nativeElement.textContent).toContain('Maní');
-    expect(fixture.debugElement.query(By.css('.progress-bar')).styles['width']).toBe('45%');
+    expect(fixture.debugElement.query(By.css('.tasa-badge')).nativeElement.textContent).toContain('45%');
     expect(fixture.debugElement.query(By.css('.tasa-badge')).nativeElement.classList).toContain('tasa-badge-critical');
   });
 

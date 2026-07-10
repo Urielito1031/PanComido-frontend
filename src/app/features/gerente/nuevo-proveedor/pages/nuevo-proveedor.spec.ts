@@ -17,7 +17,8 @@ describe('NuevoProveedorComponent', () => {
 
   const categoriasMock: CategoriaInsumo[] = [
     { id: 1, descripcion: 'Verdura', tipoAplica: 'Ingrediente' },
-    { id: 2, descripcion: 'Carnes', tipoAplica: 'Ingrediente' }
+    { id: 2, descripcion: 'Carnes', tipoAplica: 'Ingrediente' },
+    { id: 3, descripcion: 'Gaseosas', tipoAplica: 'Bebida' }
   ];
 
   beforeEach(async () => {
@@ -46,10 +47,9 @@ describe('NuevoProveedorComponent', () => {
     expect(component.categoriasDisponibles()).toEqual(categoriasMock);
   });
 
-  it('debería filtrar categorías por búsqueda', () => {
-    component.onBusquedaCategoriaChange('ver');
-
-    expect(component.categoriasFiltradas()).toEqual([categoriasMock[0]]);
+  it('debería agrupar categorías disponibles por tipo (ingrediente/bebida)', () => {
+    expect(component.categoriasIngredienteFiltradas()).toEqual([categoriasMock[0], categoriasMock[1]]);
+    expect(component.categoriasBebidaFiltradas()).toEqual([categoriasMock[2]]);
   });
 
   it('debería mostrar resumen en vivo del proveedor', () => {
