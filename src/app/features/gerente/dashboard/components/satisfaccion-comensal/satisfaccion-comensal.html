@@ -47,10 +47,10 @@
                     [attr.cx]="point.x" [attr.cy]="point.y" r="4.5"></circle>
                 }
                 @for (eje of ejes(); track eje.label) {
-                  <foreignObject 
-                    [attr.x]="obtenerPunto(escalaMaxima + 1.25, $index).x - 14" 
-                    [attr.y]="obtenerPunto(escalaMaxima + 1.25, $index).y - 14" 
-                    width="28" 
+                  <foreignObject
+                    [attr.x]="obtenerPuntoIcono($index).x - 14"
+                    [attr.y]="obtenerPuntoIcono($index).y - 14"
+                    width="28"
                     height="28">
                     <div class="radar-icon-wrapper"
                       [ngClass]="{

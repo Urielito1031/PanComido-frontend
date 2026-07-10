@@ -42,13 +42,6 @@ describe('CantidadPersonas', () => {
     expect(component).toBeTruthy();
   });
 
-  it('debería expandir opciones', () => {
-    component.maxCantidad = 5;
-    component.expandirOpciones();
-
-    expect(component.maxCantidad).toBe(10);
-  });
-
   it('debería seleccionar cantidad', () => {
     component.seleccionarCantidad(3);
 

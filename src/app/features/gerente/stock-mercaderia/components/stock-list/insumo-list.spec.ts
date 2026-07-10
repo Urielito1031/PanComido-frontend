@@ -10,7 +10,7 @@ describe('InsumoList', () => {
       nombre: 'Tomate',
       stockActual: 5,
       stockMinimo: 10,
-      precioVentaFinal: 500,
+      costo: 500,
       vencimiento: '2026-12-31',
       categoriaIngrediente: { id: 1, descripcion: 'Verduras' },
       unidadMedida: { id: 1, nombre: 'kg' },
@@ -20,7 +20,7 @@ describe('InsumoList', () => {
       nombre: 'Harina',
       stockActual: 30,
       stockMinimo: 10,
-      precioVentaFinal: 300,
+      costo: 300,
       vencimiento: '',
       categoriaIngrediente: null,
       unidadMedida: null,
@@ -30,7 +30,7 @@ describe('InsumoList', () => {
       nombre: 'Sal',
       stockActual: 15,
       stockMinimo: 10,
-      precioVentaFinal: 100,
+      costo: 100,
       vencimiento: 'invalida',
       categoriaIngrediente: { id: 2, descripcion: 'Condimentos' },
       unidadMedida: { id: 2, nombre: 'g' },
@@ -65,7 +65,7 @@ describe('InsumoList', () => {
       expect(tomate.categoria).toBe('Verduras');
       expect(tomate.stock).toBe('5 kg');
       expect(tomate.minimo).toBe('10 kg');
-      expect(tomate.precioVentaFinal).toBe(500);
+      expect(tomate.costo).toBe(500);
       expect(tomate.vencimiento).toBe('31/12/2026');
     });
 

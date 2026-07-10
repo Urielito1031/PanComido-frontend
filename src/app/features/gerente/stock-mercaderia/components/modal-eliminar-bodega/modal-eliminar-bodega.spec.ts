@@ -1,18 +1,26 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ModalEliminarBodega } from './modal-eliminar-bodega';
+import { ModalEliminarBodegaComponent } from './modal-eliminar-bodega';
+import { Bodega } from '../../../../../core/models/domain/bodega';
 
 describe('ModalEliminarBodega', () => {
-  let component: ModalEliminarBodega;
-  let fixture: ComponentFixture<ModalEliminarBodega>;
+  let component: ModalEliminarBodegaComponent;
+  let fixture: ComponentFixture<ModalEliminarBodegaComponent>;
+
+  const mockBodega: Bodega = {
+    id: 1,
+    nombre: 'Bodega test',
+    tipoBodega: 'Materia prima',
+  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ModalEliminarBodega],
+      imports: [ModalEliminarBodegaComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ModalEliminarBodega);
+    fixture = TestBed.createComponent(ModalEliminarBodegaComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('bodega', mockBodega);
     await fixture.whenStable();
   });
 
