@@ -2,7 +2,8 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "cli": {
-    "packageManager": "npm"
+    "packageManager": "npm",
+    "analytics": false
   },
   "newProjectRoot": "projects",
   "projects": {
@@ -27,20 +28,31 @@
                 "src/assets",
                 "src/_redirects"
             ],
-            "styles": ["src/styles.css"]
+            "styles": [
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "src/styles.css"
+            ],
+            "allowedCommonJsDependencies": [
+              "qrcode"
+            ]
           },
           "configurations": {
             "production": {
+              "optimization": {
+                "scripts": true,
+                "styles": true,
+                "fonts": false
+              },
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
+                  "maximumWarning": "650kB",
                   "maximumError": "1MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "80kB",
+                  "maximumError": "100kB"
                 }
               ],
               "outputHashing": "all"
@@ -61,18 +73,24 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "allowedHosts": ["3326-2802-8010-821f-2600-80b1-cf95-b681-4ec6.ngrok-free.app"]
+          },
           "configurations": {
             "production": {
               "buildTarget": "frontend:build:production"
-            },
-            "development": {
+             },
+             "development": {
               "buildTarget": "frontend:build:development"
             }
           },
           "defaultConfiguration": "development"
         },
         "test": {
-          "builder": "@angular/build:unit-test"
+          "builder": "@analogjs/vitest-angular:vitest",
+          "options": {
+            "configFile": "vitest.config.ts"
+          }
         }
       }
     }

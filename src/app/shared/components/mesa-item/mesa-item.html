@@ -1,0 +1,44 @@
+<div class="mesa-container"
+     [ngClass]="[claseEstado(), claseForma(), isSeleccionada() ? 'seleccionada' : '', enColision() ? 'colision-activa' : '']"
+     [style.width.px]="ancho()"
+     [style.height.px]="alto()"
+     (click)="manejarClickMesa($event)">
+
+  @if (!isEditorMode() && isSeleccionada()) {
+    <div class="popup-acciones" [class.arriba]="abrirHaciaArriba()" (click)="$event.stopPropagation()">
+
+      @if (mesa().estadoMesa === 'Disponible' || mesa().estadoMesa === 'Reservada') {
+        <button type="button" class="btn-accion" (click)="$event.stopPropagation(); accionMenu.emit('ocupar')">Ocupar mesa</button>
+        <button type="button" class="btn-accion" (click)="$event.stopPropagation(); accionMenu.emit('deshabilitar')">Deshabilitar</button>
+      }
+      
+      @if (mesa().estadoMesa === 'Ocupada') {
+        <button type="button" class="btn-accion" (click)="$event.stopPropagation(); accionMenu.emit('detalles')">Ver detalles</button>
+        <button type="button" class="btn-accion" (click)="$event.stopPropagation(); accionMenu.emit('cerrar')">Cerrar mesa</button>
+      }
+
+      @if (auth.tieneRoles(['Gerente'])) {
+        <button type="button" class="btn-accion text-primary" (click)="$event.stopPropagation(); accionMenu.emit('asignar-mozo')">Asignar Mozo</button>
+        <button type="button" class="btn-accion text-secondary" (click)="$event.stopPropagation(); accionMenu.emit('generar-qr')">Generar QR</button>
+      }
+
+      @if (mesa().estadoMesa === 'Deshabilitada') {
+        <button type="button" class="btn-accion" (click)="$event.stopPropagation(); accionMenu.emit('cerrar')">Habilitar</button>
+      }
+    </div>
+  }
+
+  @if (isEditorMode()) {
+    <button class="btn-eliminar" (click)="$event.stopPropagation(); eliminar.emit(mesa().id)">×</button>
+  }
+
+  @if (isEditorMode()) {
+    <input type="number"
+           [value]="mesa().numeroMesa"
+           (blur)="onInputBlur($event)"
+           (mousedown)="$event.stopPropagation()"
+           class="input-numero">
+  } @else {
+    <span class="numero">{{ mesa().numeroMesa }}</span>
+  }
+</div>

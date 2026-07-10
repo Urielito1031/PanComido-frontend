@@ -1,0 +1,57 @@
+<app-header-comensal [showBack]="true" backRoute="/comensal/ver-carta" [title]="'Estado del pedido'" />
+
+<div class="container-fluid p-3 bg-white min-vh-100">
+
+  @if (estado()) {
+    <app-resumen-pedido
+      [items]="estado()!.items"
+      [estadoUI]="estado()!.estadoUI"
+      [mesaId]="mesaId()" />
+
+    <div class="total-card mb-4">
+      <span class="total-label">Total:</span>
+      <div class="total-amount">$ {{ estado()!.totalAPagar | number:'1.0-0' }}</div>
+    </div>
+  }
+
+  @if (cargando() && !estado()) {
+    <div class="text-center py-5">
+      <div class="spinner-loading"></div>
+      <p class="mt-3 text-muted" style="font-size:0.9rem;">Consultando estado...</p>
+    </div>
+  }
+
+  <div>
+    <app-boton-comensal
+      class="mb-3 d-block"
+      [backgroundColor]="configuracionVisualState.colorSecundario()"
+      textColor="#ffffff"
+      (clicked)="volver()">
+      + Agregar más platos
+    </app-boton-comensal>
+
+    @if (!esMozo()) {
+    <div class="botones-acciones">
+      <app-boton-comensal backgroundColor="#ffffff" [textColor]="configuracionVisualState.colorSecundario() ?? '#000000'" [tieneBorde]="true"
+        (clicked)="modalLlamarMozo.abrirModal()">
+        <div class="d-flex align-items-center justify-content-center gap-2 fw-bold">
+          <span class="material-symbols-outlined" style="font-size:1.1rem">room_service</span>
+          <span>Llamar al mozo</span>
+        </div>
+      </app-boton-comensal>
+      <app-boton-comensal [backgroundColor]="configuracionVisualState.colorPrimario() ?? '#02596C'" textColor="#ffffff"
+        (clicked)="pagarCuenta()">
+        <div class="d-flex align-items-center justify-content-center gap-2 fw-bold">
+          <span class="material-symbols-outlined" style="font-size:1.1rem">credit_card</span>
+          <span>Pagar cuenta</span>
+        </div>
+      </app-boton-comensal>
+    </div>
+
+    <app-llamar-al-mozo #modalLlamarMozo [mesaId]="mesaId() ?? 0" [enviando]="comensalState.enviando()"
+      [enviado]="comensalState.exito()" [error]="comensalState.error()"
+      (llamadoMozo)="comensalState.solicitarMozo($event)"
+      (modalCerrado)="comensalState.limpiarEstado()"></app-llamar-al-mozo>
+    }
+  </div>
+</div>

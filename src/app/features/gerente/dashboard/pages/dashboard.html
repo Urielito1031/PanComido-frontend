@@ -1,0 +1,644 @@
+<main class="dashboard-page">
+  <header class="dashboard-header">
+    <div>
+      <p class="eyebrow">Gerencia</p>
+      <h1>Dashboard</h1>
+      <p class="subtitle">{{ obtenerDescripcionVistaActiva() }}</p>
+    </div>
+
+    <div class="header-status-actions">
+      <button type="button" class="tour-trigger-btn" (click)="iniciarTutorial()" title="Iniciar tutorial interactivo">
+        <span class="material-symbols-outlined">help</span>
+      </button>
+
+      <div class="refresh-indicator-container">
+        <span class="refresh-time">Actualizado {{ state.ultimoRefresco() | date: 'HH:mm' }}</span>
+        <button type="button" class="refresh-btn" [class.spinning]="state.cargando()" (click)="refrescarManual()" title="Refrescar datos ahora">
+          <span class="material-symbols-outlined">refresh</span>
+        </button>
+      </div>
+
+      <!-- Burbuja de Notificaciones en la esquina superior derecha -->
+      <div class="notifications-container"
+           (mouseenter)="hoverNotificaciones.set(true)"
+           (mouseleave)="hoverNotificaciones.set(false)"
+           (click)="$event.stopPropagation()">
+
+        <button type="button"
+                class="notifications-bubble-btn"
+                [class.has-unread]="state.recordatoriosAdicionales().length > 0"
+                (click)="alternarNotificaciones($event)"
+                title="Recordatorios de Tareas Programadas">
+          <span class="material-symbols-outlined">notifications</span>
+          @if (state.recordatoriosAdicionales().length > 0) {
+            <span class="notifications-badge">{{ state.recordatoriosAdicionales().length }}</span>
+          }
+        </button>
+
+        <!-- Dropdown flotante que se abre al pasar el mouse o hacer click -->
+        @if (mostrarNotificaciones() || hoverNotificaciones()) {
+          <div class="notifications-dropdown shadow border" (click)="$event.stopPropagation()">
+            <div class="notifications-dropdown-header">
+              <h3>Tareas Programadas ({{ state.recordatoriosAdicionales().length }})</h3>
+            </div>
+            <div class="notifications-dropdown-body">
+              @if (state.recordatoriosAdicionales().length === 0) {
+                <div class="no-notifications">
+                  <span class="material-symbols-outlined">notifications_off</span>
+                  <p>No hay tareas programadas pendientes</p>
+                </div>
+              } @else {
+                @for (rec of state.recordatoriosAdicionales(); track rec.titulo) {
+                  <div class="notification-dropdown-item" [class]="rec.tono">
+                    <div class="notification-item-header">
+                      <strong>{{ rec.titulo }}</strong>
+                      <button type="button" class="dismiss-btn" (click)="state.resolverRecordatorio(rec.id!); $event.stopPropagation()" title="Resolver">
+                        <span class="material-symbols-outlined">close</span>
+                      </button>
+                    </div>
+                    <p class="notification-detail">{{ rec.detalle }}</p>
+                    <div class="notification-item-actions">
+                      <span class="impact-badge">{{ rec.impacto }}</span>
+                      <button type="button" class="manage-btn" (click)="gestionarRecordatorio(rec); cerrarDropdowns(); $event.stopPropagation()">
+                        Gestionar <span class="material-symbols-outlined">arrow_forward</span>
+                      </button>
+                    </div>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </header>
+
+  <section class="dashboard-toolbar" aria-label="Filtros del dashboard">
+    <div class="dashboard-toolbar-row-top">
+      <div class="view-tabs" [class.mobile-expanded]="tabsMovilExpandido()" role="tablist">
+        <button type="button" role="tab" class="view-tabs-mobile-trigger" (click)="toggleTabsMovil($event)" [attr.aria-expanded]="tabsMovilExpandido()" aria-label="Seleccionar vista del dashboard">
+          <span class="material-symbols-outlined" aria-hidden="true">{{ obtenerIconoVistaActiva() }}</span>
+          <span class="trigger-label">{{ obtenerLabelVistaActiva() }}</span>
+          <span class="material-symbols-outlined chevron-icon">keyboard_arrow_down</span>
+        </button>
+
+        <div class="view-tabs-list-wrapper">
+          <button type="button" role="tab" [attr.aria-selected]="state.modoVista() === 'resumen'" [class.active]="state.modoVista() === 'resumen'" (click)="seleccionarTabMovil('resumen', $event)">
+            <span class="material-symbols-outlined" aria-hidden="true">space_dashboard</span> Resumen
+          </button>
+          <button type="button" role="tab" [attr.aria-selected]="state.modoVista() === 'favoritos'" [class.active]="state.modoVista() === 'favoritos'" (click)="seleccionarTabMovil('favoritos', $event)">
+            <span class="material-symbols-outlined" aria-hidden="true">star</span> Favoritos
+          </button>
+          <button type="button" role="tab" [attr.aria-selected]="state.modoVista() === 'reportes'" [class.active]="state.modoVista() === 'reportes'" (click)="seleccionarTabMovil('reportes', $event)">
+            <span class="material-symbols-outlined" aria-hidden="true">analytics</span> Análisis completo
+          </button>
+          <button type="button" role="tab" [attr.aria-selected]="state.modoVista() === 'finanzas'" [class.active]="state.modoVista() === 'finanzas'" (click)="seleccionarTabMovil('finanzas', $event)">
+            <span class="material-symbols-outlined" aria-hidden="true">payments</span> Finanzas
+          </button>
+          <button type="button" role="tab" [attr.aria-selected]="state.modoVista() === 'personal'" [class.active]="state.modoVista() === 'personal'" (click)="seleccionarTabMovil('personal', $event)">
+            <span class="material-symbols-outlined" aria-hidden="true">groups</span> Personal
+          </button>
+          <button type="button" role="tab" [attr.aria-selected]="state.modoVista() === 'operativo'" [class.active]="state.modoVista() === 'operativo'" (click)="seleccionarTabMovil('operativo', $event)">
+            <span class="material-symbols-outlined" aria-hidden="true">task_alt</span> Hoy
+          </button>
+        </div>
+      </div>
+      <div class="dashboard-toolbar-actions-group">
+        @if (state.modoVista() === 'favoritos') {
+          <button type="button" class="customize-layout-btn" [class.editing]="state.estaEditando()" (click)="state.alternarEdicion()" [title]="state.estaEditando() ? 'Guardar y salir del modo edición' : 'Personalizar distribución de favoritos'">
+            <span class="material-symbols-outlined" aria-hidden="true">{{ state.estaEditando() ? 'check' : 'edit' }}</span>
+            {{ state.estaEditando() ? 'Listo' : 'Personalizar' }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="dashboard-toolbar-row-bottom">
+      <div class="period-context" aria-label="Periodo seleccionado">
+        <span class="material-symbols-outlined" aria-hidden="true">date_range</span>
+        <span>Periodo: <strong>{{ state.periodoLabel() }}</strong></span>
+      </div>
+
+      <div class="period-filter" role="group" aria-label="Periodo del dashboard">
+        @for (periodo of periodos; track periodo.value) {
+          <button
+            type="button"
+            class="period-button"
+            [class.active]="state.periodo() === periodo.value"
+            (click)="establecerPeriodo(periodo.value)">
+            {{ periodo.label }}
+          </button>
+        }
+        <button
+          type="button"
+          class="period-button custom-period"
+          [class.active]="state.periodo() === 'custom'"
+          (click)="establecerPeriodo('custom')">
+          <span class="material-symbols-outlined" aria-hidden="true">edit_calendar</span>
+          Rango
+        </button>
+      </div>
+
+      @if (state.periodo() === 'custom') {
+      <div class="date-filter active">
+        <label>
+          Desde
+          <span class="date-field">
+            <input
+              #fechaDesdeInput
+              type="text"
+              inputmode="numeric"
+              placeholder="dd/mm/aaaa"
+              [ngModel]="state.fechaDesde()"
+              (ngModelChange)="establecerFechaDesde($event)">
+            <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+          </span>
+        </label>
+        <label>
+          Hasta
+          <span class="date-field">
+            <input
+              #fechaHastaInput
+              type="text"
+              inputmode="numeric"
+              placeholder="dd/mm/aaaa"
+              [ngModel]="state.fechaHasta()"
+              (ngModelChange)="establecerFechaHasta($event)">
+            <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+          </span>
+        </label>
+      </div>
+      }
+    </div>
+  </section>
+
+  <div class="dashboard-views" [class.mode-favoritos]="state.modoVista() === 'favoritos'" [class.editing-active]="state.modoVista() === 'favoritos' && state.estaEditando()">
+
+  @if (state.modoVista() === 'favoritos' && state.estaEditando()) {
+    <aside class="edit-drawer">
+      <div class="drawer-header">
+        <div>
+          <span class="drawer-eyebrow">Personalizar</span>
+          <h2>Panel de Módulos</h2>
+        </div>
+        <button type="button" class="close-drawer-btn" (click)="state.alternarEdicion(false)" aria-label="Cerrar panel de edición">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="drawer-body">
+        <p class="drawer-instruction">Arrastra un módulo al lienzo o haz clic en "+" para añadirlo.</p>
+        
+        <div class="presets-section">
+          <h3>Plantillas Rápidas</h3>
+          <div class="preset-buttons">
+            <button type="button" class="preset-btn" (click)="state.aplicarPreset('financiero')" title="Módulos financieros y tendencia mensual">Financiero</button>
+            <button type="button" class="preset-btn" (click)="state.aplicarPreset('operativo')" title="Insumos por vencer, tareas y pedidos">Operativo</button>
+            <button type="button" class="preset-btn" (click)="state.aplicarPreset('personal')" title="Desempeño de mozos, pedidos e impacto">Personal</button>
+          </div>
+          <button type="button" class="reset-layout-btn" (click)="state.restablecerFavoritos()" title="Restablecer favoritos por defecto">
+            <span class="material-symbols-outlined">restart_alt</span> Restablecer por defecto
+          </button>
+        </div>
+
+        <div class="drawer-modules-list">
+          @for (widget of modulosDisponibles; track widget.id) {
+            <div 
+              class="drawer-module-item" 
+              [class.already-added]="state.esFavorito(widget.id)"
+              draggable="true" 
+              (dragstart)="alIniciarArrastreDesdeBarra($event, widget.id)">
+              <div class="module-info-wrapper">
+                <span class="material-symbols-outlined module-icon">{{ widget.icon }}</span>
+                <div class="module-text">
+                  <span class="module-category">{{ widget.category }}</span>
+                  <strong>{{ widget.name }}</strong>
+                  <p>{{ widget.description }}</p>
+                </div>
+              </div>
+              <button 
+                type="button" 
+                class="add-module-btn" 
+                (click)="state.esFavorito(widget.id) ? state.quitarFavorito(widget.id) : state.agregarFavorito(widget.id)" 
+                [title]="state.esFavorito(widget.id) ? 'Quitar de favoritos' : 'Añadir a favoritos'"
+                [attr.aria-label]="(state.esFavorito(widget.id) ? 'Quitar ' : 'Añadir ') + widget.name + (state.esFavorito(widget.id) ? ' de favoritos' : ' a favoritos')">
+                <span class="material-symbols-outlined">{{ state.esFavorito(widget.id) ? 'remove' : 'add' }}</span>
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    </aside>
+  }
+
+  <div class="dashboard-canvas-content">
+
+  @if (state.modoVista() !== 'favoritos' && state.resumenOperativo(); as resumen) {
+    <section class="kpi-report-strip" aria-label="Indicadores principales del periodo">
+      <article class="kpi-report-hero">
+        <div class="kpi-hero-heading">
+          <span>Ventas totales</span>
+          <strong
+            class="kpi-hero-change"
+            [class.negative]="state.variacionVentasEsNegativa()">
+            {{ resumen.variacionVentas }}
+          </strong>
+        </div>
+        <div class="kpi-hero-main">
+          @if (state.tieneVentasRegistradas()) {
+            <strong class="kpi-hero-value">{{ resumen.totalVentas }}</strong>
+          } @else {
+            <strong class="kpi-hero-empty">No hay ventas registradas</strong>
+          }
+        </div>
+        <p class="kpi-hero-context">
+          {{ state.tieneVentasRegistradas() ? 'Facturación consolidada para ' + state.periodoLabel() + '.' : 'Esperando actividad comercial para ' + state.periodoLabel() + '.' }}
+        </p>
+        <div class="kpi-hero-rail" aria-hidden="true">
+          <span class="rail-marker rail-marker-primary">
+            {{ resumen.totalPedidos }} pedidos
+          </span>
+          <span class="rail-line" [class.is-empty]="!state.tieneVentasRegistradas()">
+            <span [style.width.%]="state.porcentajeRailVentas()"></span>
+          </span>
+          <span class="rail-marker">
+            {{ state.promedioDiarioVentas() | arsCurrency }} diario
+          </span>
+        </div>
+      </article>
+
+      <article class="kpi-mini-card orders-card">
+        <div class="kpi-mini-heading">
+          <span>Pedidos</span>
+          <span class="material-symbols-outlined" aria-hidden="true">shopping_bag</span>
+        </div>
+        <div class="orders-kpi-main">
+          @if (state.tienePedidosRegistrados()) {
+            <strong>{{ resumen.totalPedidos }}</strong>
+            <span
+              class="kpi-mini-change"
+              [class.negative]="state.variacionPedidosEsNegativa()">
+              {{ resumen.variacionPedidos }}
+            </span>
+          } @else {
+            <span class="kpi-empty-state">Sin pedidos registrados</span>
+          }
+        </div>
+        <div class="orders-kpi-detail">
+          <span>
+            <small>Ritmo</small>
+            <strong>{{ state.tienePedidosRegistrados() ? (state.variacionPedidosEsNegativa() ? 'Bajo' : 'Estable') : 'Sin actividad' }}</strong>
+          </span>
+        </div>
+      </article>
+
+      <article class="kpi-mini-card highlighted">
+        <div class="kpi-mini-heading">
+          <span>Ticket promedio</span>
+          <span class="material-symbols-outlined" aria-hidden="true">receipt_long</span>
+        </div>
+        @if (state.tieneTicketPromedio()) {
+          <strong>{{ resumen.ticketPromedio }}</strong>
+          <span
+            class="kpi-mini-change"
+            [class.negative]="state.variacionTicketEsNegativa()">
+            {{ resumen.variacionTicket }}
+          </span>
+        } @else {
+          <span class="kpi-empty-state">Sin tickets cerrados</span>
+        }
+      </article>
+
+      <article class="kpi-mini-card">
+        <div class="kpi-mini-heading">
+          <span>Promedio diario</span>
+          <span class="material-symbols-outlined" aria-hidden="true">monitoring</span>
+        </div>
+        @if (state.promedioDiarioVentas() > 0) {
+          <strong>{{ state.promedioDiarioVentas() | arsCurrency }}</strong>
+          <small>{{ resumen.promedioDiarioPedidos }} pedidos por día</small>
+        } @else {
+          <span class="kpi-empty-state">Sin ventas diarias</span>
+          <small>No hay pedidos para promediar</small>
+        }
+      </article>
+    </section>
+  }
+
+  @if (state.modoVista() === 'resumen') {
+    <section class="executive-summary" aria-label="Resumen ejecutivo del dashboard">
+      <article class="executive-summary-card">
+        <div class="executive-summary-copy">
+          <span class="summary-eyebrow">Prioridad gerencial</span>
+          @if (state.accionPrincipal(); as accion) {
+            <h2>{{ accion.titulo }}</h2>
+            <p>{{ accion.detalle }}. {{ accion.impacto }}.</p>
+            <button type="button" class="summary-action-btn" (click)="irA(accion.destino)">
+              Resolver ahora
+              <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+            </button>
+          } @else {
+            <h2>Operación estable</h2>
+            <p>No hay acciones urgentes para el período seleccionado. Revisá ventas y stock para anticipar próximos movimientos.</p>
+          }
+        </div>
+        <div class="executive-summary-metrics">
+          <div class="summary-metric-card danger">
+            <small>Insumos críticos</small>
+            <strong>{{ state.vencimientosResumen()[1]?.value ?? 0 }}</strong>
+            <span>Alta prioridad</span>
+          </div>
+          <div class="summary-metric-card warning">
+            <small>Platos a revisar</small>
+            <strong>{{ state.platosMenosVendidosPreview().length }}</strong>
+            <span>Demanda baja</span>
+          </div>
+          <div class="summary-metric-card neutral">
+            <small>Tareas programadas</small>
+            <strong>{{ state.recordatoriosAdicionales().length }}</strong>
+            <span>Pendientes</span>
+          </div>
+        </div>
+      </article>
+    </section>
+  }
+
+  @if (state.atencion().length > 0 && state.modoVista() !== 'resumen') {
+    <section class="attention-section" aria-label="Resumen de atención">
+      <div class="attention-grid">
+        @for (item of state.atencion(); track item.titulo; let i = $index) {
+          <article class="attention-card" [class]="item.tono">
+              <div class="attention-copy">
+                <strong [innerHTML]="item.titulo"></strong>
+                <span>{{ item.detalle }}</span>
+              </div>
+              <button type="button" class="attention-action" (click)="irA(item.destino)">
+                {{ item.accion }}
+                <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+              </button>
+            </article>
+        }
+      </div>
+    </section>
+  }
+
+  @if (state.modoVista() !== 'favoritos') {
+    <div
+      class="dashboard-grid-container"
+      [class.mode-reportes-grid]="state.modoVista() === 'reportes'"
+      [class.mode-calendar-grid]="state.modoVista() === 'reportes' && state.esModoCalendario()">
+      @for (widget of widgetsParaVista(); track widget.id) {
+        @if (deberiaMostrarModulo(widget)) {
+          <div
+            class="grid-item col-span-{{ widget.colSpan }}"
+            [attr.data-widget-id]="widget.id"
+            [id]="'widget-' + widget.id">
+            <ng-container *ngTemplateOutlet="widgetTemplate; context: { id: widget.id }"></ng-container>
+          </div>
+        }
+      }
+    </div>
+  } @else {
+    <div 
+      class="dashboard-grid-container mode-favoritos-canvas"
+      (dragover)="alArrastrarSobreLienzo($event)"
+      (drop)="alSoltarEnLienzo($event)"
+      [class.canvas-editing]="state.estaEditando()">
+      
+      @for (fav of state.configuracionFavoritos(); track fav.id; let i = $index) {
+        <div
+          class="grid-item col-width-{{ fav.width }}"
+          [class.dragging-placeholder]="indiceArrastrado() === i"
+          [class.drag-over-target]="indiceArrastradoSobre() === i && indiceArrastrado() !== i"
+          [attr.data-widget-id]="fav.id"
+          [id]="'widget-' + fav.id"
+          [attr.data-index]="i"
+          [draggable]="state.estaEditando() && !esMovil()"
+          (dragstart)="alIniciarArrastreEnLienzo($event, i)"
+          (dragend)="alTerminarArrastreEnLienzo()"
+          (dragover)="alArrastrarSobreLienzo($event)"
+          (dragenter)="alEntrarArrastreEnLienzo($event, i)"
+          (dragleave)="alSalirArrastreDeLienzo($event, i)"
+          (drop)="alSoltarEnLienzoCard($event, i)">
+          
+          @if (state.estaEditando()) {
+            <div class="canvas-item-edit-bar">
+              @if (esMovil()) {
+                <div class="canvas-mobile-order-actions">
+                  <button type="button" class="order-btn" [disabled]="i === 0" (click)="moverFavoritoArriba(i)" title="Mover arriba">
+                    <span class="material-symbols-outlined">arrow_upward</span>
+                  </button>
+                  <button type="button" class="order-btn" [disabled]="i === state.configuracionFavoritos().length - 1" (click)="moverFavoritoAbajo(i)" title="Mover abajo">
+                    <span class="material-symbols-outlined">arrow_downward</span>
+                  </button>
+                </div>
+              } @else {
+                <span 
+                  class="material-symbols-outlined canvas-drag-handle" 
+                  title="Arrastrar para reordenar"
+                  (mousedown)="alPresionarManijaArrastre()">
+                  drag_indicator
+                </span>
+              }
+              <div class="canvas-edit-actions">
+                <button type="button" class="canvas-size-btn" (click)="alternarSelectorTamano($event, fav.id)" title="Cambiar tamaño del módulo">
+                  <span class="material-symbols-outlined">photo_size_select_large</span>
+                  {{ fav.width }}%
+                </button>
+                <button type="button" class="canvas-delete-btn" (click)="state.quitarFavorito(fav.id)" title="Quitar de favoritos">
+                  <span class="material-symbols-outlined">close</span>
+                </button>
+              </div>
+
+              @if (menuConfiguracionModuloActivo() === fav.id) {
+                <div class="size-selector-popover" (click)="$event.stopPropagation()">
+                  <div class="popover-title">Seleccionar ancho:</div>
+                  <div class="popover-options">
+                    @if (fav.id.startsWith('kpi-') || fav.id === 'proximas-acciones') {
+                      <button type="button" [class.active]="fav.width === '25'" (click)="establecerAnchoModulo(fav.id, '25')">Chico (25%)</button>
+                    }
+                    @if (fav.id !== 'mozos') {
+                      <button type="button" [class.active]="fav.width === '50'" (click)="establecerAnchoModulo(fav.id, '50')">Mediano (50%)</button>
+                    }
+                    <button type="button" [class.active]="fav.width === '100'" (click)="establecerAnchoModulo(fav.id, '100')">Grande (100%)</button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          <ng-container *ngTemplateOutlet="widgetTemplate; context: { id: fav.id }"></ng-container>
+        </div>
+      }
+
+      @if (state.configuracionFavoritos().length === 0 && !state.estaEditando()) {
+        <div class="empty-favorites-state empty-favorites-state-full">
+          <svg class="empty-favorites-icon" width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="60" cy="60" r="50" fill="#02596c" opacity="0.08"/>
+            <path d="M60 25L71.5 48.5L97.5 52L78.5 70L83 96L60 83.5L37 96L41.5 70L22.5 52L48.5 48.5L60 25Z" fill="#f3c010" filter="drop-shadow(0px 8px 16px rgba(243, 192, 16, 0.22))"/>
+          </svg>
+          <h2>Crea tu espacio de trabajo favorito</h2>
+          <p>Organiza tus KPIs, reportes y gráficos prioritarios en un solo lugar para una gestión más rápida y personalizada.</p>
+          <button type="button" class="primary-btn empty-favorites-action" (click)="state.alternarEdicion(true)">
+            <span class="material-symbols-outlined empty-favorites-action-icon">space_dashboard</span>
+            Personalizar Vista
+          </button>
+        </div>
+      }
+    </div>
+  }
+  </div>
+
+  <ng-template #widgetTemplate let-id="id">
+    @switch (id) {
+      @case ('kpi-ventas') {
+        <app-kpi-card type="ventas"></app-kpi-card>
+      }
+      @case ('kpi-pedidos') {
+        <app-kpi-card type="pedidos"></app-kpi-card>
+      }
+      @case ('kpi-ticket') {
+        <app-kpi-card type="ticket"></app-kpi-card>
+      }
+      @case ('kpi-promedio') {
+        <app-kpi-card type="promedio"></app-kpi-card>
+      }
+      @case ('ventas-calendario') {
+        @defer (on viewport) {
+          <app-ventas-calendario></app-ventas-calendario>
+        } @placeholder {
+          <div class="panel-card deferred-placeholder deferred-placeholder-large">
+            <div class="skeleton-pulsing deferred-placeholder-block"></div>
+          </div>
+        }
+      }
+      @case ('platos-mas-vendidos') {
+        <app-platos-mas-vendidos></app-platos-mas-vendidos>
+      }
+      @case ('platos-menos-vendidos') {
+        <app-platos-menos-vendidos></app-platos-menos-vendidos>
+      }
+      @case ('insumos-vencer') {
+        @defer (on viewport) {
+          <app-insumos-vencer></app-insumos-vencer>
+        } @placeholder {
+          <div class="panel-card deferred-placeholder deferred-placeholder-medium">
+            <div class="skeleton-pulsing deferred-placeholder-block"></div>
+          </div>
+        }
+      }
+      @case ('radar-alergias') {
+        @defer (on viewport) {
+          <app-radar-alergias></app-radar-alergias>
+        } @placeholder {
+          <div class="panel-card deferred-placeholder deferred-placeholder-medium">
+            <div class="skeleton-pulsing deferred-placeholder-block"></div>
+          </div>
+        }
+      }
+      @case ('satisfaccion-comensal') {
+        @defer (on viewport) {
+          <app-satisfaccion-comensal></app-satisfaccion-comensal>
+        } @placeholder {
+          <div class="panel-card deferred-placeholder deferred-placeholder-medium">
+            <div class="skeleton-pulsing deferred-placeholder-block"></div>
+          </div>
+        }
+      }
+      @case ('mozos') {
+        @defer (on viewport) {
+          <app-mozos></app-mozos>
+        } @placeholder {
+          <div class="panel-card deferred-placeholder deferred-placeholder-medium">
+            <div class="skeleton-pulsing deferred-placeholder-block"></div>
+          </div>
+        }
+      }
+    }
+  </ng-template>
+
+  @defer (on idle) {
+    <app-analisis-plato-panel></app-analisis-plato-panel>
+  }
+
+  @if (state.toastMensaje(); as toast) {
+    <div class="toast-notification-banner" [class]="toast.tipo" id="toast-notif">
+      <span class="material-symbols-outlined">
+        {{ toast.tipo === 'exito' ? 'check_circle' : 'info' }}
+      </span>
+      <span>{{ toast.texto }}</span>
+    </div>
+  }
+  </div>
+
+  <footer class="dashboard-footer">
+    <button type="button" class="back-to-top-btn" (click)="desplazarAlPrincipio()" aria-label="Volver al principio del dashboard">
+      <span class="material-symbols-outlined">arrow_upward</span> Volver al principio
+    </button>
+  </footer>
+
+  <div class="floating-sections-container">
+    @if (mostrarGloboInfo() && !menuFlotanteAbierto()) {
+      <div class="navigation-tooltip-bubble">
+        <span>Navega rápido entre secciones desde aquí</span>
+        <button type="button" class="tooltip-close-btn" (click)="cerrarGloboInfo($event)" title="Cerrar aviso">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+        <div class="tooltip-arrow"></div>
+      </div>
+    }
+
+    <div class="floating-menu-card" [class.open]="menuFlotanteAbierto()">
+      <div class="floating-menu-header">
+        <strong>Navegar Secciones</strong>
+      </div>
+      <div class="floating-menu-body">
+        <button type="button" class="floating-menu-item" (click)="desplazarASeccion('kpi-ventas')">
+          <span class="material-symbols-outlined">payments</span>
+          <span>Resumen Financiero</span>
+        </button>
+        <button type="button" class="floating-menu-item" (click)="desplazarASeccion('ventas-calendario')">
+          <span class="material-symbols-outlined">calendar_month</span>
+          <span>Tendencia de Ventas</span>
+        </button>
+        <button type="button" class="floating-menu-item" (click)="desplazarASeccion('platos-mas-vendidos')">
+          <span class="material-symbols-outlined">restaurant_menu</span>
+          <span>Platos y Menú</span>
+        </button>
+        <button type="button" class="floating-menu-item" (click)="desplazarASeccion('insumos-vencer')">
+          <span class="material-symbols-outlined">warning</span>
+          <span>Inventario y Mermas</span>
+        </button>
+        <button type="button" class="floating-menu-item" (click)="desplazarASeccion('satisfaccion-comensal')">
+          <span class="material-symbols-outlined">reviews</span>
+          <span>Satisfacción de Clientes</span>
+        </button>
+        <button type="button" class="floating-menu-item" (click)="desplazarASeccion('mozos')">
+          <span class="material-symbols-outlined">groups</span>
+          <span>Personal de Salón</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="floating-actions-row">
+      <button 
+        type="button" 
+        class="floating-back-to-top" 
+        (click)="desplazarAlPrincipio()"
+        aria-label="Volver arriba"
+        title="Volver arriba">
+        <span class="material-symbols-outlined">arrow_upward</span>
+      </button>
+      <button 
+        type="button" 
+        class="floating-menu-trigger" 
+        [class.active]="menuFlotanteAbierto()"
+        (click)="menuFlotanteAbierto.set(!menuFlotanteAbierto()); mostrarGloboInfo.set(false)"
+        title="Navegar secciones del dashboard"
+        [attr.aria-expanded]="menuFlotanteAbierto()"
+        aria-label="Navegar secciones del dashboard">
+        <span class="material-symbols-outlined">{{ menuFlotanteAbierto() ? 'close' : 'explore' }}</span>
+      </button>
+    </div>
+  </div>
+</main>

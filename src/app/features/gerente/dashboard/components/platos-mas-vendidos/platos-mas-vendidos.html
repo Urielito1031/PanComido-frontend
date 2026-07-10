@@ -1,0 +1,40 @@
+<article class="panel-card sales-panel">
+  <div class="panel-heading">
+    <div>
+      <h2>Platos más vendidos</h2>
+      <p>Top 5 por unidades vendidas</p>
+    </div>
+    <div class="panel-actions" (click)="$event.stopPropagation()">
+      <span class="panel-badge">Top 5</span>
+      <button type="button" class="favorite-btn" [class.active]="state.esFavorito('platos-mas-vendidos')" (click)="state.toggleFavorito('platos-mas-vendidos')" title="Fijar en favoritos" aria-label="Fijar platos más vendidos en favoritos">
+        <span class="material-symbols-outlined">{{ state.esFavorito('platos-mas-vendidos') ? 'star' : 'star_border' }}</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="ranking-list">
+    @for (plato of state.platosMasVendidosPreview(); track plato.nombre; let index = $index) {
+      <div class="ranking-row">
+        <span class="rank">{{ index + 1 }}</span>
+        <div class="ranking-content">
+          <div class="ranking-title">
+            <strong>{{ plato.nombre }}</strong>
+            <small>{{ plato.detalle }}</small>
+          </div>
+          <span class="ranking-value">{{ plato.valor }} u.</span>
+          <div class="ranking-bar">
+            <span [style.width.%]="porcentajeRanking(plato.valor)"></span>
+          </div>
+        </div>
+      </div>
+    }
+
+    <div class="ranking-recommendation">
+      <span class="material-symbols-outlined" aria-hidden="true">local_fire_department</span>
+      <div>
+        <strong>Lectura rápida</strong>
+        <small [innerHTML]="recomendacionHtml"></small>
+      </div>
+    </div>
+  </div>
+</article>

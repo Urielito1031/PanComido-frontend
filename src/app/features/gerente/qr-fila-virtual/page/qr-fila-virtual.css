@@ -1,0 +1,19 @@
+.qr-container {
+  min-height: calc(100vh - 80px);
+  background-color: #f4f6f9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+@media print {
+  .qr-container {
+    background-color: white !important;
+    justify-content: flex-start;
+    padding-top: 50px !important;
+  }
+  .qr-print-area {
+    box-shadow: none !important;
+    border: none !important;
+  }
+}

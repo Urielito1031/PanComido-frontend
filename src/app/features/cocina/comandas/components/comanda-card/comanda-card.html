@@ -1,0 +1,64 @@
+<div class="kds-card">
+  <div class="kds-header" [class]="headerClass()">
+
+    @if (comanda().horaUltimoCambioEstado) {
+    <div class="timer">
+
+      <app-kds-contador-tiempo [fechaInicio]="comanda().horaUltimoCambioEstado!">
+      </app-kds-contador-tiempo>
+    </div>
+    } @else {
+    00:00:00
+    }
+
+    <div class="mesa-info">MESA N° {{ comanda().numeroDeMesa }}</div>
+  </div>
+
+  <div class="kds-body">
+    <ul class="platos-list">
+      @for (item of itemsPendientes(); track item.id) {
+      <li class="plato-item">
+        <div class="plato-main">
+          <span class="cantidad">{{ item.cantidad }} x </span>
+          <span class="nombre">{{ item.articulo.nombre }}</span>
+        </div>
+        @if (item.observacionesGenerales) {
+        <div class="observacion">"{{ item.observacionesGenerales }}"</div>
+        }
+        @if (item.observacionesIngredientes) {
+        <div class="observacion ingredientes">{{ item.observacionesIngredientes }}</div>
+        }
+      </li>
+      }
+    </ul>
+
+    @if (itemsEntregados().length > 0) {
+    <details class="kds-entregados">
+      <summary class="kds-entregados-summary">
+        <span class="material-symbols-outlined">check_circle</span>
+        Entregados ({{ itemsEntregados().length }})
+        <span class="material-symbols-outlined kds-chevron">expand_more</span>
+      </summary>
+      <ul class="platos-list">
+        @for (item of itemsEntregados(); track item.id) {
+        <li class="plato-item entregado">
+          <div class="plato-main">
+            <span class="cantidad">{{ item.cantidad }} x </span>
+            <span class="nombre">{{ item.articulo.nombre }}</span>
+          </div>
+        </li>
+        }
+      </ul>
+    </details>
+    }
+  </div>
+
+  <div class="kds-footer">
+    @if (mostrarBoton()) {
+    <button class="btn-accion" (click)="comanda().estado === 'EnPreparacion' ? onLlamarMozo() : onAccion()">
+      {{ textoBoton() }}
+    </button>
+    }
+    <div class="tiempo-est">Tiempo estimado: {{ comanda().tiempoEstimadoTotal }}'</div>
+  </div>
+</div>

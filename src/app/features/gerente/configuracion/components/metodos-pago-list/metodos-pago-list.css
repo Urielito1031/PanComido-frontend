@@ -1,0 +1,32 @@
+.custom-switch .form-check-input {
+  width: 3em;
+  height: 1.5em;
+  cursor: pointer;
+}
+.custom-switch .form-check-input:checked {
+  background-color: var(--status-success);
+  border-color: var(--status-success);
+}
+.custom-switch .form-check-input:focus {
+  box-shadow: none;
+}
+
+/* ==========================================
+   Responsive - Tablet (768px)
+   ========================================== */
+@media (max-width: 768px) {
+  .custom-switch .form-check-input {
+    width: 2.75em;
+    height: 1.4em;
+  }
+}
+
+/* ==========================================
+   Responsive - Mobile (576px)
+   ========================================== */
+@media (max-width: 576px) {
+  .custom-switch .form-check-input {
+    width: 2.5em;
+    height: 1.3em;
+  }
+}

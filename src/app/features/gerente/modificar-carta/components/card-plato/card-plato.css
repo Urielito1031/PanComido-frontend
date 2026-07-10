@@ -1,0 +1,659 @@
+:host,
+::ng-deep .skeleton-card-container {
+  display: block;
+  container-type: inline-size;
+  height: 100%;
+}
+
+/* === CARD WRAPPER === */
+::ng-deep .dish-card-wrapper {
+  position: relative;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  animation: cardFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  width: 100%;
+  height: 100%;
+}
+
+::ng-deep .dish-card-wrapper:hover {
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08), 0 2px 4px rgba(15, 23, 42, 0.04);
+  border-color: rgba(15, 23, 42, 0.12);
+}
+
+::ng-deep .dish-card-wrapper.exploding-card {
+  animation: cardExplodeSimple 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  pointer-events: none;
+}
+
+/* === HERO IMAGE (Grid Mode) === */
+::ng-deep .dish-hero-wrapper {
+  height: 220px;
+  width: 100%;
+  overflow: hidden;
+  background: #f8fafc;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 8px 8px 0 0;
+}
+
+::ng-deep .dish-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+::ng-deep .dish-card-wrapper:hover .dish-hero-img {
+  transform: scale(1.05);
+}
+
+/* Glassmorphism Badges over Image */
+.dish-hero-badges {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0) 100%);
+}
+
+.visibility-glass-badge {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  padding: 4px 8px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  display: inline-block;
+}
+
+.star-glass-badge {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+  border: 1px solid rgba(184, 134, 11, 0.3);
+}
+
+/* === IMAGES (Compact/List Mode) === */
+::ng-deep .dish-img-compact {
+  width: 65px;
+  height: 65px;
+  min-width: 65px;
+  object-fit: cover;
+  background-color: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 10px;
+}
+
+/* === TITLE === */
+::ng-deep .dish-title {
+  color: #1f2937;
+  line-height: 1.2;
+}
+
+/* === PILLS / BADGES === */
+::ng-deep .badge-price {
+  background-color: #f8fafc;
+  color: #0f172a;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+::ng-deep .badge-cost,
+::ng-deep .badge-sales {
+  display: none;
+}
+
+/* === SOFT BUTTONS === */
+::ng-deep .btn-soft {
+  border: none;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+::ng-deep .btn-soft .material-symbols-outlined {
+  font-size: 20px;
+}
+
+::ng-deep .btn-soft.btn-sm {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+}
+
+::ng-deep .btn-soft.btn-sm .material-symbols-outlined {
+  font-size: 18px;
+}
+
+/* Primary (Red - Edit) */
+::ng-deep .btn-soft-primary {
+  background-color: rgba(0, 47, 188, 0.08);
+  color: #002cbcc2;
+  border: 1px solid rgba(27, 29, 178, 0.12);
+}
+::ng-deep .btn-soft-primary:hover {
+  background-color: #383dc2;
+  color: #ffffff;
+}
+
+/* Warning (Amber - Destacar) */
+::ng-deep .btn-soft-warning {
+  background-color: rgba(213, 164, 38, 0.378);
+  color: #b8860b;
+  border: 1px solid rgba(184, 134, 11, 0.18);
+}
+::ng-deep .btn-soft-warning:hover {
+  background-color: #ffb700;
+  color: #ffffff;
+}
+::ng-deep .btn-soft-warning.active {
+  background-color: #edaf10;
+  color: #ffffff;
+}
+
+/* Danger (Red - Eliminar) */
+::ng-deep .btn-soft-danger {
+  background-color: rgba(168, 4, 26, 0.12);
+  color: #a8041a;
+  border: 1px solid rgba(168, 4, 26, 0.18);
+}
+::ng-deep .btn-soft-danger:hover {
+  background-color: #a8041a;
+  color: #ffffff;
+}
+
+/* === STAR BADGE (Image Corner - Compact List) === */
+.dish-star-badge-compact {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  background: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  border: 1px solid #f59e0b;
+  width: 24px;
+  height: 24px;
+}
+
+.star-icon-filled {
+  color: #f59e0b;
+  font-variation-settings: 'FILL' 1;
+}
+
+.dish-star-badge-compact .star-icon-filled { font-size: 14px; }
+
+/* === RECOMMENDED HIGHLIGHT === */
+.dish-card-wrapper.recommended-card {
+  background: #ffffff !important;
+  border: 2px solid #f59e0b !important;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2), 0 4px 12px rgba(245, 158, 11, 0.12) !important;
+}
+
+.dish-card-wrapper.recommended-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: #f59e0b;
+  z-index: 3;
+}
+
+.dish-card-wrapper.recommended-card:hover {
+  border-color: #d97706 !important;
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.25), 0 6px 16px rgba(245, 158, 11, 0.16) !important;
+}
+
+.dish-card-wrapper.recommended-card .star-glass-badge,
+.dish-card-wrapper.recommended-card .dish-star-badge-compact {
+  background: #ffffff;
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+}
+
+/* === LIST LAYOUT FLAT OVERRIDE === */
+::ng-deep .dish-card-wrapper.list-layout {
+  background: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 8px;
+}
+
+::ng-deep .dish-card-wrapper.list-layout:hover {
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08), 0 2px 4px rgba(15, 23, 42, 0.04) !important;
+}
+
+::ng-deep .dish-card-wrapper.list-layout.recommended-card {
+  background: #ffffff !important;
+  border-color: #f59e0b !important;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2) !important;
+}
+
+::ng-deep .dish-card-wrapper.list-layout.recommended-card::before {
+  inset: 0 auto 0 0;
+  width: 3px;
+  height: auto;
+  background: #f59e0b;
+}
+
+/* === DISABLED STATE === */
+.dish-card-wrapper.disabled-card {
+  background-color: #f8fafc !important;
+  background-image: none !important;
+  border: 1px dashed #cbd5e1 !important;
+  box-shadow: none !important;
+}
+
+.dish-card-wrapper.disabled-card:hover {
+  transform: none;
+}
+
+.dish-card-wrapper.disabled-card .dish-hero-img,
+.dish-card-wrapper.disabled-card .dish-img-compact {
+  filter: grayscale(1);
+  opacity: 0.5;
+}
+
+.dish-card-wrapper.disabled-card .dish-info-body,
+.dish-card-wrapper.disabled-card .dish-price-large,
+.dish-card-wrapper.disabled-card h6 {
+  opacity: 0.5;
+}
+
+.dish-card-wrapper.disabled-card app-toggle {
+  opacity: 1 !important;
+}
+
+/* Keep the toggle styled clearly when disabled */
+::ng-deep .dish-card-wrapper.disabled-card app-toggle .custom-toggle {
+  background-color: #e2e8f0 !important;
+}
+
+/* === SKELETON LOADERS === */
+::ng-deep .skeleton-card {
+  pointer-events: none;
+}
+
+::ng-deep .skeleton-image {
+  width: 100%;
+  height: 220px;
+  background-color: #e2e8f0;
+  animation: skeleton-pulse 1.5s infinite ease-in-out;
+}
+
+::ng-deep .skeleton-image-compact {
+  width: 65px;
+  height: 65px;
+  background-color: #e2e8f0;
+  border-radius: 10px;
+  animation: skeleton-pulse 1.5s infinite ease-in-out;
+}
+
+::ng-deep .skeleton-title,
+::ng-deep .skeleton-text,
+::ng-deep .skeleton-toggle,
+::ng-deep .skeleton-btn,
+::ng-deep .skeleton-btn-sm {
+  background-color: #e2e8f0;
+  border-radius: 6px;
+  animation: skeleton-pulse 1.5s infinite ease-in-out;
+}
+
+::ng-deep .skeleton-title { height: 24px; margin-bottom: 12px; }
+::ng-deep .skeleton-text { height: 16px; margin-bottom: 8px; }
+::ng-deep .skeleton-toggle { height: 24px; width: 40px; border-radius: 12px; }
+::ng-deep .skeleton-btn { width: 40px; height: 40px; border-radius: 10px; }
+::ng-deep .skeleton-btn-sm { width: 32px; height: 32px; border-radius: 6px; }
+
+@keyframes skeleton-pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+/* === KEYFRAMES === */
+@keyframes cardFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes cardExplodeSimple {
+  0% { transform: scale(1); opacity: 1; }
+  35% { transform: scale(1.04); box-shadow: 0 10px 25px rgba(220, 38, 38, 0.2); }
+  100% { transform: scale(1.15); opacity: 0; }
+}
+
+/* === ESTILOS ESPECIALES PARA BEBIDAS === */
+::ng-deep .dish-card-wrapper.is-bebida .dish-hero-wrapper {
+  height: 220px;
+}
+
+::ng-deep .dish-card-wrapper.is-bebida .dish-hero-img {
+  object-fit: contain;
+  padding: 10px;
+}
+
+/* Radius system: main containers 8px, inner containers 10px, buttons 11px */
+::ng-deep .dish-card-wrapper,
+::ng-deep .dish-card-wrapper.list-layout {
+  border-radius: 8px;
+}
+
+.visibility-glass-badge,
+::ng-deep .dish-img-compact,
+::ng-deep .badge-price,
+::ng-deep .badge-cost,
+::ng-deep .skeleton-image,
+::ng-deep .skeleton-image-compact,
+::ng-deep .skeleton-title,
+::ng-deep .skeleton-text {
+  border-radius: 10px;
+}
+
+::ng-deep .btn-soft,
+::ng-deep .btn-soft.btn-sm,
+::ng-deep .skeleton-btn,
+::ng-deep .skeleton-btn-sm {
+  border-radius: 11px;
+}
+
+::ng-deep .badge-margin-high {
+  background-color: rgba(22, 163, 74, 0.08);
+  color: #15803d;
+  border: 1px solid rgba(22, 163, 74, 0.15);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+::ng-deep .badge-margin-med {
+  background-color: rgba(184, 134, 11, 0.08);
+  color: #92400e;
+  border: 1px solid rgba(184, 134, 11, 0.15);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+::ng-deep .badge-margin-low {
+  background-color: rgba(168, 4, 26, 0.08);
+  color: #a8041a;
+  border: 1px solid rgba(168, 4, 26, 0.15);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* === METRICS ROW (Compact) === */
+.dish-metrics-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.dish-metric {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 6px;
+  background: #f8fafc;
+  color: #475569;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.dish-metric .material-symbols-outlined {
+  font-size: 0.85rem;
+}
+
+.dish-metric strong {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.dish-metric-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #64748b;
+}
+
+.dish-metric.metric-high {
+  background: rgba(22, 163, 74, 0.08);
+  color: #15803d;
+  border-color: rgba(22, 163, 74, 0.12);
+}
+
+.dish-metric.metric-high strong {
+  color: #15803d;
+}
+
+.dish-metric.metric-med {
+  background: rgba(184, 134, 11, 0.08);
+  color: #92400e;
+  border-color: rgba(184, 134, 11, 0.12);
+}
+
+.dish-metric.metric-med strong {
+  color: #92400e;
+}
+
+.dish-metric.metric-low {
+  background: rgba(168, 4, 26, 0.08);
+  color: #a8041a;
+  border-color: rgba(168, 4, 26, 0.12);
+}
+
+.dish-metric.metric-low strong {
+  color: #a8041a;
+}
+
+.dish-metric-subtle {
+  background: transparent;
+  border-color: transparent;
+  color: #64748b;
+}
+
+.dish-precios-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+.dish-precio-line {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  padding: 0.1rem 0;
+}
+
+.dish-precio-line .dish-metric-label {
+  min-width: 4.5rem;
+}
+
+.dish-precio-line strong {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.dish-metric-subtle strong {
+  color: #475569;
+  font-weight: 600;
+}
+
+/* === PRICE (Large) === */
+.dish-price-large {
+  font-size: 1.35rem;
+  line-height: 1.1;
+}
+
+/* === ACTIONS MENU (⋮ Dropdown) === */
+.dish-actions-menu {
+  position: relative;
+}
+
+.btn-soft-menu {
+  background-color: transparent;
+  color: #64748b;
+  border: 1px solid transparent;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+
+.btn-soft-menu:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+.dish-actions-dropdown {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  right: 0;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.14);
+  width: 190px;
+  padding: 4px;
+  z-index: 100;
+  animation: menuFadeIn 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes menuFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dish-actions-dropdown-up {
+  bottom: auto;
+  top: calc(100% + 6px);
+}
+
+.dish-action-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  border: none;
+  background: transparent;
+  color: #334155;
+  font-size: 0.82rem;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.12s ease;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.dish-action-item .material-symbols-outlined {
+  font-size: 1.1rem;
+  color: #64748b;
+}
+
+.dish-action-item:hover {
+  background: #f1f5f9;
+}
+
+.dish-action-item:hover .material-symbols-outlined {
+  color: #0f172a;
+}
+
+.dish-action-danger {
+  color: #a8041a;
+}
+
+.dish-action-danger .material-symbols-outlined {
+  color: #a8041a;
+}
+
+.dish-action-edit {
+  color: var(--primary-orange, #f08f1a);
+}
+
+.dish-action-edit .material-symbols-outlined,
+.dish-action-edit:hover .material-symbols-outlined {
+  color: var(--primary-orange, #f08f1a);
+}
+
+.dish-action-danger:hover {
+  background: rgba(168, 4, 26, 0.06);
+}
+
+/* === CONTAINER QUERIES FOR COMPACT LIST LAYOUT === */
+.dish-compact-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.dish-price-mobile-only {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  align-items: center;
+}
+
+.dish-pricing-columns {
+  display: none;
+}
+
+.dish-compact-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  margin-top: 0.5rem;
+}
+
+@container (min-width: 520px) {
+  .dish-compact-content {
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+  }
+  .dish-compact-actions {
+    margin-top: 0;
+    margin-left: auto;
+  }
+}
+
+@container (min-width: 680px) {
+  .dish-pricing-columns {
+    display: flex;
+  }
+  .dish-price-mobile-only {
+    display: none;
+  }
+}

@@ -1,0 +1,106 @@
+<!-- Backdrop for mobile -->
+@if (isMobile() && isMobileOpen()) {
+  <div class="sidebar-backdrop" (click)="closeMobile()"></div>
+}
+
+<aside 
+  class="sidebar" 
+  [class.collapsed]="isCollapsed() && !isHovered() && !isMobile()"
+  [class.cocina]="currentRole() === 'Cocina'"
+  [class.mobile-open]="isMobile() && isMobileOpen()"
+  (mouseenter)="onMouseEnter()" 
+  (mouseleave)="onMouseLeave()">
+  <!-- Header con Logo -->
+  <div class="sidebar-header">
+    @if (isExpanded() || (isMobile() && isMobileOpen())) {
+      <img src="assets/images/logo/isologo-red.png" alt="Pan Comido" class="logo-full">
+    } @else {
+      <img src="assets/images/logo/iso-red.png" alt="Pan Comido" class="logo-icon">
+    }
+  </div>
+
+  <!-- Menú de Navegación -->
+  <nav class="sidebar-nav">
+    @for (item of menuItems(); track item.label) {
+      <div class="menu-item-wrapper">
+        <!-- Item Principal -->
+        @if (item.children) {
+          <div 
+            class="menu-item" 
+            [class.active]="isParentActive(item)"
+            [class.expanded]="isSubmenuExpanded(item.label)"
+            (click)="toggleSubmenu(item.label)">
+            <fa-icon [icon]="getIconComponent(item.icon)" class="menu-icon"></fa-icon>
+            @if (isExpanded() || (isMobile() && isMobileOpen())) {
+              <span class="menu-label">{{ item.label }}</span>
+              <fa-icon [icon]="isSubmenuExpanded(item.label) ? faChevronDown : faChevronRight" class="expand-icon"></fa-icon>
+            }
+          </div>
+
+          <!-- Submenú -->
+          @if (isSubmenuExpanded(item.label) && (isExpanded() || (isMobile() && isMobileOpen()))) {
+            <div class="submenu">
+              @for (child of item.children; track child.label) {
+                <a 
+                  [routerLink]="child.route"
+                  [fragment]="child.fragment"
+                  class="submenu-item"
+                  [class.active]="isActive(child.route, child.fragment)"
+                  (click)="closeMobile()">
+                  @if (child.icon) {
+                    <fa-icon [icon]="getIconComponent(child.icon)" class="submenu-icon"></fa-icon>
+                  }
+                  <span class="submenu-label">{{ child.label }}</span>
+                </a>
+              }
+            </div>
+          }
+        } @else {
+          <a 
+            [routerLink]="item.route" 
+            class="menu-item"
+            [class.active]="isActive(item.route)"
+            routerLinkActive="active"
+            (click)="closeMobile()">
+            <fa-icon [icon]="getIconComponent(item.icon)" class="menu-icon"></fa-icon>
+            @if (isExpanded() || (isMobile() && isMobileOpen())) {
+              <span class="menu-label">{{ item.label }}</span>
+            }
+          </a>
+        }
+      </div>
+      @if (item.dividerAfter) {
+        <div class="menu-divider"></div>
+      }
+    }
+  </nav>
+
+  <!-- Footer con Perfil de Usuario -->
+  <div class="sidebar-footer">
+    <div class="sidebar-datetime" [class.datetime-collapsed]="!isExpanded() && !(isMobile() && isMobileOpen())" [attr.title]="formattedDate() + ' ' + formattedTime()">
+      <fa-icon [icon]="faClock" class="datetime-icon"></fa-icon>
+      @if (isExpanded() || (isMobile() && isMobileOpen())) {
+        <div class="datetime-info">
+          <span class="datetime-time">{{ formattedTime() }}</span>
+          <span class="datetime-date">{{ formattedDate() }}</span>
+        </div>
+      } @else {
+        <span class="datetime-time-mini">{{ formattedTimeMini() }}</span>
+      }
+    </div>
+    <div class="user-profile">
+      <div class="avatar" [style.background-color]="userProfile().avatarColor">
+        {{ userProfile().initials }}
+      </div>
+      @if (isExpanded() || (isMobile() && isMobileOpen())) {
+        <div class="user-info">
+          <div class="user-name">{{ userProfile().name }}</div>
+          <div class="user-role">{{ userProfile().role }}</div>
+        </div>
+        <button class="logout-btn" (click)="logout()" aria-label="Cerrar sesión">
+          <fa-icon [icon]="faRightFromBracket"></fa-icon>
+        </button>
+      }
+    </div>
+  </div>
+</aside>

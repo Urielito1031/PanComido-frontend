@@ -1,0 +1,104 @@
+.pedido-detalle-container {
+  max-width: 600px;
+  margin: 0 auto;
+  font-family: var(--font-cuerpo, 'system-ui'), sans-serif;
+}
+
+/* Imagen del plato */
+.plato-detalle-img-wrapper {
+  width: 100%;
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 1rem;
+  background: var(--gray-100);
+}
+.plato-detalle-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 320px;
+  object-fit: cover;
+}
+.plato-detalle-placeholder {
+  height: 220px;
+  border-radius: var(--border-radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 1rem;
+}
+.plato-detalle-placeholder .material-symbols-outlined {
+  font-size: 4rem;
+  color: var(--gray-400);
+}
+
+/* Info del plato */
+.plato-detalle-nombre {
+  font-weight: 800;
+  margin-bottom: 0;
+  font-family: var(--font-titulo, 'system-ui'), sans-serif;
+  font-size: 1.4rem;
+  color: var(--gray-900);
+}
+.plato-detalle-precio {
+  font-weight: 800;
+  font-size: 1.3rem;
+  color: var(--color-secundario, var(--gray-900));
+}
+.plato-detalle-descripcion {
+  font-size: 0.9rem;
+  color: var(--gray-500);
+  margin-bottom: 1.25rem;
+  line-height: 1.5;
+}
+
+/* Controles de cantidad (pill style como ver-carta) */
+.cantidad-pill {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--gray-50);
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--border-radius-sm);
+  padding: 0.125rem;
+  gap: 0.15rem;
+}
+.btn-cant-pill {
+  background: none;
+  border: none;
+  width: 32px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--gray-700);
+  cursor: pointer;
+  font-size: 1.3rem;
+  border-radius: var(--border-radius-sm);
+  transition: all var(--transition-fast);
+  padding: 0;
+  line-height: 1;
+}
+.btn-cant-pill:hover {
+  background-color: var(--gray-200);
+}
+.btn-cant-pill:active {
+  transform: scale(0.9);
+}
+.cant-pill-valor {
+  font-weight: 700;
+  width: 28px;
+  text-align: center;
+  font-size: 1.05rem;
+  color: var(--gray-900);
+}
+
+/* Botones de acción (apilados) */
+.pedido-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}

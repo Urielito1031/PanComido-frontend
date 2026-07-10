@@ -1,0 +1,174 @@
+<div class="header-top">
+  <div class="header-top-inner" style="display: flex; align-items: center;">
+    @if (filaVirtualState.estado()) {
+    <div class="back" (click)="irAEstadoFila()"
+      style="cursor: pointer; display: flex; align-items: center; color: white; margin-right: 12px;">
+      <span class="material-symbols-outlined" style="font-size: 20px;">arrow_back_ios_new</span>
+    </div>
+    }
+    @if (esMozo()) {
+    <div class="back" (click)="volverAMesas()" title="Volver a mesas"
+      style="cursor: pointer; display: flex; align-items: center; color: white; margin-right: 12px;">
+      <span class="material-symbols-outlined" style="font-size: 20px;">arrow_back_ios_new</span>
+    </div>
+    }
+    <div class="logo-container">
+      @if (configuracionVisualState.logoUrl(); as url) {
+      <img [src]="url" alt="Logo" class="logo-img" onerror="this.style.display='none'" />
+      } @else {
+      <div class="logo-placeholder">
+        <span class="material-symbols-outlined">restaurant</span>
+      </div>
+      }
+    </div>
+    <div class="mesa-info-container">
+      @if (filaVirtualState.estado(); as estFila) {
+      <div class="badge-info"
+        style="background-color: #fde047; color: #000; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px;"
+        (click)="irAEstadoFila()">
+        Turno {{ estFila.numeroTurno }} - <span class="material-symbols-outlined" style="font-size: 16px;">person</span>
+        {{ estFila.turnosAdelante }} adelante
+      </div>
+      } @else {
+      <div class="badge-info">
+        <span class="material-symbols-outlined">person</span>
+        <span>{{ cantidadPersonas() }}</span>
+      </div>
+      <div class="badge-info">Mesa {{ mesaId() }}</div>
+      }
+      <div class="invite-btn" (click)="abrirCompartir()" title="Invitar a la mesa">
+        <span class="material-symbols-outlined">group_add</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+@if (popupAbierto()) {
+<div class="overlay" (click)="cerrarCompartir()">
+  <div class="popup" (click)="$event.stopPropagation()">
+    <div class="popup-header">
+      <h3 class="popup-title">Compartir mesa</h3>
+      <div class="popup-close" (click)="cerrarCompartir()">✕</div>
+    </div>
+    <div class="popup-body">
+      <qrcode [qrdata]="urlInvitacion()" [width]="200"></qrcode>
+      <p class="popup-desc">Compartí este enlace para que otros se unan a tu mesa:</p>
+      <div class="popup-link">{{ urlInvitacion() }}</div>
+      <button class="popup-copy" (click)="copiarEnlace()">Copiar enlace</button>
+    </div>
+  </div>
+</div>
+}
+
+<div class="carta-container">
+
+  <div class="search-row">
+    <div class="buscador-wrapper">
+      <app-buscador [placeholder]="'Buscar en ' + configuracionVisualState.nombreLocal()"
+        (busquedaCambiada)="onSearch($event)" />
+    </div>
+    <button class="btn-filtro-icono" (click)="mostrarFiltros.set(true)">
+      <span class="material-symbols-outlined">filter_alt</span>
+      @if (state.cantidadFiltrosActivos() > 0) {
+      <span class="filtro-badge">{{ state.cantidadFiltrosActivos() }}</span>
+      }
+    </button>
+  </div>
+
+  <div class="ordenar-section">
+    <div class="dropdown-ordenar">
+      <button class="dropdown-trigger" [class.abierto]="menuOrdenarAbierto()" (click)="toggleMenuOrdenar()">
+        <span class="material-symbols-outlined icon-ordenar">sort</span>
+        <span class="label-ordenar">{{ ordenSeleccionado() || 'Ordenar' }}</span>
+      </button>
+      @if (menuOrdenarAbierto()) {
+      <div class="dropdown-menu">
+        <button class="dropdown-item" (click)="seleccionarOrden('', 'Predeterminado')">Orden predeterminado</button>
+        <button class="dropdown-item" (click)="seleccionarOrden('precio-menor', 'Menor precio')">Menor precio</button>
+        <button class="dropdown-item" (click)="seleccionarOrden('precio-mayor', 'Mayor precio')">Mayor precio</button>
+        <button class="dropdown-item" (click)="seleccionarOrden('tiempo', 'Más rápidos')">Más rápidos</button>
+        <button class="dropdown-item" (click)="seleccionarOrden('nombre', 'A-Z')">A-Z</button>
+      </div>
+      }
+    </div>
+  </div>
+
+  <div class="platos-lista-container">
+    @if (state.cargando()) {
+    <p class="text-center text-muted py-5">Cargando carta...</p>
+    } @else {
+    <app-lista-platos-comensal [items]="state.itemsFiltrados()" (agregarPedido)="agregarAlPedido($event)" />
+    }
+  </div>
+
+</div>
+
+@if (mostrarFiltros()) {
+<app-filtros-carta-overlay (cerrar)="mostrarFiltros.set(false)" (toggleTipo)="state.toggleTipoPlato($event)"
+  (limpiar)="state.limpiarFiltros()" />
+}
+
+@if (mostrarOnboarding()) {
+<div class="onboarding-overlay" (click)="cerrarOnboarding()">
+  <div class="onboarding-card" (click)="$event.stopPropagation()">
+    <div class="onboarding-greeting">
+      @if (configuracionVisualState.logoUrl()) {
+      <img [src]="configuracionVisualState.logoUrl()" alt="Logo" class="onboarding-logo"
+        onerror="this.style.display='none'">
+      }
+      <h2 class="onboarding-titulo">Bienvenido a {{ configuracionVisualState.nombreLocal() }}</h2>
+    </div>
+
+    <div class="onboarding-hints">
+      <div class="onboarding-hint">
+        <span class="hint-icono" [style.background]="configuracionVisualState.colorPrimario()">
+          <span class="material-symbols-outlined">room_service</span>
+        </span>
+        <div class="hint-texto">
+          <strong>Llamar al mozo</strong>
+          <span>Cuando necesites algo, toca el botón de abajo en la pantalla</span>
+        </div>
+      </div>
+
+      <div class="onboarding-hint">
+        <span class="hint-icono" [style.background]="configuracionVisualState.colorPrimario()">
+          <span class="material-symbols-outlined">group_add</span>
+        </span>
+        <div class="hint-texto">
+          <strong>Compartir mesa</strong>
+          <span>Invitá a otros comensales con el botón de arriba a la derecha</span>
+        </div>
+      </div>
+
+      <div class="onboarding-hint">
+        <span class="hint-icono" [style.background]="configuracionVisualState.colorPrimario()">
+          <span class="material-symbols-outlined">tune</span>
+        </span>
+        <div class="hint-texto">
+          <strong>Personalizar plato</strong>
+          <span>Tocá cualquier plato para sumar o sacar ingredientes</span>
+        </div>
+      </div>
+    </div>
+
+    <button class="onboarding-btn" (click)="cerrarOnboarding()"
+      [style.background]="configuracionVisualState.colorPrimario()">
+      Entendido
+    </button>
+  </div>
+</div>
+}
+
+@if (flyAnim(); as f) {
+<div class="fly-item" [class.fly-volando]="f.volando" [style.left.px]="f.x" [style.top.px]="f.y">
+  <div class="fly-item-disco" [style.border-color]="configuracionVisualState.colorPrimario()"
+    [style.color]="configuracionVisualState.colorPrimario()">
+    <span class="material-symbols-outlined">restaurant</span>
+  </div>
+</div>
+}
+
+<app-comensal-footer-cart [cantidadItems]="cantidadTotalPedido()" [total]="totalPedido()" (verPedido)="irAPedido()"
+  [mesaId]="mesaId()" [enviando]="comensalState.enviando()" [enviado]="comensalState.exito()"
+  [error]="comensalState.error()" (llamadoMozo)="comensalState.solicitarMozo($event)"
+  (modalCerrado)="comensalState.limpiarEstado()" />

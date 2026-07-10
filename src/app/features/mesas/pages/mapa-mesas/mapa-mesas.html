@@ -1,0 +1,297 @@
+<div class="mapa-wrapper">
+
+  @if (state.notificacion(); as notif) {
+    <div class="toast-notificacion" [class.error]="notif.tipo === 'error'" [class.exito]="notif.tipo === 'exito'" [class.info]="notif.tipo === 'info'">
+      {{ notif.mensaje }}
+    </div>
+  }
+     <div class="header-controles">
+        @if (!state.isEditorMode() && auth.tieneRoles(['Gerente'])) {
+          <button type="button" class="btn-editor" (click)="state.toggleEditorMode()">Activar Edición</button>
+        } @else if (state.isEditorMode()) {
+          <div class="acciones-edicion">
+            <button type="button" class="btn-guardar" (click)="state.guardarConfiguracion()">Guardar Mapa</button>
+            <button type="button" class="btn-cancelar" (click)="state.cancelarEdicion()">Cancelar</button>
+          </div>
+        }
+        <div class="d-flex gap-4 ms-4 align-items-center fw-bold" style="color: #555;">
+          <span>{{ modoFiltroAsignacion() ? 'Mis Mesas' : 'Mesas Totales' }}: <span style="color: #222;">{{ mesasTotales() }}</span></span>
+          <div class="d-flex align-items-center gap-2">
+             <span class="circulo-estado disponible"></span>
+             <span>Disponibles: <span style="color: #222;">{{ mesasDisponibles() }}</span></span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+             <span class="circulo-estado ocupada"></span>
+             <span>Ocupadas: <span style="color: #222;">{{ mesasOcupadas() }}</span></span>
+          </div>
+        </div>
+
+        @if (!state.isEditorMode()) {
+          <label class="toggle-asignacion ms-3 d-flex align-items-center bg-white p-2 rounded">
+            <input type="checkbox" class="me-2" [checked]="modoFiltroAsignacion()" (change)="toggleFiltroAsignacion()">
+            <span>{{ auth.rol() === 'Mozo' ? 'Ver Mis Mesas' : 'Ver Asignación Mozos' }}</span>
+          </label>
+        }
+      </div>
+
+      <!-- LEYENDA -->
+      <div class="leyenda-estados">
+        <div class="leyenda-item">
+          <span class="circulo-estado disponible"></span>
+          <span>Desocupada</span>
+        </div>
+        <div class="leyenda-item">
+          <span class="circulo-estado ocupada"></span>
+          <span>Ocupada</span>
+        </div>
+        <div class="leyenda-item">
+          <span class="circulo-estado reservada"></span>
+          <span>Reservada</span>
+        </div>
+        <div class="leyenda-item">
+          <span class="circulo-estado deshabilitada"></span>
+          <span>Deshabilitada</span>
+        </div>
+      </div>
+
+      @if (state.isEditorMode()) {
+        <div class="paleta-herramientas">
+          <span>Agregar Mesa:</span>
+          <button type="button" class="btn-mesa redonda" (click)="state.agregarMesa(FormaMesa.Redonda)">+</button>
+          <button type="button" class="btn-mesa cuadrada" (click)="state.agregarMesa(FormaMesa.Cuadrada)">+</button>
+          <button type="button" class="btn-mesa horizontal" (click)="state.agregarMesa(FormaMesa.HorizontalLarga)">+</button>
+          <button type="button" class="btn-mesa vertical" (click)="state.agregarMesa(FormaMesa.HorizontalAlta)">+</button>
+
+        </div>
+      }
+
+  <!-- VISTA DESKTOP (PLANO) -->
+  <div class="plano-fondo d-none d-md-block" [class.modo-grilla]="state.isEditorMode()" (click)="state.seleccionarMesa(null)">
+  @for (mesa of state.mesas(); track mesa.id) {
+    @if (mesa.tipoElemento !== 2) {
+      <app-mesa-item
+          [mesa]="mesa"
+          [isEditorMode]="state.isEditorMode()"
+          [isSeleccionada]="state.mesaSeleccionada() === mesa.id"
+          [enColision]="colisionesActivas()[mesa.id] || false"
+          [ngClass]="modoFiltroAsignacion() ? ((mesa.mozosAsignadosIds && mesa.mozosAsignadosIds.length > 0) ? 'mesa-asignada-azul' : 'mesa-no-asignada-gris') : ''"
+          cdkDrag
+          cdkDragBoundary=".plano-fondo"
+          [cdkDragDisabled]="!state.isEditorMode()"
+          (cdkDragMoved)="onDragMoved(mesa.id, $event)"
+          (cdkDragEnded)="onDragEnded(mesa.id, $event)"
+          (clickMesa)="state.seleccionarMesa($event)"
+          (cambioNumero)="state.actualizarNumero($event.id, $event.numero)"
+          (eliminar)="state.eliminarMesa($event)"
+          (accionMenu)="ejecutarAccion(mesa.id, $event)"
+          style="position: absolute; display: block;"
+          [style.left.px]="mesa.posicionXInicio"
+          [style.top.px]="mesa.posicionYInicio"
+          [style.z-index]="state.mesaSeleccionada() === mesa.id ? 1000 : 1">
+        </app-mesa-item>
+    } @else {
+      <div class="objeto-fijo"
+           cdkDrag
+           cdkDragBoundary=".plano-fondo"
+           [cdkDragDisabled]="!state.isEditorMode()"
+           [style.width.px]="mesa.posicionXFin - mesa.posicionXInicio"
+           [style.height.px]="mesa.posicionYFin - mesa.posicionYInicio"
+           [style.background-color]="mesa.color"
+           [style.position]="'absolute'"
+           [style.left.px]="mesa.posicionXInicio"
+           [style.top.px]="mesa.posicionYInicio"
+           [style.z-index]="state.mesaSeleccionada() === mesa.id ? 1000 : 1"
+           [class.resize-enabled]="state.isEditorMode()"
+           (mouseup)="state.isEditorMode() ? state.actualizarTamanoObjeto(mesa.id, $event) : null"
+           (cdkDragMoved)="onDragMoved(mesa.id, $event)"
+           (cdkDragEnded)="onDragEnded(mesa.id, $event)">
+        
+        @if (state.isEditorMode()) {
+          <input type="text"
+                 [value]="mesa.textoObjeto || ''"
+                 (blur)="state.actualizarTextoObjeto(mesa.id, $event)"
+                 (mousedown)="$event.stopPropagation()"
+                 style="width: 80%; text-align: center; font-weight: bold; border: none; background: rgba(255,255,255,0.2); color: white; outline: none; margin: auto; display: block; position: relative; top: 50%; transform: translateY(-50%);">
+          <button class="btn btn-sm btn-danger p-0" style="position: absolute; top: 5px; right: 5px; width: 24px; height: 24px; border-radius: 50%; z-index: 10;" (click)="state.eliminarMesa(mesa.id)">X</button>
+        } @else {
+          <span style="color: white; font-weight: bold; pointer-events: none; display: flex; align-items: center; justify-content: center; height: 100%;">{{ mesa.textoObjeto }}</span>
+        }
+      </div>
+    }
+  }
+  </div>
+
+  <!-- VISTA MOBILE -->
+  <div class="d-block d-md-none mobile-view-container p-2">
+    @if (!mesaMobileSeleccionada()) {
+      <div class="row g-3">
+        <!-- Ordenamos las mesas por número para la grilla -->
+        @for (mesa of mesasOrdenadas(); track mesa.id) {
+          <div class="col-4">
+            <button class="btn w-100 mobile-mesa-btn" [ngClass]="getMobileClass(mesa.estadoMesa)" (click)="seleccionarMesaMobile(mesa)">
+              {{ mesa.numeroMesa }}
+            </button>
+          </div>
+        }
+      </div>
+    } @else {
+      <!-- DETALLE DE MESA MOBILE -->
+      <div class="mobile-mesa-detalle p-3">
+        <div class="header-detalle d-flex align-items-center mb-4">
+          <button class="btn btn-link text-dark p-0 me-3" (click)="volverGridMobile()">
+            <span class="material-symbols-outlined fs-1 fw-bold">arrow_back_ios</span>
+          </button>
+          <div class="flex-grow-1 text-center">
+            <h3 class="mb-1 fw-bold">MESA N° {{ mesaMobileSeleccionada()!.numeroMesa }}</h3>
+            <div class="estado-badge mt-2">
+              <span class="badge px-3 py-2 fs-6 rounded-pill" [ngClass]="getMobileClass(mesaMobileSeleccionada()!.estadoMesa)">
+                Estado: {{ mesaMobileSeleccionada()!.estadoMesa }}
+              </span>
+            </div>
+          </div>
+          <div style="width: 32px;"></div> <!-- Spacer para centrar el título -->
+        </div>
+
+        <hr class="mb-4">
+
+        <div class="d-flex flex-column gap-3">
+          @if (mesaMobileSeleccionada()!.estadoMesa === 'Disponible' || mesaMobileSeleccionada()!.estadoMesa === 'Reservada') {
+            <button class="btn btn-success btn-lg py-3 fw-bold rounded-3" (click)="abrirMesaMobile()">ABRIR MESA</button>
+            <button class="btn btn-dark btn-lg py-3 fw-bold rounded-3" (click)="deshabilitarMesaMobile()">DESHABILITAR</button>
+          }
+
+          @if (mesaMobileSeleccionada()!.estadoMesa === 'Ocupada') {
+            <button class="btn btn-success btn-lg py-3 fw-bold rounded-3" (click)="verComandaMobile()">VER COMANDA</button>
+            <button class="btn btn-danger btn-lg py-3 fw-bold rounded-3" (click)="cerrarMesaMobile()">CERRAR MESA</button>
+          }
+
+          @if (mesaMobileSeleccionada()!.estadoMesa === 'Deshabilitada') {
+            <button class="btn btn-warning btn-lg py-3 fw-bold rounded-3" (click)="habilitarMesaMobile()">HABILITAR</button>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Modal: Ocupar Mesa -->
+  @if (mostrarModalOcupar()) {
+    <div class="modal-overlay" (click)="cerrarModalOcupar()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <h2>Ocupar Mesa</h2>
+        <p>Mesa N° {{ mesaSeleccionadaId() }}</p>
+
+        <div class="campo">
+          <label>Cantidad de comensales</label>
+          <input type="number"
+                 [value]="cantidadComensales()"
+                 (input)="cantidadComensales.set(+$any($event.target).value)"
+                 min="1" max="20">
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-cancelar" (click)="cerrarModalOcupar()">Cancelar</button>
+          <button class="btn-confirmar" (click)="confirmarOcupar()">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal: Comanda / Detalles -->
+  @if (mostrarModalComanda()) {
+    <div class="modal-overlay" (click)="cerrarModalComanda()">
+      <div class="modal-content modal-comanda" (click)="$event.stopPropagation()">
+        <h2>Comanda - Mesa {{ mesaComandaId() }}</h2>
+        <p>Aquí se muestra la comanda activa de la mesa...</p>
+
+        <div class="modal-actions">
+          <button class="btn-cancelar" (click)="cerrarModalComanda()">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal: Asignar Mozos -->
+  @if (mostrarModalAsignacion()) {
+    <div class="modal-overlay" (click)="cerrarModalAsignacion()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <h2>Asignar Mozos</h2>
+        <p>Mesa N° {{ mesaSeleccionadaId() }}</p>
+
+        <div class="mozos-listado">
+          @for (mozo of mozosDisponibles(); track mozo.id) {
+            <label class="mozo-item">
+              <input type="checkbox"
+                     class="mozo-checkbox"
+                     [checked]="mozosSeleccionadosIds().includes(mozo.id)"
+                     (change)="$any($event.target).checked 
+                        ? mozosSeleccionadosIds.set([...mozosSeleccionadosIds(), mozo.id]) 
+                        : mozosSeleccionadosIds.set(mozosSeleccionadosIds().filter(id => id !== mozo.id))">
+              <span class="mozo-nombre">{{ mozo.nombre }}</span>
+            </label>
+          }
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-cancelar" (click)="cerrarModalAsignacion()">Cancelar</button>
+          <button class="btn-confirmar" (click)="guardarAsignacionMozos()">Guardar</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal: Generar QR -->
+  @if (mostrarModalQr()) {
+    <div class="modal-overlay" (click)="cerrarModalQr()">
+      <div class="modal-content text-center" (click)="$event.stopPropagation()">
+        <h2>QR Mesa {{ mesaQrId() }}</h2>
+        <p class="text-muted mb-4 d-print-none">Escaneá este código para abrir la comanda.</p>
+        
+        <div class="qr-print-area d-flex justify-content-center p-3 mb-3 bg-white rounded">
+          <qrcode [qrdata]="urlQr()" [width]="256" [errorCorrectionLevel]="'M'"></qrcode>
+        </div>
+
+        <div class="modal-actions d-print-none">
+          <button class="btn-cancelar" (click)="cerrarModalQr()">Cerrar</button>
+          <button class="btn-confirmar" (click)="imprimirQr()">Imprimir PDF</button>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>
+
+<!-- Modal / Offcanvas Container para Comanda -->
+@if (mostrarComandaDetalle() && comandaCargada()) {
+  @if (auth.rol() === 'Gerente') {
+    <!-- Offcanvas for Gerente -->
+    <div class="offcanvas offcanvas-end show shadow" tabindex="-1" style="visibility: visible; z-index: 1045;">
+      <app-comanda-detalle-ui
+        [comensales]="comandaCargada()!.cantComensales"
+        [mesa]="comandaCargada()!.numeroDeMesa"
+        [items]="comandaCargada()!.items"
+        [total]="calcularTotalComanda(comandaCargada()!.items)"
+        (cerrar)="cerrarComandaDetalle()"
+        (cobrar)="cobrarComanda($event)"
+        (cerrarMesa)="cerrarMesaComanda()"
+      ></app-comanda-detalle-ui>
+    </div>
+    <div class="offcanvas-backdrop fade show" style="z-index: 1040;" (click)="cerrarComandaDetalle()"></div>
+  } @else {
+    <!-- Modal for Mozo -->
+    <div class="modal d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5); z-index: 1050;">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content overflow-hidden border-0 shadow" style="border-radius: 12px; height: auto; max-height: 80vh;">
+          <app-comanda-detalle-ui
+            [comensales]="comandaCargada()!.cantComensales"
+            [mesa]="comandaCargada()!.numeroDeMesa"
+            [items]="comandaCargada()!.items"
+            [total]="calcularTotalComanda(comandaCargada()!.items)"
+            (cerrar)="cerrarComandaDetalle()"
+            (cobrar)="cobrarComanda($event)"
+            (cerrarMesa)="cerrarMesaComanda()"
+          ></app-comanda-detalle-ui>
+        </div>
+      </div>
+    </div>
+  }
+}

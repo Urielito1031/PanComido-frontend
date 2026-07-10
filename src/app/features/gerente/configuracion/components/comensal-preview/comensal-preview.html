@@ -1,0 +1,121 @@
+<div class="mobile-frame" [style.font-family]="fontCuerpo()">
+  <div class="notch"></div>
+
+  <div class="mobile-content">
+    <!-- Header (replica .header-top de ver-carta) -->
+    <div class="header" [style.background-color]="colorPrimario()">
+      <div class="logo-container">
+        @if (logo() && !logoError()) {
+          <img [src]="logo()" alt="Logo local" class="header-logo"
+            (error)="logoError.set(true)" />
+        } @else {
+          <div class="mock-logo">
+            <i class="bi bi-shop"></i>
+          </div>
+        }
+      </div>
+      <div class="mesa-info-preview">
+        <div class="badge-info-preview">
+          <span class="material-symbols-outlined" style="font-size: 1rem;">person</span>
+          <span>2</span>
+        </div>
+        <div class="badge-info-preview">Mesa 8</div>
+        <div class="invite-btn-preview">
+          <span class="material-symbols-outlined" style="font-size: 1.1rem;">group_add</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-scroll">
+      <!-- Barra de búsqueda + filtro (replica .search-row de ver-carta) -->
+      <div class="search-row-preview">
+        <div class="search-bar-preview" [style.border-color]="colorPrimario()">
+          <span class="material-symbols-outlined" style="font-size: 0.9rem; color: #9ca3af;">search</span>
+          <span style="font-size: 0.72rem; color: #9ca3af;">Buscar en {{ nombreLocal() }}</span>
+        </div>
+        <span class="material-symbols-outlined" style="font-size: 1.4rem; color: #374151;">filter_alt</span>
+      </div>
+
+      <!-- Botón Ordenar full-width (replica .dropdown-trigger de ver-carta) -->
+      <div class="ordenar-section-preview">
+        <button class="ordenar-btn-preview" [style.background-color]="colorPrimario()">
+          <span class="material-symbols-outlined" style="font-size: 1rem;">sort</span>
+          <span>Ordenar</span>
+        </button>
+      </div>
+
+      <!-- Lista de platos reales o mock -->
+      <div class="platos-lista-preview">
+        @if (cargando()) {
+          <div class="loading-preview">
+            <div class="spinner-preview" [style.border-top-color]="colorPrimario()"></div>
+          </div>
+        } @else {
+          @for (plato of displayItems(); track plato.nombre) {
+            <div class="dish-card-preview">
+              <div class="dish-img-preview-wrapper">
+                @if (plato.img) {
+                  <img [src]="plato.img" [alt]="plato.nombre" class="dish-img-preview">
+                } @else {
+                  <div class="dish-img-placeholder-preview">
+                    <span class="material-symbols-outlined">restaurant</span>
+                  </div>
+                }
+              </div>
+              <div class="dish-info-preview">
+                <div class="dish-title-row-preview">
+                  <div class="dish-title-group-preview">
+                    <span class="dish-title-preview" [style.font-family]="fontTitulo()">{{ plato.nombre }}</span>
+                    @if (plato.esDestacado) {
+                      <span class="dish-badge-preview">Destacado</span>
+                    }
+                  </div>
+                  <span class="dish-price-preview" [style.color]="colorSecundario()">{{ plato.precio }}</span>
+                </div>
+                @if (plato.tipo) {
+                  <span class="dish-type-badge-preview"
+                    [style.color]="colorPrimario()"
+                    [style.background-color]="colorPrimario() + '1a'">{{ plato.tipo }}</span>
+                }
+                @if (plato.tiempo) {
+                  <div class="dish-time-preview">
+                    <span class="material-symbols-outlined" style="font-size: 0.75rem;">schedule</span>
+                    <span>{{ plato.tiempo }} min</span>
+                  </div>
+                }
+                <div class="dish-controls-preview">
+                  <div class="counter-pill-preview">
+                    <button class="btn-counter-preview">-</button>
+                    <span class="counter-value-preview">1</span>
+                    <button class="btn-counter-preview">+</button>
+                  </div>
+                  <button class="btn-add-preview" [style.background-color]="colorSecundario()">
+                    <span class="material-symbols-outlined" style="font-size: 0.8rem;">add</span>
+                    <span>Agregar</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </div>
+
+    <!-- Footer (replica .comensal-footer y .cart-pill-btn) -->
+    <div class="comensal-footer-preview" [style.background-color]="colorSecundario()">
+      <div class="footer-content-preview">
+        <button class="cart-pill-btn-preview" [style.background-color]="colorPrimario()">
+          <div class="cart-pill-left-preview">
+            <div class="cart-count-badge-preview">0</div>
+            <span class="cart-label-preview">Ver pedido</span>
+          </div>
+          <span class="cart-total-preview">$ 0</span>
+        </button>
+        <div class="mozo-wrapper-preview" [style.background-color]="colorPrimario()">
+          <span class="material-symbols-outlined" style="font-size: 1.3rem; margin-bottom: -2px;">room_service</span>
+          <span style="font-size: 0.55rem; font-weight: 700;">Mozo</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

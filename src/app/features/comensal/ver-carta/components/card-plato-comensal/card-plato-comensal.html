@@ -1,0 +1,64 @@
+<div class="dish-card">
+  <div class="dish-layout" (click)="verDetalle()" style="cursor: pointer;">
+    <div class="dish-img-wrapper">
+      @if (plato().urlImagen && !imgError()) {
+      <img [src]="plato().urlImagen" class="dish-img" [alt]="plato().nombre" (error)="onImgError()">
+      } @else {
+      <div class="dish-img-placeholder">
+        <span class="material-symbols-outlined">restaurant</span>
+      </div>
+      }
+    </div>
+
+    <div class="dish-info-wrapper">
+      <div class="dish-header-info">
+        <div class="dish-title-row">
+          <div class="dish-title-group">
+            <h5 class="dish-title">{{ plato().nombre }}</h5>
+            @if (plato().esPlato && plato().esDestacado) {
+              <span class="dish-badge">Destacado</span>
+            }
+          </div>
+          <span class="dish-price">{{ plato().precio | arsCurrency }}</span>
+        </div>
+
+        <div class="dish-badges-row">
+          @if (plato().esPlato && plato().tipoPlato) {
+            <span class="dish-type-badge">{{ plato().tipoPlato }}</span>
+          } @else if (!plato().esPlato && plato().categoriaBebida) {
+            <span class="dish-type-badge drink">{{ plato().categoriaBebida }}</span>
+          }
+          @for (r of plato().restricciones; track r) {
+            <span class="restriccion-tag">{{ r }}</span>
+          }
+        </div>
+      </div>
+
+      @if (plato().esPlato && plato().tiempoPreparacionEstimado) {
+        <div class="dish-meta-row">
+          <span class="dish-time">
+            <span class="material-symbols-outlined">schedule</span>
+            {{ plato().tiempoPreparacionEstimado }} min
+          </span>
+        </div>
+      }
+
+
+
+      <div class="dish-controls" (click)="$event.stopPropagation()">
+        <div class="counter-pill">
+          <button class="btn-counter" (click)="decrementar()">-</button>
+          <span class="counter-value">{{ cantidad() }}</span>
+          <button class="btn-counter" (click)="incrementar()">+</button>
+        </div>
+
+        <div class="add-btn-wrapper">
+          <button class="btn-add-custom" (click)="agregar()">
+            <span class="material-symbols-outlined">add</span>
+            <span>Agregar</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,72 @@
+.unirse-card {
+  width: 100%;
+  max-width: 420px;
+  margin: 50px auto 0;
+  border-radius: 28px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  text-align: center;
+}
+
+.unirse-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--gray-900);
+}
+
+.unirse-text {
+  font-size: 18px;
+  margin: 0;
+  color: var(--gray-600);
+}
+
+.unirse-number {
+  width: 120px;
+  height: 120px;
+  border: 4px solid var(--color-primario, #000000);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.unirse-input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid var(--gray-300);
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 500;
+  outline: none;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.unirse-input:focus {
+  border-color: var(--color-primario, #000000);
+}
+
+@media (max-width: 768px) {
+  .unirse-card {
+    margin-top: 30px;
+    padding: 24px;
+  }
+
+  .unirse-title {
+    font-size: 24px;
+  }
+
+  .unirse-number {
+    width: 100px;
+    height: 100px;
+    font-size: 40px;
+  }
+}

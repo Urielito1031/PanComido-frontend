@@ -1,0 +1,46 @@
+<app-header-comensal [showBack]="true" backRoute="/comensal/nro-de-mesa" />
+
+<div class="nombre-container">
+  <label for="nombre">Tu nombre</label>
+
+  <input
+    id="nombre"
+    type="text"
+    [(ngModel)]="nombreComensal"
+    [class.error-input]="nombreInvalido"
+    (input)="nombreInvalido = false"
+    placeholder="Ingresá tu nombre">
+    
+  @if (nombreInvalido) {
+    <span class="error-texto">Por favor, ingresá tu nombre para continuar.</span>
+  }
+</div>
+
+<div class="cantidad-card">
+  <h1>¿Cuántas personas son en tu grupo?</h1>
+
+  <div class="cantidad-grid">
+    @for (numero of [].constructor(maxCantidad()); track $index) {
+      <div class="cantidad-item"
+           [class.selected]="cantidadPersonas === $index + 1"
+           (click)="seleccionarCantidad($index + 1)">
+        {{ $index + 1 }}
+      </div>
+    }
+  </div>
+
+  <div class="botones">
+
+    <app-boton-comensal
+      [backgroundColor]="configuracionVisualState.colorPrimario()"
+      [textColor]="'#FFFFFF'"
+      [disabled]="cargando()"
+      (clicked)="aceptar()">
+      @if (cargando()) {
+        Ocupando mesa...
+      } @else {
+        Continuar
+      }
+    </app-boton-comensal>
+  </div>
+</div>

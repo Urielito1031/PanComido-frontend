@@ -1,0 +1,366 @@
+<div class="container-fluid p-2 p-sm-3 p-lg-4 bg-light min-vh-100">
+
+  <div class="carta-header">
+    <h1>Modificar Carta</h1>
+    <p class="carta-header-sub">Gestiona platos, bebidas y destacados de tu menú</p>
+  </div>
+
+  <app-page-toolbar>
+    
+    <app-buscador 
+      buscador 
+      placeholder="Buscar plato" 
+      [valor]="state.searchTerm()"
+      (busquedaCambiada)="onSearch($event)">
+    </app-buscador>
+
+    <div filtros class="carta-toolbar-filtros">
+      <!-- Dropdown de Ordenamiento -->
+      <div class="d-flex align-items-center gap-2">
+        <app-dropdown #ordenDropdown>
+          <button
+            trigger
+            type="button"
+            class="btn-sort-trigger"
+            [class.activo]="sortOrder() !== 'default'">
+            <span class="material-symbols-outlined sort-trigger-icon">{{ ordenActivo().icono }}</span>
+            <span class="sort-trigger-label">{{ ordenActivo().etiqueta }}</span>
+            <span class="material-symbols-outlined sort-trigger-chevron">expand_more</span>
+          </button>
+          <div menu class="sort-menu">
+            @for (opcion of opcionesOrden; track opcion.valor) {
+              <button
+                type="button"
+                class="sort-menu-item"
+                [class.seleccionado]="sortOrder() === opcion.valor"
+                (click)="setOrden(opcion.valor, ordenDropdown)">
+                <span class="material-symbols-outlined sort-item-icon">{{ opcion.icono }}</span>
+                <span>{{ opcion.etiqueta }}</span>
+                @if (sortOrder() === opcion.valor) {
+                  <span class="material-symbols-outlined sort-item-check">check</span>
+                }
+              </button>
+            }
+          </div>
+        </app-dropdown>
+
+        @if (sortOrder() !== 'default') {
+          <button
+            type="button"
+            class="btn-limpiar-orden"
+            (click)="resetOrden($event)"
+            title="Quitar ordenamiento">
+            <span class="material-symbols-outlined btn-limpiar-icon">close</span>
+            <span>Limpiar</span>
+          </button>
+        }
+      </div>
+
+      <div class="segmented-control">
+        <button 
+          class="segmented-btn" 
+          [class.active]="layoutMode() === 'grid'" 
+          (click)="setLayoutMode('grid')"
+          title="Vista en cuadrícula">
+          <span class="material-symbols-outlined">grid_view</span>
+        </button>
+        <button 
+          class="segmented-btn" 
+          [class.active]="layoutMode() === 'list'" 
+          (click)="setLayoutMode('list')"
+          title="Vista en lista">
+          <span class="material-symbols-outlined">view_list</span>
+        </button>
+      </div>
+    </div>
+    
+    <div acciones class="d-flex gap-2 align-items-center">
+      <button type="button" class="tour-trigger-btn" (click)="iniciarTutorial()" title="Iniciar tutorial interactivo">
+        <span class="material-symbols-outlined">help</span>
+      </button>
+
+      <button
+        class="btn-premium-primary"
+        (click)="irACrearPlato()">
+        <span class="btn-plus">+</span><span class="fw-semibold">Plato</span>
+      </button>
+
+      <button
+        class="btn-premium-primary"
+        (click)="abrirPanelCrearBebida()">
+        <span class="btn-plus">+</span><span class="fw-semibold">Bebida</span>
+      </button>
+
+      <button
+        class="btn-premium-primary"
+        (click)="abrirPanelCrearBebidaPreparada()">
+        <span class="btn-plus">+</span><span class="fw-semibold">Bebida preparada</span>
+      </button>
+    </div>
+
+  </app-page-toolbar>
+
+  @if (loading()) {
+    <div class="carta-skeleton-grid">
+      @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+        <div class="carta-skeleton-card">
+          <div class="carta-skeleton-img"></div>
+          <div class="carta-skeleton-body">
+            <div class="skeleton skeleton-title"></div>
+            <div class="skeleton skeleton-text short"></div>
+            <div class="skeleton skeleton-text shorter"></div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+
+    @if (platosRecomendados().length > 0) {
+      <div id="seccion-recomendados" class="carta-section">
+        <div class="carta-section-header">
+          <div class="d-flex align-items-center gap-2">
+            <span class="material-symbols-outlined carta-section-icon carta-section-icon-star">star</span>
+            <div>
+              <h4 class="carta-section-title">Platos Recomendados</h4>
+            </div>
+          </div>
+        </div>
+        <app-lista-platos 
+          [platos]="platosRecomendados()"
+          [porcentajesPlatos]="porcentajesPlatos()"
+          [porcentajesBebidas]="porcentajesBebidas()"
+          [layoutMode]="layoutMode()"
+          [explodingId]="explodingPlatoId()"
+          (toggleVisible)="toggleVisibility($event)"
+          (editPlato)="onEditPlato($event)"
+          (deletePlato)="onDeletePlato($event)"
+          (toggleRecomendado)="toggleRecomendado($event)">
+        </app-lista-platos>
+      </div>
+    }
+
+    @if (platosComidas().length > 0 || selectedTipoComida()) {
+      <div id="seccion-platos" class="carta-section">
+        <div class="carta-section-header">
+          <div class="d-flex align-items-center gap-2">
+            <span class="material-symbols-outlined carta-section-icon">restaurant_menu</span>
+            <div>
+              <h4 class="carta-section-title">Platos</h4>
+            </div>
+          </div>
+          
+          @if (tiposComidaDisponibles().length > 0) {
+            <div class="carta-pills-scroll">
+              <button class="btn-pill-filter" [class.active]="!selectedTipoComida()" (click)="onTipoComidaSeleccionado(null)">
+                <span>Todos</span>
+                <span class="filter-badge">{{ totalComidasCount() }}</span>
+              </button>
+              @for (item of tiposComidaDisponibles(); track item.tipo) {
+                <button class="btn-pill-filter" [class.active]="selectedTipoComida() === item.tipo" (click)="onTipoComidaSeleccionado(item.tipo)">
+                  <span class="material-symbols-outlined btn-pill-icon">restaurant</span>
+                  <span>{{ item.tipo }}</span>
+                  <span class="filter-badge">{{ item.count }}</span>
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        @if (platosComidas().length === 0) {
+          <div class="carta-empty-state">
+            <span class="material-symbols-outlined carta-empty-icon">restaurant</span>
+            <strong>No hay platos en esta categoría</strong>
+            <small>Probá con otro filtro o creá un plato nuevo</small>
+            <button class="btn-premium-primary carta-empty-cta" (click)="irACrearPlato()">
+              <span class="material-symbols-outlined">add</span>
+              <span>Crear plato</span>
+            </button>
+          </div>
+        } @else {
+          <app-lista-platos 
+            [platos]="platosComidas()"
+            [porcentajesPlatos]="porcentajesPlatos()"
+          [porcentajesBebidas]="porcentajesBebidas()"
+            [layoutMode]="layoutMode()"
+            [explodingId]="explodingPlatoId()"
+            (toggleVisible)="toggleVisibility($event)"
+            (editPlato)="onEditPlato($event)"
+            (deletePlato)="onDeletePlato($event)"
+            (toggleRecomendado)="toggleRecomendado($event)">
+          </app-lista-platos>
+        }
+      </div>
+    } @else {
+      <div class="carta-empty-state">
+        <span class="material-symbols-outlined carta-empty-icon">restaurant_menu</span>
+        <strong>Todavía no hay platos</strong>
+        <small>Creá tu primer plato para empezar a armar la carta</small>
+        <button class="btn-premium-primary carta-empty-cta" (click)="irACrearPlato()">
+          <span class="material-symbols-outlined">add</span>
+          <span>Crear plato</span>
+        </button>
+      </div>
+    }
+
+    @if (platosBebidas().length > 0 || selectedTipoBebida()) {
+      <div id="seccion-bebidas" class="carta-section">
+        <div class="carta-section-header">
+          <div class="d-flex align-items-center gap-2">
+            <span class="material-symbols-outlined carta-section-icon">local_bar</span>
+            <div>
+              <h4 class="carta-section-title">Bebidas</h4>
+            </div>
+          </div>
+          
+          @if (tiposBebidaDisponibles().length > 0) {
+            <div class="carta-pills-scroll">
+              <button class="btn-pill-filter" [class.active]="!selectedTipoBebida()" (click)="onTipoBebidaSeleccionado(null)">
+                <span>Todas</span>
+                <span class="filter-badge">{{ totalBebidasCount() }}</span>
+              </button>
+              @for (item of tiposBebidaDisponibles(); track item.tipo) {
+                <button class="btn-pill-filter" [class.active]="selectedTipoBebida() === item.tipo" (click)="onTipoBebidaSeleccionado(item.tipo)">
+                  <span class="material-symbols-outlined btn-pill-icon">local_drink</span>
+                  <span>{{ item.tipo }}</span>
+                  <span class="filter-badge">{{ item.count }}</span>
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        @if (platosBebidas().length === 0) {
+          <div class="carta-empty-state">
+            <span class="material-symbols-outlined carta-empty-icon">local_bar</span>
+            <strong>No hay bebidas en esta categoría</strong>
+            <small>Probá con otro filtro o creá una bebida nueva</small>
+            <button class="btn-premium-primary carta-empty-cta" (click)="abrirPanelCrearBebida()">
+              <span class="material-symbols-outlined">add</span>
+              <span>Crear bebida</span>
+            </button>
+          </div>
+        } @else {
+          <app-lista-platos 
+            [platos]="platosBebidas()"
+            [porcentajesPlatos]="porcentajesPlatos()"
+          [porcentajesBebidas]="porcentajesBebidas()"
+            [layoutMode]="layoutMode()"
+            [explodingId]="explodingPlatoId()"
+            (toggleVisible)="toggleVisibility($event)"
+            (editPlato)="onEditPlato($event)"
+            (deletePlato)="onDeletePlato($event)"
+            (toggleRecomendado)="toggleRecomendado($event)">
+          </app-lista-platos>
+        }
+      </div>
+    } @else {
+      <div class="carta-empty-state">
+        <span class="material-symbols-outlined carta-empty-icon">local_bar</span>
+        <strong>Todavía no hay bebidas</strong>
+        <small>Creá tu primera bebida para sumarla a la carta</small>
+        <button class="btn-premium-primary carta-empty-cta" (click)="abrirPanelCrearBebida()">
+          <span class="material-symbols-outlined">add</span>
+          <span>Crear bebida</span>
+        </button>
+      </div>
+    }
+  }
+
+  @if (platoAEditar()) {
+    @defer (on idle) {
+      <app-modal-editar-plato
+        [plato]="platoAEditar()!"
+        [error]="state.error()"
+        (save)="onSavePlato($event)"
+        (close)="onCloseModals()">
+      </app-modal-editar-plato>
+    }
+  }
+
+  @if (bebidaAEditar(); as bebida) {
+    @defer (on idle) {
+      <app-panel-editar-bebida
+        [bebida]="bebida"
+        [porcentajeGanancia]="porcentajeGananciaBebida()"
+        [error]="state.error()"
+        (guardar)="onSaveBebida($event)"
+        (cerrar)="onCloseModals()">
+      </app-panel-editar-bebida>
+    }
+  }
+
+  @if (platoAEliminar()) {
+    @defer (on idle) {
+      <app-modal-eliminar-plato
+        [plato]="platoAEliminar()!"
+        (confirm)="onConfirmDelete()"
+        (close)="onCloseModals()">
+      </app-modal-eliminar-plato>
+    }
+  }
+
+  @if (mostrarPanelCrearBebida()) {
+    @defer (on idle) {
+      <app-panel-crear-bebida
+        [bodegas]="bodegaState.bodegas()"
+        [categorias]="categoriasBebida()"
+        [unidadesMedida]="stockState.unidadMedidas()"
+        [error]="state.error()"
+        (guardar)="onGuardarBebidaNueva($event)"
+        (cerrar)="cerrarPanelCrearBebida()">
+      </app-panel-crear-bebida>
+    }
+  }
+
+  @if (mostrarPanelCrearBebidaPreparada()) {
+    @defer (on idle) {
+      <app-panel-bebida-preparada
+        [insumosDisponibles]="insumosBebidaParaReceta()"
+        [porcentajesBebidas]="porcentajesBebidas()"
+        [error]="state.error()"
+        (guardar)="onGuardarBebidaPreparadaNueva($event)"
+        (cerrar)="cerrarPanelCrearBebidaPreparada()">
+      </app-panel-bebida-preparada>
+    }
+  }
+
+  @if (bebidaPreparadaAEditar(); as bebidaPreparada) {
+    @defer (on idle) {
+      <app-panel-bebida-preparada
+        [bebidaPreparada]="bebidaPreparada"
+        [insumosDisponibles]="insumosBebidaParaReceta()"
+        [porcentajesBebidas]="porcentajesBebidas()"
+        [error]="state.error()"
+        (guardar)="onGuardarBebidaPreparadaEditada($event)"
+        (cerrar)="onCloseModals()">
+      </app-panel-bebida-preparada>
+    }
+  }
+
+  <!-- Navegación Flotante -->
+  <div class="floating-navegacion-carta">
+    @if (platosRecomendados().length > 0) {
+      <button
+        type="button"
+        class="btn-flotante-sutil"
+        (click)="desplazarASeccion('seccion-recomendados')"
+        title="Ir a Destacados">
+        <span class="material-symbols-outlined">star</span>
+      </button>
+    }
+    <button
+      type="button"
+      class="btn-flotante-sutil"
+      (click)="desplazarASeccion('seccion-platos')"
+      title="Ir a Platos">
+      <span class="material-symbols-outlined">restaurant_menu</span>
+    </button>
+    <button
+      type="button"
+      class="btn-flotante-sutil"
+      (click)="desplazarASeccion('seccion-bebidas')"
+      title="Ir a Bebidas">
+      <span class="material-symbols-outlined">local_bar</span>
+    </button>
+  </div>
+</div>

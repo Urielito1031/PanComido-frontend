@@ -1,0 +1,31 @@
+@if (platos().length > 0) {
+  <h6 class="section-header">
+    <span class="material-symbols-outlined">restaurant_menu</span>
+    Platos
+  </h6>
+  <div class="d-flex flex-column gap-3 mb-4">
+    @for (plato of platos(); track plato.id) {
+      <app-card-plato-comensal
+        [plato]="plato"
+        (agregarPedido)="onAgregarPedido($event)" />
+    }
+  </div>
+}
+
+@if (bebidas().length > 0) {
+  <h6 class="section-header">
+    <span class="material-symbols-outlined">local_bar</span>
+    Bebidas
+  </h6>
+  <div class="d-flex flex-column gap-3">
+    @for (bebida of bebidas(); track bebida.id) {
+      <app-card-plato-comensal
+        [plato]="bebida"
+        (agregarPedido)="onAgregarPedido($event)" />
+    }
+  </div>
+}
+
+@if (items().length === 0) {
+  <p class="text-center text-muted py-4">No hay artículos disponibles</p>
+}

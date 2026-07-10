@@ -1,0 +1,53 @@
+import { DashboardRankingItem, DashboardInsumoVencimiento } from '../../../core/models/domain/dashboard';
+import { PlatoRendimientoDto, DashboardRendimientoResponseDto } from '../../../core/models/dtos/responses/dashboard-rendimiento.response';
+import { DashboardVencimientoDto } from '../../../core/models/dtos/responses/dashboard-vencimiento.response';
+
+export interface PlatoRendimientoResponse {
+  masVendidos: DashboardRankingItem[];
+  menosVendidos: DashboardRankingItem[];
+}
+
+export function mapPlatoRendimientoDtoToDomain(dto: PlatoRendimientoDto): DashboardRankingItem {
+  const nombre = dto.nombre || dto.Nombre || '';
+  const unidades = dto.unidades || dto.Unidades || "0";
+  const facturacion = dto.facturacion || dto.Facturacion || '$ 0';
+  
+  return {
+    nombre: nombre,
+    valor: parseInt(String(unidades).replace(/\D/g, '')) || 0,
+    detalle: facturacion
+  };
+}
+
+export function mapRendimientoDtoToDomain(dto: DashboardRendimientoResponseDto): PlatoRendimientoResponse {
+  const masVendidosDto = dto.masVendidos || dto.MasVendidos || [];
+  const menosVendidosDto = dto.menosVendidos || dto.MenosVendidos || [];
+  
+  return {
+    masVendidos: masVendidosDto.map(mapPlatoRendimientoDtoToDomain),
+    menosVendidos: menosVendidosDto.map(mapPlatoRendimientoDtoToDomain)
+  };
+}
+
+export function mapVencimientoDtoToDomain(dto: DashboardVencimientoDto): DashboardInsumoVencimiento {
+  const criticidadCruda = (dto.criticidad || dto.Criticidad || 'baja').toLowerCase();
+  let criticidadValida: 'alta' | 'media' | 'baja' = 'baja';
+  if (criticidadCruda === 'alta' || criticidadCruda === 'media') {
+    criticidadValida = criticidadCruda as 'alta' | 'media';
+  }
+
+  const cantidadCruda = dto.cantidad || dto.Cantidad || '';
+  let cantidadFinal = cantidadCruda;
+  const numMatch = cantidadCruda.match(/^[0-9]+(\.[0-9]+)?/);
+  if (numMatch && parseFloat(numMatch[0]) === 0) {
+    cantidadFinal = 'Agotado';
+  }
+
+  return {
+    nombre: dto.nombre || dto.Nombre || '',
+    fecha: dto.fecha || dto.Fecha || '',
+    cantidad: cantidadFinal,
+    criticidad: criticidadValida,
+    relativo: dto.relativo || dto.Relativo || ''
+  };
+}

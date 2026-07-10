@@ -1,0 +1,63 @@
+<div class="personalizar-container">
+
+  <app-header-comensal [showBack]="true" [title]="''" (back)="volver()" />
+
+  <div class="plato-summary">
+    <div class="plato-summary-img">
+      @if (plato?.plato?.urlImagen) {
+        <img [src]="plato?.plato?.urlImagen" [alt]="plato?.plato?.nombre">
+      } @else {
+        <div class="plato-summary-placeholder">
+          <span class="material-symbols-outlined">restaurant</span>
+        </div>
+      }
+    </div>
+    <div class="plato-summary-info">
+      <h2 class="plato-summary-nombre">{{ plato?.plato?.nombre }}</h2>
+      @if (plato?.plato?.descripcion) {
+        <p class="plato-summary-desc">{{ plato?.plato?.descripcion }}</p>
+      }
+      <span class="plato-summary-precio">$ {{ plato?.plato?.precio | number:'1.0-0' }}</span>
+    </div>
+  </div>
+
+  <div class="personalizar-section">
+    <h3>Personalizar plato</h3>
+
+    @if (ingredientesOpcionales.length > 0) {
+    <div class="seccion-group">
+      <h4>Ingredientes</h4>
+      <div class="ingredientes-lista">
+        @for (ing of ingredientesOpcionales; track ing.ingredienteId) {
+          <label class="ingrediente-check">
+            <span class="ingrediente-nombre">{{ ing.nombre }}</span>
+            <input type="checkbox"
+              [checked]="seleccionados.includes(ing.nombre)"
+              (change)="toggleIngrediente(ing.nombre)"
+              class="ingrediente-check-input">
+            <span class="ingrediente-check-box"></span>
+          </label>
+        }
+      </div>
+    </div>
+    }
+
+    <div class="seccion-group">
+      <h4>Otras indicaciones</h4>
+      <textarea class="observaciones-input" placeholder="Ej: sin cebolla, poco cocido, etc." rows="3"
+        [(ngModel)]="observaciones"></textarea>
+    </div>
+  </div>
+
+  <div class="action-buttons">
+    <app-boton-comensal [backgroundColor]="configuracionVisualState.colorSecundario()" [textColor]="'#FFFFFF'"
+      (clicked)="guardarCambios()">
+      Guardar cambios
+    </app-boton-comensal>
+  </div>
+
+</div>
+
+<app-llamar-al-mozo [mesaId]="comandaState.mesaId() ?? 0" [enviando]="comensalState.enviando()"
+  [enviado]="comensalState.exito()" [error]="comensalState.error()" (llamadoMozo)="comensalState.solicitarMozo($event)"
+  (modalCerrado)="comensalState.limpiarEstado()" #llamarMozoRef />

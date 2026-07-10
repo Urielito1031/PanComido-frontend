@@ -1,0 +1,168 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.radar-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 452px;
+  box-sizing: border-box;
+}
+
+.badge-radar {
+  background: rgba(168, 4, 26, 0.06);
+  color: #d8081c;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.radar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  box-sizing: border-box;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.radar-item {
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 8px;
+  padding: 0.85rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1 1 auto;
+}
+
+.radar-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+}
+
+.item-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.45rem;
+}
+
+.ingredient-name {
+  font-weight: 750;
+  color: #0f172a;
+  font-size: 0.88rem;
+}
+
+.exclusion-count {
+  font-size: 0.78rem;
+  color: #a8041a;
+  font-weight: 800;
+}
+
+.item-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.item-footer strong {
+  color: #0f172a;
+}
+
+.tasa-badge {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 800;
+  font-size: 0.68rem;
+}
+
+.tasa-badge-critical {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.tasa-badge-medium {
+  background: #fef3c7;
+  color: #a8041a;
+}
+
+.tasa-badge-low {
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.empty-radar-state {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.empty-radar-state .material-symbols-outlined {
+  font-size: 2.5rem;
+  color: #cbd5e1;
+}
+
+.empty-radar-state p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #64748b;
+  font-weight: 550;
+}
+
+/* 1 Mes filter larger display override style rules */
+.radar-list.large-rows {
+  gap: 1.25rem;
+}
+
+.large-rows .radar-item {
+  min-height: 110px;
+  padding: 1.25rem;
+  border-radius: 8px;
+}
+
+.large-rows .ingredient-name {
+  font-size: 1.15rem;
+}
+
+.large-rows .exclusion-count {
+  font-size: 1.05rem;
+}
+
+.large-rows .item-footer {
+  font-size: 0.84rem;
+}
+
+.large-rows .tasa-badge {
+  font-size: 0.82rem;
+  padding: 0.38rem 0.8rem;
+  border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+  .item-meta,
+  .item-footer {
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .ingredient-name {
+    overflow-wrap: anywhere;
+  }
+}

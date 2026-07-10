@@ -1,0 +1,234 @@
+import { DestroyRef, inject, Injectable, signal, computed, effect } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Observable, tap, catchError, throwError, map } from 'rxjs';
+import { ComandaService } from './comanda.service';
+import { PedidoState } from './pedido.state';
+import { EstadoPedido } from '../../../core/models/domain/comanda';
+import { Mesa } from '../../../core/models/domain/mesa';
+import { ComandaHubService } from '../../../core/services/hubs/comanda/comanda-hub-service';
+import { HttpClient } from '@angular/common/http';
+import { ItemPedido } from '../../../core/models/domain/item-pedido';
+
+@Injectable({ providedIn: 'root' })
+export class ComandaState {
+  private comandaService = inject(ComandaService);
+  private pedidoService = inject(PedidoState);
+  
+  private comandaHub = inject(ComandaHubService);
+  readonly #destroyRef = inject(DestroyRef);
+
+  // Signals de estado (inicializan desde sessionStorage si existe)
+  readonly #restauranteId = signal<number | null>(this.leerNumeroDeStorage('restauranteId'));
+  readonly #comandaId = signal<number | null>(this.leerNumeroDeStorage('comandaId'));
+  readonly #mesaId = signal<number | null>(this.leerNumeroDeStorage('mesaId'));
+  readonly #mesaInfo = signal<Mesa | null>(null);
+  readonly #estadoPedido = signal<EstadoPedido | null>(null);
+  readonly #cargando = signal(false);
+  readonly #error = signal<string | null>(null);
+
+  // Readonly signals
+  restauranteId = this.#restauranteId.asReadonly();
+  comandaId = this.#comandaId.asReadonly();
+  mesaId = this.#mesaId.asReadonly();
+  mesaInfo = this.#mesaInfo.asReadonly();
+  estadoPedido = this.#estadoPedido.asReadonly();
+  cargando = this.#cargando.asReadonly();
+  error = this.#error.asReadonly();
+
+  tieneComandaActiva = computed(() => this.#comandaId() !== null);
+
+  constructor() {
+    effect(() => {
+      const modificada = this.comandaHub.comandaModificada();
+      if (modificada) {
+        this.consultarEstado();
+      }
+    });
+  }
+
+  async iniciarEscucha(mesaId: number): Promise<void> {
+    await this.comandaHub.conectarComoComensal(mesaId);
+  }
+
+  detenerEscucha(): void {
+    this.comandaHub.desconectarEscucha();
+  }
+
+  /**
+   * Ocupar mesa y crear comanda
+   * Devuelve Observable para que el componente pueda reaccionar cuando termina
+   */
+  ocuparMesa(
+    restauranteId: number,
+    mesaId: number,
+    cantidadComensales: number,
+    nombreComensal: string,
+    turnoId?: number
+  ): Observable<any> {
+    this.#restauranteId.set(restauranteId);
+    this.#mesaId.set(mesaId);
+    this.#cargando.set(true);
+    this.#error.set(null);
+
+    return this.comandaService.ocuparMesa(
+      restauranteId,
+      mesaId,
+      cantidadComensales,
+      nombreComensal,
+      turnoId
+    ).pipe(
+      tap(response => {
+        this.#restauranteId.set(restauranteId);
+        this.#mesaId.set(mesaId);
+        this.#mesaInfo.set(response.mesa);
+        this.#comandaId.set(response.idComandaGenerada);
+
+        sessionStorage.setItem('restauranteId', String(restauranteId));
+        sessionStorage.setItem('comandaId', String(response.idComandaGenerada));
+        sessionStorage.setItem('mesaId', String(mesaId));
+
+        this.#cargando.set(false);
+      }),
+      catchError(err => {
+        console.error('Error al ocupar mesa:', err);
+        this.#error.set('No se pudo ocupar la mesa. Intenta nuevamente.');
+        this.#cargando.set(false);
+        return throwError(() => err);
+      })
+    );
+    
+  }
+
+
+  setComandaDesdeSesion(data: {
+    comandaId: number;
+    restauranteId: number;
+    mesaId: number;
+  }) {
+    this.#comandaId.set(data.comandaId);
+    this.#restauranteId.set(data.restauranteId);
+    this.#mesaId.set(data.mesaId);
+
+    sessionStorage.setItem('comandaId', String(data.comandaId));
+    sessionStorage.setItem('restauranteId', String(data.restauranteId));
+    sessionStorage.setItem('mesaId', String(data.mesaId));
+  }
+
+  /**
+   * Confirmar pedido (envía items al backend)
+   */
+  confirmarPedido(): void {
+
+
+    const comandaId = this.#comandaId();
+    const restauranteId = this.#restauranteId();
+
+    if (!comandaId || !restauranteId) {
+      this.#error.set('No hay comanda activa. Escanea el QR de la mesa.');
+      return;
+    }
+
+    const pedidos: ItemPedido[] = this.pedidoService.obtenerPedidos();
+
+    if (pedidos.length === 0) {
+      this.#error.set('El carrito está vacío');
+      return;
+    }
+
+    this.#cargando.set(true);
+    this.#error.set(null);
+
+    const nombreComensal = sessionStorage.getItem('nombreComensal') ?? '';
+
+    this.comandaService.confirmarPedido(comandaId, restauranteId,pedidos,nombreComensal)
+      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .subscribe({
+        next: (response) => {
+          const estado: EstadoPedido = {
+            comandaId: response.comandaId,
+            estadoUI: response.estadoUI,
+            totalAPagar: response.totalAPagar,
+            items: response.items
+          };
+          this.#estadoPedido.set(estado);
+          this.#cargando.set(false);
+          this.pedidoService.limpiarPedidos();
+        },
+        error: (err) => {
+          const msg: string = err.error?.error ?? '';
+          const stockMatch = msg.match(/preparar (\d+)x (.+)/);
+          if (stockMatch) {
+            const [, cantidad, nombrePlato] = stockMatch;
+            this.#error.set(`${nombrePlato} no cuenta con stock suficiente para preparar ${cantidad} unidad${cantidad === '1' ? '' : 'es'}. Intentá con menos unidades o elegí otro plato.`);
+          } else {
+            this.#error.set('Error al confirmar el pedido. Intenta nuevamente.');
+          }
+          this.#cargando.set(false);
+        }
+      });
+
+    console.log('PEDIDOS RAW:', pedidos);
+
+    pedidos.forEach(p => {
+      console.log('ITEM:', p.plato.nombre);
+      console.log('OBS ING:', p.observacionesIngredientes);
+      console.log('OBS GEN:', p.observacionesGenerales);
+    });
+  }
+
+  /**
+   * Consultar estado del pedido
+   */
+  consultarEstado(): void {
+    const comandaId = this.#comandaId();
+    const restauranteId = this.#restauranteId();
+
+    if (!comandaId || !restauranteId) return;
+
+    this.comandaService.obtenerEstado(comandaId, restauranteId)
+      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .subscribe({
+        next: (response) => {
+          const estado: EstadoPedido = {
+            comandaId: response.comandaId,
+            estadoUI: response.estadoUI,
+            totalAPagar: response.totalAPagar,
+            items: response.items
+          };
+          this.#estadoPedido.set(estado);
+        },
+        error: (err) => {
+          console.error('Error al consultar estado:', err);
+        }
+      });
+  }
+
+  /**
+   * Limpiar estado (para nueva comanda)
+   */
+  limpiarEstado(): void {
+    this.#restauranteId.set(null);
+    this.#comandaId.set(null);
+    this.#mesaId.set(null);
+    this.#mesaInfo.set(null);
+    this.#estadoPedido.set(null);
+    this.#error.set(null);
+    sessionStorage.removeItem('restauranteId');
+    sessionStorage.removeItem('comandaId');
+    sessionStorage.removeItem('mesaId');
+  }
+
+  limpiarError(): void {
+    this.#error.set(null);
+  }
+
+  private leerNumeroDeStorage(key: string): number | null {
+    const val = sessionStorage.getItem(key);
+    if (val === null) return null;
+    const num = Number(val);
+    return Number.isFinite(num) ? num : null;
+  }
+
+ 
+
+}

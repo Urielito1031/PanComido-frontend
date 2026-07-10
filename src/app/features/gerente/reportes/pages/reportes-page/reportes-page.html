@@ -1,0 +1,215 @@
+<div class="reportes-page p-4">
+
+  <app-page-toolbar>
+    <div buscador class="d-flex align-items-center gap-2">
+      <!-- vacío: sin buscador en reportes -->
+    </div>
+    <div acciones class="ms-auto d-flex align-items-center gap-2">
+      <!-- acciones futuras -->
+    </div>
+  </app-page-toolbar>
+
+  <!-- Header de página -->
+  <div class="reportes-header mb-4">
+    <div>
+      <p class="reportes-eyebrow">Gerencia</p>
+      <h1 class="reportes-title">Reportes</h1>
+      <p class="reportes-subtitle">Descargá informes detallados del negocio en PDF</p>
+    </div>
+  </div>
+
+  <!-- Selector de rango compartido -->
+  <app-glass-card class="d-block mb-4">
+    <div class="range-section">
+      <div class="range-header mb-3">
+        <span class="material-symbols-outlined range-icon">date_range</span>
+        <div>
+          <h2 class="range-title mb-0">Rango de fechas</h2>
+          <p class="range-subtitle mb-0">Seleccioná el período para los reportes de Resumen Ejecutivo y Facturación</p>
+        </div>
+      </div>
+
+      <div class="range-fields">
+        <div class="field-group">
+          <label for="fecha-desde">Desde</label>
+          <input
+            id="fecha-desde"
+            type="date"
+            class="form-control custom-input"
+            [max]="hoy"
+            [ngModel]="state.fechaDesde()"
+            (ngModelChange)="state.setFechaDesde($event)">
+        </div>
+        <span class="range-separator material-symbols-outlined">arrow_forward</span>
+        <div class="field-group">
+          <label for="fecha-hasta">Hasta</label>
+          <input
+            id="fecha-hasta"
+            type="date"
+            class="form-control custom-input"
+            [max]="hoy"
+            [min]="state.fechaDesde()"
+            [ngModel]="state.fechaHasta()"
+            (ngModelChange)="state.setFechaHasta($event)">
+        </div>
+
+        @if (state.fechaDesde() && state.fechaHasta() && !state.rangoValido) {
+          <div class="range-warning">
+            <span class="material-symbols-outlined">warning</span>
+            El rango de fechas no es válido o supera los 366 días.
+          </div>
+        }
+      </div>
+    </div>
+  </app-glass-card>
+
+  <!-- Grid de tarjetas de reportes -->
+  <div class="reportes-grid">
+
+    <!-- Reporte Ejecutivo del Dashboard -->
+    <app-glass-card class="d-block reporte-card" id="reporte-ejecutivo">
+      <div class="reporte-card-icon ejecutivo">
+        <span class="material-symbols-outlined">bar_chart_4_bars</span>
+      </div>
+      <div class="reporte-card-body">
+        <h2 class="reporte-card-title">Resumen Ejecutivo</h2>
+        <p class="reporte-card-desc">
+          Incluye KPIs de ventas, platos más y menos vendidos, alertas de stock e indicadores del período seleccionado.
+        </p>
+        <ul class="reporte-card-includes">
+          <li><span class="material-symbols-outlined">check_circle</span> Total de ventas y variación</li>
+          <li><span class="material-symbols-outlined">check_circle</span> Ranking de platos</li>
+          <li><span class="material-symbols-outlined">check_circle</span> Insumos críticos</li>
+          <li><span class="material-symbols-outlined">check_circle</span> Métricas operativas</li>
+        </ul>
+      </div>
+      <div class="reporte-card-footer">
+        <span class="reporte-requiere-rango">
+          <span class="material-symbols-outlined">calendar_month</span> Requiere rango de fechas
+        </span>
+        <button
+          type="button"
+          class="reporte-download-btn primary"
+          [disabled]="!state.rangoValido || state.estadoDashboard() === 'cargando'"
+          (click)="state.descargarDashboard()">
+          @switch (state.estadoDashboard()) {
+            @case ('cargando') {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+              Generando...
+            }
+            @case ('exito') {
+              <span class="material-symbols-outlined">check_circle</span>
+              Descargado
+            }
+            @case ('error') {
+              <span class="material-symbols-outlined">error</span>
+              Error al descargar
+            }
+            @default {
+              <span class="material-symbols-outlined">picture_as_pdf</span>
+              Descargar PDF
+            }
+          }
+        </button>
+      </div>
+    </app-glass-card>
+
+    <!-- Reporte de Facturación -->
+    <app-glass-card class="d-block reporte-card" id="reporte-facturacion">
+      <div class="reporte-card-icon ventas">
+        <span class="material-symbols-outlined">receipt_long</span>
+      </div>
+      <div class="reporte-card-body">
+        <h2 class="reporte-card-title">Reporte de Facturación</h2>
+        <p class="reporte-card-desc">
+          Detalle completo de ingresos por período, desglosados por mesa y método de pago.
+        </p>
+        <ul class="reporte-card-includes">
+          <li><span class="material-symbols-outlined">check_circle</span> Ventas por mesa</li>
+          <li><span class="material-symbols-outlined">check_circle</span> Métodos de pago</li>
+          <li><span class="material-symbols-outlined">check_circle</span> Ticket promedio</li>
+          <li><span class="material-symbols-outlined">check_circle</span> Totales del período</li>
+        </ul>
+      </div>
+      <div class="reporte-card-footer">
+        <span class="reporte-requiere-rango">
+          <span class="material-symbols-outlined">calendar_month</span> Requiere rango de fechas
+        </span>
+        <button
+          type="button"
+          class="reporte-download-btn ventas"
+          [disabled]="!state.rangoValido || state.estadoVentas() === 'cargando'"
+          (click)="state.descargarVentas()">
+          @switch (state.estadoVentas()) {
+            @case ('cargando') {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+              Generando...
+            }
+            @case ('exito') {
+              <span class="material-symbols-outlined">check_circle</span>
+              Descargado
+            }
+            @case ('error') {
+              <span class="material-symbols-outlined">error</span>
+              Error al descargar
+            }
+            @default {
+              <span class="material-symbols-outlined">picture_as_pdf</span>
+              Descargar PDF
+            }
+          }
+        </button>
+      </div>
+    </app-glass-card>
+
+    <!-- Reporte de Personal -->
+    <app-glass-card class="d-block reporte-card" id="reporte-personal">
+      <div class="reporte-card-icon personal">
+        <span class="material-symbols-outlined">groups</span>
+      </div>
+      <div class="reporte-card-body">
+        <h2 class="reporte-card-title">Reporte de Personal</h2>
+        <p class="reporte-card-desc">
+          Listado completo del personal del restaurante con sus roles, estados y horarios de trabajo asignados.
+        </p>
+        <ul class="reporte-card-includes">
+          <li><span class="material-symbols-outlined">check_circle</span> Empleados activos e inactivos</li>
+          <li><span class="material-symbols-outlined">check_circle</span> Roles y estados</li>
+          <li><span class="material-symbols-outlined">check_circle</span> Turnos laborales</li>
+          <li><span class="material-symbols-outlined">check_circle</span> Generado a fecha de hoy</li>
+        </ul>
+      </div>
+      <div class="reporte-card-footer">
+        <span class="reporte-requiere-rango no-date">
+          <span class="material-symbols-outlined">info</span> No requiere fechas
+        </span>
+        <button
+          type="button"
+          class="reporte-download-btn personal"
+          [disabled]="state.estadoPersonal() === 'cargando'"
+          (click)="state.descargarPersonal()">
+          @switch (state.estadoPersonal()) {
+            @case ('cargando') {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+              Generando...
+            }
+            @case ('exito') {
+              <span class="material-symbols-outlined">check_circle</span>
+              Descargado
+            }
+            @case ('error') {
+              <span class="material-symbols-outlined">error</span>
+              Error al descargar
+            }
+            @default {
+              <span class="material-symbols-outlined">picture_as_pdf</span>
+              Descargar PDF
+            }
+          }
+        </button>
+      </div>
+    </app-glass-card>
+
+  </div><!-- /reportes-grid -->
+
+</div>

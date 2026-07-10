@@ -1,0 +1,191 @@
+<div class="dish-card-wrapper h-100" 
+     [class.disabled-card]="!plato().visible"
+     [class.exploding-card]="isExploding()"
+     [class.recommended-card]="plato().recomendado"
+  [class.is-bebida]="(plato().categoria?.toLowerCase() || '').includes('bebida') || (plato().tipo || '').toLowerCase().includes('bebida') || !!plato().bebida"
+     [class.list-layout]="layoutMode() === 'list'">
+  
+  @if (layoutMode() === 'grid') {
+    <div class="dish-grid-container h-100 d-flex flex-column">
+      
+      <!-- HERO IMAGE HEADER -->
+      <div class="dish-hero-wrapper position-relative flex-shrink-0">
+        @if (plato().imagen && !imgError()) {
+          <img [src]="plato().imagen" class="dish-hero-img w-100" [alt]="plato().nombre" (error)="onImgError()">
+        } @else {
+          <div class="dish-hero-placeholder w-100 d-flex align-items-center justify-content-center">
+            <span class="material-symbols-outlined" style="font-size:2.5rem;color:#94a3b8;">restaurant</span>
+          </div>
+        }
+        
+        <!-- Glassmorphism Overlay Badges -->
+        <div class="dish-hero-badges position-absolute top-0 start-0 w-100 p-3 d-flex justify-content-between align-items-start">
+          <div class="visibility-glass-badge">
+            <app-toggle 
+              [active]="plato().visible" 
+              [label]="''" 
+              (toggled)="onToggle()">
+            </app-toggle>
+          </div>
+          
+          @if (plato().recomendado) {
+            <div class="star-glass-badge">
+              <span class="material-symbols-outlined star-icon-filled">star</span>
+            </div>
+          }
+        </div>
+      </div>
+      
+      <!-- INFO BODY -->
+      <div class="dish-info-body flex-grow-1 p-3 pb-1 d-flex flex-column">
+        <h5 class="dish-title fw-bold text-dark mb-2" [title]="plato().nombre">
+          {{ plato().nombre }}
+        </h5>
+
+        <div class="dish-metrics-row">
+          <span class="dish-metric">
+            <span class="dish-metric-label">Mrg</span>
+            <strong>{{ obtenerPorcentajeGanancia() }}%</strong>
+          </span>
+
+          <div class="dish-precios-stack">
+            <div class="dish-precio-line">
+              <span class="dish-metric-label">Costo</span>
+              <strong>{{ plato().costo | arsCurrency }}</strong>
+            </div>
+            @if (obtenerPrecioSugerido() !== null) {
+            <div class="dish-precio-line" title="Precio con % de ganancia aplicado">
+              <span class="dish-metric-label">Sugerido</span>
+              <strong>{{ obtenerPrecioSugerido() | arsCurrency }}</strong>
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="dish-card-footer p-3 pt-1 d-flex justify-content-between align-items-center">
+        <div class="dish-price-large fw-bold text-dark">
+          {{ plato().precioVenta | arsCurrency }}
+        </div>
+        
+        <!-- ACTIONS MENU -->
+        <div class="dish-actions-menu" [class.open]="isMenuOpen()">
+          <button class="btn-soft btn-soft-menu" (click)="toggleMenu($event)" title="Más acciones">
+            <span class="material-symbols-outlined">more_vert</span>
+          </button>
+          @if (isMenuOpen()) {
+            <div class="dish-actions-dropdown">
+               <button class="dish-action-item dish-action-danger" (click)="onDelete(); closeMenu()">
+                <span class="material-symbols-outlined">delete</span>
+                <span>Eliminar</span>
+              </button>
+              <button class="dish-action-item dish-action-edit" (click)="onEdit(); closeMenu()">
+                <span class="material-symbols-outlined">edit</span>
+                <span>Editar</span>
+              </button>
+              <button class="dish-action-item" (click)="onToggleRecomendado(); closeMenu()">
+                <span class="material-symbols-outlined">{{ plato().recomendado ? 'star' : 'star' }}</span>
+                <span>{{ plato().recomendado ? 'Quitar destacado' : 'Destacar' }}</span>
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+
+    </div>
+  } @else {
+    <!-- Compact List Layout -->
+    <div class="d-flex align-items-center p-3 gap-3 h-100">
+      <!-- IMAGE -->
+      <div class="dish-image-wrapper flex-shrink-0 position-relative">
+        @if (plato().imagen && !imgError()) {
+          <img [src]="plato().imagen" class="dish-img-compact rounded-3" [alt]="plato().nombre" (error)="onImgError()">
+        } @else {
+          <div class="dish-img-compact rounded-3 d-flex align-items-center justify-content-center" style="width:64px;height:64px;background:#f1f5f9;">
+            <span class="material-symbols-outlined" style="font-size:1.5rem;color:#94a3b8;">restaurant</span>
+          </div>
+        }
+        @if (plato().recomendado) {
+          <div class="dish-star-badge-compact">
+            <span class="material-symbols-outlined star-icon-filled">star</span>
+          </div>
+        }
+      </div>
+      
+      <!-- INFO & ACTIONS ALIGNED AS COLUMNS -->
+      <div class="dish-compact-content flex-grow-1 min-w-0">
+        
+        <!-- TITLE -->
+        <div class="pe-2" style="flex: 1; max-width: 300px; min-width: 0;">
+           <h6 class="dish-title fw-bold text-dark text-truncate mb-0" [title]="plato().nombre">
+             {{ plato().nombre }}
+           </h6>
+           <!-- Show badges directly below title on mobile only -->
+           <div class="dish-price-mobile-only">
+             <span class="badge-price fw-bold">{{ plato().precioVenta | arsCurrency }}</span>
+           </div>
+        </div>
+
+        <!-- DESKTOP PRICING COLUMNS -->
+        <div class="dish-pricing-columns align-items-center gap-4 pe-3 border-end border-light">
+           <div class="d-flex flex-column" style="min-width: 80px;">
+             <span class="text-muted text-uppercase mb-1" style="font-size: 0.65rem; letter-spacing: 0.05em;">Venta</span>
+             <span class="fw-bold text-success" style="font-size: 0.95rem;">{{ plato().precioVenta | arsCurrency }}</span>
+           </div>
+           <div class="d-flex flex-column" style="min-width: 80px;">
+             <span class="text-muted text-uppercase mb-1" style="font-size: 0.65rem; letter-spacing: 0.05em;">Costo</span>
+             <span class="fw-semibold text-secondary" style="font-size: 0.9rem;">{{ plato().costo | arsCurrency }}</span>
+           </div>
+           @if (obtenerPrecioSugerido() !== null) {
+           <div class="d-flex flex-column" style="min-width: 80px;" title="Precio con % de ganancia aplicado">
+             <span class="text-muted text-uppercase mb-1" style="font-size: 0.65rem; letter-spacing: 0.05em;">Sugerido</span>
+             <span class="fw-semibold text-secondary" style="font-size: 0.9rem;">{{ obtenerPrecioSugerido() | arsCurrency }}</span>
+           </div>
+           }
+           <div class="d-flex flex-column align-items-center" style="min-width: 70px;">
+             <span class="text-muted text-uppercase mb-1" style="font-size: 0.65rem; letter-spacing: 0.05em;">Ganancia</span>
+             <span class="fw-bold text-dark" style="font-size: 0.9rem;">
+               {{ obtenerPorcentajeGanancia() }}%
+             </span>
+           </div>
+        </div>
+        
+        <!-- ACTIONS & TOGGLE -->
+        <div class="dish-compact-actions">
+          <div class="visibility-toggle-sm">
+            <app-toggle 
+              [active]="plato().visible" 
+              [label]="''" 
+              (toggled)="onToggle()">
+            </app-toggle>
+          </div>
+          
+          <div class="dish-actions-menu" [class.open]="isMenuOpen()">
+            <button class="btn-soft-menu" (click)="toggleMenu($event)" title="Más acciones">
+              <span class="material-symbols-outlined">more_vert</span>
+            </button>
+            @if (isMenuOpen()) {
+              <div class="dish-actions-dropdown dish-actions-dropdown-up">
+                <button class="dish-action-item" (click)="onToggleRecomendado(); closeMenu()">
+                  <span class="material-symbols-outlined">star</span>
+                  <span>{{ plato().recomendado ? 'Quitar destacado' : 'Destacar' }}</span>
+                </button>
+                <button class="dish-action-item dish-action-edit" (click)="onEdit(); closeMenu()">
+                  <span class="material-symbols-outlined">edit</span>
+                  <span>Editar</span>
+                </button>
+                <button class="dish-action-item dish-action-danger" (click)="onDelete(); closeMenu()">
+                  <span class="material-symbols-outlined">delete</span>
+                  <span>Eliminar</span>
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+        
+      </div>
+
+    </div>
+  }
+</div>

@@ -1,0 +1,37 @@
+.estrella-rating {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.estrella {
+  cursor: pointer;
+  transition: transform 0.15s ease;
+  display: inline-flex;
+}
+
+.estrella:hover {
+  transform: scale(1.2);
+}
+
+.estrella .material-symbols-outlined {
+  font-size: 2.75rem;
+  transition: color 0.15s ease;
+}
+
+.estrella.llena .material-symbols-outlined {
+  color: var(--color-primario, #f08f1a);
+  font-variation-settings: 'FILL' 1;
+}
+
+.estrella:not(.llena) .material-symbols-outlined {
+  color: var(--gray-300, #d1d5db);
+}
+
+.solo-lectura .estrella {
+  cursor: default;
+}
+
+.solo-lectura .estrella:hover {
+  transform: none;
+}

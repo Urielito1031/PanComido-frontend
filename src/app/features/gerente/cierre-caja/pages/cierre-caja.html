@@ -1,0 +1,234 @@
+<div class="cierre-caja-page p-4">
+  <div class="cierre-layout">
+    <!-- PANEL IZQUIERDO: Generar cierre de caja -->
+    <app-glass-card class="caja-panel">
+      <div class="panel-header mb-4">
+        <h1 class="page-title mb-1">Cierre de caja</h1>
+        <p class="page-subtitle mb-0">Genera el cierre de caja al finalizar cada turno</p>
+      </div>
+
+      <div class="cerrar-turno-actions mb-4">
+        <app-boton
+          label="Cerrar Turno Día"
+          variante="primary"
+          tamanio="md"
+          [disabled]="!state.turnoDiaId() || state.loading() || state.generando()"
+          (clicked)="abrirCierre('dia')">
+        </app-boton>
+        <app-boton
+          label="Cerrar Turno Noche"
+          variante="primary"
+          tamanio="md"
+          [disabled]="!state.turnoNocheId() || state.loading() || state.generando()"
+          (clicked)="abrirCierre('noche')">
+        </app-boton>
+      </div>
+
+      @if (state.cierreGenerado(); as cierre) {
+        <div class="cierre-resultado">
+          <h2 class="section-title mb-3">Último cierre generado</h2>
+          <div class="turno-info-strip mb-4">
+            <div class="info-item">
+              <span class="material-symbols-outlined">calendar_today</span>
+              <div>
+                <strong>Fecha</strong>
+                <span>{{ cierre.fecha | date:'dd/MM/yyyy' }}</span>
+              </div>
+            </div>
+            <div class="info-item">
+              <span class="material-symbols-outlined">schedule</span>
+              <div>
+                <strong>Turno cerrado</strong>
+                <span>{{ cierre.turnoLaboralNombre }}</span>
+              </div>
+            </div>
+            <div class="info-item">
+              <span class="material-symbols-outlined">receipt_long</span>
+              <div>
+                <strong>Pagos Totales</strong>
+                <span>{{ cierre.cantidadTotalDePagos }}</span>
+              </div>
+            </div>
+          </div>
+
+          <h2 class="section-title mb-3">Resumen de medios de pago</h2>
+          <div class="desglose-list mb-4">
+            @for (pago of cierre.detallePagos; track pago.metodoPagoId) {
+              <div class="pago-card">
+                <div class="pago-left">
+                  <strong>{{ pago.metodoPagoNombre }}</strong>
+                  <span>{{ pago.cantidadPagos }} pagos</span>
+                </div>
+                <div class="pago-right">
+                  <span class="pago-esperado">{{ pago.total | arsCurrency }}</span>
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="summary-details-box p-3 mb-3">
+            <div class="summary-row">
+              <span>Total recaudado:</span>
+              <strong>{{ cierre.totalRecaudado | arsCurrency }}</strong>
+            </div>
+          </div>
+
+          <div class="diferencia-box" [class]="cierre.diferencia === 0 ? 'cuadrada' : (cierre.diferencia > 0 ? 'sobrante' : 'faltante')">
+            <div class="diferencia-header">
+              <span>Diferencia</span>
+              <strong class="diferencia-valor">
+                {{ cierre.diferencia > 0 ? '+' : '' }}{{ cierre.diferencia | arsCurrency }}
+              </strong>
+            </div>
+            <div class="diferencia-status">
+              @if (cierre.diferencia === 0) {
+                <span class="status-indicator">La caja está totalmente cuadrada.</span>
+              } @else if (cierre.diferencia > 0) {
+                <span class="status-indicator">Existe un sobrante de efectivo de {{ cierre.sobrante | arsCurrency }}.</span>
+              } @else {
+                <span class="status-indicator">Existe un faltante de efectivo de {{ (-cierre.diferencia) | arsCurrency }}.</span>
+              }
+            </div>
+          </div>
+        </div>
+      } @else if (!state.loading()) {
+        <div class="empty-state">
+          <span class="material-symbols-outlined empty-state-icon">point_of_sale</span>
+          <h3 class="empty-state-title">Todavía no generaste ningún cierre</h3>
+          <p class="empty-state-text">Elegí el turno que finalizó e ingresá el conteo de caja físico para generar el cierre.</p>
+        </div>
+      }
+    </app-glass-card>
+
+    <!-- PANEL DERECHO: Historial de cierres -->
+    <app-glass-card class="historial-panel">
+      <h2 class="section-title mb-3">Historial de cierres</h2>
+      <div class="historial-wrapper">
+        <table class="table-custom">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Turno</th>
+              <th>Pagos</th>
+              <th>Total</th>
+              <th>Diferencia en efectivo</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (cierre of state.historial(); track cierre.fecha + '-' + cierre.turnoLaboralId) {
+              <tr class="table-row-clickable" (click)="abrirDetalleCierre(cierre)">
+                <td>{{ cierre.fecha | date:'dd/MM/yyyy' }}</td>
+                <td>{{ cierre.turnoLaboralNombre }}</td>
+                <td>{{ cierre.cantidadTotalDePagos }}</td>
+                <td>{{ cierre.totalRecaudado | arsCurrency }}</td>
+                <td [class]="cierre.diferencia === 0 ? 'text-success' : (cierre.diferencia > 0 ? 'text-info' : 'text-danger')">
+                  {{ cierre.diferencia > 0 ? '+' : '' }}{{ cierre.diferencia | arsCurrency }}
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="text-center py-4 text-muted">No se registran cierres históricos.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </app-glass-card>
+  </div>
+
+  <!-- MODAL 1: GENERAR CIERRE (conteo de caja) -->
+  @if (state.turnoSeleccionado(); as tipo) {
+    <div class="cierre-modal-overlay" (click)="cerrarModalCierre()">
+      <div class="cierre-modal-card" (click)="$event.stopPropagation()">
+        <div class="cierre-modal-header mb-3">
+          <h3 class="cierre-modal-title">Cerrar {{ tipo === 'dia' ? 'turno día' : 'turno noche' }}</h3>
+          <button class="cierre-modal-close" (click)="cerrarModalCierre()">×</button>
+        </div>
+        <div class="cierre-modal-body mb-4">
+          @if (state.error(); as error) {
+            <div class="cierre-error-banner mb-3">
+              <span class="material-symbols-outlined">error</span>
+              <span>{{ error }}</span>
+            </div>
+          }
+          <div class="form-group mb-3">
+            <label class="form-label" for="conteo-caja">Conteo de Caja (Efectivo Físico)</label>
+            <div class="input-wrapper">
+              <span class="currency-symbol">$</span>
+              <input
+                id="conteo-caja"
+                type="number"
+                class="form-control custom-input"
+                placeholder="0.00"
+                [ngModel]="state.conteoCaja()"
+                (ngModelChange)="onConteoCajaChange($event)"
+                (focus)="onConteoCajaFocus($event)">
+            </div>
+          </div>
+        </div>
+        <div class="cierre-modal-footer d-flex gap-2 justify-content-end">
+          <app-boton label="Cancelar" variante="outline" tamanio="sm" (clicked)="cerrarModalCierre()"></app-boton>
+          <app-boton
+            label="Confirmar Cierre"
+            variante="success"
+            tamanio="sm"
+            [disabled]="state.generando()"
+            (clicked)="confirmarCierre()">
+          </app-boton>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- MODAL 2: DETALLE DE CIERRE HISTÓRICO -->
+  @if (state.cierreDetalle(); as detalle) {
+    <div class="cierre-modal-overlay" (click)="cerrarDetalleCierre()">
+      <div class="cierre-modal-card" (click)="$event.stopPropagation()">
+        <div class="cierre-modal-header mb-3">
+          <h3 class="cierre-modal-title">Detalle cierre – {{ detalle.turnoLaboralNombre }}</h3>
+          <button class="cierre-modal-close" (click)="cerrarDetalleCierre()">×</button>
+        </div>
+        <div class="cierre-modal-body mb-4">
+          <div class="summary-details-box p-3 mb-3">
+            <div class="summary-row">
+              <span>Fecha:</span>
+              <strong>{{ detalle.fecha | date:'dd/MM/yyyy' }}</strong>
+            </div>
+            <div class="summary-row">
+              <span>Pagos Totales:</span>
+              <strong>{{ detalle.cantidadTotalDePagos }}</strong>
+            </div>
+            <div class="summary-row">
+              <span>Total Recaudado:</span>
+              <strong>{{ detalle.totalRecaudado | arsCurrency }}</strong>
+            </div>
+            <div class="summary-row border-top pt-2 mt-2">
+              <span>Diferencia:</span>
+              <strong [class]="detalle.diferencia === 0 ? 'text-success' : (detalle.diferencia > 0 ? 'text-info' : 'text-danger')">
+                {{ detalle.diferencia > 0 ? '+' : '' }}{{ detalle.diferencia | arsCurrency }}
+              </strong>
+            </div>
+          </div>
+
+          <h3 class="subsection-title mb-2">Medios de pago</h3>
+          <div class="desglose-list">
+            @for (pago of detalle.detallePagos; track pago.metodoPagoId) {
+              <div class="pago-card">
+                <div class="pago-left">
+                  <strong>{{ pago.metodoPagoNombre }}</strong>
+                  <span>{{ pago.cantidadPagos }} pagos</span>
+                </div>
+                <div class="pago-right">
+                  <span class="pago-esperado">{{ pago.total | arsCurrency }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+        <div class="cierre-modal-footer d-flex justify-content-end">
+          <app-boton label="Cerrar" variante="outline" tamanio="sm" (clicked)="cerrarDetalleCierre()"></app-boton>
+        </div>
+      </div>
+    </div>
+  }
+</div>

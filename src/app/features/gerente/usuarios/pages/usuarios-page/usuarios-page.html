@@ -1,0 +1,418 @@
+<div class="usuarios-page p-4">
+  <app-page-toolbar>
+    <app-buscador
+      buscador
+      placeholder="Buscar usuario..."
+      (busquedaCambiada)="onSearch($event)">
+    </app-buscador>
+
+    <div filtros class="d-flex align-items-center gap-2">
+      <!-- Filtro Rol -->
+      <div class="filter-group">
+        <button
+          type="button"
+          class="btn-pill-filter text-nowrap"
+          [class.active]="state.filtroRol() !== 'Todos'"
+          (click)="rolDropdown.classList.toggle('show')">
+          <span class="material-symbols-outlined" style="font-size: 18px;">badge</span>
+          <span>Rol: {{ state.filtroRol() }}</span>
+        </button>
+        <div #rolDropdown class="dropdown-menu-custom">
+          <ul class="m-0 p-0 list-unstyled">
+            <li (click)="setFiltroRol('Todos'); rolDropdown.classList.remove('show')" [class.active]="state.filtroRol() === 'Todos'">Todos</li>
+            <li (click)="setFiltroRol('Gerente'); rolDropdown.classList.remove('show')" [class.active]="state.filtroRol() === 'Gerente'">Gerente</li>
+            <li (click)="setFiltroRol('Mozo'); rolDropdown.classList.remove('show')" [class.active]="state.filtroRol() === 'Mozo'">Mozo</li>
+            <li (click)="setFiltroRol('Cocina'); rolDropdown.classList.remove('show')" [class.active]="state.filtroRol() === 'Cocina'">Cocina</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Filtro Estado -->
+      <div class="filter-group">
+        <button
+          type="button"
+          class="btn-pill-filter text-nowrap"
+          [class.active]="state.filtroEstado() !== 'Todos'"
+          (click)="estadoDropdown.classList.toggle('show')">
+          <span class="material-symbols-outlined" style="font-size: 18px;">filter_alt</span>
+          <span>Estado: {{ state.filtroEstado() }}</span>
+        </button>
+        <div #estadoDropdown class="dropdown-menu-custom">
+          <ul class="m-0 p-0 list-unstyled">
+            <li (click)="setFiltroEstado('Todos'); estadoDropdown.classList.remove('show')" [class.active]="state.filtroEstado() === 'Todos'">Todos</li>
+            <li (click)="setFiltroEstado('activo'); estadoDropdown.classList.remove('show')" [class.active]="state.filtroEstado() === 'activo'">Activo</li>
+            <li (click)="setFiltroEstado('inactivo'); estadoDropdown.classList.remove('show')" [class.active]="state.filtroEstado() === 'inactivo'">Inactivo</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div acciones class="d-flex gap-2 align-items-center ms-auto">
+      <button type="button" class="tour-trigger-btn" (click)="iniciarTour()" title="Iniciar tutorial interactivo">
+        <span class="material-symbols-outlined">help</span>
+      </button>
+
+      <button
+        class="btn-premium-secondary d-flex align-items-center gap-2"
+        (click)="abrirCrearUsuario()">
+        <span class="material-symbols-outlined fs-5">person_add</span>
+        <span class="fw-semibold">Nuevo usuario</span>
+      </button>
+    </div>
+  </app-page-toolbar>
+
+  <div class="usuarios-layout mt-4">
+    <!-- Listado Panel -->
+    <app-glass-card class="list-panel d-block h-100">
+      <div class="panel-header">
+        <div>
+          <h1 class="page-title mb-1">Listado de Usuarios</h1>
+          <p class="page-subtitle mb-0">Administra los accesos y turnos del personal</p>
+        </div>
+        <span class="counter-pill">
+          {{ state.loading() ? 'Cargando...' : (state.empleadosFiltrados().length + ' usuarios') }}
+        </span>
+      </div>
+
+      <!-- Feedback States -->
+      @if (state.loading()) {
+        <div class="empty-state-panel compact-state">
+          <h2 class="detail-title mb-2">Cargando usuarios...</h2>
+          <p class="detail-text mb-0">Estamos consultando el personal activo del restaurante.</p>
+        </div>
+      } @else if (state.error()) {
+        <div class="empty-state-panel compact-state error-state">
+          <h2 class="detail-title mb-2">No se pudieron cargar los usuarios</h2>
+          <p class="detail-text mb-3">{{ state.error() }}</p>
+          <app-boton label="Reintentar" variante="outline" tamanio="sm" (clicked)="state.cargarDatos()"></app-boton>
+        </div>
+      } @else if (state.empleadosFiltrados().length === 0) {
+        <div class="empty-state-panel compact-state">
+          <h2 class="detail-title mb-2">Sin usuarios para mostrar</h2>
+          <p class="detail-text mb-0">
+            @if (state.termino().trim()) {
+              No encontramos coincidencias para tu búsqueda.
+            } @else {
+              Todavía no hay empleados registrados en el sistema.
+            }
+          </p>
+        </div>
+      } @else {
+        <!-- Tabla de usuarios -->
+        <div class="table-responsive mt-3">
+          <table class="usuarios-table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th class="text-end">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (usuario of state.empleadosFiltrados(); track usuario.id) {
+                <tr
+                  class="usuario-row"
+                  [class.active-row]="state.usuarioSeleccionadoId() === usuario.id"
+                  (click)="seleccionarUsuario(usuario)">
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="avatar-circle" [style.background-color]="getAvatarColor(usuario.rol)" style="color: white; border: none;">
+                        {{ getAvatarText(usuario.nombre) }}
+                      </div>
+                      <div class="d-flex flex-column">
+                        <strong class="usuario-nombre">{{ usuario.nombre }}</strong>
+                        <span class="usuario-email">{{ usuario.email }}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <app-pill-chip
+                      [label]="usuario.rol"
+                      [variant]="usuario.rol === 'Gerente' ? 'danger' : (usuario.rol === 'Mozo' ? 'primary' : 'secondary')">
+                    </app-pill-chip>
+                  </td>
+                  <td>
+                    <span class="status-badge" [class.activo]="usuario.estado === 'activo'">
+                      {{ usuario.estado === 'activo' ? 'Activo' : 'Inactivo' }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="d-flex justify-content-end gap-1" (click)="$event.stopPropagation()">
+                      <button type="button" class="icon-action-btn" title="Editar" (click)="abrirEditarUsuario(usuario)">
+                        <span class="material-symbols-outlined">edit</span>
+                      </button>
+                      <button type="button" class="icon-action-btn danger" title="Eliminar" (click)="abrirEliminarUsuario(usuario)">
+                        <span class="material-symbols-outlined">delete</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </app-glass-card>
+
+    <!-- Ficha Detallada Panel -->
+    <app-glass-card class="detail-panel d-block">
+      @if (state.usuarioSeleccionado(); as usuario) {
+        <div class="detail-top">
+          <div>
+            <p class="detail-kicker mb-1">Usuario seleccionado</p>
+            <h2 class="detail-title mb-0">{{ usuario.nombre }}</h2>
+          </div>
+          <div class="detail-actions">
+            <span class="status-pill" [class.inactivo]="usuario.estado !== 'activo'">
+              {{ usuario.estado === 'activo' ? 'Activo' : 'Inactivo' }}
+            </span>
+            <button type="button" class="icon-action-btn" title="Editar usuario" (click)="abrirEditarUsuario(usuario)">
+              <span class="material-symbols-outlined">edit</span>
+            </button>
+            <button type="button" class="icon-action-btn danger" title="Eliminar usuario" (click)="abrirEliminarUsuario(usuario)">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="provider-meta-strip mt-3">
+          <span class="provider-meta-item">
+            <span class="material-symbols-outlined">mail</span>
+            Email:
+            <strong>{{ usuario.email }}</strong>
+          </span>
+          <span class="provider-meta-item">
+            <span class="material-symbols-outlined">badge</span>
+            Rol:
+            <strong class="ms-1">
+              <app-pill-chip
+                [label]="usuario.rol"
+                [variant]="usuario.rol === 'Gerente' ? 'danger' : (usuario.rol === 'Mozo' ? 'primary' : 'secondary')">
+              </app-pill-chip>
+            </strong>
+          </span>
+        </div>
+
+        <div class="detail-section mt-4">
+          <h3 class="section-title mb-2">Turnos Laborales Asignados</h3>
+          @if (usuario.turnos.length > 0) {
+            <div class="turnos-detail-list">
+              @for (turno of usuario.turnos; track turno.id) {
+                <div class="turno-detail-item">
+                  <span class="material-symbols-outlined">schedule</span>
+                  <div>
+                    <strong>{{ turno.horarioInicio.substring(0, 5) }} a {{ turno.horarioFin.substring(0, 5) }}</strong>
+                    <span class="text-muted d-block text-xs">{{ turno.esNocturno ? 'Turno Nocturno' : 'Turno Diurno' }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="empty-state-panel compact-state">
+              <p class="detail-text">Este empleado no tiene turnos asignados actualmente.</p>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="empty-state-panel">
+          <h2 class="detail-title mb-2">Selecciona un usuario</h2>
+          <p class="detail-text mb-0">Haz clic sobre un usuario del listado para ver su información completa y turnos.</p>
+        </div>
+      }
+    </app-glass-card>
+  </div>
+</div>
+
+<!-- Modal Formulario (Creación/Edición) -->
+<app-modal #formModal [titulo]="empleadoEditando() ? 'Editar Usuario' : 'Nuevo Usuario'" [maxWidth]="520">
+  <form [formGroup]="userForm" (ngSubmit)="guardarUsuario()" class="modal-form-body">
+    <!-- Feedback Error -->
+    @if (state.error()) {
+      <div class="alert alert-danger py-2 px-3 mb-3">
+        {{ state.error() }}
+      </div>
+    }
+
+    <div class="form-section">
+      <div class="field-group mb-3">
+        <label for="nombre">Nombre Completo <strong class="field-required">*</strong></label>
+        <input
+          id="nombre"
+          type="text"
+          class="form-control custom-input"
+          formControlName="nombre"
+          placeholder="Ej: Marcelo Gallardo"
+          [class.is-invalid]="userForm.get('nombre')?.touched && userForm.get('nombre')?.invalid">
+        @if (userForm.get('nombre')?.touched) {
+          @if (userForm.get('nombre')?.hasError('required')) {
+            <span class="error-text">El nombre es requerido.</span>
+          }
+          @if (userForm.get('nombre')?.hasError('minlength')) {
+            <span class="error-text">El nombre debe tener al menos 2 caracteres.</span>
+          }
+          @if (userForm.get('nombre')?.hasError('maxlength')) {
+            <span class="error-text">El nombre no puede superar los 120 caracteres.</span>
+          }
+        }
+      </div>
+
+      <div class="field-group mb-3">
+        <label for="email">Correo Electrónico <strong class="field-required">*</strong></label>
+        <input
+          id="email"
+          type="email"
+          class="form-control custom-input"
+          formControlName="email"
+          placeholder="Ej: mgallardo@pancomido.com"
+          [class.is-invalid]="userForm.get('email')?.touched && userForm.get('email')?.invalid">
+        @if (userForm.get('email')?.touched) {
+          @if (userForm.get('email')?.hasError('required')) {
+            <span class="error-text">El correo es requerido.</span>
+          }
+          @if (userForm.get('email')?.hasError('email')) {
+            <span class="error-text">Ingrese un correo válido.</span>
+          }
+          @if (userForm.get('email')?.hasError('maxlength')) {
+            <span class="error-text">El correo no puede superar los 160 caracteres.</span>
+          }
+        }
+      </div>
+
+      <div class="field-group mb-3 position-relative">
+        <label for="contrasenia">
+          Contraseña
+          @if (!empleadoEditando()) {
+            <strong class="field-required">*</strong>
+          } @else {
+            <span class="optional-tag">(opcional - dejar vacío para mantener la actual)</span>
+          }
+        </label>
+        <div class="password-input-wrapper">
+          <input
+            id="contrasenia"
+            [type]="mostrarContrasenia() ? 'text' : 'password'"
+            class="form-control custom-input w-100"
+            formControlName="contrasenia"
+            placeholder="Ej: ********"
+            [class.is-invalid]="userForm.get('contrasenia')?.touched && userForm.get('contrasenia')?.invalid">
+          <button
+            type="button"
+            class="password-toggle-btn"
+            (click)="mostrarContrasenia.set(!mostrarContrasenia())"
+            [title]="mostrarContrasenia() ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+            <span class="material-symbols-outlined">
+              {{ mostrarContrasenia() ? 'visibility_off' : 'visibility' }}
+            </span>
+          </button>
+        </div>
+        @if (userForm.get('contrasenia')?.touched) {
+          @if (userForm.get('contrasenia')?.hasError('required')) {
+            <span class="error-text">La contraseña es requerida.</span>
+          }
+          @if (userForm.get('contrasenia')?.hasError('minlength')) {
+            <span class="error-text">La contraseña debe tener al menos 8 caracteres.</span>
+          }
+          @if (userForm.get('contrasenia')?.hasError('maxlength')) {
+            <span class="error-text">La contraseña no puede superar los 128 caracteres.</span>
+          }
+        }
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-6">
+          <div class="field-group">
+            <label for="rol">Rol <strong class="field-required">*</strong></label>
+            <select id="rol" class="form-select custom-input" formControlName="rol">
+              <option value="Gerente">Gerente</option>
+              <option value="Mozo">Mozo</option>
+              <option value="Cocina">Cocina</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="field-group">
+            <label for="estado">Estado <strong class="field-required">*</strong></label>
+            <select id="estado" class="form-select custom-input" formControlName="estado">
+              <option value="activo">Activo</option>
+              <option value="inactivo">Inactivo</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="turnos-section mb-3">
+        <label class="section-title-sm mb-2">Turnos Laborales</label>
+        @if (state.turnos().length === 0) {
+          <div class="text-muted text-xs">No hay turnos disponibles para asignar.</div>
+        } @else {
+          <div class="turnos-grid">
+            @for (turno of state.turnos(); track turno.id) {
+              <div
+                class="turno-card-option"
+                [class.selected]="turnosSeleccionadosIds().includes(turno.id)"
+                (click)="toggleTurno(turno.id)">
+                <div class="d-flex align-items-center gap-2">
+                  <input
+                    type="checkbox"
+                    [checked]="turnosSeleccionadosIds().includes(turno.id)"
+                    (click)="$event.stopPropagation(); toggleTurno(turno.id)">
+                  <span class="turno-hours">{{ getTurnoLabel(turno) }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="modal-footer-actions mt-4">
+      <app-boton
+        label="Cancelar"
+        variante="outline"
+        tamanio="md"
+        type="button"
+        (clicked)="formModal.cerrar()">
+      </app-boton>
+      <app-boton
+        [label]="state.guardando() ? 'Guardando...' : 'Guardar'"
+        variante="primary"
+        tamanio="md"
+        type="submit"
+        [disabled]="userForm.invalid || state.guardando()">
+      </app-boton>
+    </div>
+  </form>
+</app-modal>
+
+<!-- Modal Eliminar Confirmación -->
+<app-modal #confirmDeleteModal titulo="Eliminar Usuario" [maxWidth]="400">
+  @if (empleadoAEliminar(); as usuario) {
+    <div class="delete-modal-card">
+      <div class="delete-modal-icon">
+        <span class="material-symbols-outlined">delete</span>
+      </div>
+      <h3 class="delete-modal-title mb-2">¿Quieres eliminar definitivamente a este usuario?</h3>
+      <p class="delete-modal-text mb-4 text-center">
+        El usuario <strong>{{ usuario.nombre }}</strong> ({{ usuario.email }}) será desvinculado por completo. Esta acción no se puede deshacer y perderá el acceso al sistema.
+      </p>
+
+      <div class="d-flex justify-content-center gap-2">
+        <app-boton
+          label="Cancelar"
+          variante="outline"
+          tamanio="md"
+          (clicked)="confirmDeleteModal.cerrar()">
+        </app-boton>
+        <button
+          type="button"
+          class="danger-action-btn"
+          [disabled]="state.guardando()"
+          (click)="confirmarEliminarUsuario()">
+          <span class="material-symbols-outlined">delete</span>
+          {{ state.guardando() ? 'Eliminando...' : 'Eliminar' }}
+        </button>
+      </div>
+    </div>
+  }
+</app-modal>

@@ -1,0 +1,122 @@
+.btn-container {
+  gap: 8px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Tamaños */
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+}
+
+.btn-md {
+  padding: 8px 20px;
+  font-size: 0.95rem;
+}
+
+.btn-lg {
+  padding: 14px 28px;
+  font-size: 1.15rem;
+}
+
+.btn-tab {
+
+  background-color: #ffffff;
+  border: 1px solid var(--primary-teal);
+  color: var(--gray-700);
+}
+
+
+
+/* Estado Seleccionado (Productos: Relleno con tu --primary-teal) */
+.btn-tab.active {
+  background-color: var(--primary-teal);
+  color: #ffffff;
+}
+
+/* === VARIANTES DE BOTONES NORMALES === */
+.btn-primary {
+  background-color: var(--primary-red);
+  border-color: var(--primary-red);
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #bc0012;
+  border-color: #bc0012;
+}
+
+.btn-secondary {
+  background-color: #ffffff;
+  border-color: var(--gray-300, #d1d5db);
+  color: var(--gray-700, #374151);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--gray-100, #f3f4f6);
+  border-color: var(--gray-400, #9ca3af);
+  color: var(--gray-900, #111827);
+}
+
+.btn-danger {
+  background-color: var(--status-danger);
+  border-color: var(--status-danger);
+  color: white;
+  width: 100%;
+}
+
+.btn-teal {
+  background-color: var(--primary-teal);
+  border-color: var(--primary-teal);
+  color: white;
+}
+
+.btn-warning {
+  background-color: var(--status-warning, #f7d627);
+  border-color: var(--status-warning, #f7d627);
+  color: var(--gray-800, #333);
+  width: 100%;
+}
+
+.btn-success {
+  background-color: var(--status-success, #6abf3f);
+  border-color: var(--status-success, #6abf3f);
+  color: white;
+  width: 100%;
+}
+
+.btn-orange {
+  background-color: var(--primary-orange, #f08f1a);
+  border-color: var(--primary-orange, #f08f1a);
+  color: white;
+}
+
+.btn-orange:hover:not(:disabled) {
+  background-color: #d67d0f;
+  border-color: #d67d0f;
+}
+
+.btn-outline {
+  background-color: #ffffff;
+  border: 1px solid var(--gray-300, #d1d5db);
+  color: var(--gray-700, #374151);
+}
+
+.btn-outline:hover {
+  background-color: var(--gray-100, #f3f4f6);
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}

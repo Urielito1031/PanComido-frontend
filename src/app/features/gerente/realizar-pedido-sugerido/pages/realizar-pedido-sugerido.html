@@ -1,0 +1,328 @@
+<div class="pedido-sugerido-page p-4">
+  <header class="page-heading">
+    <div class="heading-left">
+      <button class="soft-icon-btn" (click)="volver()" aria-label="Volver">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </button>
+      <div>
+        <p class="detail-kicker mb-1">Reposicion de inventario</p>
+        <h1 class="page-title mb-1">Pedido sugerido</h1>
+        <p class="page-subtitle mb-0">Revisa insumos con stock bajo o critico antes de confirmar el pedido.</p>
+      </div>
+    </div>
+
+    <div class="provider-search-panel">
+      <app-buscador
+        [placeholder]="'Buscar proveedor o categoria'"
+        [valor]="busquedaProveedor()"
+        (busquedaCambiada)="onSearchChanged($event)">
+      </app-buscador>
+    </div>
+  </header>
+
+  @if (mensajeError()) {
+    <div class="error-banner">
+      <span class="material-symbols-outlined">error</span>
+      {{ mensajeError() }}
+    </div>
+  }
+
+  @if (loading()) {
+    <section class="review-summary skeleton-summary">
+      <div class="summary-copy">
+        <span class="summary-icon material-symbols-outlined">sync</span>
+        <div>
+          <h2>Analizando proveedores...</h2>
+          <p>Estamos buscando insumos con reposicion sugerida.</p>
+        </div>
+      </div>
+      <div class="summary-metrics">
+        <div class="summary-metric skeleton-line"></div>
+        <div class="summary-metric skeleton-line"></div>
+        <div class="summary-metric skeleton-line"></div>
+      </div>
+    </section>
+  } @else {
+    <section class="review-summary">
+      <div class="summary-copy">
+        <span class="summary-icon material-symbols-outlined">inventory_2</span>
+        <div>
+          <h2>Reposicion sugerida</h2>
+          <p>El sistema encontro {{ totalItems() }} insumos para {{ proveedoresFiltrados().length }} proveedores segun stock, estado e historial de compras.</p>
+        </div>
+      </div>
+
+      <div class="summary-metrics">
+        <article class="summary-metric">
+          <span>Proveedores</span>
+          <strong>{{ proveedoresFiltrados().length }}</strong>
+        </article>
+        <article class="summary-metric">
+          <span>Insumos</span>
+          <strong>{{ totalItems() }}</strong>
+        </article>
+        <article class="summary-metric">
+          <span>Total estimado</span>
+          <strong>$ {{ totalEstimado() | number:'1.0-0' }}</strong>
+        </article>
+      </div>
+    </section>
+  }
+
+  @if (!loading() && proveedoresFiltrados().length > 0) {
+    <div class="provider-order-list">
+      @for (prov of proveedoresFiltrados(); track prov.id) {
+        <section class="provider-order-card">
+          <header class="provider-order-header">
+            <div>
+              <p class="detail-kicker mb-1">Proveedor</p>
+              <h2>{{ prov.nombre }}</h2>
+              <p class="provider-meta mb-0">
+                @if (prov.telefono) {
+                  <span>
+                    <span class="material-symbols-outlined">call</span>
+                    {{ prov.telefono }}
+                  </span>
+                }
+                @if (prov.categorias?.length) {
+                  <span>
+                    <span class="material-symbols-outlined">category</span>
+                    {{ prov.categorias?.join(', ') }}
+                  </span>
+                }
+              </p>
+            </div>
+
+            <div class="provider-header-side">
+              <span class="counter-pill">{{ itemsProveedor(prov.id).length }} items</span>
+              <div class="provider-total">
+                <span>Total</span>
+                <strong>$ {{ montoProveedor(prov.id) | number:'1.0-0' }}</strong>
+              </div>
+            </div>
+          </header>
+
+          <div class="provider-inventory-note">
+            <span class="material-symbols-outlined">rule</span>
+            <span>{{ resumenProveedorInventario(prov.id) }}</span>
+            <strong>{{ prioridadProveedor(prov.id).detail }}</strong>
+          </div>
+
+          <div class="suggested-items">
+            @for (item of itemsProveedor(prov.id); track item.productoId) {
+              <article class="suggested-item">
+                <div class="ingredient-cell">
+                  <div>
+                    <span class="ingredient-name">{{ item.nombre }}</span>
+                    <small>{{ item.stockActual }} {{ nombreUnidad(item.unidadMedida) }} disponibles</small>
+                  </div>
+                </div>
+
+                <div class="actions-cell">
+                  <span class="stock-pill" [class.critico]="itemEsCritico(item)">{{ item.estadoStock || 'A reponer' }}</span>
+                  @for (motivo of motivosItemInventario(prov.id, item); track motivo.label) {
+                    <span
+                      class="rule-reason-chip"
+                      [class.danger]="motivo.tone === 'danger'"
+                      [class.warning]="motivo.tone === 'warning'"
+                      [class.success]="motivo.tone === 'success'"
+                      [class.neutral]="motivo.tone === 'neutral'">
+                      {{ motivo.label }}
+                    </span>
+                  }
+                  <button class="btn-delete" type="button" (click)="eliminarItem(prov.id, item.productoId)" aria-label="Quitar insumo">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </div>
+
+                <div class="quantity-cell">
+                  <div class="quantity-input-row">
+                    <div class="quantity-input-group">
+                      <input
+                        type="number"
+                        class="form-control form-control-sm text-center qty-input"
+                        [min]="cantidadMinimaDisplay(item)"
+                        [max]="cantidadMaximaDisplay(item)"
+                        [step]="cantidadPasoDisplay(item)"
+                        [ngModel]="cantidadDisplay(item)"
+                        (ngModelChange)="setCantidadDisplay(prov.id, item, $event)">
+                      <button
+                        type="button"
+                        class="quantity-clear-icon"
+                        title="Limpiar cantidad"
+                        aria-label="Limpiar cantidad"
+                        (click)="limpiarCantidadDisplay(prov.id, item)">
+                        <span class="material-symbols-outlined">close</span>
+                      </button>
+                    </div>
+
+                    <div class="quantity-right-group">
+                      @if (presetsCantidad(item, prov.id).length > 0) {
+                        <div class="quantity-presets" aria-label="Accesos rápidos de cantidad">
+                          @for (preset of presetsCantidad(item, prov.id); track preset.label) {
+                            <button
+                              type="button"
+                              class="quantity-preset"
+                              [class.smart]="preset.source === 'history'"
+                              [title]="preset.source === 'history' ? 'Cantidad frecuente para este proveedor e insumo' : 'Cantidad base sugerida'"
+                              (click)="sumarCantidadPreset(prov.id, item, preset.value)">
+                              {{ preset.label }}
+                              @if (preset.source === 'history') {
+                                <span class="preset-dot"></span>
+                              }
+                            </button>
+                          }
+                        </div>
+                      }
+                      <span class="subtotal-value">$ {{ subtotalItem(item) | number:'1.0-0' }}</span>
+                    </div>
+                  </div>
+
+                  @if (cantidadEnMaximo(item)) {
+                    <small class="quantity-limit-warning">{{ mensajeCantidadMaxima(item) }}</small>
+                  }
+
+                  <div class="quantity-meta-row">
+                    <div class="quantity-meta-left">
+                      @if (equivalenciaCantidad(item); as equivalencia) {
+                        <strong class="quantity-equivalence">{{ equivalencia }}</strong>
+                      }
+                    </div>
+                    <div class="quantity-cost-info">
+                      <span>Sugerido <strong>{{ cantidadOriginalDisplay(prov.id, item) }}</strong></span>
+                      @if (itemAgregadoManual(prov.id, item)) {
+                        <small class="manual-chip">Agregado manualmente</small>
+                      } @else if (itemFueAjustado(prov.id, item)) {
+                        <small class="adjusted-chip">Ajustado</small>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </article>
+            } @empty {
+              <div class="empty-provider-items">
+                <span class="material-symbols-outlined">inventory_2</span>
+                No quedan insumos seleccionados para este proveedor.
+              </div>
+            }
+          </div>
+
+          <footer class="provider-order-footer">
+            <label class="provider-observation">
+              <span>Observacion</span>
+              <textarea
+                class="form-control custom-textarea"
+                rows="2"
+                placeholder="Ej. Entregar por la mañana"
+                [ngModel]="observacionProveedor(prov.id)"
+                (ngModelChange)="setObservacionProveedor(prov.id, $event)">
+              </textarea>
+            </label>
+
+            <div class="provider-actions">
+              <button type="button" class="soft-link-btn" (click)="abrirAgregarIngrediente(prov.id)">
+                <span class="material-symbols-outlined">add</span>
+                Agregar insumo
+              </button>
+              <app-boton
+                label="Crear pedido"
+                variante="success"
+                tamanio="md"
+                [disabled]="itemsProveedor(prov.id).length === 0"
+                (clicked)="enviarPedido(prov)">
+              </app-boton>
+            </div>
+          </footer>
+        </section>
+      }
+    </div>
+
+    @if (proveedorAgregarIngredienteId() !== null) {
+      <div class="pedido-modal-overlay" (click)="cerrarAgregarIngrediente()">
+        <div class="pedido-modal-card" (click)="$event.stopPropagation()">
+          <div class="pedido-modal-header">
+            <div>
+              <p class="detail-kicker mb-1">Agregar al pedido</p>
+              <h3 class="pedido-modal-title mb-0">Ingredientes del proveedor</h3>
+            </div>
+            <button type="button" class="pedido-modal-close" aria-label="Cerrar" (click)="cerrarAgregarIngrediente()">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          <input
+            type="search"
+            class="form-control inline-ingredient-search mt-3"
+            placeholder="Buscar ingrediente"
+            [ngModel]="busquedaIngrediente()"
+            (ngModelChange)="busquedaIngrediente.set($event)">
+
+          @if (productoExtraSeleccionado(); as productoSeleccionado) {
+            <section class="inline-ingredient-selection mt-3">
+              <div class="selected-extra-summary">
+                <span>Seleccionado</span>
+                <strong>{{ productoSeleccionado.nombre }}</strong>
+                <small>{{ productoSeleccionado.stockActual }} {{ nombreUnidad(productoSeleccionado.unidadMedida) }} disponibles</small>
+              </div>
+
+              <label>
+                <span>Cantidad en {{ unidadDisplayCompleta(productoSeleccionado) }}</span>
+                <input
+                  type="number"
+                  class="form-control"
+                  min="0.1"
+                  step="0.1"
+                  [ngModel]="cantidadIngrediente()"
+                  (ngModelChange)="onCantidadIngredienteChange($event)">
+              </label>
+
+              <div class="readonly-price-box">
+                <span>Precio c/u</span>
+                <strong>$ {{ precioIngrediente() || 0 | number:'1.0-0' }}</strong>
+              </div>
+
+              <button
+                type="button"
+                class="modal-action-btn modal-action-btn-primary"
+                [disabled]="!productoExtraSeleccionadoId() || cantidadIngrediente() <= 0"
+                (click)="confirmarAgregarIngrediente()">
+                Agregar
+              </button>
+            </section>
+          } @else {
+            <div class="inline-ingredient-hint mt-3">
+              Seleccioná un insumo para cargar cantidad y precio sin salir de esta vista.
+            </div>
+          }
+
+          <div class="inline-ingredient-list mt-3">
+            @for (item of ingredientesParaAgregar(); track item.productoId) {
+              <button
+                type="button"
+                class="inline-ingredient-item"
+                [class.selected]="productoExtraSeleccionadoId() === item.productoId.toString()"
+                (click)="seleccionarIngredienteExtra(item.productoId.toString())">
+                <span>
+                  <strong>{{ item.nombre }}</strong>
+                  <small>{{ item.stockActual }} {{ nombreUnidad(item.unidadMedida) }} disponibles</small>
+                </span>
+              </button>
+            } @empty {
+              <div class="inline-ingredient-empty">No hay ingredientes disponibles para agregar.</div>
+            }
+          </div>
+
+          <div class="pedido-modal-actions">
+            <button type="button" class="modal-action-btn modal-action-btn-outline" (click)="cerrarAgregarIngrediente()">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    }
+  } @else if (!loading()) {
+    <div class="empty-state-panel">
+      <span class="material-symbols-outlined">inventory_2</span>
+      <h3 class="section-title mb-2">Sin sugerencias para mostrar</h3>
+      <p class="text-muted mb-0">No encontramos proveedores con insumos para reponer.</p>
+    </div>
+  }
+</div>

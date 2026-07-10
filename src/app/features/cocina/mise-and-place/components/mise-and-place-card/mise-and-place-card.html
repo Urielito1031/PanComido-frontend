@@ -1,0 +1,42 @@
+<div class="card" [class.destacado]="destacado()" [class.confirmando]="confirmando()">
+  <div class="card-main" (click)="navegarAlDetalle()">
+    <div class="card-header">
+      <h3>{{ item().nombre }}</h3>
+      <span class="badge">{{ item().categoria }}</span>
+    </div>
+
+    <div class="card-body">
+      <p><strong>Cantidad:</strong> {{ item().cantidad }} {{ item().unidadMedida }}</p>
+      <p><strong>Ubicación:</strong> {{ item().bodega }}</p>
+      @if (item().fechaVencimiento) {
+        <p><strong>Vence:</strong> {{ item().fechaVencimiento | date:'dd-MM-yyyy' }}</p>
+      }
+    </div>
+
+    @if (item().receta.length > 0) {
+      <details>
+        <summary>Receta ({{ item().receta.length }} ingredientes)</summary>
+        <ul>
+          @for (ing of item().receta; track ing.ingredienteId) {
+            <li>{{ ing.nombreIngrediente }}: {{ ing.cantidad }} {{ ing.unidadMedida }}</li>
+          }
+        </ul>
+      </details>
+    }
+  </div>
+
+  <div class="card-footer">
+    <button class="btn-card btn-editar" (click)="onEditar($event)">Editar</button>
+    <button class="btn-card btn-eliminar" (click)="onEliminarClick($event)">Eliminar</button>
+  </div>
+
+  @if (confirmando()) {
+    <div class="confirm-overlay">
+      <p>¿Eliminar "{{ item().nombre }}"?</p>
+      <div class="confirm-actions">
+        <button class="btn-card btn-cancelar" (click)="cancelarEliminar($event)">Cancelar</button>
+        <button class="btn-card btn-confirmar" (click)="confirmarEliminar($event)">Sí, eliminar</button>
+      </div>
+    </div>
+  }
+</div>

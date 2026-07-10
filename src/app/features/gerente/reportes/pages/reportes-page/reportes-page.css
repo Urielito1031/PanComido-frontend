@@ -1,0 +1,331 @@
+/* ── Página ── */
+.reportes-page {
+  min-height: 100%;
+  background: var(--gray-50);
+  --primary-teal: #02596C;
+  --primary-orange: #f38d00;
+  --status-success: #3db955;
+}
+
+/* ── Header de página ── */
+.reportes-eyebrow {
+  margin: 0 0 0.15rem;
+  color: var(--primary-teal);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.reportes-title {
+  margin: 0;
+  color: #0f172a;
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.reportes-subtitle {
+  margin: 0.35rem 0 0;
+  color: #64748b;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+/* ── Selector de rango ── */
+.range-section {
+  padding: 0.25rem 0;
+}
+
+.range-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+}
+
+.range-icon {
+  font-size: 1.75rem;
+  color: var(--primary-teal);
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.range-title {
+  font-size: 1rem;
+  font-weight: 750;
+  color: #0f172a;
+}
+
+.range-subtitle {
+  font-size: 0.84rem;
+  color: #64748b;
+}
+
+.range-fields {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.range-separator {
+  color: #94a3b8;
+  font-size: 1.25rem;
+  margin-bottom: 0.6rem;
+  flex-shrink: 0;
+}
+
+.range-fields .field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 160px;
+}
+
+.range-fields label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #475569;
+}
+
+.range-warning {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 8px;
+  padding: 0.45rem 0.75rem;
+  align-self: flex-end;
+  margin-bottom: 0.1rem;
+}
+
+.range-warning .material-symbols-outlined {
+  font-size: 1.1rem;
+}
+
+/* ── Grid de tarjetas ── */
+.reportes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  align-items: stretch;
+}
+
+@media (max-width: 1100px) {
+  .reportes-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 720px) {
+  .reportes-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Tarjeta de reporte ── */
+.reporte-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+  height: 100%;
+  min-height: 360px;
+}
+
+.reporte-card-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.reporte-card-icon .material-symbols-outlined {
+  font-size: 1.65rem;
+}
+
+.reporte-card-icon.ejecutivo {
+  background: rgba(2, 89, 108, 0.08);
+  color: var(--primary-teal);
+}
+
+.reporte-card-icon.ventas {
+  background: rgba(61, 185, 85, 0.08);
+  color: var(--status-success);
+}
+
+.reporte-card-icon.personal {
+  background: rgba(243, 141, 0, 0.08);
+  color: var(--primary-orange);
+}
+
+.reporte-card-body {
+  flex: 1;
+}
+
+.reporte-card-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 0.5rem;
+}
+
+.reporte-card-desc {
+  font-size: 0.875rem;
+  color: #475569;
+  line-height: 1.5;
+  margin: 0 0 1rem;
+}
+
+.reporte-card-includes {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.reporte-card-includes li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: #475569;
+}
+
+.reporte-card-includes .material-symbols-outlined {
+  font-size: 0.95rem;
+  color: #6abf3f;
+}
+
+/* ── Footer de tarjeta ── */
+.reporte-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
+  flex-wrap: wrap;
+}
+
+.reporte-requiere-rango {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+.reporte-requiere-rango .material-symbols-outlined {
+  font-size: 1rem;
+}
+
+.reporte-requiere-rango.no-date {
+  color: #0f172a;
+}
+
+/* ── Botones de descarga ── */
+.reporte-download-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 38px;
+  padding: 0 1.1rem;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.reporte-download-btn .material-symbols-outlined {
+  font-size: 1.1rem;
+}
+
+.reporte-download-btn.primary {
+  background: var(--primary-teal);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(2, 89, 108, 0.18);
+}
+
+.reporte-download-btn.primary:hover:not(:disabled) {
+  background: #014352;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(2, 89, 108, 0.22);
+}
+
+.reporte-download-btn.ventas {
+  background: var(--status-success);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(61, 185, 85, 0.18);
+}
+
+.reporte-download-btn.ventas:hover:not(:disabled) {
+  background: #2ebb4e;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(61, 185, 85, 0.22);
+}
+
+.reporte-download-btn.personal {
+  background: var(--primary-orange);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(243, 141, 0, 0.18);
+}
+
+.reporte-download-btn.personal:hover:not(:disabled) {
+  background: #d37a00;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(243, 141, 0, 0.22);
+}
+
+.reporte-download-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* ── Inputs ── */
+.custom-input {
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 10px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  color: #0f172a;
+  background: #fff;
+  transition: border-color 0.2s;
+  outline: none;
+}
+
+.custom-input:focus {
+  border-color: rgba(2, 89, 108, 0.4);
+  box-shadow: 0 0 0 3px rgba(2, 89, 108, 0.06);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .range-separator {
+    display: none;
+  }
+
+  .reporte-card-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .reporte-download-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

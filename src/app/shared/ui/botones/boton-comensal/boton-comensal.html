@@ -1,0 +1,10 @@
+<button
+  class="btn w-100"
+  [style.background-color]="backgroundColor()"
+  [style.color]="textColor()"
+  [style.border]="tieneBorde() ? '2px solid ' + textColor() : 'none'"
+  [disabled]="disabled()"
+  (click)="clicked.emit($event)">
+  {{ label() }}
+  <ng-content></ng-content>
+</button>

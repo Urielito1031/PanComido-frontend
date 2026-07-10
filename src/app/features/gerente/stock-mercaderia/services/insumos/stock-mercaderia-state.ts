@@ -1,0 +1,310 @@
+import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Insumo, InsumoDetalle, LoteInsumo } from '../../../../../core/models/domain/insumo';
+import { StockMercaderiaService } from './stock-mercaderia-service';
+import { UnidadMedidaService } from '../unidad-medida.service';
+import { CategoriaInsumoService } from '../categorias/categoria-insumo.service';
+import { UnidadMedida } from '../../../../../core/models/domain/unidad-medida';
+import { CategoriaInsumo } from '../../../../../core/models/domain/categoria-insumo';
+import { PorcentajeItem } from '../../../../../core/models/domain/porcentajes-ganancia';
+import { PlatoApiService } from '../../../services/plato.api';
+import { GuardarBebidaPayload } from '../../components/editar-bebida-form/editar-bebida-form';
+import { GuardarProductoPayload } from '../../components/producto-form/producto-form';
+import { forkJoin } from 'rxjs';
+import { BodegaState } from '../bodegas/bodega-state';
+import { LoteRequest } from '../../../../../core/models/dtos/requests/lote.request';
+
+
+@Injectable({
+  providedIn: 'root',
+})
+export class StockMercaderiaState {
+  private api = inject(StockMercaderiaService);
+  private apiUnidadMedida = inject(UnidadMedidaService);
+  private apiCategoriaInsumos = inject(CategoriaInsumoService);
+  private platoApi = inject(PlatoApiService);
+  private destroyRef = inject(DestroyRef);
+  private bodegaState = inject(BodegaState);
+
+  readonly #productos = signal<Insumo[]>([]);
+  readonly #lotes = signal<LoteInsumo[]>([]);
+  readonly #lotesCargados = signal<boolean>(false);
+  readonly #unidadMedidas = signal<UnidadMedida[]>([]);
+  readonly #categoriasInsumos = signal<CategoriaInsumo[]>([]);
+  readonly #cargando = signal<boolean>(false);
+  readonly #porcentajesBebidas = signal<PorcentajeItem[]>([]);
+  readonly #detalleInsumo = signal<InsumoDetalle | null>(null);
+  readonly #costoBebida = signal<number>(0);
+  readonly #error = signal<string | null>(null);
+  readonly #errorLote = signal<string | null>(null);
+  readonly #guardandoLote = signal<boolean>(false);
+  readonly #eliminandoLote = signal<boolean>(false);
+
+  productos = this.#productos.asReadonly();
+  lotes = this.#lotes.asReadonly();
+  lotesCargados = this.#lotesCargados.asReadonly();
+  cargando = this.#cargando.asReadonly();
+  error = this.#error.asReadonly();
+  errorLote = this.#errorLote.asReadonly();
+  guardandoLote = this.#guardandoLote.asReadonly();
+  eliminandoLote = this.#eliminandoLote.asReadonly();
+  unidadMedidas = this.#unidadMedidas.asReadonly();
+  categoriasInsumos = this.#categoriasInsumos.asReadonly();
+  porcentajesBebidas = this.#porcentajesBebidas.asReadonly();
+  detalleInsumo = this.#detalleInsumo.asReadonly();
+  costoBebida = this.#costoBebida.asReadonly();
+
+  productosCriticos = computed(() =>
+    this.#productos().filter(p => p.stockActual <= p.stockMinimo)
+  );
+
+  cantidadProductosCriticos = computed(() =>
+    this.productosCriticos().length
+  );
+
+  cargarMercaderia(): void {
+    this.#cargando.set(true);
+    this.api.getStockMercaderia().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (data) => {
+        this.#productos.set(data);
+        this.#cargando.set(false);
+      },
+      error: (err) => {
+
+        this.#cargando.set(false);
+      }
+    });
+  }
+
+  cargarLotes(): void {
+    if (this.#lotesCargados()) return;
+
+    this.api.getLotes().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (data) => {
+        this.#lotes.set(data);
+        this.#lotesCargados.set(true);
+      },
+      error: () => {
+        this.#lotes.set([]);
+        this.#lotesCargados.set(true);
+      }
+    });
+  }
+
+  recargarLotes(): void {
+    this.#lotesCargados.set(false);
+    this.cargarLotes();
+  }
+
+  cargarCatalogos(): void {
+    forkJoin({
+      categoriasRes: this.apiCategoriaInsumos.obtenerCategorias(),
+      unidadesRes: this.apiUnidadMedida.obtenerUnidades()
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (response) => {
+        this.#categoriasInsumos.set(response.categoriasRes);
+        this.#unidadMedidas.set(response.unidadesRes);
+      },
+      error: (err) => { }
+    });
+  }
+
+  guardarProducto(payload: GuardarProductoPayload, alFinalizar?: () => void): void {
+    this.#cargando.set(true);
+    this.#error.set(null);
+
+    if (payload.id) {
+      const request = {
+        nombre: payload.nombre,
+        descripcion: payload.descripcion || undefined,
+        precioVentaFinal: payload.precioVentaFinal,
+        esPrecioManual: payload.esPrecioManual,
+        stockMinimo: payload.stockMinimo,
+        stockRecomendado: payload.stockRecomendado,
+        categoriaId: payload.categoriaId,
+        unidadDeMedidaId: payload.unidadDeMedidaId
+      };
+
+      this.api.actualizarInsumoConImagen(payload.id, request, payload.imagen).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: (actualizado) => {
+          this.#productos.update(lista => lista.map(p => p.id === payload.id
+            ? {
+              ...p,
+              nombre: actualizado.nombre,
+              precioVentaFinal: actualizado.precioVentaFinal ?? p.precioVentaFinal,
+              esPrecioManual: actualizado.esPrecioManual,
+              stockMinimo: actualizado.stockMinimo
+            }
+            : p));
+          this.#cargando.set(false);
+          if (alFinalizar) alFinalizar();
+        },
+        error: (err) => {
+          this.#cargando.set(false);
+          this.#error.set(err.error?.error ?? 'No se pudo modificar el insumo. Intentá nuevamente.');
+        }
+      });
+    } else {
+      const request = {
+        nombre: payload.nombre,
+        descripcion: payload.descripcion,
+        precioVentaFinal: payload.precioVentaFinal,
+        esPrecioManual: payload.esPrecioManual,
+        stockMinimo: payload.stockMinimo,
+        stockRecomendado: payload.stockRecomendado,
+        categoriaId: payload.categoriaId,
+        unidadDeMedidaId: payload.unidadDeMedidaId,
+        cantidadInicial: payload.cantidadInicial!,
+        bodegaId: payload.bodegaId!,
+        fechaVencimiento: payload.fechaVencimiento!,
+        esVisibleEnCarta: payload.esVisibleEnCarta
+      };
+
+      this.api.crear(request, payload.imagen).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: (nuevo: Insumo) => {
+          const lotesEstabanCargados = this.#lotesCargados();
+          this.#productos.update(lista => [...lista, nuevo]);
+          this.#lotesCargados.set(false);
+          if (lotesEstabanCargados) this.cargarLotes();
+          this.#cargando.set(false);
+          this.bodegaState.cargarBodegasConInsumos(true);
+          if (alFinalizar) alFinalizar();
+        },
+        error: (err) => {
+          this.#cargando.set(false);
+          this.#error.set(err.error?.error ?? 'No se pudo crear el insumo. Intentá nuevamente.');
+        }
+      });
+    }
+  }
+
+  limpiarError(): void {
+    this.#error.set(null);
+    this.#errorLote.set(null);
+  }
+
+  guardarLote(id: number | null, request: LoteRequest, alFinalizar?: () => void): void {
+    this.#guardandoLote.set(true);
+    this.#errorLote.set(null);
+
+    const operacion = id
+      ? this.api.modificarLote(id, request)
+      : this.api.crearLote(request);
+
+    operacion.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.#guardandoLote.set(false);
+        this.recargarLotes();
+        this.cargarMercaderia();
+        this.bodegaState.cargarBodegasConInsumos(true);
+        if (alFinalizar) alFinalizar();
+      },
+      error: (err) => {
+        this.#guardandoLote.set(false);
+        this.#errorLote.set(err.error?.error ?? err.error?.mensaje ?? 'No se pudo guardar el lote. Intentá nuevamente.');
+      }
+    });
+  }
+
+  eliminarLote(id: number, alFinalizar?: () => void): void {
+    this.#eliminandoLote.set(true);
+    this.#errorLote.set(null);
+
+    this.api.eliminarLote(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.#eliminandoLote.set(false);
+        this.recargarLotes();
+        this.cargarMercaderia();
+        this.bodegaState.cargarBodegasConInsumos(true);
+        if (alFinalizar) alFinalizar();
+      },
+      error: (err) => {
+        this.#eliminandoLote.set(false);
+        this.#errorLote.set(err.error?.error ?? err.error?.mensaje ?? 'No se pudo eliminar el lote. Intentá nuevamente.');
+      }
+    });
+  }
+
+  eliminarProducto(id: number): void {
+    this.#cargando.set(true);
+    this.api.eliminar(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.#productos.update(lista => lista.filter(p => p.id !== id));
+        this.#cargando.set(false);
+      },
+      error: () => this.#cargando.set(false)
+    });
+  }
+
+  cargarPorcentajesBebidas(): void {
+    if (this.#porcentajesBebidas().length > 0) return;
+
+    this.platoApi.getDatosFormulario()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => this.#porcentajesBebidas.set(res.porcentajes.bebidas)
+      });
+  }
+
+  cargarDetalleInsumo(id: number, esBebida: boolean): void {
+    this.#detalleInsumo.set(null);
+    this.#costoBebida.set(0);
+
+    if (!esBebida) {
+      this.api.getById(id)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(detalle => this.#detalleInsumo.set(detalle));
+      return;
+    }
+
+    forkJoin({
+      detalle: this.api.getById(id),
+      articulos: this.platoApi.getPlatos()
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ detalle, articulos }) => {
+        this.#detalleInsumo.set(detalle);
+        this.#costoBebida.set(articulos.find(a => a.id === id)?.costo ?? 0);
+      });
+  }
+
+  limpiarDetalleInsumo(): void {
+    this.#detalleInsumo.set(null);
+    this.#costoBebida.set(0);
+  }
+
+  guardarBebida(id: number, payload: GuardarBebidaPayload, alFinalizar?: () => void): void {
+    const detalle = this.#detalleInsumo();
+    if (!detalle) return;
+
+    this.#cargando.set(true);
+    this.#error.set(null);
+    const request = {
+      nombre: payload.nombre,
+      descripcion: detalle.descripcion ?? undefined,
+      precioVentaFinal: payload.precioVentaFinal,
+      esPrecioManual: payload.esPrecioManual,
+      stockMinimo: detalle.stockMinimo,
+      stockRecomendado: detalle.stockRecomendado,
+      categoriaId: detalle.categoriaId,
+      unidadDeMedidaId: detalle.unidadDeMedidaId
+    };
+
+    this.api.actualizarInsumoConImagen(id, request, payload.imagen)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (actualizado) => {
+          this.#productos.update(lista => lista.map(p => p.id === id
+            ? { ...p, nombre: actualizado.nombre, precioVentaFinal: actualizado.precioVentaFinal ?? p.precioVentaFinal, esPrecioManual: actualizado.esPrecioManual }
+            : p));
+          this.#detalleInsumo.set(null);
+          this.#cargando.set(false);
+          if (alFinalizar) alFinalizar();
+        },
+        error: (err) => {
+          this.#cargando.set(false);
+          this.#error.set(err.error?.error ?? 'No se pudo modificar la bebida. Intentá nuevamente.');
+        }
+      });
+  }
+}

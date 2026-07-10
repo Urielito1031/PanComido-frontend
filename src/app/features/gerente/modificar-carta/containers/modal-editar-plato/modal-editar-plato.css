@@ -1,0 +1,216 @@
+.panel-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(6px);
+  z-index: 9999;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.side-panel {
+  width: 100%;
+  max-width: 650px;
+  height: 100vh;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  animation: slideInRight 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* HERO HEADER */
+.panel-hero {
+  height: 220px;
+  background-size: cover;
+  background-position: center;
+  background-color: #f8fafc;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(15, 23, 42, 0.5) 0%, rgba(15, 23, 42, 0) 50%, rgba(15, 23, 42, 0.2) 100%);
+}
+
+.btn-close-panel {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-close-panel:hover {
+  background: rgba(255, 255, 255, 0.4);
+  transform: scale(1.05);
+}
+
+.visibility-badge {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 4px 8px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: inline-block;
+}
+
+.hero-placeholder {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* SOFT FORM INPUTS */
+.soft-label {
+  font-weight: 700;
+  color: #475569;
+  font-size: 0.85rem;
+  margin-bottom: 0.4rem;
+}
+
+.soft-input {
+  background-color: #f1f5f9;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: #0f172a;
+  transition: all 0.2s;
+}
+
+.soft-input:focus {
+  background-color: #ffffff;
+  border-color: #02596c;
+  box-shadow: 0 0 0 4px rgba(2, 89, 108, 0.15);
+  outline: none;
+}
+
+.soft-input-group .input-group-text {
+  background-color: #f1f5f9;
+  border: 2px solid transparent;
+  border-right: none;
+  border-radius: 10px 0 0 10px;
+  color: #64748b;
+}
+
+.soft-input-group .soft-input {
+  border-left: none;
+  border-radius: 0 10px 10px 0;
+  padding-left: 0;
+}
+
+.soft-input-group:focus-within .input-group-text,
+.soft-input-group:focus-within .soft-input {
+  background-color: #ffffff;
+  border-color: #02596c;
+}
+
+.soft-input-group:focus-within .input-group-text {
+  border-right-color: transparent;
+}
+
+.soft-input-group.readonly .input-group-text,
+.soft-input-group.readonly .soft-input {
+  background-color: #f8fafc;
+  color: #94a3b8;
+  border-color: transparent;
+}
+
+.cost-readonly-box {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid rgba(245, 158, 11, 0.18);
+  border-radius: 10px;
+  background: linear-gradient(to top, rgba(255, 237, 213, 0.44), #ffffff);
+  color: #7c2d12;
+  font-weight: 900;
+}
+
+/* BUTTONS */
+
+::ng-deep .cancel-btn .btn {
+  border-radius: 10px;
+  font-weight: 600;
+  border: 1px solid #e2e8f0 !important;
+  background: white !important;
+  color: #475569 !important;
+}
+
+::ng-deep .cancel-btn .btn:hover {
+  background: #f8fafc !important;
+}
+
+/* Scrollbar styling for panel body */
+.panel-body::-webkit-scrollbar,
+.ingredients-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.panel-body::-webkit-scrollbar-track,
+.ingredients-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.panel-body::-webkit-scrollbar-thumb,
+.ingredients-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+/* Radius system: main containers 8px, inner containers 10px, buttons 11px */
+.side-panel {
+  border-radius: 8px;
+}
+
+.panel-hero,
+.ingredient-row,
+.quantity-control {
+  border-radius: 10px;
+}
+
+.btn-close-panel,
+::ng-deep .cancel-btn .btn {
+  border-radius: 11px;
+}
+
+.diet-tag-btn {
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.diet-tag-btn:hover {
+  background-color: #f3f4f6;
+}
+
+.diet-tag-btn.active {
+  background-color: #22c55e;
+  color: #ffffff;
+  border-color: #22c55e;
+}

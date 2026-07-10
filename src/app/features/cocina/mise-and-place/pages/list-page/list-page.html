@@ -1,0 +1,304 @@
+<section class="mp-page">
+  <h1>Mise and Place</h1>
+
+  <app-page-toolbar>
+    <app-buscador buscador placeholder="Buscar preparado" (busquedaCambiada)="termino.set($event)" />
+    <div acciones class="d-flex gap-2 align-items-center">
+      <button class="btn-premium-primary d-flex align-items-center gap-2" (click)="abrirModal()">
+        <span class="material-symbols-outlined">add</span>
+        <span class="fw-semibold">Nuevo preparado</span>
+      </button>
+    </div>
+  </app-page-toolbar>
+
+  <div class="mp-metrics-strip">
+    <button class="metric neutral" type="button" [class.active]="estadoFiltro() === 'todos'"
+      (click)="seleccionarEstado('todos')">
+      <strong>{{ totalItems() }}</strong> Total
+    </button>
+    <button class="metric danger" type="button" [class.active]="estadoFiltro() === 'por-vencer'"
+      (click)="seleccionarEstado('por-vencer')">
+      <strong>{{ itemsPorVencer() }}</strong> Por vencer
+    </button>
+    <button class="metric warning" type="button" [class.active]="estadoFiltro() === 'proximo'"
+      (click)="seleccionarEstado('proximo')">
+      <strong>{{ itemsProximo() }}</strong> Próximo
+    </button>
+    <button class="metric success" type="button" [class.active]="estadoFiltro() === 'sin-fecha'"
+      (click)="seleccionarEstado('sin-fecha')">
+      <strong>{{ itemsSinFecha() }}</strong> Sin fecha
+    </button>
+  </div>
+
+  <div class="mp-cat-strip">
+    @for (cat of categoriasDisponibles(); track cat) {
+      <button class="cat-chip" [class.active]="categoriaFiltro() === cat" (click)="seleccionarCategoria(cat)">
+        {{ cat }}
+      </button>
+    }
+  </div>
+
+  @if (itemsPorVencer() > 0) {
+    <div class="mp-executive-summary has-criticos">
+      <span class="material-symbols-outlined">priority_high</span>
+      <div>
+        <strong>Atención requerida</strong>
+        <small>
+          @if (itemsPorVencer() === 1) {
+            Un preparado está por vencer o ya venció.
+          } @else {
+            {{ itemsPorVencer() }} preparados están por vencer o ya vencieron.
+          }
+        </small>
+      </div>
+    </div>
+  } @else if (totalItems() > 0) {
+    <div class="mp-executive-summary summary-ok">
+      <span class="material-symbols-outlined">check_circle</span>
+      <div>
+        <strong>Todo en orden</strong>
+        <small>Todos los preparados están vigentes.</small>
+      </div>
+    </div>
+  }
+
+  @if (filtrosActivos() > 0) {
+    <div class="mp-breadcrumb">
+      @if (termino()) {
+        <span class="mp-breadcrumb-item active">
+          Búsqueda: "{{ termino() }}"
+          <span class="material-symbols-outlined breadcrumb-close" (click)="termino.set('')">close</span>
+        </span>
+        <span class="mp-breadcrumb-sep">/</span>
+      }
+      @if (estadoFiltro() !== 'todos') {
+        <span class="mp-breadcrumb-item active">
+          {{ estadoFiltro() === 'por-vencer' ? 'Por vencer' : estadoFiltro() === 'proximo' ? 'Próximo' : 'Sin fecha' }}
+          <span class="material-symbols-outlined breadcrumb-close" (click)="seleccionarEstado('todos')">close</span>
+        </span>
+      }
+      @if (categoriaFiltro(); as cat) {
+        <span class="mp-breadcrumb-item active">
+          {{ cat }}
+          <span class="material-symbols-outlined breadcrumb-close" (click)="seleccionarCategoria(cat)">close</span>
+        </span>
+      }
+    </div>
+  }
+
+  <section class="mp-panel">
+
+    @if (state.cargando() && state.items().length === 0) {
+      <div class="mp-empty-state">
+        <span class="material-symbols-outlined">hourglass_top</span>
+        <strong>Cargando...</strong>
+      </div>
+    } @else if (state.error() && state.items().length === 0) {
+      <div class="mp-empty-state">
+        <span class="material-symbols-outlined">error</span>
+        <strong>{{ state.error() }}</strong>
+      </div>
+    } @else if (itemsFiltrados().length === 0) {
+      <div class="mp-empty-state">
+        <span class="material-symbols-outlined">{{ filtrosActivos() > 0 ? 'search_off' : 'inventory_2' }}</span>
+        <strong>{{ filtrosActivos() > 0 ? 'Sin resultados' : 'No hay preparados aún' }}</strong>
+        <p>{{ filtrosActivos() > 0 ? 'Probá cambiar los filtros o la búsqueda.' : 'Creá tu primer preparado para empezar.' }}</p>
+        @if (filtrosActivos() === 0) {
+          <button class="btn-premium-primary mp-empty-cta" (click)="abrirModal()">
+            <span class="material-symbols-outlined">add</span>
+            <span>Crear preparado</span>
+          </button>
+        }
+      </div>
+    } @else {
+      <div class="mp-grid-shell">
+        <div class="mp-grid" aria-label="Listado de mise and place">
+          <div class="mp-grid-head" role="row">
+            <span>Preparado</span>
+            <span class="text-center">Cantidad</span>
+            <span class="text-center">Mínimo</span>
+            <span>Unidad medida</span>
+            <span>Vencimiento</span>
+            <span class="text-center">Ingredientes</span>
+            <span class="text-end">Costo</span>
+            <span class="text-center">Acción</span>
+          </div>
+
+          <div class="mp-rows-container">
+            @for (item of itemsFiltrados(); track item.loteId) {
+              @let ec = estadoVenc(item.fechaVencimiento);
+              <div
+                class="mp-row"
+                [class.row-danger]="ec === 'rojo'"
+                [class.row-warning]="ec === 'ambar'"
+                [class.destacado]="item.miseAndPlaceId === state.ultimoCreadoId()"
+              >
+                <div class="mp-cell product-cell">
+                  <strong>{{ item.nombre }}</strong>
+                  <small class="prod-cat">{{ item.categoria }}</small>
+                </div>
+                <div class="mp-cell cantidad-cell text-center">
+                  @if (item.cantidad > 0) {
+                    <span class="strong-number">{{ item.cantidad }}</span>
+                  } @else {
+                    <span class="fast-pill">Sin stock</span>
+                  }
+                </div>
+                <div class="mp-cell minimo-cell text-center">{{ item.stockMinimo }}</div>
+                <div class="mp-cell unidad-cell">{{ item.unidadMedida | unidadNormalizada }}</div>
+                <div class="mp-cell vencimiento-cell">
+                  @if (item.fechaVencimiento; as f) {
+                    <span
+                      class="fast-pill"
+                      [class.danger]="ec === 'rojo'"
+                      [class.warning]="ec === 'ambar'"
+                      [class.success]="ec === 'verde'"
+                    >
+                      {{ f | date:'dd/MM/yyyy' }}
+                    </span>
+                  } @else {
+                    <span class="fast-pill">Sin fecha</span>
+                  }
+                </div>
+                <div class="mp-cell ingredientes-cell text-center strong-number">{{ item.receta.length }}</div>
+                <div class="mp-cell costo-cell text-end">
+                  @if (item.costo > 0) {
+                    ${{ item.costo | number:'1.2-2' }}
+                  } @else {
+                    <span class="text-muted">-</span>
+                  }
+                </div>
+                <div class="mp-cell action-cell">
+                  <button class="act-btn" type="button" (click)="abrirModalGenerarStock(item)">Generar Stock</button>
+                  <button class="act-btn" type="button" (click)="abrirOffcanvas(item)">Editar</button>
+                  <button class="act-btn act-btn-danger" type="button" (click)="abrirModalEliminar(item)">Eliminar</button>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  </section>
+</section>
+
+@if (state.mensajeExito(); as msg) {
+  <div class="mp-toast">{{ msg }}</div>
+}
+
+<app-modal #modalFormulario titulo="Nuevo Mise and Place" [maxWidth]="1080" (cerrado)="cerrarModal()">
+  @if (state.cargandoForm()) {
+    <div class="text-center text-muted p-4">Cargando...</div>
+  } @else {
+    @if (guardando()) {
+      <div class="modal-loading-banner">
+        <span class="modal-spinner"></span>
+        Guardando...
+      </div>
+    }
+
+    <app-mise-and-place-form
+      [categorias]="state.categorias()"
+      [unidadesMedida]="state.unidadesMedida()"
+      [ingredientes]="state.ingredientesDisponibles()"
+      [creando]="guardando()"
+      [errorGuardar]="errorGuardar()"
+      (guardar)="onGuardar($event)"
+      (cancelar)="cerrarModal()"
+    />
+  }
+</app-modal>
+
+@if (itemSeleccionado(); as item) {
+  <app-mise-and-place-offcanvas
+    [item]="item"
+    (cerrado)="cerrarOffcanvas()">
+  </app-mise-and-place-offcanvas>
+}
+
+@if (mostrarModalEliminar()) {
+  <div class="modal-overlay" (click)="cerrarModalEliminar()">
+    <div class="modal-content modal-sm" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h2>Eliminar preparado</h2>
+        <button class="modal-close-btn" (click)="cerrarModalEliminar()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        @if (errorEliminar(); as err) {
+          <div class="modal-error-banner">{{ err }}</div>
+        }
+        <p>¿Estás seguro que deseas eliminar <strong>{{ itemParaEliminar()?.nombre }}</strong>?</p>
+        <p class="text-muted" style="font-size:0.85rem">Esta acción no se puede deshacer.</p>
+      </div>
+      <div class="modal-actions">
+        <button class="mp-btn-sec" (click)="cerrarModalEliminar()">Cancelar</button>
+        <button class="mp-btn-danger" [disabled]="eliminando()" (click)="confirmarEliminar()">
+          @if (eliminando()) {
+            Eliminando...
+          } @else {
+            Sí, eliminar
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (mostrarModalGenerarStock()) {
+  <div class="modal-overlay" (click)="cerrarModalGenerarStock()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h2>Generar stock</h2>
+        <button class="modal-close-btn" (click)="cerrarModalGenerarStock()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      @if (errorProducir(); as err) {
+        <div class="modal-error-banner">{{ err }}</div>
+      }
+
+      <form [formGroup]="formGenerarStock" (ngSubmit)="onSubmitGenerarStock()" class="modal-form-body">
+        <div class="mf-field">
+          <label class="mf-label required">Cantidad a producir</label>
+          <input type="number" formControlName="cantidad" min="0.01" step="0.01" placeholder="Ej: 5" />
+          @if (formGenerarStock.controls.cantidad.invalid && (formGenerarStock.controls.cantidad.dirty || formGenerarStock.controls.cantidad.touched)) {
+            <small class="mf-err">Debe ser mayor a 0</small>
+          }
+        </div>
+        <div class="mf-field">
+          <label class="mf-label required">Fecha de vencimiento</label>
+          <input type="date" formControlName="fechaVencimiento" />
+          @if (formGenerarStock.controls.fechaVencimiento.invalid && (formGenerarStock.controls.fechaVencimiento.dirty || formGenerarStock.controls.fechaVencimiento.touched)) {
+            <small class="mf-err">Requerido</small>
+          }
+        </div>
+        <div class="mf-field">
+          <label class="mf-label required">Bodega</label>
+          <select formControlName="bodegaId">
+            <option [ngValue]="null">Seleccionar...</option>
+            @for (bod of state.bodegas(); track bod.id) {
+              <option [ngValue]="bod.id">{{ bod.nombre }}</option>
+            }
+          </select>
+          @if (formGenerarStock.controls.bodegaId.invalid && (formGenerarStock.controls.bodegaId.dirty || formGenerarStock.controls.bodegaId.touched)) {
+            <small class="mf-err">Requerido</small>
+          }
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="mp-btn-sec" (click)="cerrarModalGenerarStock()">Cancelar</button>
+          <button type="submit" class="mp-btn-primary" [disabled]="formGenerarStock.invalid || produciendo()">
+            @if (produciendo()) {
+              <span class="modal-spinner"></span>
+              Produciendo...
+            } @else {
+              Producir
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

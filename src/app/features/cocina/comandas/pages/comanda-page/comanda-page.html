@@ -1,0 +1,85 @@
+<div class="comandas-container">
+
+  @if (notificacionLlamado()) {
+  <div class="notificacion-llamado">
+    ¡Mozo llamado — Mesa {{ notificacionLlamado() }}!
+  </div>
+  }
+
+  @if (notificacionAceptada()) {
+  <div class="notificacion-aceptada">
+    ¡Comanda aceptada — Mesa {{ notificacionAceptada() }}!
+  </div>
+  }
+
+  @if (notificacionError()) {
+  <div class="notificacion-error">
+    {{ notificacionError() }}
+  </div>
+  }
+
+  <details class="kds-section" open>
+    <summary class="section-header bg-preparacion">
+      EN PREPARACIÓN ({{ state.comandasEnPreparacion().length }})
+      <span class="chevron">▼</span>
+    </summary>
+
+    <div class="hint-voz">
+      <span class="hint-voz-label">Comandos por voz:</span>
+      @for (comando of comandosLlamarMozo; track comando) {
+      <span class="voz-chip">{{ comando }}</span>
+      }
+    </div>
+
+    <div class="cards-grid">
+      @for (comanda of state.comandasEnPreparacion(); track comanda.id) {
+      <app-comanda-card [comanda]="comanda" (accion)="procesarAccion($event)" (llamarMozo)="onLlamarMozo($event)">
+      </app-comanda-card>
+      } @empty {
+      <p class="empty-state">No hay comandas en preparación.</p>
+      }
+    </div>
+  </details>
+
+  <details class="kds-section" open>
+    <summary class="section-header bg-nueva">
+      NUEVAS - Esperando aceptación ({{ state.comandasNuevas().length }})
+      <span class="chevron">▼</span>
+    </summary>
+
+    <div class="hint-voz">
+      <span class="hint-voz-label">Comandos por voz:</span>
+      @for (comando of comandosAceptar; track comando) {
+      <span class="voz-chip">{{ comando }}</span>
+      }
+    </div>
+
+    <div class="cards-scroll">
+      @for (comanda of state.comandasNuevas(); track comanda.id) {
+      <app-comanda-card [comanda]="comanda" (accion)="procesarAccion($event)">
+      </app-comanda-card>
+      } @empty {
+      <p class="empty-state">No hay comandas nuevas.</p>
+      }
+    </div>
+  </details>
+  <details class="kds-section" open>
+    <summary class="section-header bg-espera">
+      EN ESPERA ({{ state.comandasEnEspera().length }})
+      <span class="chevron">▼</span>
+    </summary>
+
+    <div class="cards-scroll">
+      @for (comanda of state.comandasEnEspera(); track comanda.id) {
+      <app-comanda-card [comanda]="comanda" (accion)="procesarAccion($event)">
+      </app-comanda-card>
+      } @empty {
+      <p class="empty-state">No hay comandas en espera</p>
+      }
+    </div>
+  </details>
+  @if (vozService.error()) {
+  <p class="voz-error">{{ vozService.error() }}</p>
+  }
+  <app-boton-voz [enEscucha]="vozService.enEscucha()" (toggle)="vozService.toggleListening()">
+  </app-boton-voz>

@@ -1,0 +1,125 @@
+<app-header-comensal [showBack]="true" backRoute="/comensal/ver-carta" [title]="'Tu pedido'" />
+
+<div class="detalle-wrapper">
+  @if (!comandaState.tieneComandaActiva() && !filaVirtualState.turnoId()) {
+    <div class="alerta-mesa">
+      <span class="material-symbols-outlined">qr_code_scanner</span>
+      <span>Escaneá el QR de la mesa para arrancar</span>
+    </div>
+  }
+
+  @if (comandaState.estadoPedido()?.items?.length) {
+    <app-resumen-pedido
+      [items]="comandaState.estadoPedido()!.items"
+      [estadoUI]="comandaState.estadoPedido()!.estadoUI"
+      [mesaId]="mesaId()" />
+  }
+
+  @if (pedidos().length > 0) {
+    <div class="carrito-card">
+      <div class="carrito-header">
+        <div class="carrito-header-left">
+          <span class="carrito-icono material-symbols-outlined">shopping_bag</span>
+          <div>
+            <span class="carrito-titulo">Nuevos items</span>
+            <span class="carrito-comensal">{{ nombreComensalActual }}</span>
+          </div>
+        </div>
+        <span class="carrito-badge">{{ pedidos().length }}</span>
+      </div>
+
+      <div class="carrito-items">
+        @for (item of pedidos(); track $index) {
+          <div class="carrito-item">
+            <div class="carrito-item-row">
+              <div class="carrito-item-info">
+                <span class="carrito-item-nombre">{{ item.plato.nombre }}</span>
+                <span class="carrito-item-precio">${{ item.plato.precio * item.cantidad }}</span>
+              </div>
+            </div>
+
+            @if (item.ingredientesRemovidosNombres?.length) {
+              <div class="carrito-item-obs">
+                <span class="material-symbols-outlined">remove_circle</span>
+                Sin: {{ item.ingredientesRemovidosNombres!.join(', ') }}
+              </div>
+            }
+            @if (item.observacionesGenerales) {
+              <div class="carrito-item-obs">
+                <span class="material-symbols-outlined">info</span>
+                {{ item.observacionesGenerales }}
+              </div>
+            }
+
+            <div class="carrito-item-actions">
+              <button class="action-btn action-btn--edit" (click)="editarItem(item, $index)">
+                <span class="material-symbols-outlined">edit</span>
+                Editar
+              </button>
+              <div class="cantidad-pill">
+                <button class="cantidad-btn" (click)="decrementarCantidad($index)">−</button>
+                <span class="cantidad-valor">{{ item.cantidad }}</span>
+                <button class="cantidad-btn" (click)="incrementarCantidad($index)">+</button>
+              </div>
+              <button class="action-btn action-btn--delete" (click)="eliminarItem($index)">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  } @else {
+    <div class="carrito-vacio">
+      <span class="material-symbols-outlined">restaurant_menu</span>
+      <span>Agregá platos desde la carta</span>
+    </div>
+  }
+
+  <div class="footer-section">
+    <div class="total-card">
+      <span class="total-label">Total a pagar</span>
+      <span class="total-monto">$ {{ total() | number:'1.0-0' }}</span>
+    </div>
+
+    @if (pedidos().length === 0) {
+      <div class="botones-vacios">
+        <app-boton-comensal [backgroundColor]="configuracionVisualState.colorSecundario()" [textColor]="'#ffffff'" (clicked)="volver()">
+          + Agregar más platos
+        </app-boton-comensal>
+        @if (comandaState.estadoPedido()?.items?.length) {
+          <app-boton-comensal [backgroundColor]="configuracionVisualState.colorPrimario()" [textColor]="'#ffffff'" (clicked)="verEstado()">
+            Finalizar
+          </app-boton-comensal>
+        }
+      </div>
+    } @else {
+      <app-boton-comensal
+        [backgroundColor]="configuracionVisualState.colorSecundario()"
+        [textColor]="'#ffffff'"
+        [disabled]="!comandaState.tieneComandaActiva() && !filaVirtualState.turnoId()"
+        (clicked)="confirmarPedido()">
+        <div class="d-flex align-items-center justify-content-center gap-2">
+          <span>Confirmar pedido</span>
+          <span class="btn-confirmar-items">{{ pedidos().length }} items</span>
+        </div>
+      </app-boton-comensal>
+    }
+
+    @if (filaVirtualState.turnoId()) {
+      <div class="alerta-pre-armado" style="margin-top: 15px; font-size: 0.85rem; text-align: center; border: 1px solid #ccc; padding: 10px; border-radius: 8px;">
+        Tu pedido pre-armado será tenido en cuenta cuando se libere una mesa para ti, en el caso de que haya disponibilidad de los items enviaremos directamente el pedido a la cocina una vez escanees el qr de la mesa!
+      </div>
+    }
+  </div>
+
+</div>
+
+@if (!filaVirtualState.turnoId()) {
+  <app-llamar-al-mozo [mesaId]="comandaState.mesaId() ?? 0" [enviando]="comensalState.enviando()"
+    [enviado]="comensalState.exito()" [error]="comensalState.error()" (llamadoMozo)="comensalState.solicitarMozo($event)"
+    (modalCerrado)="comensalState.limpiarEstado()" />
+}
+
+<app-modal-confirmacion-pedido #modal [cargando]="comandaState.cargando()" [error]="comandaState.error()"
+  [estadoPedido]="comandaState.estadoPedido()" (confirmar)="comandaState.confirmarPedido()" />

@@ -1,0 +1,494 @@
+import { Injectable, inject, signal, computed, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { PlatoApiService } from '../../services/plato.api';
+import { BebidaPreparadaApiService } from '../../services/bebida-preparada.api';
+import { Plato } from '../../../../core/models/domain/plato';
+import { InsumoDetalle } from '../../../../core/models/domain/insumo';
+import { BebidaPreparada } from '../../../../core/models/domain/bebida-preparada';
+import { PorcentajeItem } from '../../../../core/models/domain/porcentajes-ganancia';
+import { StockMercaderiaService } from '../../stock-mercaderia/services/insumos/stock-mercaderia-service';
+import { GuardarBebidaPayload } from '../../stock-mercaderia/components/editar-bebida-form/editar-bebida-form';
+import { GuardarProductoPayload } from '../../stock-mercaderia/components/producto-form/producto-form';
+import { GuardarBebidaPreparadaPayload } from '../containers/panel-bebida-preparada/panel-bebida-preparada';
+import {
+  CartaSortOrder,
+  esBebida,
+  ordenarPlatosCarta,
+  ordenarPorVisibilidad,
+  tipoBebida,
+  tipoComida,
+  tiposDisponibles
+} from './modificar-carta.rules';
+
+export interface BebidaAEditar {
+  id: number;
+  costo: number;
+  categoriaInsumoId: number | null;
+  detalle: InsumoDetalle | null;
+}
+
+@Injectable({ providedIn: 'root' })
+export class ModificarCartaStateService {
+  private api = inject(PlatoApiService);
+  private bebidaPreparadaApi = inject(BebidaPreparadaApiService);
+  private stockService = inject(StockMercaderiaService);
+  private destroyRef = inject(DestroyRef);
+
+  // 1. Estado PRIVADO
+  private _searchTerm = signal<string>('');
+  private _selectedCategoria = signal<string | null>(null);
+  private _platos = signal<Plato[]>([]);
+  private _platoAEditar = signal<Plato | null>(null);
+  private _platoAEliminar = signal<Plato | null>(null);
+  private _explodingPlatoId = signal<number | null>(null);
+  private _loading = signal<boolean>(false);
+  private _selectedTipoBebida = signal<string | null>(null);
+  private _selectedTipoComida = signal<string | null>(null);
+  private _sortOrder = signal<CartaSortOrder>('default');
+
+  private _porcentajesPlatos = signal<PorcentajeItem[]>([]);
+  private _porcentajesBebidas = signal<PorcentajeItem[]>([]);
+  private _bebidaAEditar = signal<BebidaAEditar | null>(null);
+  private _bebidaPreparadaAEditar = signal<BebidaPreparada | null>(null);
+  private _error = signal<string | null>(null);
+
+  // 2. Estado PÚBLICO
+  searchTerm = this._searchTerm.asReadonly();
+  selectedCategoria = this._selectedCategoria.asReadonly();
+  platos = this._platos.asReadonly();
+  platoAEditar = this._platoAEditar.asReadonly();
+  platoAEliminar = this._platoAEliminar.asReadonly();
+  explodingPlatoId = this._explodingPlatoId.asReadonly();
+  loading = this._loading.asReadonly();
+  selectedTipoBebida = this._selectedTipoBebida.asReadonly();
+  selectedTipoComida = this._selectedTipoComida.asReadonly();
+  sortOrder = this._sortOrder.asReadonly();
+
+  porcentajesPlatos = this._porcentajesPlatos.asReadonly();
+  porcentajesBebidas = this._porcentajesBebidas.asReadonly();
+  bebidaAEditar = this._bebidaAEditar.asReadonly();
+  bebidaPreparadaAEditar = this._bebidaPreparadaAEditar.asReadonly();
+  error = this._error.asReadonly();
+
+  // 3. Variables Derivadas (Computed)
+  tiposBebidaDisponibles = computed(() => {
+    return tiposDisponibles(this._platos().filter(esBebida), tipoBebida);
+  });
+
+  totalBebidasCount = computed(() => {
+    return this._platos().filter(esBebida).length;
+  });
+
+  categoriasDisponibles = computed(() => {
+    const cats = new Set(this._platos().map(p => p.categoria).filter(c => !!c));
+    return Array.from(cats).sort() as string[];
+  });
+
+  filteredPlatos = computed(() => {
+    const sorted = ordenarPorVisibilidad(this._platos());
+
+    const lowerTerm = this._searchTerm().toLowerCase().trim();
+    const selectedCat = this._selectedCategoria();
+
+    let result = sorted;
+    if (lowerTerm) {
+      result = result.filter(plato => 
+        plato.nombre.toLowerCase().includes(lowerTerm)
+      );
+    }
+    if (selectedCat) {
+      result = result.filter(plato => 
+        plato.categoria === selectedCat
+      );
+    }
+    return result;
+  });
+
+  platosRecomendados = computed(() => {
+    return this.filteredPlatos()
+      .filter(plato => plato.recomendado && plato.visible)
+      .sort((a, b) => (b.ventas ?? 0) - (a.ventas ?? 0));
+  });
+
+  platosNormales = computed(() => {
+    return this.filteredPlatos().filter(plato => !(plato.recomendado && plato.visible));
+  });
+
+  tiposComidaDisponibles = computed(() => {
+    return tiposDisponibles(this._platos().filter(plato => !esBebida(plato)), tipoComida);
+  });
+
+  totalComidasCount = computed(() => {
+    return this._platos().filter(plato => !esBebida(plato)).length;
+  });
+
+  platosComidas = computed(() => {
+    const selectedTipo = this._selectedTipoComida();
+    const normal = this.filteredPlatos().filter(plato => {
+      if (esBebida(plato) || (plato.recomendado && plato.visible)) return false;
+      
+      if (selectedTipo) {
+        return tipoComida(plato) === selectedTipo;
+      }
+      return true;
+    });
+    return ordenarPlatosCarta(normal, this._sortOrder(), tipoComida);
+  });
+
+  platosBebidas = computed(() => {
+    const selectedTipo = this._selectedTipoBebida();
+    const normal = this.filteredPlatos().filter(plato => {
+      if (!esBebida(plato) || (plato.recomendado && plato.visible)) return false;
+      
+      if (selectedTipo) {
+        return tipoBebida(plato) === selectedTipo || plato.categoria === selectedTipo;
+      }
+      return true;
+    });
+    return ordenarPlatosCarta(normal, this._sortOrder(), tipoBebida);
+  });
+
+  // 4. Métodos de Negocio (UseCases)
+  setTipoBebida(tipo: string | null): void {
+    this._selectedTipoBebida.set(tipo);
+  }
+
+  setTipoComida(tipo: string | null): void {
+    this._selectedTipoComida.set(tipo);
+  }
+
+  setSortOrder(order: CartaSortOrder): void {
+    this._sortOrder.set(order);
+  }
+
+  cargarPlatos(): void {
+    this._loading.set(true);
+    this.api.getPlatos()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (platos) => {
+          this._platos.set(platos);
+          this._loading.set(false);
+        },
+        error: () => this._loading.set(false)
+      });
+  }
+
+  cargarPorcentajes(): void {
+    this.api.getDatosFormulario()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this._porcentajesPlatos.set(res.porcentajes.platos);
+          this._porcentajesBebidas.set(res.porcentajes.bebidas);
+        }
+      });
+  }
+
+  setSearchTerm(term: string): void {
+    this._searchTerm.set(term);
+  }
+
+  setCategoria(categoria: string | null): void {
+    this._selectedCategoria.set(categoria);
+  }
+
+  toggleVisibility(plato: Plato): void {
+    if (plato.visible) {
+      this._explodingPlatoId.set(plato.id);
+
+      setTimeout(() => {
+        const targetState = false;
+        this._platos.update(platos => platos.map(p => p.id === plato.id ? { ...p, visible: targetState } : p));
+        this._explodingPlatoId.set(null);
+
+        this.api.updatePlato(plato.id, { visible: targetState })
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: updated => {
+              this._platos.update(platos => platos.map(p => p.id === plato.id ? { ...p, ...updated } : p));
+            },
+            error: () => {
+              this._platos.update(platos => platos.map(p => p.id === plato.id ? { ...p, visible: true } : p));
+            }
+          });
+      }, 450);
+    } else {
+      const targetState = true;
+      this._platos.update(platos => platos.map(p => p.id === plato.id ? { ...p, visible: targetState } : p));
+
+      this.api.updatePlato(plato.id, { visible: targetState })
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: updated => {
+            this._platos.update(platos => platos.map(p => p.id === plato.id ? { ...p, ...updated } : p));
+          },
+          error: () => {
+            this._platos.update(platos => platos.map(p => p.id === plato.id ? { ...p, visible: false } : p));
+          }
+        });
+    }
+  }
+
+  setPlatoAEditar(plato: Plato | null): void {
+    this._platoAEditar.set(plato);
+
+    if (!plato) return;
+
+    this.api.getPlatoById(plato.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: detalle => {
+          this._platoAEditar.set({ ...plato, ...detalle });
+        }
+      });
+  }
+
+  setPlatoAEliminar(plato: Plato | null): void {
+    this._platoAEliminar.set(plato);
+  }
+
+  setBebidaAEditar(plato: Plato | null): void {
+    if (!plato) {
+      this._bebidaAEditar.set(null);
+      return;
+    }
+
+    this._bebidaAEditar.set({
+      id: plato.id,
+      costo: plato.costo,
+      categoriaInsumoId: plato.categoriaInsumoId ?? null,
+      detalle: null
+    });
+
+    this.stockService.getById(plato.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(detalle => {
+        this._bebidaAEditar.update(actual => actual ? { ...actual, detalle } : actual);
+      });
+  }
+
+  saveBebida(payload: GuardarBebidaPayload, alFinalizar?: () => void): void {
+    const target = this._bebidaAEditar();
+    const detalle = target?.detalle;
+    if (!target || !detalle) return;
+
+    this._error.set(null);
+    const request = {
+      nombre: payload.nombre,
+      descripcion: detalle.descripcion ?? undefined,
+      precioVentaFinal: payload.precioVentaFinal,
+      esPrecioManual: payload.esPrecioManual,
+      stockMinimo: detalle.stockMinimo,
+      stockRecomendado: detalle.stockRecomendado,
+      categoriaId: detalle.categoriaId,
+      unidadDeMedidaId: detalle.unidadDeMedidaId
+    };
+
+    this.stockService.actualizarInsumoConImagen(target.id, request, payload.imagen)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (actualizado) => {
+          this._platos.update(platos => platos.map(p => p.id === target.id
+            ? {
+                ...p,
+                nombre: actualizado.nombre,
+                precioVenta: actualizado.precioVentaFinal ?? p.precioVenta,
+                esPrecioManual: actualizado.esPrecioManual,
+                imagen: actualizado.urlImagen || p.imagen
+              }
+            : p));
+          this._bebidaAEditar.set(null);
+          if (alFinalizar) alFinalizar();
+        },
+        error: (err) => {
+          this._error.set(err.error?.error ?? 'No se pudo modificar la bebida. Intentá nuevamente.');
+        }
+      });
+  }
+
+  setBebidaPreparadaAEditar(plato: Plato | null): void {
+    if (!plato) {
+      this._bebidaPreparadaAEditar.set(null);
+      return;
+    }
+
+    this.bebidaPreparadaApi.getById(plato.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(detalle => this._bebidaPreparadaAEditar.set(detalle));
+  }
+
+  crearBebidaPreparada(payload: GuardarBebidaPreparadaPayload, alFinalizar?: () => void): void {
+    this._error.set(null);
+    const request = {
+      nombre: payload.nombre,
+      descripcion: payload.descripcion,
+      precioVentaFinal: payload.precioVentaFinal,
+      esPrecioManual: payload.esPrecioManual,
+      esVisibleEnCarta: payload.esVisibleEnCarta,
+      insumos: payload.insumos
+    };
+
+    this.bebidaPreparadaApi.crear(request, payload.imagen!)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.cargarPlatos();
+          if (alFinalizar) alFinalizar();
+        },
+        error: (err) => {
+          this._error.set(err.error?.error ?? 'No se pudo crear la bebida preparada. Intentá nuevamente.');
+        }
+      });
+  }
+
+  saveBebidaPreparada(payload: GuardarBebidaPreparadaPayload, alFinalizar?: () => void): void {
+    const target = this._bebidaPreparadaAEditar();
+    if (!target) return;
+
+    this._error.set(null);
+    const request = {
+      nombre: payload.nombre,
+      descripcion: payload.descripcion,
+      precioVentaFinal: payload.precioVentaFinal,
+      esPrecioManual: payload.esPrecioManual,
+      esVisibleEnCarta: payload.esVisibleEnCarta,
+      insumos: payload.insumos
+    };
+
+    this.bebidaPreparadaApi.modificar(target.id, request, payload.imagen)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this._bebidaPreparadaAEditar.set(null);
+          this.cargarPlatos();
+          if (alFinalizar) alFinalizar();
+        },
+        error: (err) => {
+          this._error.set(err.error?.error ?? 'No se pudo modificar la bebida preparada. Intentá nuevamente.');
+        }
+      });
+  }
+
+  crearBebida(payload: GuardarProductoPayload, alFinalizar?: () => void): void {
+    this._error.set(null);
+    const request = {
+      nombre: payload.nombre,
+      descripcion: payload.descripcion,
+      precioVentaFinal: payload.precioVentaFinal,
+      esPrecioManual: payload.esPrecioManual,
+      stockMinimo: payload.stockMinimo,
+      stockRecomendado: payload.stockRecomendado,
+      categoriaId: payload.categoriaId,
+      unidadDeMedidaId: payload.unidadDeMedidaId,
+      cantidadInicial: payload.cantidadInicial!,
+      bodegaId: payload.bodegaId!,
+      fechaVencimiento: payload.fechaVencimiento!,
+      esVisibleEnCarta: payload.esVisibleEnCarta
+    };
+
+    this.stockService.crear(request, payload.imagen)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.cargarPlatos();
+          if (alFinalizar) alFinalizar();
+        },
+        error: (err) => {
+          this._error.set(err.error?.error ?? 'No se pudo crear la bebida. Intentá nuevamente.');
+        }
+      });
+  }
+
+  limpiarError(): void {
+    this._error.set(null);
+  }
+
+  savePlato(updatedFields: Partial<Plato>, archivo?: File): void {
+    const target = this._platoAEditar();
+    if (!target) return;
+
+    const updatedPlato = { ...target, ...updatedFields };
+    const tipoPlatoId = updatedPlato.tipoPlatoId ?? target.tipoPlatoId;
+    const categoriaPlatoId = updatedPlato.categoriaPlatoId ?? target.categoriaPlatoId;
+
+    if (!tipoPlatoId || !categoriaPlatoId) return;
+
+    this._error.set(null);
+    const request = {
+      nombre: updatedPlato.nombre,
+      descripcion: updatedPlato.descripcion ?? '',
+      precioVentaFinal: updatedPlato.precioVenta,
+      tiempoPreparacionBase: updatedPlato.tiempoPreparacion ?? updatedPlato.tiempo ?? 1,
+      esPrecioManual: updatedPlato.esPrecioManual ?? false,
+      tipoPlatoId,
+      categoriaPlatoId,
+      esVisibleEnCarta: updatedPlato.visible,
+      restriccionesIds: updatedPlato.restriccionesIds ?? [],
+      ingredientes: (updatedPlato.receta ?? []).map(ingrediente => ({
+        insumoId: Number(ingrediente.id),
+        cantidad: ingrediente.cantidad,
+        opcional: ingrediente.opcional ?? false
+      }))
+    };
+
+    this.api.modificarPlato(target.id, request, archivo)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updated) => {
+          this._platos.update(platos => platos.map(p => p.id === target.id
+            ? { ...p, ...updated, ...updatedPlato, nombre: updated.nombre, imagen: updated.imagen || updatedPlato.imagen }
+            : p));
+          this._platoAEditar.set(null);
+        },
+        error: (err) => {
+          this._error.set(err.error?.error ?? 'No se pudo modificar el plato. Intentá nuevamente.');
+        }
+      });
+  }
+
+  confirmDelete(): void {
+    const target = this._platoAEliminar();
+    if (!target) return;
+
+    this.api.deletePlato(target.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this._platos.update(platos => platos.filter(p => p.id !== target.id));
+        this._platoAEliminar.set(null);
+      });
+  }
+
+  closeModals(): void {
+    this._platoAEditar.set(null);
+    this._platoAEliminar.set(null);
+    this._bebidaAEditar.set(null);
+    this._bebidaPreparadaAEditar.set(null);
+    this._error.set(null);
+  }
+
+  toggleRecomendado(plato: Plato): void {
+    const targetState = !plato.recomendado;
+    // Actualización optimista
+    this._platos.update(platos =>
+      platos.map(p => p.id === plato.id ? { ...p, recomendado: targetState } : p)
+    );
+
+    this.api.updatePlato(plato.id, { recomendado: targetState })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: updated => {
+          this._platos.update(platos =>
+            platos.map(p => p.id === plato.id ? { ...p, ...updated } : p)
+          );
+        },
+        error: () => {
+          // Revertir en caso de error
+          this._platos.update(platos =>
+            platos.map(p => p.id === plato.id ? { ...p, recomendado: plato.recomendado } : p)
+          );
+        }
+      });
+  }
+
+}

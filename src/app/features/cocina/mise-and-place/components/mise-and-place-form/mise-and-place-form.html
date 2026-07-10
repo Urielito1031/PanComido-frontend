@@ -1,0 +1,192 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <div class="col-izq">
+    <div>
+      <label class="required">Nombre del preparado</label>
+      <input formControlName="nombre" placeholder="Ej: Papas bastón" />
+      @if (form.controls.nombre.invalid && (form.controls.nombre.dirty || form.controls.nombre.touched)) {
+        <small class="field-error">Requerido</small>
+      }
+    </div>
+
+    <div>
+      <label>Descripción</label>
+      <textarea formControlName="descripcion" rows="2" placeholder="Opcional"></textarea>
+    </div>
+
+    <div>
+      <label class="required">Categoría</label>
+      <select formControlName="categoriaId">
+        <option [ngValue]="null">Seleccionar...</option>
+        @for (cat of categorias(); track cat.id) {
+          <option [ngValue]="cat.id">{{ cat.descripcion }}</option>
+        }
+      </select>
+    </div>
+
+    <div>
+      <label class="required">Unidad de medida del preparado</label>
+      <select formControlName="unidadMedidaId">
+        <option [ngValue]="null">Seleccionar...</option>
+        @for (um of unidadesMedida(); track um.id) {
+          <option [ngValue]="um.id">{{ um.nombre }}</option>
+        }
+      </select>
+    </div>
+
+    <div>
+      <label>Stock mínimo</label>
+      <input type="number" formControlName="stockMinimo" min="0" step="0.01" placeholder="0" />
+      <small class="field-hint">Debajo de este nivel se considera stock crítico</small>
+      @if (form.controls.stockMinimo.invalid && (form.controls.stockMinimo.dirty || form.controls.stockMinimo.touched)) {
+        <small class="field-error">Debe ser mayor o igual a 0</small>
+      }
+    </div>
+
+    <div>
+      <label>Stock recomendado</label>
+      <input type="number" formControlName="stockRecomendado" min="0" step="0.01" placeholder="0" />
+      <small class="field-hint">Nivel ideal de stock a mantener</small>
+      @if (form.controls.stockRecomendado.invalid && (form.controls.stockRecomendado.dirty || form.controls.stockRecomendado.touched)) {
+        <small class="field-error">Debe ser mayor o igual a 0</small>
+      }
+    </div>
+  </div>
+
+  <div class="col-der">
+    <fieldset class="fieldset-ingredientes">
+      <legend class="legend-fijos">INGREDIENTES FIJOS (BASE)</legend>
+
+      <div class="ingrediente-search position-relative">
+        <app-buscador
+          [placeholder]="'Buscar insumo...'"
+          [valor]="busqueda()"
+          (busquedaCambiada)="onSearchChanged($event)">
+        </app-buscador>
+
+        @if (sugerencias().length > 0) {
+          <div class="sugerencias-dropdown">
+            @for (sug of sugerencias(); track sug.id) {
+              <button type="button" class="sugerencia-item" (click)="agregarIngrediente(sug)">
+                <span>{{ sug.nombre }}</span>
+                <small>{{ sug.unidadMedida }}</small>
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <div formArrayName="ingredientes" class="ingredientes-container">
+        @if (ingredientesArray.controls.length === 0) {
+          <div class="empty-ingredientes-state">
+            <span class="material-symbols-outlined">restaurant</span>
+            <strong>Sin ingredientes todavía</strong>
+            <p>Agregá al menos un insumo a la receta.</p>
+          </div>
+        }
+        @for (grupo of ingredientesArray.controls; track grupo) {
+          <article [formGroupName]="$index" class="ingredient-row">
+            <div class="ingredient-cell">
+              @if (infoIngrediente(grupo.get('ingredienteId')?.value); as info) {
+                <span class="ingredient-name">{{ info.nombre }}</span>
+                <span class="badge-unidad">{{ info.unidadMedida }}</span>
+              }
+            </div>
+
+            <div class="actions-cell">
+              <button type="button" class="btn-delete" (click)="quitarIngrediente($index)" title="Quitar">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </div>
+
+            <div class="quantity-cell">
+              <div class="quantity-input-row">
+                <div class="quantity-input-group">
+                  <input type="number" formControlName="cantidad" step="0.01" placeholder="0" class="qty-input" />
+                </div>
+
+                <div class="quantity-right-group">
+                  @if (infoIngrediente(grupo.get('ingredienteId')?.value); as info) {
+                    <div class="quantity-presets">
+                      @if (info.unidadMedida.toLowerCase() === 'lt' || info.unidadMedida.toLowerCase() === 'litros') {
+                        <button type="button" class="quantity-preset" (click)="grupo.get('cantidad')?.setValue(0.025)">25 ml</button>
+                        <button type="button" class="quantity-preset" (click)="grupo.get('cantidad')?.setValue(0.05)">50 ml</button>
+                        <button type="button" class="quantity-preset" (click)="grupo.get('cantidad')?.setValue(0.1)">100 ml</button>
+                        <button type="button" class="quantity-preset" (click)="grupo.get('cantidad')?.setValue(0.25)">250 ml</button>
+                        <button type="button" class="quantity-preset" (click)="grupo.get('cantidad')?.setValue(0.5)">500 ml</button>
+                      } @else if (info.unidadMedida.toLowerCase() === 'kg' || info.unidadMedida.toLowerCase() === 'kilogramos') {
+                        <button type="button" class="quantity-preset" (click)="grupo.get('cantidad')?.setValue(0.025)">25 g</button>
+                        <button type="button" class="quantity-preset" (click)="grupo.get('cantidad')?.setValue(0.05)">50 g</button>
+                        <button type="button" class="quantity-preset" (click)="grupo.get('cantidad')?.setValue(0.1)">100 g</button>
+                        <button type="button" class="quantity-preset" (click)="grupo.get('cantidad')?.setValue(0.25)">250 g</button>
+                        <button type="button" class="quantity-preset" (click)="grupo.get('cantidad')?.setValue(0.5)">500 g</button>
+                      } @else {
+                        <button type="button" class="quantity-preset" (click)="grupo.get('cantidad')?.setValue(1)">1</button>
+                        <button type="button" class="quantity-preset" (click)="grupo.get('cantidad')?.setValue(2)">2</button>
+                        <button type="button" class="quantity-preset" (click)="grupo.get('cantidad')?.setValue(4)">4</button>
+                        <button type="button" class="quantity-preset" (click)="grupo.get('cantidad')?.setValue(6)">6</button>
+                        <button type="button" class="quantity-preset" (click)="grupo.get('cantidad')?.setValue(8)">8</button>
+                        <button type="button" class="quantity-preset" (click)="grupo.get('cantidad')?.setValue(10)">10</button>
+                      }
+                    </div>
+                  }
+                  @if (infoIngrediente(grupo.get('ingredienteId')?.value); as info) {
+                    @let qty = grupo.get('cantidad')?.value || 0;
+                    <span class="subtotal-value">${{ (qty * info.costoUnitario) | number:'1.2-2' }}</span>
+                  }
+                </div>
+              </div>
+
+              <div class="quantity-meta-row">
+                <div class="quantity-meta-left">
+                  @if (infoIngrediente(grupo.get('ingredienteId')?.value); as info) {
+                    @let qty = grupo.get('cantidad')?.value || 0;
+                    @if (qty > 0 && (info.unidadMedida.toLowerCase() === 'lt' || info.unidadMedida.toLowerCase() === 'litros')) {
+                      <strong class="quantity-equivalence">Equivale a {{ (qty * 1000) | number:'1.0-2' }} ml</strong>
+                    } @else if (qty > 0 && (info.unidadMedida.toLowerCase() === 'kg' || info.unidadMedida.toLowerCase() === 'kilogramos')) {
+                      <strong class="quantity-equivalence">Equivale a {{ (qty * 1000) | number:'1.0-2' }} g</strong>
+                    }
+                  }
+                </div>
+                <div class="quantity-cost-info">
+                  @if (infoIngrediente(grupo.get('ingredienteId')?.value); as info) {
+                    <span>Costo: <strong>${{ info.costoUnitario | number:'1.2-2' }}</strong>/{{ info.unidadMedida }}</span>
+                  }
+                </div>
+              </div>
+            </div>
+
+            @if (submitted() && grupo.invalid) {
+              <small class="field-error">Seleccioná un insumo y una cantidad</small>
+            }
+          </article>
+        }
+      </div>
+
+    </fieldset>
+  </div>
+
+  @if ((submitted() && ingredientesArray.hasError('minLengthIng')) || errorDuplicado() || errorGuardar()) {
+    <div class="form-error-banner">
+      @if (errorGuardar(); as err) {
+        <p>{{ err }}</p>
+      }
+      @if (submitted() && ingredientesArray.hasError('minLengthIng')) {
+        <p>Agregá al menos un ingrediente a la receta.</p>
+      }
+      @if (errorDuplicado(); as err) {
+        <p>{{ err }}</p>
+      }
+    </div>
+  }
+
+  <div class="acciones">
+    <button type="button" class="btn-cancel" (click)="cancelar.emit()">Cancelar</button>
+    <button type="submit" class="btn-submit" [disabled]="form.invalid || creando()">
+      @if (creando()) {
+        Guardando...
+      } @else {
+        {{ editarItem() ? 'Guardar cambios' : 'Crear Mise and Place' }}
+      }
+    </button>
+  </div>
+</form>

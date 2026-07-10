@@ -1,0 +1,63 @@
+<div class="pago-wrapper">
+  <div class="pago-card text-center">
+    @if (pagoExitoso()) {
+      <div class="check-animado">
+        @if (esperandoConfirmacion()) {
+          <span class="material-symbols-outlined check-icon" [style.color]="configuracionVisualState.colorPrimario()">schedule</span>
+        } @else {
+          <span class="material-symbols-outlined check-icon" [style.color]="configuracionVisualState.colorPrimario()">check_circle</span>
+        }
+      </div>
+
+      @if (esperandoConfirmacion()) {
+        <h2 class="pago-titulo">{{ tituloEspera() }}</h2>
+        <p class="pago-subtitulo">{{ mensajeEspera() }}</p>
+        <div class="spinner mt-4" style="width: 2rem; height: 2rem; border-width: 2px;"></div>
+      } @else {
+        <h2 class="pago-titulo">¡Tu pago en {{ configuracionVisualState.nombreLocal() || 'nuestro local' }} fue un éxito!</h2>
+        <p class="pago-subtitulo">Tu pago fue procesado correctamente y de forma segura.</p>
+      }
+
+      <div class="pago-acciones mt-4">
+        @if (!esperandoConfirmacion()) {
+          <app-boton-comensal
+            [backgroundColor]="configuracionVisualState.colorPrimario()"
+            [textColor]="'#FFFFFF'"
+            (clicked)="puntuarPlatos()">
+            <div class="d-flex align-items-center justify-content-center gap-2">
+              <span class="material-symbols-outlined">star</span>
+              <span>Calificar experiencia</span>
+            </div>
+          </app-boton-comensal>
+          
+          <app-boton-comensal
+            [backgroundColor]="'#ffffff'"
+            [textColor]="configuracionVisualState.colorPrimario()!"
+            [tieneBorde]="true"
+            (clicked)="volverInicio()">
+            Volver al inicio
+          </app-boton-comensal>
+        } @else {
+          <p class="pago-subtitulo mb-3" style="font-size: 0.9rem;">{{ subtituloConfirmacionPendiente() }}</p>
+        }
+      </div>
+    } @else if (error()) {
+      <div class="error-animado">
+        <span class="material-symbols-outlined error-icon">cancel</span>
+      </div>
+      <h2 class="pago-titulo text-danger">Error en el pago</h2>
+      <p class="pago-subtitulo">El pago no pudo completarse. Por favor, volvé a intentarlo.</p>
+      <div class="pago-acciones mt-4">
+        <app-boton-comensal
+          [backgroundColor]="configuracionVisualState.colorPrimario()"
+          [textColor]="'#FFFFFF'"
+          (clicked)="volverInicio()">
+          Volver al inicio
+        </app-boton-comensal>
+      </div>
+    } @else {
+      <div class="spinner"></div>
+      <p class="pago-subtitulo mt-3">Verificando tu pago...</p>
+    }
+  </div>
+</div>

@@ -1,0 +1,25 @@
+
+<div class="layout-wrapper" [class.sidebar-collapsed]="mainContentCollapsed()">
+  
+  <app-sidebar 
+    #sidebarRef
+    [currentRole]="currentRole()" 
+    [userProfile]="userProfile()"
+    (onLogout)="logout()">
+  </app-sidebar>
+
+  <main class="main-content">
+    <!-- Mobile hamburger button -->
+    @if (sidebarRef.isMobile()) {
+      <button class="mobile-menu-btn" (click)="sidebarRef.toggleMobile()" aria-label="Abrir menú">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+    }
+    <router-outlet></router-outlet>
+  </main>
+  
+</div>
+
+

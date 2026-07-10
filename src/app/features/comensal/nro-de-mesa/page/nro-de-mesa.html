@@ -1,0 +1,40 @@
+
+<app-header-comensal [showBack]="true" backRoute="/comensal/escanear" />
+
+@if (mesaState.cargando()) {
+  <div class="mesa-card">
+    <p class="mesa-text">Cargando información de la mesa...</p>
+  </div>
+} @else if (mesaState.tieneError()) {
+  <div class="mesa-card">
+    <h1 class="mesa-title">Mesa no disponible</h1>
+    <p class="mesa-text">{{ mesaState.error() }}</p>
+  </div>
+} @else {
+  <div class="mesa-card">
+
+    <h1 class="mesa-title">
+      Confirmar mesa
+    </h1>
+
+    <p class="mesa-text">
+      Usted va a ocupar la mesa número:
+    </p>
+
+    <div class="mesa-number">
+      {{ mesaState.numeroMesa() }}
+    </div>
+
+    <div class="mesa-buttons">
+     
+
+      <app-boton-comensal
+        [backgroundColor]="configuracionVisualState.colorPrimario()"
+        [textColor]="'#FFFFFF'"
+        label="Continuar"
+        (clicked)="irACantidadPersonas()">
+      </app-boton-comensal>
+    </div>
+
+  </div>
+}

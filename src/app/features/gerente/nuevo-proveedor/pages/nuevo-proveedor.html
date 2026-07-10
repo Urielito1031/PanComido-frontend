@@ -1,0 +1,199 @@
+<div class="nuevo-proveedor-page p-4">
+  <div class="nuevo-proveedor-shell">
+    <header class="page-heading">
+      <div>
+        <p class="detail-kicker mb-1">Alta de proveedor</p>
+        <h1 class="page-title mb-0">Nuevo proveedor</h1>
+        <p class="page-subtitle mb-0">Registrá sus datos y asociá categorías.</p>
+      </div>
+
+      <button type="button" class="soft-link-btn" (click)="cancelar()">
+        <span class="material-symbols-outlined">arrow_back</span>
+        Volver
+      </button>
+    </header>
+
+    <div class="creation-layout">
+      <form class="panel-card proveedor-form" [formGroup]="proveedorForm" (ngSubmit)="guardarProveedor()">
+        <section class="form-section">
+          <div class="section-heading">
+            <span class="section-icon material-symbols-outlined">storefront</span>
+            <div>
+              <h2 class="section-title mb-0">Datos del proveedor</h2>
+              <p class="section-subtitle mb-0">Información visible en la grilla y en los pedidos.</p>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <label class="field-group field-span-2">
+              <span>Nombre <strong class="field-required">*</strong></span>
+              <input 
+                type="text" 
+                class="form-control custom-input" 
+                [class.is-invalid]="proveedorForm.get('nombre')?.touched && proveedorForm.get('nombre')?.invalid"
+                placeholder="Ej. Distribuidora Central" 
+                formControlName="nombre">
+              @if (proveedorForm.get('nombre')?.touched && proveedorForm.get('nombre')?.hasError('required')) {
+                <span class="error-text">El nombre es obligatorio.</span>
+              }
+              @if (proveedorForm.get('nombre')?.touched && proveedorForm.get('nombre')?.hasError('minlength')) {
+                <span class="error-text">El nombre debe tener al menos 3 caracteres.</span>
+              }
+              @if (proveedorForm.get('nombre')?.touched && proveedorForm.get('nombre')?.hasError('maxlength')) {
+                <span class="error-text">El nombre no puede superar 80 caracteres.</span>
+              }
+            </label>
+
+            <label class="field-group field-span-2">
+              <span>WhatsApp <strong class="field-required">*</strong></span>
+              <input
+                type="text"
+                class="form-control custom-input"
+                [class.is-invalid]="proveedorForm.get('telefono')?.touched && proveedorForm.get('telefono')?.invalid"
+                placeholder="Ej. 1144552255"
+                formControlName="telefono">
+              <small class="field-helper">Ingresá el número sin guiones ni espacios. Formatos válidos: 1144552255 o 5491144885599.</small>
+              @if (proveedorForm.get('telefono')?.touched && proveedorForm.get('telefono')?.hasError('required')) {
+                <span class="error-text">El WhatsApp es obligatorio.</span>
+              }
+              @if (proveedorForm.get('telefono')?.touched && proveedorForm.get('telefono')?.hasError('pattern')) {
+                <span class="error-text">Formato de teléfono inválido.</span>
+              }
+            </label>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <div class="section-heading compact">
+            <span class="section-icon material-symbols-outlined">category</span>
+            <div>
+              <h2 class="section-title mb-0">Categorías <strong class="field-required">*</strong></h2>
+              <p class="section-subtitle mb-0">Ayudan a filtrar proveedores y sugerir insumos en pedidos.</p>
+            </div>
+          </div>
+
+          @if (errorCategorias()) {
+            <div class="category-error">
+              <span class="error-text">{{ errorCategorias() }}</span>
+              <button type="button" class="inline-action-btn" (click)="reintentarCategorias()">Reintentar</button>
+            </div>
+          }
+
+          @if (cargandoCategorias()) {
+            <div class="category-loading">
+              <span class="material-symbols-outlined">sync</span>
+              Cargando categorias...
+            </div>
+          } @else if (categoriasDisponibles().length > 0) {
+            @if (categoriasIngredienteFiltradas().length > 0) {
+              <div class="category-group">
+                <span class="category-group-title">Ingredientes</span>
+                <ul class="category-list">
+                  @for (cat of categoriasIngredienteFiltradas(); track cat.id) {
+                    <li>
+                      <label class="category-checkbox">
+                        <input
+                          type="checkbox"
+                          [checked]="categoriaSeleccionada(cat.id)"
+                          (change)="toggleCategoria(cat)">
+                        <span class="checkbox-pill">{{ cat.descripcion }}</span>
+                      </label>
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+            @if (categoriasBebidaFiltradas().length > 0) {
+              <div class="category-group">
+                <span class="category-group-title">Bebidas</span>
+                <ul class="category-list">
+                  @for (cat of categoriasBebidaFiltradas(); track cat.id) {
+                    <li>
+                      <label class="category-checkbox">
+                        <input
+                          type="checkbox"
+                          [checked]="categoriaSeleccionada(cat.id)"
+                          (change)="toggleCategoria(cat)">
+                        <span class="checkbox-pill">{{ cat.descripcion }}</span>
+                      </label>
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+          } @else if (!errorCategorias()) {
+            <span class="empty-text">No hay categorias disponibles para asociar.</span>
+          }
+
+          @if (categoriasInvalidas()) {
+            <span class="error-text">Debes seleccionar al menos una categoría.</span>
+          }
+        </section>
+
+        <div class="panel-footer-actions pedido-actions">
+          <div>
+            <div class="form-hint">Los campos marcados con * son obligatorios.</div>
+            @if (errorGuardado()) {
+              <span class="error-text">{{ errorGuardado() }}</span>
+            }
+          </div>
+
+          <div class="footer-buttons">
+            <app-boton
+              class="cancel-btn"
+              label="Cancelar"
+              variante="outline"
+              tamanio="md"
+              (clicked)="cancelar()">
+            </app-boton>
+            <app-boton
+              [label]="guardando() ? 'Creando...' : 'Crear proveedor'"
+              variante="success"
+              tamanio="md"
+              type="submit"
+              [disabled]="!puedeGuardar()">
+            </app-boton>
+          </div>
+        </div>
+      </form>
+
+      <aside class="side-panel">
+
+        <section class="summary-card">
+          <div class="summary-heading">
+            <span class="summary-icon material-symbols-outlined">fact_check</span>
+            <div>
+              <h2 class="section-title mb-0">Resumen</h2>
+              <p class="section-subtitle mb-0">Vista previa antes de crear.</p>
+            </div>
+          </div>
+
+          <div class="provider-preview" [class.ready]="resumenListo()">
+            <span class="preview-kicker">Proveedor</span>
+            <strong>{{ nombrePreview() }}</strong>
+            <small>{{ telefonoPreview() }}</small>
+          </div>
+
+          <div class="summary-block">
+            <span class="summary-label">Categorias</span>
+            @if (categorias().length > 0) {
+              <div class="summary-category-list">
+                @for (categoria of categorias(); track categoria) {
+                  <span>{{ categoria }}</span>
+                }
+              </div>
+            } @else {
+              <small class="empty-text">Sin categorias seleccionadas.</small>
+            }
+          </div>
+
+          <ul class="summary-list">
+            <li [class.done]="proveedorForm.get('nombre')?.valid">Nombre cargado</li>
+            <li [class.done]="telefonoRevisado()">WhatsApp revisado</li>
+            <li [class.done]="categoriaIds().length > 0">Categorias seleccionadas</li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+  </div>
+</div>
