@@ -14,6 +14,7 @@ export class FilaVirtualState {
   turnoId = this.#turnoId.asReadonly();
   estado = this.#estado.asReadonly();
   mesaListaParaOcupar = this.hub.mesaListaParaOcupar;
+  turnoExpirado = this.hub.turnoExpirado;
 
   constructor() {
     const savedTurnoId = sessionStorage.getItem('filaVirtualTurnoId');
@@ -42,6 +43,10 @@ export class FilaVirtualState {
         this.#estado.set(res);
         sessionStorage.setItem('filaVirtualTurnoId', String(res.turnoId));
         sessionStorage.setItem('filaVirtualEstado', JSON.stringify(res));
+
+        if (res.mesaLista && res.mesaAsignadaId) {
+          this.setMesaAsignadaDirecta(res.mesaAsignadaId, res.minutosRestantesParaOcupar || 7);
+        }
       })
     );
   }
