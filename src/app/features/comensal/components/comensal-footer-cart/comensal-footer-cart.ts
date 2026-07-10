@@ -1,8 +1,9 @@
-import { Component, input, output, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, input, output, computed, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LlamarAlMozo } from '../llamar-al-mozo/llamar-al-mozo';
 import { FilaVirtualState } from '../../services/fila-virtual.state';
 import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -14,6 +15,10 @@ import { ConfiguracionVisualState } from '../../services/visual/configuracion-vi
 })
 export class ComensalFooterCart {
   filaVirtualState = inject(FilaVirtualState);
+  private auth = inject(AuthService);
+
+  esMozo = computed(() => this.auth.rol() === 'Mozo');
+
   cantidadItems = input.required<number>();
   total = input.required<number>();
   mesaId = input.required<number>();

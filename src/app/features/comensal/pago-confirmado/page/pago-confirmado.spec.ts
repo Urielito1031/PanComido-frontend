@@ -35,21 +35,11 @@ describe('PagoConfirmado', () => {
     fixture.detectChanges();
   }
 
-  describe('cuando status = approved', () => {
-    beforeEach(() => {
+  describe('cuando status = approved (Mercado Pago)', () => {
+    it('deberia redirigir directo a la encuesta sin mostrar esta pantalla', () => {
       crearComponente({ status: 'approved' });
-    });
 
-    it('deberia marcar pago como exitoso y no efectivo', () => {
-      expect(component.pagoExitoso()).toBe(true);
-      expect(component.esEfectivo()).toBe(false);
-    });
-
-    it('deberia mostrar el mensaje de exito en el template', () => {
-      const texto = fixture.nativeElement.textContent;
-      expect(texto).toContain('Tu pago en');
-      expect(texto).toContain('fue un éxito');
-      expect(texto).toContain('Tu pago fue procesado correctamente');
+      expect(routerMock.navigate).toHaveBeenCalledWith(['/comensal/encuesta']);
     });
   });
 
@@ -77,13 +67,47 @@ describe('PagoConfirmado', () => {
 
     it('deberia marcar pago como exitoso en efectivo', () => {
       expect(component.pagoExitoso()).toBe(true);
-      expect(component.esEfectivo()).toBe(true);
+      expect(component.metodoPago()).toBe('efectivo');
     });
 
     it('deberia mostrar el mensaje de efectivo en el template', () => {
       const texto = fixture.nativeElement.textContent;
       expect(texto).toContain('El mozo fue notificado');
-      expect(texto).toContain('Se acercará a la brevedad');
+      expect(texto).toContain('cobro en efectivo');
+    });
+  });
+
+  describe('cuando metodo = tarjeta', () => {
+    beforeEach(() => {
+      crearComponente({ metodo: 'tarjeta' });
+    });
+
+    it('deberia marcar pago como exitoso en tarjeta', () => {
+      expect(component.pagoExitoso()).toBe(true);
+      expect(component.metodoPago()).toBe('tarjeta');
+    });
+
+    it('deberia mostrar el mensaje de tarjeta en el template', () => {
+      const texto = fixture.nativeElement.textContent;
+      expect(texto).toContain('El mozo fue notificado');
+      expect(texto).toContain('cobro con tarjeta');
+    });
+  });
+
+  describe('cuando metodo = transferencia', () => {
+    beforeEach(() => {
+      crearComponente({ metodo: 'transferencia' });
+    });
+
+    it('deberia marcar pago como exitoso en transferencia', () => {
+      expect(component.pagoExitoso()).toBe(true);
+      expect(component.metodoPago()).toBe('transferencia');
+    });
+
+    it('deberia mostrar el mensaje de transferencia en el template', () => {
+      const texto = fixture.nativeElement.textContent;
+      expect(texto).toContain('El mozo fue notificado');
+      expect(texto).toContain('recepción de tu transferencia');
     });
   });
 

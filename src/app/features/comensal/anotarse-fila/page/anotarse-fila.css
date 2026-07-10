@@ -22,7 +22,7 @@
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background-color: #1f5a37; /* Dark green */
+  background-color: var(--color-primario, #1f5a37);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -38,7 +38,7 @@
 }
 
 .badge-verde {
-  background-color: #268545;
+  background-color: var(--color-primario, #268545);
   color: white;
   font-weight: 700;
   font-size: 16px;
@@ -89,7 +89,8 @@
 }
 
 .grilla-cantidades button.activo {
-  background-color: #fbe0b5;
+  background-color: var(--color-primario, #fbe0b5);
+  color: #fff;
 }
 
 .input-cantidad {
@@ -124,7 +125,7 @@
 .btn-anotarme {
   width: 100%;
   padding: 16px;
-  background-color: #268545; /* Verde fuerte de la app */
+  background-color: var(--color-primario, #268545);
   color: white;
   border: none;
   border-radius: 8px;

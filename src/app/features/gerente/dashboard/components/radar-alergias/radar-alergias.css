@@ -69,21 +69,6 @@
   font-weight: 800;
 }
 
-.progress-bar-container {
-  background: #f1f5f9;
-  border-radius: 999px;
-  height: 8px;
-  overflow: hidden;
-  margin-bottom: 0.45rem;
-}
-
-.progress-bar {
-  background: #dd2b3d;
-  height: 100%;
-  border-radius: 999px;
-  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
 .item-footer {
   display: flex;
   justify-content: space-between;
@@ -158,11 +143,6 @@
 
 .large-rows .exclusion-count {
   font-size: 1.05rem;
-}
-
-.large-rows .progress-bar-container {
-  height: 10px;
-  margin-bottom: 0.6rem;
 }
 
 .large-rows .item-footer {

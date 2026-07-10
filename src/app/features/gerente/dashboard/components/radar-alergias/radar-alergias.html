@@ -20,11 +20,6 @@
           <span class="exclusion-count">{{ item.cantidadExclusiones }} veces removido</span>
         </div>
         
-        <!-- Barra de progreso visual -->
-        <div class="progress-bar-container">
-          <div class="progress-bar" [style.width]="item.tasaExclusionPlatoMasExcluido"></div>
-        </div>
-
         <div class="item-footer">
           <span>Crítico en: <strong>{{ item.platoMasExcluido }}</strong></span>
           <span class="tasa-badge" [ngClass]="obtenerTonoTasa(item.tasaExclusionPlatoMasExcluido)">

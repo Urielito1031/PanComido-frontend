@@ -94,9 +94,9 @@
   transform: translateY(-1px);
 }
 
-.resumen-pill.resumen-stock .material-symbols-outlined { color: #a8041a; }
-.resumen-pill.resumen-vencimiento .material-symbols-outlined { color: #b8860b; }
-.resumen-pill.resumen-ia .material-symbols-outlined { color: var(--ai-accent); }
+.resumen-pill.resumen-stock .material-symbols-outlined { color: var(--primary-teal); }
+.resumen-pill.resumen-vencimiento .material-symbols-outlined { color: var(--primary-teal); }
+.resumen-pill.resumen-ia .material-symbols-outlined { color: var(--primary-teal); }
 
 /* ─── Sections ─── */
 .avisos-sections {
@@ -169,7 +169,7 @@
 .accordion-subtitle {
   display: block;
   font-size: 0.85rem;
-  color: #64748b;
+  color: #334155;
   margin-top: 2px;
 }
 
@@ -223,7 +223,7 @@
 }
 
 .accordion-empty small {
-  color: #64748b;
+  color: #334155;
   font-size: 0.82rem;
   font-weight: 550;
 }
@@ -320,14 +320,14 @@
 
 .aviso-item-sub {
   display: block;
-  color: #475569;
+  color: #334155;
   font-size: 0.78rem;
   font-weight: 550;
 }
 
 .aviso-item-info {
   display: block;
-  color: #94a3b8;
+  color: #64748b;
   font-size: 0.74rem;
   font-weight: 500;
 }
@@ -514,11 +514,11 @@
 .sugerencia-card-sub {
   margin: 2px 0 0 0;
   font-size: 0.85rem;
-  color: #64748b;
+  color: #334155;
 }
 
 .sugerencia-card-desc {
-  color: #475569;
+  color: #1e293b;
   font-size: 0.95rem;
   line-height: 1.5;
   margin-bottom: 24px;
@@ -529,7 +529,6 @@
 .sugerencia-card.ia {
   background:
     linear-gradient(90deg, rgba(188, 0, 18, 0.55) 0, rgba(188, 0, 18, 0.55) 3px, transparent 3px),
-    repeating-linear-gradient(135deg, rgba(15, 23, 42, 0.025) 0 1px, transparent 1px 16px),
     linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.94)) !important;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -537,23 +536,6 @@
   box-shadow: 0 16px 38px rgba(15, 23, 42, 0.08) !important;
   position: relative;
   overflow: hidden;
-}
-
-.sugerencia-card.ia::before {
-  content: "IA";
-  position: absolute;
-  right: 24px;
-  top: 18px;
-  color: rgba(15, 23, 42, 0.035);
-  font-size: 5rem;
-  font-weight: 900;
-  line-height: 1;
-  pointer-events: none;
-}
-
-.sugerencia-card.ia > * {
-  position: relative;
-  z-index: 1;
 }
 
 .sugerencia-preview-panel {
@@ -683,6 +665,10 @@
 }
 ::ng-deep .avisos-page .btn-success * {
   color: #172c1c !important;
+}
+::ng-deep .avisos-page .offcanvas-body .btn-success,
+::ng-deep .avisos-page .offcanvas-body .btn-success * {
+  color: #ffffff !important;
 }
 
 ::ng-deep .avisos-page .btn-outline {

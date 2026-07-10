@@ -44,9 +44,9 @@
 
     <span class="text-muted fw-medium" style="font-size: 0.85rem;">Cobrar pedido con:</span>
     <div class="d-flex gap-2">
-      <app-boton label="Efectivo" variante="orange" tamanio="sm" class="flex-fill" (clicked)="cobrar.emit(metodoPagoId.Efectivo)" />
-      <app-boton label="Tarjeta" variante="orange" tamanio="sm" class="flex-fill" (clicked)="cobrar.emit(metodoPagoId.Tarjeta)" />
-      <app-boton label="Transferencia" variante="orange" tamanio="sm" class="flex-fill" (clicked)="cobrar.emit(metodoPagoId.Transferencia)" />
+      <app-boton label="Efectivo" variante="orange" tamanio="sm" class="metodo-pago-btn" (clicked)="cobrar.emit(metodoPagoId.Efectivo)" />
+      <app-boton label="Tarjeta" variante="orange" tamanio="sm" class="metodo-pago-btn" (clicked)="cobrar.emit(metodoPagoId.Tarjeta)" />
+      <app-boton label="Transferencia" variante="orange" tamanio="sm" class="metodo-pago-btn" (clicked)="cobrar.emit(metodoPagoId.Transferencia)" />
     </div>
     <app-boton label="Cerrar mesa" variante="danger" tamanio="md" class="w-100" (clicked)="cerrarMesa.emit()" />
   </div>

@@ -2,24 +2,24 @@
   <div class="pago-card text-center">
     @if (pagoExitoso()) {
       <div class="check-animado">
-        @if (esEfectivo() && estado()?.estadoUI !== 'Finalizada') {
+        @if (esperandoConfirmacion()) {
           <span class="material-symbols-outlined check-icon" [style.color]="configuracionVisualState.colorPrimario()">schedule</span>
         } @else {
           <span class="material-symbols-outlined check-icon" [style.color]="configuracionVisualState.colorPrimario()">check_circle</span>
         }
       </div>
-      
-      @if (esEfectivo() && estado()?.estadoUI !== 'Finalizada') {
+
+      @if (esperandoConfirmacion()) {
         <h2 class="pago-titulo">¡El mozo fue notificado!</h2>
-        <p class="pago-subtitulo">Se acercará a la brevedad a tu mesa para realizar el cobro en efectivo.</p>
+        <p class="pago-subtitulo">{{ mensajeEspera() }}</p>
         <div class="spinner mt-4" style="width: 2rem; height: 2rem; border-width: 2px;"></div>
       } @else {
         <h2 class="pago-titulo">¡Tu pago en {{ configuracionVisualState.nombreLocal() || 'nuestro local' }} fue un éxito!</h2>
         <p class="pago-subtitulo">Tu pago fue procesado correctamente y de forma segura.</p>
       }
-      
+
       <div class="pago-acciones mt-4">
-        @if (!esEfectivo() || estado()?.estadoUI === 'Finalizada') {
+        @if (!esperandoConfirmacion()) {
           <app-boton-comensal
             [backgroundColor]="configuracionVisualState.colorPrimario()"
             [textColor]="'#FFFFFF'"

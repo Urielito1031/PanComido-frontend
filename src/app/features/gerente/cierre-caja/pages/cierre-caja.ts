@@ -40,6 +40,13 @@ export class CierreCajaComponent implements OnInit {
     this.state.setConteoCaja(valor || 0);
   }
 
+  onConteoCajaFocus(event: FocusEvent): void {
+    const input = event.target as HTMLInputElement;
+    if (input.value === '0') {
+      input.value = '';
+    }
+  }
+
   confirmarCierre(): void {
     this.state.confirmarCierre();
   }

@@ -1,5 +1,4 @@
 import { Component, inject, computed, ViewChild, ChangeDetectionStrategy, OnInit, OnDestroy } from '@angular/core';
-import { AuthService } from '../../../../core/services/auth.service';
 import { DecimalPipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { ConfiguracionVisualState } from '../../services/visual/configuracion-visual-state';
@@ -33,9 +32,6 @@ export class DetallePedido implements OnInit, OnDestroy {
 
   configuracionVisualState = inject(ConfiguracionVisualState);
   filaVirtualState = inject(FilaVirtualState);
-  private auth = inject(AuthService);
-
-  esMozo = computed(() => this.auth.rol() === 'Mozo');
 
 
 
@@ -69,16 +65,8 @@ export class DetallePedido implements OnInit, OnDestroy {
 
 
 
-  volverACarta() {
-    this.router.navigate(['/comensal/ver-carta']);
-  }
-
   volver(): void {
     this.router.navigate(['/comensal/ver-carta']);
-  }
-
-  volverAMesas(): void {
-    this.router.navigateByUrl('/staff/mozo/mis-mesas');
   }
 
   verEstado(): void {

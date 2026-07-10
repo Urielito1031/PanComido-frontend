@@ -156,9 +156,10 @@ export class ComandaState {
         },
         error: (err) => {
           const msg: string = err.error?.error ?? '';
-          const stockMatch = msg.match(/preparar \d+x (.+?) \(x\d+\)/);
+          const stockMatch = msg.match(/preparar (\d+)x (.+)/);
           if (stockMatch) {
-            this.#error.set(`No hay stock suficiente para preparar ${stockMatch[1]}. Intentá con menos unidades o elegí otro plato.`);
+            const [, cantidad, nombrePlato] = stockMatch;
+            this.#error.set(`${nombrePlato} no cuenta con stock suficiente para preparar ${cantidad} unidad${cantidad === '1' ? '' : 'es'}. Intentá con menos unidades o elegí otro plato.`);
           } else {
             this.#error.set('Error al confirmar el pedido. Intenta nuevamente.');
           }

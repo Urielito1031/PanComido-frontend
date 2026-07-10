@@ -30,6 +30,7 @@ export class ComandaPage {
   restauranteId = this.auth.restauranteId;
   notificacionLlamado = signal<number | null>(null);
   notificacionAceptada = signal<number | null>(null);
+  notificacionError = signal<string | null>(null);
 
   readonly comandosAceptar = [
     'mesa [número] aceptar',
@@ -109,6 +110,11 @@ export class ComandaPage {
       next: () => {
         this.notificacionLlamado.set(numeroDeMesa);
         setTimeout(() => this.notificacionLlamado.set(null), 7000);
+      },
+      error: (e) => {
+        const mensaje = e.error?.error ?? `Mesa ${numeroDeMesa}: esta mesa no tiene mozo asignado`;
+        this.notificacionError.set(mensaje);
+        setTimeout(() => this.notificacionError.set(null), 7000);
       }
     });
   }

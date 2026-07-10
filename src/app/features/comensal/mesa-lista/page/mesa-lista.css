@@ -18,7 +18,7 @@
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background-color: #1f5a37;
+  background-color: var(--color-primario, #1f5a37);
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -50,7 +50,7 @@
 }
 
 .badge-verde {
-  background-color: #268545;
+  background-color: var(--color-primario, #268545);
   color: white;
   font-weight: 700;
   font-size: 16px;
@@ -95,7 +95,7 @@
 }
 
 .alerta-verde {
-  background-color: #268545;
+  background-color: var(--color-primario, #268545);
   color: white;
   font-weight: bold;
   font-size: 15px;

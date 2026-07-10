@@ -306,12 +306,6 @@
                 </div>
               </div>
               <div class="aviso-item-actions">
-                <app-boton variante="success" tamanio="sm" (clicked)="$event.stopPropagation(); state.avisarCocina(a.id)">
-                  <div class="d-flex align-items-center gap-1 text-white">
-                    <span class="material-symbols-outlined" style="font-size: 1rem;">send</span>
-                    <span class="fw-bold">Avisar a cocina</span>
-                  </div>
-                </app-boton>
               </div>
             </div>
           </div>
@@ -409,13 +403,7 @@
         <app-boton variante="outline" tamanio="md" (clicked)="cerrarModalVencimiento()">
           <div class="fw-bold">Cerrar</div>
         </app-boton>
-        <app-boton variante="success" tamanio="md"
-          (clicked)="state.avisarCocina(vencimientoSeleccionado()!.id); cerrarModalVencimiento()">
-          <div class="d-flex align-items-center gap-1 text-white">
-            <span class="material-symbols-outlined fs-6">send</span>
-            <span class="fw-bold">Avisar a cocina</span>
-          </div>
-        </app-boton>
+
       </div>
     </div>
   </div>
@@ -470,7 +458,7 @@
         </div>
 
         <app-boton variante="success" tamanio="md" (clicked)="confirmarPedidoStock()">
-          <div class="w-100 text-center fw-bold text-dark">Crear pedido pendiente</div>
+          <div class="w-100 text-center fw-bold text-white">Crear pedido pendiente</div>
         </app-boton>
       </div>
       }

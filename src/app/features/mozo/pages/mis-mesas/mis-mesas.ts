@@ -162,6 +162,7 @@ export class MisMesasPage {
       mesaId,
     });
     sessionStorage.setItem('cantidadPersonas', String(cantidadComensales));
+    sessionStorage.setItem('nombreComensal', 'Mozo');
 
     this.router.navigateByUrl('/comensal/ver-carta');
   }
