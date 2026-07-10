@@ -300,13 +300,18 @@ h1 {
   justify-content: center;
   gap: 0.35rem;
   min-height: 34px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  border: 1px solid var(--primary-orange);
   border-radius: 8px;
   padding: 0.35rem 0.65rem;
   background: #ffffff;
-  color: #a8041a;
+  color: var(--primary-orange);
   font-weight: 750;
   cursor: pointer;
+}
+
+.attention-action:hover {
+  background: var(--primary-orange);
+  color: #ffffff;
 }
 
 .attention-action .material-symbols-outlined {

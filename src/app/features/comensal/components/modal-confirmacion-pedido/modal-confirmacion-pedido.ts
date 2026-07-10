@@ -26,7 +26,7 @@ export class ModalConfirmacionPedido {
   }
 
   ocultar(): void {
-    const huboExito = this.estadoPedido() !== null;
+    const huboExito = this.estadoPedido() !== null && !this.error();
     this.isVisible.set(false);
     if (huboExito) {
       this.router.navigate(['/comensal/estado-pedido']);

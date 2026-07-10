@@ -20,11 +20,12 @@ import { ArsCurrencyPipe } from '../../../../shared/pipes/ars-currency.pipe';
 import { PriceNoteComponent } from '../../../../shared/ui/price-note/price-note';
 import { buildSmartQuantityPresets, QuantityPreset } from '../../../../shared/utils/quantity-presets';
 import { AgregarInsumoPedidoComponent } from '../components/agregar-insumo-pedido/agregar-insumo-pedido';
+import { RecepcionPedidoModalComponent } from '../components/recepcion-pedido-modal/recepcion-pedido-modal';
 
 @Component({
   selector: 'app-ver-proveedores',
   standalone: true,
-  imports: [DatePipe, FormsModule, ReactiveFormsModule, FontAwesomeModule, Buscador, Boton, PageToolbar, GlassCard, ProveedorListComponent, RouterModule, ArsCurrencyPipe, PriceNoteComponent, AgregarInsumoPedidoComponent],
+  imports: [DatePipe, FormsModule, ReactiveFormsModule, FontAwesomeModule, Buscador, Boton, PageToolbar, GlassCard, ProveedorListComponent, RouterModule, ArsCurrencyPipe, PriceNoteComponent, AgregarInsumoPedidoComponent, RecepcionPedidoModalComponent],
   templateUrl: './ver-proveedores.html',
   styleUrls: ['./ver-proveedores.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -192,6 +193,11 @@ export class VerProveedoresComponent implements OnInit {
     return this.state.categoriasInsumo()
       .filter(categoria => nombres.has(categoria.descripcion.toLowerCase().trim()))
       .map(categoria => categoria.id);
+  }
+
+  previsualizarRecepcion(event: MouseEvent, pedido: PedidoProveedor): void {
+    event.stopPropagation();
+    this.state.previsualizarRecepcion(pedido);
   }
 
   irARealizarPedidoSugeridoGeneral(): void {

@@ -24,7 +24,7 @@ describe('MesaState', () => {
       notificacion: signal<{mensaje: string, tipo: string} | null>(null),
       cargarMesas: vi.fn(),
       seleccionarMesa: vi.fn(),
-      ocuparMesa: vi.fn(),
+      ocuparMesa: vi.fn(() => of({} as any)),
       cambiarEstadoMesa: vi.fn(),
       mostrarNotificacion: vi.fn(),
       setMesas: vi.fn((mesas) => mesaLecturaStateMock.mesas.set(mesas)),

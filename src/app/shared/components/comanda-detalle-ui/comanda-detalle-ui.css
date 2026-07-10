@@ -21,3 +21,13 @@
   background-color: #17a2b8;
   color: white;
 }
+
+.metodo-pago-btn {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+::ng-deep .metodo-pago-btn .btn,
+::ng-deep .w-100 .btn {
+  width: 100%;
+}

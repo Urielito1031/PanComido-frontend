@@ -154,7 +154,7 @@ export class PagoCheckout implements OnInit, OnDestroy {
         next: () => {
           this.metodoCargando.set(null);
           this.pagoSolicitado.set(true);
-          this.router.navigate(['/comensal/pago-confirmado']);
+          this.router.navigate(['/comensal/pago-confirmado'], { queryParams: { metodo: metodoCargandoValor } });
         },
         error: (err) => {
           this.metodoCargando.set(null);
@@ -212,7 +212,7 @@ export class PagoCheckout implements OnInit, OnDestroy {
           this.confirmandoTransferencia.set(false);
           this.pagoSolicitado.set(true);
           modal.cerrar();
-          this.router.navigate(['/comensal/pago-confirmado'], { queryParams: { status: 'approved' } });
+          this.router.navigate(['/comensal/pago-confirmado'], { queryParams: { metodo: 'transferencia' } });
         },
         error: (err) => {
           this.confirmandoTransferencia.set(false);

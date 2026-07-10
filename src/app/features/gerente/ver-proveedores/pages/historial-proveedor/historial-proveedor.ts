@@ -12,11 +12,12 @@ import { VerProveedoresState } from '../../services/ver-proveedores.state';
 import { ArsCurrencyPipe } from '../../../../../shared/pipes/ars-currency.pipe';
 import { PriceNoteComponent } from '../../../../../shared/ui/price-note/price-note';
 import { AgregarInsumoPedidoComponent } from '../../components/agregar-insumo-pedido/agregar-insumo-pedido';
+import { RecepcionPedidoModalComponent } from '../../components/recepcion-pedido-modal/recepcion-pedido-modal';
 
 @Component({
   selector: 'app-historial-proveedor',
   standalone: true,
-  imports: [DatePipe, FormsModule, FontAwesomeModule, Boton, PageToolbar, ArsCurrencyPipe, PriceNoteComponent, AgregarInsumoPedidoComponent],
+  imports: [DatePipe, FormsModule, FontAwesomeModule, Boton, PageToolbar, ArsCurrencyPipe, PriceNoteComponent, AgregarInsumoPedidoComponent, RecepcionPedidoModalComponent],
   templateUrl: './historial-proveedor.html',
   styleUrls: ['./historial-proveedor.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -32,9 +33,6 @@ export class HistorialProveedorComponent implements OnInit {
   errorHistorial = this.state.errorHistorial;
   pedidoHistorialSeleccionado = this.state.pedidoHistorialSeleccionado;
   mensajeAccion = this.state.mensajeAccion;
-  recepcionPedido = this.state.recepcionPedido;
-  recepcionItems = this.state.recepcionItems;
-  bodegas = this.state.bodegas;
 
   faXmark = faXmark;
   isAgregarIngredientesOpen = signal(false);
@@ -100,36 +98,6 @@ export class HistorialProveedorComponent implements OnInit {
   previsualizarRecepcion(event: MouseEvent, pedido: PedidoProveedor): void {
     event.stopPropagation();
     this.state.previsualizarRecepcion(pedido);
-  }
-
-  cerrarRecepcion(): void {
-    this.state.cerrarRecepcion();
-  }
-
-  actualizarCantidadRecepcion(insumoId: number, value: string | number | null): void {
-    const cantidad = Number(value);
-    if (Number.isFinite(cantidad)) {
-      this.state.actualizarRecepcionItem(insumoId, { cantidad });
-    }
-  }
-
-  actualizarFechaRecepcion(insumoId: number, fechaVencimiento: string): void {
-    this.state.actualizarRecepcionItem(insumoId, { fechaVencimiento });
-  }
-
-  actualizarPrecioRecepcion(insumoId: number, value: string | number | null): void {
-    const precioUnitario = Number(value);
-    if (Number.isFinite(precioUnitario)) {
-      this.state.actualizarRecepcionItem(insumoId, { precioUnitario });
-    }
-  }
-
-  actualizarBodegaRecepcion(insumoId: number, value: string | number): void {
-    this.state.actualizarRecepcionItem(insumoId, { bodegaId: Number(value) });
-  }
-
-  recibirPedido(): void {
-    this.state.recibirPedido();
   }
 
   agregarIngredientes(): void {

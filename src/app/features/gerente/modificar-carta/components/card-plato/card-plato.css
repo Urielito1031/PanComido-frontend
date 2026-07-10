@@ -598,12 +598,12 @@
 }
 
 .dish-action-edit {
-  color: #f7d627;
+  color: var(--primary-orange, #f08f1a);
 }
 
 .dish-action-edit .material-symbols-outlined,
 .dish-action-edit:hover .material-symbols-outlined {
-  color: #f7d627;
+  color: var(--primary-orange, #f08f1a);
 }
 
 .dish-action-danger:hover {

@@ -12,6 +12,12 @@
   </div>
   }
 
+  @if (notificacionError()) {
+  <div class="notificacion-error">
+    {{ notificacionError() }}
+  </div>
+  }
+
   <details class="kds-section" open>
     <summary class="section-header bg-preparacion">
       EN PREPARACIÓN ({{ state.comandasEnPreparacion().length }})

@@ -1,12 +1,6 @@
 <app-header-comensal [showBack]="true" backRoute="/comensal/ver-carta" [title]="'Tu pedido'" />
 
 <div class="detalle-wrapper">
-  <div style="text-align: right; margin-bottom: 0.5rem; padding: 0 1rem;">
-    <a style="color: #16a34a; font-weight: bold; cursor: pointer; text-decoration: underline;" (click)="volverACarta()">
-      Volver a la carta
-    </a>
-  </div>
-
   @if (!comandaState.tieneComandaActiva() && !filaVirtualState.turnoId()) {
     <div class="alerta-mesa">
       <span class="material-symbols-outlined">qr_code_scanner</span>

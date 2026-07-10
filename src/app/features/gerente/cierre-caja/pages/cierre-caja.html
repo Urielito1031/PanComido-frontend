@@ -7,13 +7,6 @@
         <p class="page-subtitle mb-0">Genera el cierre de caja al finalizar cada turno</p>
       </div>
 
-      @if (state.error(); as error) {
-        <div class="cierre-error-banner mb-4">
-          <span class="material-symbols-outlined">error</span>
-          <span>{{ error }}</span>
-        </div>
-      }
-
       <div class="cerrar-turno-actions mb-4">
         <app-boton
           label="Cerrar Turno Día"
@@ -152,6 +145,12 @@
           <button class="cierre-modal-close" (click)="cerrarModalCierre()">×</button>
         </div>
         <div class="cierre-modal-body mb-4">
+          @if (state.error(); as error) {
+            <div class="cierre-error-banner mb-3">
+              <span class="material-symbols-outlined">error</span>
+              <span>{{ error }}</span>
+            </div>
+          }
           <div class="form-group mb-3">
             <label class="form-label" for="conteo-caja">Conteo de Caja (Efectivo Físico)</label>
             <div class="input-wrapper">
@@ -162,13 +161,13 @@
                 class="form-control custom-input"
                 placeholder="0.00"
                 [ngModel]="state.conteoCaja()"
-                (ngModelChange)="onConteoCajaChange($event)">
+                (ngModelChange)="onConteoCajaChange($event)"
+                (focus)="onConteoCajaFocus($event)">
             </div>
           </div>
-          <p class="text-danger fw-bold fs-7">¡Esta acción no se puede deshacer!</p>
         </div>
         <div class="cierre-modal-footer d-flex gap-2 justify-content-end">
-          <app-boton label="Cancelar" variante="danger" tamanio="sm" (clicked)="cerrarModalCierre()"></app-boton>
+          <app-boton label="Cancelar" variante="outline" tamanio="sm" (clicked)="cerrarModalCierre()"></app-boton>
           <app-boton
             label="Confirmar Cierre"
             variante="success"

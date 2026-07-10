@@ -30,6 +30,7 @@
       + Agregar más platos
     </app-boton-comensal>
 
+    @if (!esMozo()) {
     <div class="botones-acciones">
       <app-boton-comensal backgroundColor="#ffffff" [textColor]="configuracionVisualState.colorSecundario() ?? '#000000'" [tieneBorde]="true"
         (clicked)="modalLlamarMozo.abrirModal()">
@@ -46,10 +47,11 @@
         </div>
       </app-boton-comensal>
     </div>
-  </div>
 
-  <app-llamar-al-mozo #modalLlamarMozo [mesaId]="mesaId() ?? 0" [enviando]="comensalState.enviando()"
-    [enviado]="comensalState.exito()" [error]="comensalState.error()"
-    (llamadoMozo)="comensalState.solicitarMozo($event)"
-    (modalCerrado)="comensalState.limpiarEstado()"></app-llamar-al-mozo>
+    <app-llamar-al-mozo #modalLlamarMozo [mesaId]="mesaId() ?? 0" [enviando]="comensalState.enviando()"
+      [enviado]="comensalState.exito()" [error]="comensalState.error()"
+      (llamadoMozo)="comensalState.solicitarMozo($event)"
+      (modalCerrado)="comensalState.limpiarEstado()"></app-llamar-al-mozo>
+    }
+  </div>
 </div>

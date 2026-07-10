@@ -11,7 +11,7 @@
       <span class="cart-total">$ {{ total() | number:'1.0-0' }}</span>
     </button>
 
-    @if (!filaVirtualState.turnoId()) {
+    @if (!filaVirtualState.turnoId() && !esMozo()) {
       <div class="mozo-wrapper">
         <app-llamar-al-mozo 
           [mesaId]="mesaId()"

@@ -89,7 +89,7 @@ export class AvisosTourService {
         element: '#seccion-vencimientos',
         popover: {
           title: 'Control de Vencimientos 📅',
-          description: 'Visualiza los lotes de insumos que vencerán en los próximos días. Utiliza "Avisar a cocina" para priorizar su consumo inmediato.',
+          description: 'Visualiza los lotes de insumos que vencerán en los próximos días.',
           side: 'top' as const,
           align: 'start' as const
         }

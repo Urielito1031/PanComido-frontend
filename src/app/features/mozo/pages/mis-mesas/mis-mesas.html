@@ -38,6 +38,21 @@
     </div>
   }
 
+  <!-- Prompt: Mesa recién ocupada, ¿tomar el pedido ahora? -->
+  @if (mostrarPromptVerCarta()) {
+    <div class="modal-overlay" (click)="cerrarPromptVerCarta()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <h2>Mesa ocupada</h2>
+        <p>¿Querés tomar el pedido ahora?</p>
+
+        <div class="modal-actions">
+          <button class="btn-cancelar" (click)="cerrarPromptVerCarta()">Ahora no</button>
+          <button class="btn-confirmar" (click)="irAVerCarta()">Ver carta</button>
+        </div>
+      </div>
+    </div>
+  }
+
   <!-- Modal: Comanda / Detalles -->
   @if (mostrarModalComanda()) {
     <div class="modal-overlay" (click)="cerrarModalComanda()">
@@ -51,6 +66,7 @@
             (cerrar)="cerrarModalComanda()"
             (cobrar)="cobrarPedido($event)"
             (cerrarMesa)="cerrarMesaComanda()"
+            (verCarta)="irAVerCartaDesdeDetalle()"
           ></app-comanda-detalle-ui>
         }
       </div>

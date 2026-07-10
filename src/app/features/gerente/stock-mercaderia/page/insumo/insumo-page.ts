@@ -4,13 +4,13 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { PageToolbar } from "../../../../../shared/ui/page-toolbar/page-toolbar";
 import { Buscador } from "../../../../../shared/ui/buscador/buscador";
-import { Dropdown } from '../../../../../shared/ui/dropdown/dropdown';
 import { Modal } from "../../../../../shared/ui/modal/modal";
 import { StockMercaderiaState } from '../../services/insumos/stock-mercaderia-state';
 import { BodegaState } from '../../services/bodegas/bodega-state';
 import { StockTourService } from '../../services/stock-tour.service';
 import { ProductoForm, GuardarProductoPayload } from "../../components/producto-form/producto-form";
 import { Insumo, LoteInsumo } from '../../../../../core/models/domain/insumo';
+import { Bodega } from '../../../../../core/models/domain/bodega';
 import { EditarBebidaFormComponent, GuardarBebidaPayload } from '../../components/editar-bebida-form/editar-bebida-form';
 import { ModalEliminarInsumoComponent } from '../../components/modal-eliminar-insumo/modal-eliminar-insumo';
 import { BodegaForm, GuardarBodegaPayload } from '../../components/bodega-form/bodega-form';
@@ -24,7 +24,7 @@ type EstadoStockFiltro = 'todos' | 'criticos' | 'bajos' | 'ok';
 @Component({
   selector: 'app-insumo',
   standalone: true,
-  imports: [InsumoList, CommonModule, PageToolbar, Buscador, Dropdown, Modal, ProductoForm, EditarBebidaFormComponent, ModalEliminarInsumoComponent, BodegaForm, ModalEliminarBodegaComponent, LoteForm, ModalEliminarLoteComponent],
+  imports: [InsumoList, CommonModule, PageToolbar, Buscador, Modal, ProductoForm, EditarBebidaFormComponent, ModalEliminarInsumoComponent, BodegaForm, ModalEliminarBodegaComponent, LoteForm, ModalEliminarLoteComponent],
   templateUrl: './insumo-page.html',
   styleUrl: './insumo-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -40,6 +40,7 @@ export class InsumoPage implements OnInit {
   itemsPorPagina = 9;
 
   totalPaginas = computed(() => {
+    if (this.tabSeleccionada() === 'bodegas') return 1;
     const totalItems = this.tabSeleccionada() === 'lotes'
       ? this.lotesVista().length
       : this.productosFiltrados().length;
@@ -63,9 +64,9 @@ export class InsumoPage implements OnInit {
       // Registrar dependencias de filtros y pestañas para resetear página
       this.termino();
       this.categoria();
+      this.tipoBodegaFiltro();
       this.estadoFiltro();
       this.tabSeleccionada();
-      this.bodegaSeleccionadaId();
 
       this.pagina.set(1);
     }, { allowSignalWrites: true });
@@ -82,10 +83,6 @@ export class InsumoPage implements OnInit {
     effect(() => {
       const estado = this.bodegaState.estadoEliminar();
       if (estado === 'success') {
-        const idEliminado = this.bodegaEliminandoId();
-        if (idEliminado && this.bodegaSeleccionadaId() === idEliminado) {
-          this.seleccionarProductos();
-        }
         this.bodegaEliminandoId.set(null);
         this.bodegaState.resetEstados();
       }
@@ -100,8 +97,8 @@ export class InsumoPage implements OnInit {
   }
 
   termino = signal<string>('');
-  categoria = signal<string | null>(null);
-  categoriasColapsado = signal<boolean>(true);
+  categoria = signal<string[]>([]);
+  tipoBodegaFiltro = signal<string[]>([]);
   estadoFiltro = signal<EstadoStockFiltro>('todos');
 
   tabSeleccionada = signal<'productos' | 'bodegas' | 'lotes'>('productos');
@@ -169,6 +166,22 @@ export class InsumoPage implements OnInit {
     });
   });
 
+  tiposBodegaConInfo = computed(() => {
+    const bodegas = this.bodegaState.bodegas();
+    const nombres = Array.from(new Set(bodegas.map(b => b.tipoBodega).filter(Boolean)));
+    return nombres.map(nombre => ({
+      nombre,
+      total: bodegas.filter(b => b.tipoBodega === nombre).length,
+    }));
+  });
+
+  bodegasFiltradasPorTipo = computed(() => {
+    const tipos = this.tipoBodegaFiltro();
+    const bodegas = this.bodegaState.bodegas();
+    if (tipos.length === 0) return bodegas;
+    return bodegas.filter(b => tipos.includes(b.tipoBodega));
+  });
+
   totalProductos = computed(() => this.state.productos().length);
 
   productosCriticos = computed(() =>
@@ -186,16 +199,14 @@ export class InsumoPage implements OnInit {
   filtrosActivos = computed(() => {
     let total = 0;
     if (this.termino().trim()) total++;
-    if (this.categoria() !== null) total++;
+    if (this.categoria().length > 0) total++;
     if (this.estadoFiltro() !== 'todos') total++;
-    if (this.tabSeleccionada() === 'bodegas' && this.bodegaSeleccionadaId()) total++;
+    if (this.tabSeleccionada() === 'bodegas' && this.tipoBodegaFiltro().length > 0) total++;
     return total;
   });
 
   contextoListado = computed(() => {
-    if (this.tabSeleccionada() === 'bodegas') {
-      return this.nombreBodegaSeleccionada() || 'Elegí una bodega';
-    }
+    if (this.tabSeleccionada() === 'bodegas') return 'Bodegas';
     if (this.tabSeleccionada() === 'lotes') return 'Lotes';
     if (this.estadoFiltro() === 'criticos') return 'Productos críticos';
     if (this.estadoFiltro() === 'bajos') return 'Productos bajos';
@@ -222,34 +233,27 @@ export class InsumoPage implements OnInit {
 
 
   productosFiltrados = computed(() => {
-    let listaBase: Insumo[] = [];
+    if (this.tabSeleccionada() === 'lotes') return [];
+    return this.filtrarLista(this.state.productos());
+  })
 
-    if (this.tabSeleccionada() === 'bodegas') {
-      const bId = this.bodegaSeleccionadaId();
-      if (bId) {
-        const bodega = this.bodegaState.bodegas().find(b => b.id === bId);
-        listaBase = bodega?.insumos || [];
-      } else {
-        return [];
-      }
-    } else if (this.tabSeleccionada() === 'lotes') {
-      return [];
-    } else {
-      listaBase = this.state.productos();
-    }
+  productosDeBodega(bodega: Bodega): Insumo[] {
+    return this.filtrarLista(bodega.insumos || []);
+  }
+
+  private filtrarLista(lista: Insumo[]): Insumo[] {
     const busqueda = this.termino().toLowerCase();
     const cat = this.categoria();
 
+    let listaBase = lista;
     if (busqueda) {
       listaBase = listaBase.filter(p => p.nombre.toLowerCase().includes(busqueda));
     }
-    if (cat !== null) {
-      listaBase = listaBase.filter(p => p.categoriaIngrediente?.descripcion === cat);
+    if (cat.length > 0) {
+      listaBase = listaBase.filter(p => p.categoriaIngrediente?.descripcion && cat.includes(p.categoriaIngrediente.descripcion));
     }
-    listaBase = this.filtrarPorEstado(listaBase);
-
-    return listaBase;
-  })
+    return this.filtrarPorEstado(listaBase);
+  }
 
   lotesVista = computed(() => {
     if (this.tabSeleccionada() !== 'lotes') return [];
@@ -274,26 +278,18 @@ export class InsumoPage implements OnInit {
         return item.producto!.nombre.toLowerCase().includes(busqueda) ||
           item.lote.nombre.toLowerCase().includes(busqueda);
       })
-      .filter(item => cat === null || item.producto!.categoriaIngrediente.descripcion === cat);
+      .filter(item => cat.length === 0 || cat.includes(item.producto!.categoriaIngrediente.descripcion));
   });
 
   lotesCriticos = computed(() => this.lotesVista().filter(item => item.estadoClase === 'danger').length);
 
-  bodegaSeleccionadaId = signal<number | null>(null);
-  nombreBodegaSeleccionada = computed(() => {
-    const id = this.bodegaSeleccionadaId();
-    if (!id) return null;
-    return this.bodegaState.bodegas().find(b => b.id === id)?.nombre || null;
-  });
-  seleccionarBodega(id: number) {
+  seleccionarBodegas() {
     this.bodegaState.cargarBodegasConInsumos();
-    this.bodegaSeleccionadaId.set(id);
     this.tabSeleccionada.set('bodegas');
   }
 
   seleccionarProductos() {
     this.tabSeleccionada.set('productos');
-    this.bodegaSeleccionadaId.set(null);
   }
 
   seleccionarEstado(estado: EstadoStockFiltro) {
@@ -307,24 +303,35 @@ export class InsumoPage implements OnInit {
     this.state.cargarLotes();
     this.bodegaState.cargarBodegasConInsumos();
     this.tabSeleccionada.set('lotes');
-    this.bodegaSeleccionadaId.set(null);
   }
 
   limpiarFiltros() {
     this.termino.set('');
-    this.categoria.set(null);
+    this.categoria.set([]);
+    this.tipoBodegaFiltro.set([]);
     this.estadoFiltro.set('todos');
-    if (this.tabSeleccionada() === 'bodegas' && !this.bodegaSeleccionadaId()) {
-      this.tabSeleccionada.set('productos');
-    }
   }
 
   seleccionarCategoria(nombre: string) {
-    this.categoria.set(nombre === this.categoria() ? null : nombre);
+    const actuales = this.categoria();
+    this.categoria.set(
+      actuales.includes(nombre) ? actuales.filter(c => c !== nombre) : [...actuales, nombre]
+    );
   }
 
   limpiarCategoria() {
-    this.categoria.set(null);
+    this.categoria.set([]);
+  }
+
+  seleccionarTipoBodega(nombre: string) {
+    const actuales = this.tipoBodegaFiltro();
+    this.tipoBodegaFiltro.set(
+      actuales.includes(nombre) ? actuales.filter(t => t !== nombre) : [...actuales, nombre]
+    );
+  }
+
+  limpiarTipoBodega() {
+    this.tipoBodegaFiltro.set([]);
   }
 
   private filtrarPorEstado(productos: Insumo[]): Insumo[] {

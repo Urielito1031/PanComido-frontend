@@ -178,7 +178,7 @@ describe('PagoCheckout', () => {
       expect(pagoServiceMock.solicitarPago).toHaveBeenCalledWith(42, 1, MetodoPagoId.Efectivo);
       expect(component.metodoCargando()).toBeNull();
       expect(component.pagoSolicitado()).toBe(true);
-      expect(routerMock.navigate).toHaveBeenCalledWith(['/comensal/pago-confirmado']);
+      expect(routerMock.navigate).toHaveBeenCalledWith(['/comensal/pago-confirmado'], { queryParams: { metodo: 'efectivo' } });
     });
 
     it('deberia mostrar error si la API falla', () => {

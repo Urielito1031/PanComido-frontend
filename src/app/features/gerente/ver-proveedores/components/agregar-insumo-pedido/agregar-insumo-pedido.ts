@@ -6,6 +6,7 @@ import { PedidoProveedor } from '../../../../../core/models/domain/proveedor';
 import { Insumo } from '../../../../../core/models/domain/insumo';
 import { UnidadMedida } from '../../../../../core/models/domain/unidad-medida';
 import { VerProveedoresState } from '../../services/ver-proveedores.state';
+import { buildSmartQuantityPresets, QuantityPreset } from '../../../../../shared/utils/quantity-presets';
 
 interface InsumoPickerItem {
   id: string;
@@ -112,16 +113,69 @@ export class AgregarInsumoPedidoComponent {
     input.value = cantidadNormalizada.toString();
   }
 
-  onPrecioChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const precio = Number(input.value);
-    this.precio.set(Number.isFinite(precio) && precio >= 0 ? precio : null);
-  }
-
   equivalenciaCantidad(): string | null {
     const producto = this.productoSeleccionado();
     if (!producto) return null;
     return this.calcularEquivalencia(this.cantidad(), producto.unidadMedida);
+  }
+
+  presetsCantidad(): QuantityPreset[] {
+    const producto = this.productoSeleccionado();
+    if (!producto) return [];
+
+    const fallback = this.presetsCantidadBase(producto.unidadMedida);
+    return buildSmartQuantityPresets(
+      this.state.historialProveedor(),
+      producto.id,
+      this.nombreUnidad(producto.unidadMedida),
+      fallback
+    );
+  }
+
+  sumarCantidadPreset(valor: number): void {
+    this.cantidad.update(actual => actual + valor);
+  }
+
+  private presetsCantidadBase(unidadMedida: UnidadMedida | string): QuantityPreset[] {
+    const unidad = this.nombreUnidad(unidadMedida).trim().toUpperCase();
+
+    if (['KG', 'KILO', 'KILOS'].includes(unidad)) {
+      return [
+        { label: '100 g', value: 0.1 },
+        { label: '500 g', value: 0.5 },
+        { label: '1 kg', value: 1 },
+        { label: '5 kg', value: 5 },
+        { label: '10 kg', value: 10 }
+      ];
+    }
+
+    if (['GR', 'GRAMO', 'GRAMOS'].includes(unidad)) {
+      return [
+        { label: '100 gr', value: 100 },
+        { label: '500 gr', value: 500 },
+        { label: '1 kg', value: 1000 },
+        { label: '5 kg', value: 5000 }
+      ];
+    }
+
+    if (['L', 'LT', 'LITRO', 'LITROS'].includes(unidad)) {
+      return [
+        { label: '100 ml', value: 0.1 },
+        { label: '500 ml', value: 0.5 },
+        { label: '1 l', value: 1 },
+        { label: '5 l', value: 5 }
+      ];
+    }
+
+    if (['UN', 'UNIDAD', 'UNIDADES', 'PORCION', 'PORCIONES'].includes(unidad)) {
+      return [
+        { label: '1', value: 1 },
+        { label: '5', value: 5 },
+        { label: '10', value: 10 }
+      ];
+    }
+
+    return [];
   }
 
   confirmar(): void {

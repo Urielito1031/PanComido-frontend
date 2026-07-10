@@ -65,10 +65,6 @@ export class DetallePedido implements OnInit, OnDestroy {
 
 
 
-  volverACarta() {
-    this.router.navigate(['/comensal/ver-carta']);
-  }
-
   volver(): void {
     this.router.navigate(['/comensal/ver-carta']);
   }

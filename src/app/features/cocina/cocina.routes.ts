@@ -8,7 +8,14 @@ export const COCINA_ROUTES: Routes = [
    {
     path: 'mise-and-place',
     loadChildren: () => import('./mise-and-place/mise-and-place.routes').then(m => m.MISE_AND_PLACE_ROUTES)
+   },
+   {
+    path: 'ingredientes',
+    loadComponent: () => import('../gerente/stock-mercaderia/page/insumo/insumo-page').then(m => m.InsumoPage)
+   },
+   {
+    path: 'platos',
+    loadComponent: () => import('../gerente/crear-plato/pages/crear-plato').then(m => m.CrearPlatoPage)
    }
-
 
 ];

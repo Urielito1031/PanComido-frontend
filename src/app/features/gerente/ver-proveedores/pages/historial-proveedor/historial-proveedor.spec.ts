@@ -161,16 +161,6 @@ describe('HistorialProveedorComponent', () => {
   });
 
   describe('recepción de pedidos', () => {
-    it('debería llamar a state.recibirPedido', () => {
-      component.recibirPedido();
-      expect(stateMock.recibirPedido).toHaveBeenCalled();
-    });
-
-    it('debería llamar a state.cerrarRecepcion', () => {
-      component.cerrarRecepcion();
-      expect(stateMock.cerrarRecepcion).toHaveBeenCalled();
-    });
-
     it('debería previsualizar recepcion deteniendo la propagacion del evento', () => {
       const eventMock = { stopPropagation: vi.fn() } as unknown as MouseEvent;
       component.previsualizarRecepcion(eventMock, mockPedido);

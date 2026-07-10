@@ -38,11 +38,13 @@
             Para que se vea bien en carta, usá una foto horizontal, luminosa y
             enfocada en el plato completo.
         </p>
+        @if (!esCocina()) {
         <div class="visibility-toggle-wrapper">
           <app-toggle [active]="visible()" label="Visible en carta"
           (toggled)="onToggleVisible()">
           </app-toggle>
           </div>
+        }
         </aside>
 
     <section class="form-panel">
@@ -59,6 +61,7 @@
         [datosIniciales]="datosInicialesFormulario()"
         [hayCantidadesInvalidas]="hayCantidadesInvalidas()"
         [error]="error()"
+        [ocultarPrecios]="esCocina()"
         (guardar)="onGuardar($event)"
         (cancelar)="onCancelar()"
         (toggleTag)="onToggleTag($event)">
@@ -85,7 +88,7 @@
     <p class="modal-text text-muted mb-4">El plato se ha registrado correctamente en el sistema y estará visible en la
       carta.</p>
     <div class="modal-action-btn">
-      <app-boton label="ACEPTAR" variante="primary" tamanio="md" (clicked)="onCerrarExito()" class="w-100 save-btn">
+      <app-boton label="ACEPTAR" variante="success" tamanio="md" (clicked)="onCerrarExito()" class="w-100 save-btn">
       </app-boton>
     </div>
   </div>

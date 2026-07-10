@@ -17,14 +17,14 @@
   min-width: 1020px;
   display: grid;
   grid-template-columns:
-    minmax(170px, 1.24fr)
-    minmax(180px, 1.18fr)
+    minmax(170px, 1.35fr)
+    minmax(130px, 0.85fr)
     minmax(96px, 0.7fr)
     minmax(96px, 0.7fr)
+    minmax(110px, 0.78fr)
     minmax(120px, 0.82fr)
-    minmax(120px, 0.82fr)
-    minmax(92px, 0.62fr)
-    64px;
+    minmax(96px, 108px)
+    minmax(100px, 112px);
   align-items: center;
 }
 
@@ -136,6 +136,8 @@
   display: flex;
   justify-content: flex-end;
   gap: 0.4rem;
+  padding-left: 0.4rem;
+  padding-right: 0.6rem;
 }
 
 .btn-icon {

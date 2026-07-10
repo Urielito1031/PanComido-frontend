@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, computed, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { ComandaState } from '../../services/comanda-state';
@@ -8,6 +8,7 @@ import { LlamarAlMozo } from '../../components/llamar-al-mozo/llamar-al-mozo';
 import { ComensalState } from '../../services/comensal-state';
 import { HeaderComensal } from '../../../../shared/ui/header-comensal/header-comensal';
 import { ResumenPedido } from '../../components/resumen-pedido/resumen-pedido';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -23,10 +24,14 @@ export class EstadoPedido implements OnInit, OnDestroy {
   comensalState = inject(ComensalState);
 
   configuracionVisualState = inject(ConfiguracionVisualState);
+  private auth = inject(AuthService);
+
   estado = this.comandaState.estadoPedido;
   mesaId = this.comandaState.mesaId;
   cargando = this.comandaState.cargando;
   error = this.comandaState.error;
+
+  esMozo = computed(() => this.auth.rol() === 'Mozo');
 
   ngOnInit() {
     if (!this.estado()) {
