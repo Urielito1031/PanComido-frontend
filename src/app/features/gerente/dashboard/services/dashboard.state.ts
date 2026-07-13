@@ -192,7 +192,7 @@ export class DashboardStateService implements OnDestroy {
     if (platosEnBaja > 0) {
       items.push({
         titulo: `<span class="attention-qty-badge">${platosEnBaja}</span> platos en baja`,
-        detalle: 'Demanda ha caido',
+        detalle: 'Demanda ha caído',
         accion: 'Revisar carta',
         destino: 'carta',
         tono: 'warning'
@@ -207,7 +207,7 @@ export class DashboardStateService implements OnDestroy {
     const bajos = this.platosMenosVendidosPreview();
 
     if (criticos.length > 0) {
-      items.push({ titulo: 'Crear pedido sugerido', detalle: 'Reponer insumos criticos', destino: 'pedido', tono: 'danger', impacto: 'Evita quiebres', prioridad: 1 });
+      items.push({ titulo: 'Crear pedido sugerido', detalle: 'Reponer insumos críticos', destino: 'pedido', tono: 'danger', impacto: 'Evita quiebres', prioridad: 1 });
       items.push({ titulo: 'Ver vencimientos', detalle: 'Priorizar consumo y descarte', destino: 'stock', tono: 'warning', impacto: 'Reduce merma', prioridad: 2 });
     }
 

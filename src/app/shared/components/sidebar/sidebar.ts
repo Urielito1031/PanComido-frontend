@@ -202,7 +202,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
       { label: 'Comandas', icon: 'faListCheck', route: 'cocina/comandas', roles: ['Cocina'] },
       { label: 'Ingredientes', icon: 'faCarrot', route: 'cocina/ingredientes', roles: ['Cocina'] },
       { label: 'Platos', icon: 'faUtensils', route: 'cocina/platos', roles: ['Cocina'] },
-      { label: 'Mise and place', icon: 'faFireBurner', route: 'cocina/mise-and-place', roles: ['Cocina'] }
+      { label: 'Mise en place', icon: 'faFireBurner', route: 'cocina/mise-and-place', roles: ['Cocina'] }
 
     ]
   };

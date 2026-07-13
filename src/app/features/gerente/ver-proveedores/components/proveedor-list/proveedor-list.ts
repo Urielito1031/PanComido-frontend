@@ -30,7 +30,7 @@ export class ProveedorListComponent {
   }
 
   contactoProveedor(proveedor: Proveedor): string {
-    return proveedor.telefono?.trim() || 'Sin telefono registrado';
+    return proveedor.telefono?.trim() || 'Sin teléfono registrado';
   }
 
   private esCategoriaBebida(nombre: string): boolean {

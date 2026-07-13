@@ -136,7 +136,7 @@ describe('PagoCheckout', () => {
       configurarTest({ error: 'mp' });
 
       expect(component.error()).toBe(
-        'El pago con Mercado Pago fue rechazado. Elegi otro método',
+        'El pago con Mercado Pago fue rechazado. Elegí otro método',
       );
     });
 

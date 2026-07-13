@@ -117,7 +117,7 @@ export class PagoCheckout implements OnInit, OnDestroy {
     const pendingMp = this.route.snapshot.queryParams['pending'];
 
     if(errorMp === 'mp'){
-      this.error.set('El pago con Mercado Pago fue rechazado. Elegi otro método');
+      this.error.set('El pago con Mercado Pago fue rechazado. Elegí otro método');
     }else if(pendingMp === 'mp'){
       this.error.set('El pago está pendiente. Esperá unos segundos y recargá');
     }

@@ -83,7 +83,7 @@ export function etiquetaGrafico(etiqueta: string): string {
 
   if (partes.length === 3) {
     const date = new Date(parseInt(partes[0], 10), parseInt(partes[1], 10) - 1, parseInt(partes[2], 10));
-    const nombresDias = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
+    const nombresDias = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
     return nombresDias[date.getDay()];
   }
 

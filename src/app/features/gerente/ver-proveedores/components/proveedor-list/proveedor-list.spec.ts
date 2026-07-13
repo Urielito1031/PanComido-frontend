@@ -73,7 +73,7 @@ describe('ProveedorListComponent', () => {
 
     expect(fixture.debugElement.query(By.css('.proveedor-empty')).nativeElement.textContent).toContain('No se encontraron proveedores');
     expect(component.contactoProveedor(proveedores[0])).toBe('11223344');
-    expect(component.contactoProveedor(proveedores[1])).toBe('Sin telefono registrado');
+    expect(component.contactoProveedor(proveedores[1])).toBe('Sin teléfono registrado');
     expect(component.trackPorId(0, proveedores[1])).toBe(2);
   });
 });

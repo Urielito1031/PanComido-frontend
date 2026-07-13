@@ -31,6 +31,7 @@ export class ConfiguracionPage {
   readonly porcentajes = this.state.porcentajes;
   readonly datosTransferencia = this.state.datosTransferencia;
   readonly datosTransferenciaVacio = DATOS_TRANSFERENCIA_VACIO;
+  readonly datosTransferenciaValidos = this.state.datosTransferenciaValidos;
   readonly loading = this.state.loading;
   readonly guardando = this.state.guardando;
   readonly error = this.state.error;

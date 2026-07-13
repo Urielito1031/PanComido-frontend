@@ -9,7 +9,7 @@ import { ComandaDetalleUiComponent } from '../../../../shared/components/comanda
 import { AuthService } from '../../../../core/services/auth.service';
 import { MesaService } from '../../services/mesa.service';
 import { PagoConfirmacionService } from '../../../../shared/services/pago-confirmacion.service';
-import { MetodoPagoId } from '../../../../core/models/domain/metodo-pago';
+import { METODO_PAGO_LABELS, MetodoPagoId } from '../../../../core/models/domain/metodo-pago';
 
 @Component({
   selector: 'app-mapa-mesas',
@@ -263,7 +263,10 @@ export class MapaMesas implements OnInit {
     if (!comandaId) return;
 
     this.pagoConfirmacionService.confirmarPago(comandaId, metodoPago).subscribe({
-      next: () => this.cerrarComandaDetalle(),
+      next: () => {
+        this.state.mostrarNotificacion(`Pago confirmado (${METODO_PAGO_LABELS[metodoPago]})`, 'exito');
+        this.cerrarComandaDetalle();
+      },
       error: (err) => {
         if (err.status === 409) {
           this.cerrarComandaDetalle();

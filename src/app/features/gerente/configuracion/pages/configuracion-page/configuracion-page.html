@@ -6,8 +6,9 @@
         Personaliza la identidad visual de tu menú digital
       </p>
     </div>
-    <div class="col-lg-5 d-flex justify-content-end">
-      <app-boton [label]="guardando() ? 'Guardando...' : 'Aplicar cambios'" variante="success" [disabled]="guardando()"
+    <div class="col-lg-5 d-flex flex-column align-items-end">
+      <app-boton [label]="guardando() ? 'Guardando...' : 'Aplicar cambios'" variante="success"
+        [disabled]="guardando() || !datosTransferenciaValidos()"
         (clicked)="state.guardarTodo()">
         @if (guardando()) {
         <span class="spinner-border spinner-border-sm ms-2"></span>
@@ -15,6 +16,9 @@
         <span class="material-symbols-outlined ms-2" style="font-size: 1.2rem; vertical-align: middle">check</span>
         }
       </app-boton>
+      @if (!datosTransferenciaValidos()) {
+      <small class="text-danger mt-1">Completá los datos de transferencia para poder guardar</small>
+      }
     </div>
   </div>
 

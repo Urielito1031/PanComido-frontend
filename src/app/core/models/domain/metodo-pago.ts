@@ -10,3 +10,10 @@ export enum MetodoPagoId {
   Transferencia = 3,
   MercadoPago = 4,
 }
+
+export const METODO_PAGO_LABELS: Record<MetodoPagoId, string> = {
+  [MetodoPagoId.Efectivo]: 'efectivo',
+  [MetodoPagoId.Tarjeta]: 'tarjeta',
+  [MetodoPagoId.Transferencia]: 'transferencia',
+  [MetodoPagoId.MercadoPago]: 'Mercado Pago',
+};

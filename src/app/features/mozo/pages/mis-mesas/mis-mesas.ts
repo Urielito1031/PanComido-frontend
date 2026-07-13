@@ -8,7 +8,7 @@ import { MozoComandaService } from '../../services/mozo-comanda-service';
 import { ComandaDetalleUiComponent } from '../../../../shared/components/comanda-detalle-ui/comanda-detalle-ui';
 import { EstadoMesa, MesaOcupar } from '../../../../core/models/domain/mesa';
 import { PagoConfirmacionService } from '../../../../shared/services/pago-confirmacion.service';
-import { MetodoPagoId } from '../../../../core/models/domain/metodo-pago';
+import { METODO_PAGO_LABELS, MetodoPagoId } from '../../../../core/models/domain/metodo-pago';
 import { ComandaState } from '../../../comensal/services/comanda-state';
 
 @Component({
@@ -21,7 +21,7 @@ import { ComandaState } from '../../../comensal/services/comanda-state';
 export class MisMesasPage {
 
 
-  private mesaState = inject(MesaLecturaState);
+  mesaState = inject(MesaLecturaState);
   private router = inject(Router);
   private comandaState = inject(ComandaState);
   private auth = inject(AuthService);
@@ -89,7 +89,10 @@ export class MisMesasPage {
     if (!comandaId) return;
 
     this.pagoConfirmacionService.confirmarPago(comandaId, metodoPago).subscribe({
-      next: () => this.cerrarModalComanda(),
+      next: () => {
+        this.mesaState.mostrarNotificacion(`Pago confirmado (${METODO_PAGO_LABELS[metodoPago]})`, 'exito');
+        this.cerrarModalComanda();
+      },
       error: (err) => {
         if (err.status === 409) {
           this.cerrarModalComanda();

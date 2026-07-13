@@ -43,7 +43,7 @@ export class NuevoProveedorState {
         error: () => {
           this.#categoriasDisponibles.set([]);
           this.#cargandoCategorias.set(false);
-          this.#errorCategorias.set('No pudimos cargar las categorias de insumo.');
+          this.#errorCategorias.set('No pudimos cargar las categorías de insumo.');
         }
       });
   }
