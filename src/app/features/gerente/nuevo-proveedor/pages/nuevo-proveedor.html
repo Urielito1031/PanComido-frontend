@@ -82,7 +82,7 @@
           @if (cargandoCategorias()) {
             <div class="category-loading">
               <span class="material-symbols-outlined">sync</span>
-              Cargando categorias...
+              Cargando categorías...
             </div>
           } @else if (categoriasDisponibles().length > 0) {
             @if (categoriasIngredienteFiltradas().length > 0) {
@@ -122,7 +122,7 @@
               </div>
             }
           } @else if (!errorCategorias()) {
-            <span class="empty-text">No hay categorias disponibles para asociar.</span>
+            <span class="empty-text">No hay categorías disponibles para asociar.</span>
           }
 
           @if (categoriasInvalidas()) {
@@ -175,7 +175,7 @@
           </div>
 
           <div class="summary-block">
-            <span class="summary-label">Categorias</span>
+            <span class="summary-label">Categorías</span>
             @if (categorias().length > 0) {
               <div class="summary-category-list">
                 @for (categoria of categorias(); track categoria) {
@@ -183,14 +183,14 @@
                 }
               </div>
             } @else {
-              <small class="empty-text">Sin categorias seleccionadas.</small>
+              <small class="empty-text">Sin categorías seleccionadas.</small>
             }
           </div>
 
           <ul class="summary-list">
             <li [class.done]="proveedorForm.get('nombre')?.valid">Nombre cargado</li>
             <li [class.done]="telefonoRevisado()">WhatsApp revisado</li>
-            <li [class.done]="categoriaIds().length > 0">Categorias seleccionadas</li>
+            <li [class.done]="categoriaIds().length > 0">Categorías seleccionadas</li>
           </ul>
         </section>
       </aside>

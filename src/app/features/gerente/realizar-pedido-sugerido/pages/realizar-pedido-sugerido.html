@@ -5,15 +5,15 @@
         <span class="material-symbols-outlined">arrow_back</span>
       </button>
       <div>
-        <p class="detail-kicker mb-1">Reposicion de inventario</p>
+        <p class="detail-kicker mb-1">Reposición de inventario</p>
         <h1 class="page-title mb-1">Pedido sugerido</h1>
-        <p class="page-subtitle mb-0">Revisa insumos con stock bajo o critico antes de confirmar el pedido.</p>
+        <p class="page-subtitle mb-0">Revisa insumos con stock bajo o crítico antes de confirmar el pedido.</p>
       </div>
     </div>
 
     <div class="provider-search-panel">
       <app-buscador
-        [placeholder]="'Buscar proveedor o categoria'"
+        [placeholder]="'Buscar proveedor o categoría'"
         [valor]="busquedaProveedor()"
         (busquedaCambiada)="onSearchChanged($event)">
       </app-buscador>
@@ -33,7 +33,7 @@
         <span class="summary-icon material-symbols-outlined">sync</span>
         <div>
           <h2>Analizando proveedores...</h2>
-          <p>Estamos buscando insumos con reposicion sugerida.</p>
+          <p>Estamos buscando insumos con reposición sugerida.</p>
         </div>
       </div>
       <div class="summary-metrics">
@@ -47,8 +47,8 @@
       <div class="summary-copy">
         <span class="summary-icon material-symbols-outlined">inventory_2</span>
         <div>
-          <h2>Reposicion sugerida</h2>
-          <p>El sistema encontro {{ totalItems() }} insumos para {{ proveedoresFiltrados().length }} proveedores segun stock, estado e historial de compras.</p>
+          <h2>Reposición sugerida</h2>
+          <p>El sistema encontró {{ totalItems() }} insumos para {{ proveedoresFiltrados().length }} proveedores según stock, estado e historial de compras.</p>
         </div>
       </div>
 
@@ -209,7 +209,7 @@
 
           <footer class="provider-order-footer">
             <label class="provider-observation">
-              <span>Observacion</span>
+              <span>Observación</span>
               <textarea
                 class="form-control custom-textarea"
                 rows="2"

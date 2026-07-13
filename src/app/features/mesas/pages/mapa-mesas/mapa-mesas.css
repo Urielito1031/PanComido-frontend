@@ -147,7 +147,7 @@
 }
 
 .toast-notificacion.error { background-color: #e74c3c; }
-.toast-notificacion.exito { background-color: #2ecc71; }
+.toast-notificacion.exito { background-color: #6abf3f; }
 .toast-notificacion.info { background-color: #34495e; } /* Gris/Azul oscuro */
 
 /* Modal */

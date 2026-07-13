@@ -1,5 +1,6 @@
 export interface ActualizarDatosLocalRequest {
   nombre: string;
+  direccion: string;
   colorPrincipal: string | null;
   colorSecundario: string | null;
   familiaTipograficaId: number | null;

@@ -1,4 +1,9 @@
 <div class="mis-mesas-page">
+  @if (mesaState.notificacion(); as notif) {
+    <div class="toast-notificacion" [class.error]="notif.tipo === 'error'" [class.exito]="notif.tipo === 'exito'" [class.info]="notif.tipo === 'info'">
+      {{ notif.mensaje }}
+    </div>
+  }
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1>Mis mesas</h1>
     <button class="btn btn-outline-primary" (click)="toggleMostrarTodas()">

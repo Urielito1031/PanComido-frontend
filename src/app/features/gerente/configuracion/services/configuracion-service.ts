@@ -122,6 +122,7 @@ export class ConfiguracionService {
   #aRequestDatosLocal(datos: DatosLocal): ActualizarDatosLocalRequest {
     return {
       nombre: datos.nombre,
+      direccion: datos.direccion,
       colorPrincipal: datos.colorPrincipal,
       colorSecundario: datos.colorSecundario,
       familiaTipograficaId: datos.familiaTipograficaId,
@@ -159,6 +160,7 @@ export class ConfiguracionService {
 function datosAFormData(datos: DatosLocal, archivo: File | null) {
   const formData = new FormData();
   formData.append('Nombre', datos.nombre);
+  formData.append('Direccion', datos.direccion);
   formData.append('ColorPrincipal', datos.colorPrincipal || '#000000');
   if (datos.colorSecundario)
     formData.append('ColorSecundario', datos.colorSecundario);

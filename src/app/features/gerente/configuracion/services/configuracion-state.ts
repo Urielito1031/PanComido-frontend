@@ -1,4 +1,4 @@
-import { inject, Injectable, DestroyRef, signal } from '@angular/core';
+import { inject, Injectable, DestroyRef, signal, computed } from '@angular/core';
 import { ConfiguracionService } from './configuracion-service';
 import { DatosLocal } from '../../../../core/models/domain/datos-local';
 import { MetodoPago } from '../../../../core/models/domain/metodo-pago';
@@ -8,7 +8,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FamiliaTipografica } from '../../../../core/models/domain/familia-tipografica';
 import { FilaVirtual } from '../../../../core/models/domain/fila-virtual';
 import { PorcentajesGanancia } from '../../../../core/models/domain/porcentajes-ganancia';
-import { DatosTransferencia } from '../../../../core/models/domain/datos-transferencia';
+import { DatosTransferencia, esDatosTransferenciaValidos } from '../../../../core/models/domain/datos-transferencia';
 import { PlatoApiService } from '../../services/plato.api';
 import { calcularPrecioConGanancia } from '../../services/plato-cost';
 import { esBebida } from '../../modificar-carta/services/modificar-carta.rules';
@@ -57,6 +57,11 @@ export class ConfiguracionState {
   readonly guardando = this.#guardando.asReadonly();
   readonly error = this.#error.asReadonly();
   readonly exito = this.#exito.asReadonly();
+
+  readonly datosTransferenciaValidos = computed(() => {
+    const datos = this.#datosTransferencia();
+    return !!datos && esDatosTransferenciaValidos(datos);
+  });
 
   cargarMetodosPago(restauranteId?: number): void {
     if (this.#metodosPago().length > 0) return;
@@ -183,6 +188,10 @@ export class ConfiguracionState {
     const datosTransferencia = this.#datosTransferencia();
     if(!datosLocal || !filaVirtual || !porcentajes){
       this.#error.set('No hay datos para guardar. Cargá la página nuevamente');
+      return;
+    }
+    if (!this.datosTransferenciaValidos()) {
+      this.#error.set('Completá los datos de transferencia (alias, número de cuenta y titular) antes de guardar.');
       return;
     }
     this.#guardando.set(true);

@@ -116,7 +116,7 @@ export class RealizarPedidoSugeridoComponent implements OnInit {
       return {
         label: 'Prioridad alta',
         tone: 'danger',
-        detail: `${criticos} insumo${criticos === 1 ? '' : 's'} con stock critico`
+        detail: `${criticos} insumo${criticos === 1 ? '' : 's'} con stock crítico`
       };
     }
 
@@ -144,7 +144,7 @@ export class RealizarPedidoSugeridoComponent implements OnInit {
       return `Reposición  prioriza ${criticos} crítico${criticos === 1 ? '' : 's'} y reconoce ${historicos} compra${historicos === 1 ? '' : 's'} habitual${historicos === 1 ? '' : 'es'}.`;
     }
 
-    if (criticos > 0) return `Reposicion detecto ${criticos} insumo${criticos === 1 ? '' : 's'} con stock critico.`;
+    if (criticos > 0) return `Reposición detectó ${criticos} insumo${criticos === 1 ? '' : 's'} con stock crítico.`;
     if (historicos > 0) return `Se usaron compras anteriores para sugerir cantidades en ${historicos} insumo${historicos === 1 ? '' : 's'}.`;
     return 'Base editable generada por reglas de inventario.';
   }
@@ -158,7 +158,7 @@ export class RealizarPedidoSugeridoComponent implements OnInit {
     }
 
     if (this.itemBajoMinimo(item)) {
-      motivos.push({ label: 'Bajo minimo', tone: 'warning' });
+      motivos.push({ label: 'Bajo mínimo', tone: 'warning' });
     }
 
     if (motivos.length === 0) motivos.push({ label: 'Sugerido por stock', tone: 'neutral' });
@@ -265,9 +265,9 @@ export class RealizarPedidoSugeridoComponent implements OnInit {
   }
 
   mensajeCantidadMaxima(item: SugerenciaPedidoItem): string {
-    if (this.esUnidadPeso(item) || this.esUnidadGramos(item)) return 'Maximo permitido: 100 kg. Para compras mayores, dividilo en otro pedido.';
-    if (this.esUnidadVolumen(item) || this.esUnidadMililitros(item)) return 'Maximo permitido: 100 l. Para compras mayores, dividilo en otro pedido.';
-    return 'Maximo permitido: 1.000 unidades. Para compras mayores, dividilo en otro pedido.';
+    if (this.esUnidadPeso(item) || this.esUnidadGramos(item)) return 'Máximo permitido: 100 kg. Para compras mayores, dividilo en otro pedido.';
+    if (this.esUnidadVolumen(item) || this.esUnidadMililitros(item)) return 'Máximo permitido: 100 l. Para compras mayores, dividilo en otro pedido.';
+    return 'Máximo permitido: 1.000 unidades. Para compras mayores, dividilo en otro pedido.';
   }
 
   cantidadPasoDisplay(item: SugerenciaPedidoItem): number {
@@ -336,7 +336,7 @@ export class RealizarPedidoSugeridoComponent implements OnInit {
     }
 
     if (!this.usaUnidadMenor(item) || item.cantidadSugerida <= 0) return null;
-    return `Se agregara como ${this.formatearEquivalencia(item.cantidadSugerida, this.esUnidadPeso(item) ? 'kg' : 'l', this.esUnidadPeso(item) ? 'g' : 'ml')}`;
+    return `Se agregará como ${this.formatearEquivalencia(item.cantidadSugerida, this.esUnidadPeso(item) ? 'kg' : 'l', this.esUnidadPeso(item) ? 'g' : 'ml')}`;
   }
 
   private usaUnidadMenor(item: SugerenciaPedidoItem): boolean {

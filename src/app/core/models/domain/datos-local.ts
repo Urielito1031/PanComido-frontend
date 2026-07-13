@@ -11,6 +11,7 @@ export interface DatosLocal {
 
 export type DatosLocalEditables = Pick<DatosLocal,
   'nombre' |
+  'direccion' |
   'imagen' |
   'colorPrincipal' |
   'colorSecundario' |

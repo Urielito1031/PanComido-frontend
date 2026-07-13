@@ -430,3 +430,12 @@
   [eliminando]="state.eliminandoLote()" (confirm)="confirmarEliminarLote()" (close)="cerrarModalEliminarLote()">
 </app-modal-eliminar-lote>
 }
+
+@if (toast.toastMensaje(); as mensaje) {
+<div class="toast-notification-banner" [class]="mensaje.tipo">
+  <span class="material-symbols-outlined">
+    {{ mensaje.tipo === 'exito' ? 'check_circle' : 'info' }}
+  </span>
+  <span>{{ mensaje.texto }}</span>
+</div>
+}

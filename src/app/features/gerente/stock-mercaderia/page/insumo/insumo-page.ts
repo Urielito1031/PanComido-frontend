@@ -18,6 +18,7 @@ import { ModalEliminarBodegaComponent } from '../../components/modal-eliminar-bo
 import { LoteForm } from '../../components/lote-form/lote-form';
 import { ModalEliminarLoteComponent } from '../../components/modal-eliminar-lote/modal-eliminar-lote';
 import { LoteRequest } from '../../../../../core/models/dtos/requests/lote.request';
+import { ToastService } from '../../../../../core/services/toast.service';
 
 type EstadoStockFiltro = 'todos' | 'criticos' | 'bajos' | 'ok';
 
@@ -35,6 +36,9 @@ export class InsumoPage implements OnInit {
   protected bodegaState = inject(BodegaState);
   private route = inject(ActivatedRoute);
   private readonly tour = inject(StockTourService);
+  protected toast = inject(ToastService);
+
+  private bodegaEnCreacion = false;
 
   pagina = signal<number>(1);
   itemsPorPagina = 9;
@@ -77,6 +81,9 @@ export class InsumoPage implements OnInit {
         this.modalBodega()?.cerrar();
         this.limpiarEstadoModalBodega();
         this.bodegaState.resetEstados();
+        if (this.bodegaEnCreacion) {
+          this.toast.mostrar('Bodega creada exitosamente', 'exito');
+        }
       }
     });
 
@@ -430,9 +437,13 @@ export class InsumoPage implements OnInit {
   }
 
   guardarCambios(payload: GuardarProductoPayload, modal: Modal) {
+    const esCreacion = !payload.id;
     this.state.guardarProducto(payload, () => {
       modal.cerrar();
       this.limpiarEstadoModal();
+      if (esCreacion) {
+        this.toast.mostrar('Insumo creado exitosamente', 'exito');
+      }
     });
   }
 
@@ -479,6 +490,7 @@ export class InsumoPage implements OnInit {
   }
 
   guardarBodega(payload: GuardarBodegaPayload, modal: Modal) {
+    this.bodegaEnCreacion = !payload.id;
     this.bodegaState.guardarBodega(payload);
   }
 
@@ -516,9 +528,13 @@ export class InsumoPage implements OnInit {
   }
 
   guardarLote(payload: LoteRequest, modal: Modal) {
+    const esCreacion = !this.loteEditandoId();
     this.state.guardarLote(this.loteEditandoId(), payload, () => {
       modal.cerrar();
       this.limpiarEstadoModalLote();
+      if (esCreacion) {
+        this.toast.mostrar('Lote creado exitosamente', 'exito');
+      }
     });
   }
 

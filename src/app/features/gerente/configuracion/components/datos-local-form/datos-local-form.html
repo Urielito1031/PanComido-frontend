@@ -109,7 +109,8 @@
   </div>
   <div class="col-12 col-md-6">
     <label class="form-label-custom">Dirección</label>
-    <input type="text" class="form-control custom-text-input" [value]="datosLocal().direccion" readonly />
+    <input type="text" class="form-control custom-text-input" [value]="datosLocal().direccion"
+      (input)="emitir('direccion', $any($event.target).value)" />
   </div>
 </div>
 <div class="row g-3 mt-1">
