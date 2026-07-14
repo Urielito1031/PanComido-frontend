@@ -6,6 +6,9 @@
       class="tab-item"
       [class.active]="isActive(tab.route)">
       {{ tab.label }}
+      @if (tab.route === 'llamados' && cantidadPendientes() > 0) {
+        <span class="badge">{{ cantidadPendientes() }}</span>
+      }
     </a>
   }
 </nav>

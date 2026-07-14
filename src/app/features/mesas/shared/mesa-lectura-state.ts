@@ -111,7 +111,10 @@ export class MesaLecturaState {
           'exito'
         );
       },
-      error: () => this.mostrarNotificacion('Error al cambiar el estado de la mesa', 'error')
+      error: (err) => {
+        const mensaje = err.error?.error || 'Error al cambiar el estado de la mesa';
+        this.mostrarNotificacion(mensaje, 'error');
+      }
     });
   }
 

@@ -1,6 +1,10 @@
 <div [ngClass]="clases()">
   <div class="icon-box">
-    <fa-icon [icon]="iconoCategoria()" size="2x" />
+    @if (esCocina()) {
+      <span class="material-symbols-outlined icono-cocina">chef_hat</span>
+    } @else {
+      <fa-icon [icon]="iconoCategoria()" size="2x" />
+    }
   </div>
 
   <!-- Contenido central -->
