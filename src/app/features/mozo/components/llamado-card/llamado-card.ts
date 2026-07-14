@@ -46,6 +46,10 @@ export class LlamadoCard {
     return (ICONOS_CATEGORIA[id] ?? faSnowflake) as IconProp;
   });
 
+  readonly esCocina = computed(
+    () => this.llamado().categoriaLlamadoId === CategoriaLlamado.Cocina,
+  );
+
   readonly iconoAccion = computed<IconProp>(() =>
     this.resolviendo() ? this.iconoSpinner : this.iconoCheck,
   );

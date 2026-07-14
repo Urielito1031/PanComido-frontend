@@ -9,6 +9,7 @@
 }
 
 .tab-item {
+  position: relative;
   flex: 1;
   min-width: 100px;
   padding: 0.875rem 1.5rem;
@@ -27,6 +28,22 @@
 .tab-item.active {
   background-color: #ffffff;
   color: var(--primary-teal);
+}
+
+.badge {
+  position: absolute;
+  top: -0.55rem;
+  right: -0.55rem;
+  display: inline-block;
+  min-width: 1.5rem;
+  padding: 0.15rem 0.5rem;
+  background-color: #70c143;
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.35;
+  border-radius: 999px;
+  box-shadow: 0 0 0 2px #ffffff;
 }
 
 .tab-item:hover:not(.active) {

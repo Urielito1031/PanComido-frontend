@@ -1,6 +1,7 @@
-import { Component , ChangeDetectionStrategy} from '@angular/core';
+import { Component , ChangeDetectionStrategy, inject} from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { LlamadoState } from '../../services/llamado-state';
 
 interface TabItem {
   label: string;
@@ -17,6 +18,9 @@ interface TabItem {
   styleUrls: ['./mozo-tab-navigation.css']
 })
 export class MozoTabNavigation {
+  private readonly llamadoState = inject(LlamadoState);
+  readonly cantidadPendientes = this.llamadoState.cantidadPendientes;
+
   tabs: TabItem[] = [
     { label: 'Mesas', route: 'mis-mesas' },
     { label: 'Comandas', route: 'comandas' },

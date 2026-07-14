@@ -87,6 +87,11 @@
   color: white;
 }
 
+.icon-box .icono-cocina {
+  font-size: 40px;
+  color: white;
+}
+
 /* ── Contenido central ── */
 .content-box {
   flex-grow: 1;
