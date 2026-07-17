@@ -74,7 +74,7 @@
 
 .recepcion-item {
   display: grid;
-  grid-template-columns: minmax(150px, 1.3fr) repeat(3, minmax(110px, 1fr)) minmax(150px, 1.2fr);
+  grid-template-columns: minmax(150px, 1.3fr) repeat(3, minmax(110px, 1fr)) minmax(150px, 1.2fr) auto;
   gap: 0.75rem;
   align-items: end;
 }
@@ -133,4 +133,43 @@
     flex-direction: column;
     align-items: flex-start;
   }
+}
+
+.icon-action-btn {
+  width: 34px;
+  height: 34px;
+  border: 1px solid #f7d627;
+  border-radius: 8px;
+  background: #f7d627;
+  color: #0f172a;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.icon-action-btn .material-symbols-outlined {
+  font-size: 1.08rem;
+}
+
+.icon-action-btn:hover {
+  background: #e0bf1f;
+  border-color: #e0bf1f;
+  color: #0f172a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(224, 191, 31, 0.28);
+}
+
+.icon-action-btn.danger {
+  background-color: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(220, 38, 38, 0.2);
+}
+
+.icon-action-btn.danger:hover {
+  background-color: #b91c1c;
+  border-color: #b91c1c;
 }

@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faXmark, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Boton } from '../../../../../shared/ui/botones/boton/boton';
 import { VerProveedoresState } from '../../services/ver-proveedores.state';
 
@@ -21,6 +21,7 @@ export class RecepcionPedidoModalComponent {
   bodegas = this.state.bodegas;
 
   faXmark = faXmark;
+  faTrash = faTrash;
 
   cerrarRecepcion(): void {
     this.state.cerrarRecepcion();
