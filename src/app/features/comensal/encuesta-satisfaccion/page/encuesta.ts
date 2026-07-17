@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal, OnInit } from '@angular/core';
 import { EncuestaService } from '../../services/encuesta-satisfaccion/encuesta-service';
 import { ComandaState } from '../../services/comanda-state';
 import { Router } from '@angular/router';
@@ -14,14 +14,14 @@ import { EstrellasRating } from "../../../../shared/ui/estrellas-rating/estrella
   templateUrl: './encuesta.html',
   styleUrl: './encuesta.css',
 })
-export class Encuesta {
+export class Encuesta implements OnInit {
 
   readonly #encuestaService = inject(EncuestaService);
   readonly #comandaState = inject(ComandaState);
   readonly #router = inject(Router);
   readonly #destroyRef = inject(DestroyRef);
   readonly configVisual = inject(ConfiguracionVisualState);
-  
+
   status = signal<'formulario' | 'enviando' | 'exito' | 'error'>('formulario');
   linkResena = signal<string | null>(null);
 
@@ -29,27 +29,44 @@ export class Encuesta {
   puntuacionComida = signal(0);
   puntuacionMozo = signal(0);
 
-  puedeEnviar = computed(() => 
-  this.puntuacionLugar() >= 1 &&
-  this.puntuacionComida() >= 1 &&
-  this.puntuacionMozo() >= 1);
+  puedeEnviar = computed(() =>
+    this.puntuacionLugar() >= 1 &&
+    this.puntuacionComida() >= 1 &&
+    this.puntuacionMozo() >= 1);
 
-  enviarEncuesta(): void { 
+  ngOnInit(): void {
     const comandaId = this.#comandaState.comandaId();
-    if(!comandaId || !this.puedeEnviar()) return;
+    if (comandaId) {
+      const savedState = sessionStorage.getItem(`encuesta_${comandaId}`);
+      if (savedState) {
+        try {
+          const state = JSON.parse(savedState);
+          if (state.completada) {
+            this.status.set('exito');
+            this.linkResena.set(state.link);
+          }
+        } catch (e) { }
+      }
+    }
+  }
+
+  enviarEncuesta(): void {
+    const comandaId = this.#comandaState.comandaId();
+    if (!comandaId || !this.puedeEnviar()) return;
 
     this.status.set('enviando');
 
     this.#encuestaService.enviar(
-      comandaId, 
-      this.puntuacionLugar(), 
-      this.puntuacionComida(), 
+      comandaId,
+      this.puntuacionLugar(),
+      this.puntuacionComida(),
       this.puntuacionMozo()
     ).pipe(takeUntilDestroyed(this.#destroyRef))
-    .subscribe({
+      .subscribe({
         next: (response) => {
           this.status.set('exito');
           this.linkResena.set(response.linkResenaGoogleMaps);
+          sessionStorage.setItem(`encuesta_${comandaId}`, JSON.stringify({ completada: true, link: response.linkResenaGoogleMaps }));
         },
         error: (error) => {
           console.error('Error al enviar la encuesta:', error);
@@ -57,13 +74,17 @@ export class Encuesta {
         }
       });
   }
-  irAlInicio():void { 
+  irAlInicio(): void {
+    const comandaId = this.#comandaState.comandaId();
+    if (comandaId) {
+      sessionStorage.removeItem(`encuesta_${comandaId}`);
+    }
     this.#comandaState.limpiarEstado();
     this.#router.navigate(['/comensal/escanear']);
   }
-  abrirResena(): void { 
+  abrirResena(): void {
     const link = this.linkResena();
-    if(link) 
-      window.open(link, '_blank');
+    if (link)
+      window.open(link, '_self');
   }
 }
